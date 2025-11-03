@@ -39,6 +39,9 @@ class Organization(models.Model):
     training_new_employees = models.BooleanField()
     training_once_per_year = models.BooleanField()
 
+    def __str__(self):
+        return self.org_name
+
 # AbstractUser already provides username, password, and email
 class User(AbstractUser):
     user_id = models.UUIDField(
@@ -50,14 +53,14 @@ class User(AbstractUser):
         'auth.Group',
         related_name='api_user_groups',
         blank=True,
-        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+        help_text='The groups this user belongs to (e.g., Executive, Manager, Technician, etc.)',
         verbose_name='groups',
     )
     user_permissions = models.ManyToManyField(
         'auth.Permission',
         related_name='api_user_permissions',
         blank=True,
-        help_text='Specific permissions for this user.',
+        help_text='Specific permissions for this user (for exceptions).',
         verbose_name='user permissions',
     )
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
@@ -66,6 +69,9 @@ class User(AbstractUser):
     profile_img = models.FileField(upload_to=user_directory_path, blank=True, null=True)
     font_size = models.IntegerField(default=12) #TODO: check and edit default value
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
+
+    def __str__(self):
+        return self.username
 
 class Report(models.Model):
     report_id = models.UUIDField(
@@ -81,6 +87,9 @@ class Report(models.Model):
     completed = models.DateTimeField(blank=True, null=True)
     report_text = models.JSONField()
 
+    def __str__(self):
+        return self.report_name
+
 class Risk(models.Model):
     risk_name = models.CharField(max_length=300)
     report = models.ForeignKey(Report, on_delete=models.CASCADE)
@@ -89,3 +98,6 @@ class Risk(models.Model):
     severity = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
     affected = models.IntegerField(default=0)
     is_archived = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.risk_name

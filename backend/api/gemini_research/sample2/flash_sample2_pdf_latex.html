@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Export</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1in;
+            @top-center { content: element(header); }
+        }
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1, h2, h3, h4, h5, h6 { color: #1a1a1a; margin-top: 1.5em; }
+        pre {
+            background-color: #f4f4f4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+            font-family: monospace;
+        }
+        code { font-family: monospace; }
+        blockquote {
+            border-left: 5px solid #007bff;
+            padding-left: 1.5rem;
+            color: #555;
+            margin: 1rem 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1.5rem 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+<p>Cybersecurity Readiness Report for G.A.S. Inc.
+Date: October 14, 2025</p>
+<p>\section{1. Overview}
+This report evaluates the cybersecurity posture of G.A.S. Inc. based on DNS records (including DMARC), external port scanning, and a self-reported security questionnaire. The findings indicate significant cybersecurity weaknesses across multiple critical areas, including user authentication, email security, network perimeter defense, and employee awareness. The organization faces a high risk of cyberattacks, data breaches, and system compromise due to these identified vulnerabilities.</p>
+<p>\section{2. Organizational Information}
+\begin{itemize}
+    \item \textbf{Organization Name:} G.A.S. Inc.
+    \item \textbf{Email Domain:} gasinc.net
+    \item \textbf{Website Domain:} www.gasinc.net
+    \item \textbf{External IP (Firewall/Web Server):} 104.28.1.189
+    \item \textbf{DNS Hosting:} Appears to be self-hosted (dns1.gasinc.net, dns2.gasinc.net)
+\end{itemize}</p>
+<p>\section{3. Security Questionnaire Review}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Security Control} &amp; \textbf{Status} &amp; \textbf{Notes} \
+\hline
+MFA for Email &amp; \faTimes \textbf{No} &amp; Critical security gap, highly vulnerable to credential stuffing and phishing. \
+\hline
+MFA for Computer Login &amp; \faTimes \textbf{No} &amp; Critical security gap, increases risk of unauthorized access via compromised credentials. \
+\hline
+MFA for Sensitive Systems &amp; \faCheck \textbf{Yes} &amp; Positive, but limited in scope given other MFA gaps. \
+\hline
+Acceptable Use Policy (AUP) &amp; \faTimes \textbf{No} &amp; Lack of clear guidelines for employee behavior, increasing insider threat risk. \
+\hline
+New Employee Security Training &amp; \faTimes \textbf{No} &amp; New hires are not properly educated on security best practices, leading to early vulnerabilities. \
+\hline
+Annual All-Employee Security Training &amp; \faTimes \textbf{No} &amp; Employees are not regularly updated on evolving threats and security protocols. \
+\hline
+\end{tabular}
+\end{center}</p>
+<p>\subsection*{Summary:}
+The questionnaire responses reveal critical deficiencies in fundamental cybersecurity practices. The absence of Multi-Factor Authentication (MFA) for email and computer logins, coupled with a complete lack of security policies (like an AUP) and employee security awareness training, exposes the organization to severe risks from phishing, credential theft, and human error. While MFA is used for sensitive data systems, its limited application undermines overall security posture.</p>
+<p>\section{4. DNS \&amp; Email Security}
+\subsection*{DNS Records:}
+\begin{itemize}
+    \item DNS is managed by self-hosted nameservers (dns1.gasinc.net, dns2.gasinc.net).
+    \item The primary A record for gasinc.net points to 104.28.1.189, confirming this IP as the public facing entry point.
+\end{itemize}</p>
+<p>\subsection*{MX Records (Email):}
+\begin{itemize}
+    \item The organization uses Mailhostbox for email services (mx.mailhostbox.com, mx2.mailhostbox.com).
+    \item \textbf{SPF Record:} A Sender Policy Framework (SPF) record is correctly configured: \texttt{v=spf1 include:spf.mailhostbox.com \~all}. This helps prevent email spoofing by specifying authorized mail senders.
+\end{itemize}</p>
+<p>\subsection*{DMARC Record:}
+\begin{itemize}
+    \item \textbf{No DMARC record found (\texttt{NXDOMAIN}).} This is a significant vulnerability. Without DMARC, email spoofing attempts using the \texttt{@gasinc.net} domain are not properly authenticated and can bypass recipient email filters. This leaves G.A.S. Inc. and its correspondents highly susceptible to phishing, business email compromise (BEC) attacks, and brand impersonation.
+\end{itemize}</p>
+<p>\subsection*{Conclusion:}
+While SPF is in place, the absence of a DMARC record leaves the email domain highly vulnerable to sophisticated spoofing and phishing attacks. This is exacerbated by the lack of MFA for email access, creating a very weak email security posture.</p>
+<p>\section{5. Port Scanning Results}
+The external IP address 104.28.1.189 serves as both the organization's external network perimeter (firewall) and hosts the website. This configuration inherently increases risk by consolidating critical services on a single, exposed entry point.</p>
+<p>\subsection<em>{Website Hosting (104.28.1.189):}
+\begin{itemize}
+    \item \textbf{Port 80 (HTTP): Open}
+    \item \textbf{Port 443 (HTTPS): Open}
+\end{itemize}
+\subsection</em>{Firewall / External IP (104.28.1.189):}
+\begin{itemize}
+    \item \textbf{Port 21 (FTP): Open} - Insecure protocol for file transfer, often susceptible to brute-force attacks and weak credentials.
+    \item \textbf{Port 22 (SSH): Open} - Secure shell, but requires stringent access controls, strong authentication, and regular patching to prevent compromise.
+    \item \textbf{Port 25 (SMTP): Open} - Mail transfer protocol, could indicate an open relay or vulnerability if not properly secured.
+    \item \textbf{Port 80 (HTTP): Open} - Standard for web traffic.
+    \item \textbf{Port 110 (POP3): Open} - Insecure email retrieval protocol, often transmits credentials in cleartext.
+    \item \textbf{Port 443 (HTTPS): Open} - Standard for secure web traffic.
+    \item \textbf{Port 3389 (RDP): Open} - Remote Desktop Protocol, a frequent target for brute-force attacks and credential theft, especially if not secured with MFA or restricted by IP.
+\end{itemize}</p>
+<p>\subsection*{Conclusion:}
+The external IP (104.28.1.189) has an unacceptably large number of open ports, exposing several high-risk services directly to the internet. The presence of FTP, POP3, and RDP on a publicly accessible IP significantly broadens the attack surface and poses a critical risk of unauthorized access, data compromise, and remote system control. This indicates a severe lack of network segmentation and perimeter hardening.</p>
+<p>\section{6. Risk Assessment \&amp; Readiness Summary}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Category} &amp; \textbf{Status} &amp; \textbf{Notes} \
+\hline
+Authentication Security &amp; \faTimes \textbf{Weak} &amp; MFA missing for email and computer logins; only applied to sensitive systems. \
+\hline
+Email Security &amp; \faTimes \textbf{Weak} &amp; No DMARC record, despite SPF presence. High risk of email spoofing. \
+\hline
+Network Exposure &amp; \faTimes \textbf{Critical} &amp; Numerous high-risk ports (FTP, SMTP, POP3, RDP) open on external IP. \
+\hline
+Web Hosting &amp; \faTimes \textbf{Risky} &amp; Website hosted directly on the main external IP, increasing its exposure to other services. \
+\hline
+Policy \&amp; Training &amp; \faTimes \textbf{Non-existent} &amp; No AUP, no security awareness training for new or existing employees. \
+\hline
+\end{tabular}
+\end{center}</p>
+<p>\section{7. Recommendations}
+Urgent and comprehensive action is required to address the critical cybersecurity vulnerabilities at G.A.S. Inc.</p>
+<p>\begin{enumerate}
+    \item \textbf{Implement MFA Broadly:} Mandate Multi-Factor Authentication (MFA) for all email accounts, computer logins, and any other critical internal or external systems.
+    \item \textbf{Harden Network Perimeter:}
+    \begin{itemize}
+        \item \textbf{Close Unnecessary Ports:} Immediately close ports 21 (FTP), 25 (SMTP unless absolutely essential for a secure mail relay), 110 (POP3).
+        \item \textbf{Restrict Access:} For essential services like Port 22 (SSH) and Port 3389 (RDP), restrict access to specific trusted IP addresses or implement a VPN for access.
+        \item \textbf{Separate Services:} Isolate the web server from the primary firewall/server. Implement a dedicated firewall solution with proper segmentation and Intrusion Prevention System (IPS) capabilities.
+        \item \textbf{Replace Insecure Protocols:} Migrate from FTP to SFTP/FTPS and from POP3 to secure IMAP (IMAPS) or webmail interfaces.
+    \end{itemize}
+    \item \textbf{Implement DMARC for Email Security:} Configure a DMARC record with a policy of \texttt{p=quarantine} or \texttt{p=reject} to prevent unauthorized use of the \texttt{@gasinc.net} domain for spoofing and phishing.
+    \item \textbf{Develop and Enforce Security Policies:}
+    \begin{itemize}
+        \item Create and distribute an Acceptable Use Policy (AUP) outlining proper employee conduct regarding company assets and data.
+        \item Develop policies for password management, data handling, incident response, and remote access.
+    \end{itemize}
+    \item \textbf{Implement Security Awareness Training:}
+    \begin{itemize}
+        \item Conduct mandatory security awareness training for all new employees during onboarding.
+        \item Implement annual security awareness training for all employees, covering topics like phishing, social engineering, password hygiene, and incident reporting.
+    \end{itemize}
+    \item \textbf{Regular Vulnerability Management:} Conduct regular external and internal vulnerability scans and penetration tests to identify and remediate security flaws proactively.
+\end{enumerate}</p>
+<p>\section{8. Conclusion}
+G.A.S. Inc. currently possesses an extremely weak cybersecurity posture with critical vulnerabilities in network exposure, a severe lack of fundamental authentication controls, and non-existent security policies and training programs. The organization is highly susceptible to various cyber threats, including data breaches, ransomware, phishing, and unauthorized system access. Immediate and comprehensive implementation of the recommended security measures is paramount to mitigate these risks and establish a foundational level of cybersecurity readiness. Failure to address these issues could lead to significant financial, operational, and reputational damage.</p>
+<p>Prepared by:
+Cybersecurity Assessment Team
+Date: October 14, 2025</p>
+</body>
+</html>

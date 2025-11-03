@@ -2,7 +2,7 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.db import transaction
-from .models import Report, User, Organization
+from ..models import Report, User, Organization
 
 @transaction.atomic
 def create_report(
