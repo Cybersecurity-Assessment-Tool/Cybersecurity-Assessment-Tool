@@ -9,49 +9,26 @@ Run these commands in your terminal:
 """
 import uuid
 from django.db import models
-from recurrence.fields import RecurrenceField
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 def user_directory_path(instance, filename):
     return f'user_{instance.user.user_id}/img/{filename}'
 
-def report_file_path(instance, filename):
-    return f'user_{instance.user.user_id}/pdfs/{filename}'
+class Color(models.TextChoices):
+    DARK = 'd', 'Dark'
+    LIGHT = 'l', 'Light'
 
-# AbstractUser already provides username, password, and email
-class User(AbstractUser):
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='api_users',
-        blank=True,
-        help_text='The groups this user belongs to.',
-        verbose_name='groups',
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='api_user_permissions',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        verbose_name='user permissions',
-    )
-    user_id = models.UUIDField(
+class Frequency(models.TextChoices):
+    MONTH = 'm', 'Monthly'
+    QUARTER = 'q', 'Quarterly'
+
+class Organization(models.Model):
+    organization_id = models.UUIDField(
+        primary_key = True,
         default=uuid.uuid4,
-        unique=True,
         editable=False
     )
-
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_img = models.FileField(upload_to=user_directory_path, blank=True, null=True)
-    is_automated = models.BooleanField(default=False)
-    auto_frequency = RecurrenceField(blank=True)
-    font_size = models.IntegerField(default=12) #TODO: check and edit default value
-
-    def __str__(self):
-        return f"Profile for User {self.user.username}"
-
-class Questionnaire(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
     org_name = models.CharField(max_length=300)
     email_domain = models.CharField(max_length=100)
     website_domain = models.CharField(max_length=100)
@@ -62,32 +39,53 @@ class Questionnaire(models.Model):
     training_new_employees = models.BooleanField()
     training_once_per_year = models.BooleanField()
 
-    def __str__(self):
-        return f"Questionnaire from User {self.user.username}"
+# AbstractUser already provides username, password, and email
+class User(AbstractUser):
+    user_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False
+    )
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='api_user_groups',
+        blank=True,
+        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+        verbose_name='groups',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='api_user_permissions',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        verbose_name='user permissions',
+    )
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    is_automated = models.BooleanField(default=False)
+    auto_frequency = models.CharField(max_length=1, choices=Frequency.choices)
+    profile_img = models.FileField(upload_to=user_directory_path, blank=True, null=True)
+    font_size = models.IntegerField(default=12) #TODO: check and edit default value
+    color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
 
 class Report(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     report_id = models.UUIDField(
         primary_key = True,
         default=uuid.uuid4,
         editable=False
     )
+    user_created = models.ForeignKey(User, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     report_name = models.CharField(max_length=300)
     date_created = models.DateTimeField(auto_now_add=True)
-    time_started = models.DateTimeField(blank=True, null=True)
-    time_completed = models.DateTimeField(blank=True, null=True)
-    report_text = models.FileField(upload_to=report_file_path)
-
-    def __str__(self):
-        return f"Report {self.report_name} from User {self.user.username}"
+    started = models.DateTimeField(blank=True, null=True)
+    completed = models.DateTimeField(blank=True, null=True)
+    report_text = models.JSONField()
 
 class Risk(models.Model):
-    report = models.ForeignKey(Report, on_delete=models.CASCADE)
     risk_name = models.CharField(max_length=300)
-    affected = models.IntegerField(default=0)
+    report = models.ForeignKey(Report, on_delete=models.CASCADE)
     overview_text = models.TextField()
     recommendation_text = models.TextField()
+    severity = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
+    affected = models.IntegerField(default=0)
     is_archived = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"Risk {self.risk_name} from Report {self.report.report_name} from User {self.report.user.username}"
