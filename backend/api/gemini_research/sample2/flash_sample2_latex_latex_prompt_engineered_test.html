@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pandoc LaTeX Export</title>
+    
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+    <!-- KaTeX JS -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmPBMAHmLc" crossorigin="anonymous"></script>
+    
+    <!-- KaTeX Auto-render extension -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURPlLJSytX1omGihka0S8TMFjAOP2kkZJphI/CxKFYDk2nP2/aUAcN" crossorigin="anonymous"></script>
+
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Noto Sans', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        h1, h2, h3, h4, h5, h6 { 
+            color: #1a1a1a; 
+            margin-top: 1.5em; 
+            margin-bottom: 0.5em;
+        }
+        p { 
+            margin-bottom: 1em; 
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+            font-family: monospace;
+        }
+        code { 
+            font-family: monospace;
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        ul, ol {
+            padding-left: 2em;
+            margin-bottom: 1em;
+        }
+        li { 
+            margin-bottom: 0.5em; 
+        }
+        
+        /* KaTeX specific styling for display math */
+        .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0.5em 0;
+        }
+        
+        /* Custom LaTeX styles */
+        .table-wrapper {
+            margin: 1.5em 0;
+            overflow-x: auto;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+        caption {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 0.5em;
+            text-align: left;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        .latex-url, .seqsplit {
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+<h1 id="overview">Overview</h1>
+<p>This report provides a cybersecurity posture assessment for G.A.S.
+Inc., based on an analysis of technical data including DNS records (A,
+MX, TXT, DMARC) and port scanning results, combined with responses from
+a self-reported security questionnaire. The findings indicate several
+critical areas of concern, particularly related to network exposure,
+email security hardening, and foundational internal security controls
+and policies.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name</strong>: G.A.S. Inc.</p></li>
+<li><p><strong>Email Domain</strong>: <a href="gasinc.net"
+class="uri">gasinc.net</a></p></li>
+<li><p><strong>Website Domain</strong>: <a href="www.gasinc.net"
+class="uri">www.gasinc.net</a></p></li>
+<li><p><strong>External IP / Website Hosting IP</strong>:</p></li>
+<li><p><strong>DNS Hosting</strong>: Self-hosted or Registrar-managed
+(<a href="dns1.gasinc.net" class="uri">dns1.gasinc.net</a>, <a
+href="dns2.gasinc.net" class="uri">dns2.gasinc.net</a>)</p></li>
+<li><p><strong>Email Provider</strong>: Mailhostbox (<a
+href="mx.mailhostbox.com" class="uri">mx.mailhostbox.com</a>)</p></li>
+</ul>
+<h1 id="security-questionnaire-review">Security Questionnaire
+Review</h1>
+<div id="tab:security_controls">
+<table>
+<caption>Security Control Status</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">MFA for Email</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">MFA for Computer Login</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">MFA for Sensitive Systems</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">Acceptable Use Policy</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">New Employee Security Awareness
+Training</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Annual All-Employee Security Training</td>
+<td style="text-align: center;">No</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Summary</strong>: The questionnaire responses highlight
+significant gaps in foundational security practices. Multi-Factor
+Authentication (MFA) is only reported for sensitive data systems,
+leaving email and computer logins vulnerable to credential compromise.
+Furthermore, the absence of an acceptable use policy and any form of
+security awareness training indicates a lack of a formalized security
+culture and processes, increasing human-factor risk.</p>
+<h1 id="dns-email-security">DNS &amp; Email Security</h1>
+<h2 class="unnumbered" id="dns-records">DNS Records</h2>
+<ul>
+<li><p>DNS for <a href="gasinc.net" class="uri">gasinc.net</a> appears
+to be managed via nameservers hosted under the same domain (). This
+configuration suggests either self-hosting of DNS or a default setup by
+a registrar.</p></li>
+<li><p>The A record for <a href="gasinc.net" class="uri">gasinc.net</a>
+is , indicating that the primary server hosts the website and other
+services.</p></li>
+</ul>
+<h2 class="unnumbered" id="mx-records-email">MX Records (Email)</h2>
+<ul>
+<li><p>Email services for <a href="gasinc.net"
+class="uri">gasinc.net</a> are hosted by Mailhostbox, as indicated by
+the MX records pointing to and .</p></li>
+<li><p><strong>SPF Record</strong>: An SPF record is present: . While
+the record exists, the ‘ all‘ (softfail) mechanism is less secure than
+‘-all‘ (hardfail). A softfail allows emails from unauthorized senders to
+be delivered (though marked), potentially leading to successful phishing
+or spoofing attacks.</p></li>
+</ul>
+<h2 class="unnumbered" id="dmarc-record">DMARC Record</h2>
+<ul>
+<li><p>A query for returned an <strong>NXDOMAIN</strong> response,
+indicating that <strong>no DMARC record is published</strong> for the
+domain.</p></li>
+<li><p><strong>Analysis</strong>: The absence of a DMARC record is a
+critical security vulnerability. Without DMARC, G.A.S. Inc.’s email
+domain is highly susceptible to email spoofing, making it easier for
+attackers to send malicious emails impersonating the organization to
+employees, customers, or partners. This significantly increases the risk
+of phishing, business email compromise (BEC), and brand reputation
+damage.</p></li>
+</ul>
+<p><strong>Conclusion</strong>: While SPF is configured, its ‘ all‘
+policy weakens its effectiveness, and the complete absence of a DMARC
+record leaves the organization highly vulnerable to email-based
+attacks.</p>
+<h1 id="port-scanning-results">Port Scanning Results</h1>
+<h2 class="unnumbered" id="external-website-hosting-ip">External /
+Website Hosting IP ()</h2>
+<p>Port scans conducted on revealed multiple open ports, indicating
+significant exposure of services to the public internet.</p>
+<ul>
+<li><p><strong>Port 21 (FTP)</strong>: Open. File Transfer Protocol
+(FTP) is an insecure protocol that transmits credentials and data in
+plaintext, making it vulnerable to eavesdropping and credential
+theft.</p></li>
+<li><p><strong>Port 22 (SSH)</strong>: Open. Secure Shell (SSH) is used
+for secure remote access. While encrypted, if not properly secured with
+strong authentication (e.g., key-based, MFA) and restricted access, it
+can be a target for brute-force attacks.</p></li>
+<li><p><strong>Port 25 (SMTP)</strong>: Open. Simple Mail Transfer
+Protocol (SMTP) is used for sending email. If not properly configured or
+secured, it can be abused for spam relay or targeted attacks.</p></li>
+<li><p><strong>Port 80 (HTTP)</strong>: Open. Hypertext Transfer
+Protocol (HTTP) is used for web traffic. This is expected for a website,
+but traffic is unencrypted, making it susceptible to eavesdropping and
+data tampering.</p></li>
+<li><p><strong>Port 110 (POP3)</strong>: Open. Post Office Protocol
+version 3 (POP3) is used for retrieving email. Like FTP, POP3 often
+transmits credentials in plaintext, posing a significant security
+risk.</p></li>
+<li><p><strong>Port 443 (HTTPS)</strong>: Open. Hypertext Transfer
+Protocol Secure (HTTPS) is used for encrypted web traffic. This is
+expected and desirable for secure website access.</p></li>
+<li><p><strong>Port 3389 (RDP)</strong>: Open. Remote Desktop Protocol
+(RDP) allows remote graphical access to a server. Exposing RDP directly
+to the internet is extremely risky, as it is a frequent target for
+brute-force attacks and ransomware deployments.</p></li>
+</ul>
+<p><strong>Conclusion</strong>: The presence of numerous open and
+critical service ports (FTP, SSH, SMTP, POP3, RDP) on the external IP
+represents a severe security risk. Each of these ports serves as a
+potential entry point for attackers, increasing the attack surface
+significantly. Unnecessary services should be closed, and necessary
+services should be tightly restricted and secured.</p>
+<h1 id="risk-assessment-readiness-summary">Risk Assessment &amp;
+Readiness Summary</h1>
+<div id="tab:readiness_summary">
+<table>
+<caption>Readiness Summary</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Category</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+<th style="text-align: left;"><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Authentication Security</td>
+<td style="text-align: center;">Weak</td>
+<td style="text-align: left;">MFA primarily missing for
+email/computers</td>
+</tr>
+<tr>
+<td style="text-align: left;">Email Security</td>
+<td style="text-align: center;">Critical Gap</td>
+<td style="text-align: left;">No DMARC, SPF is softfail; high spoofing
+risk</td>
+</tr>
+<tr>
+<td style="text-align: left;">Network Exposure</td>
+<td style="text-align: center;">High Risk</td>
+<td style="text-align: left;">Multiple critical services exposed
+directly</td>
+</tr>
+<tr>
+<td style="text-align: left;">Web Hosting</td>
+<td style="text-align: center;">Moderate Risk</td>
+<td style="text-align: left;">HTTP (80) open, but HTTPS (443) also
+available</td>
+</tr>
+<tr>
+<td style="text-align: left;">Policy &amp; Training</td>
+<td style="text-align: center;">Weak</td>
+<td style="text-align: left;">No AUP, no new/annual security
+training</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Analysis</strong>: G.A.S. Inc.’s current cybersecurity
+posture indicates a significant level of risk across multiple domains.
+The lack of comprehensive MFA, absence of DMARC, and extensive network
+exposure are immediate concerns that require urgent attention.
+Furthermore, the lack of internal security policies and training
+suggests a reactive, rather than proactive, approach to cybersecurity,
+increasing the likelihood of successful social engineering and insider
+threats.</p>
+<h1 id="recommendations">Recommendations</h1>
+<p>Addressing the identified vulnerabilities and gaps is crucial to
+improving G.A.S. Inc.’s cybersecurity posture. The following
+recommendations are prioritized based on their potential impact:</p>
+<ol>
+<li><p><strong>Implement DMARC with a ‘p=reject‘ Policy</strong>:
+Urgently publish a DMARC record for <a href="gasinc.net"
+class="uri">gasinc.net</a> with a ‘p=reject‘ policy. This will provide
+strong protection against email spoofing and phishing attacks. Start
+with ‘p=quarantine‘ and transition to ‘p=reject‘ after monitoring DMARC
+reports.</p></li>
+<li><p><strong>Strengthen SPF Policy</strong>: Change the SPF record
+from ‘ all‘ (softfail) to ‘-all‘ (hardfail) after ensuring all
+legitimate sending sources are included. This will instruct receiving
+servers to reject emails from unauthorized sources.</p></li>
+<li><p><strong>Close Unnecessary Open Ports</strong>: Immediately review
+and close all unnecessary open ports on . Specifically, FTP (21), POP3
+(110), and RDP (3389) should almost certainly be closed to the internet.
+SSH (22) and SMTP (25) should be restricted to trusted source IPs or
+replaced with more secure alternatives where possible.</p></li>
+<li><p><strong>Implement Multi-Factor Authentication (MFA)
+Broadly</strong>: Deploy and enforce MFA for all employee email accounts
+and computer logins. This significantly reduces the risk of account
+takeover, even if passwords are stolen.</p></li>
+<li><p><strong>Develop and Enforce Security Policies</strong>: Create
+and implement essential cybersecurity policies, including an Acceptable
+Use Policy (AUP) for all employees.</p></li>
+<li><p><strong>Initiate Security Awareness Training</strong>: Establish
+mandatory security awareness training for all new employees and annual
+refresher training for all staff. Training should cover topics such as
+phishing detection, password hygiene, and social engineering.</p></li>
+<li><p><strong>Secure Remote Access</strong>: If RDP (3389) is required,
+place it behind a VPN or a strong firewall with IP whitelisting.
+Consider alternative, more secure remote access solutions.</p></li>
+<li><p><strong>Regular Vulnerability Scanning and Penetration
+Testing</strong>: Conduct regular vulnerability scans of external and
+internal systems, followed by penetration tests, to proactively identify
+and address weaknesses.</p></li>
+</ol>
+<h1 id="conclusion">Conclusion</h1>
+<p>G.A.S. Inc. currently faces substantial cybersecurity risks due to
+multiple exposed services, critical email security vulnerabilities, and
+a lack of fundamental internal controls and training. Addressing the
+recommendations outlined in this report is paramount to mitigating these
+risks, protecting sensitive data, and safeguarding the organization’s
+reputation. A proactive and systematic approach to cybersecurity
+improvement is strongly advised.</p>
+<p>Prepared by:<br />
+Cybersecurity Assessment Team<br />
+Date: October 14, 2025</p>
+
+
+<!-- KaTeX auto-render script -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>
