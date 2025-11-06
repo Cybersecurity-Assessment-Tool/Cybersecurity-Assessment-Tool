@@ -12,9 +12,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-def user_directory_path(instance, filename):
-    return f'user_{instance.user.user_id}/img/{filename}'
-
 class Color(models.TextChoices):
     DARK = 'd', 'Dark'
     LIGHT = 'l', 'Light'
@@ -23,6 +20,12 @@ class Frequency(models.TextChoices):
     NONE = 'n', 'None'
     MONTH = 'm', 'Monthly'
     QUARTER = 'q', 'Quarterly'
+    YEAR = 'y', 'Yearly'
+
+class FontSize(models.TextChoices):
+    LARGE = 'l', 'Large'
+    MEDIUM = 'm', 'Medium'
+    SMALL = 's', 'Small'
 
 class Organization(models.Model):
     organization_id = models.UUIDField(
@@ -71,8 +74,8 @@ class User(AbstractUser):
         blank=True     # allows the field to be optional in forms/admin
     )
     auto_frequency = models.CharField(max_length=1, choices=Frequency.choices)
-    profile_img = models.FileField(upload_to=user_directory_path, blank=True, null=True)
-    font_size = models.IntegerField(default=12) #TODO: check and edit default value
+    profile_img = models.ImageField()
+    font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
 
     def __str__(self):
@@ -88,7 +91,7 @@ class Report(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     report_name = models.CharField(max_length=300)
     date_created = models.DateTimeField(auto_now_add=True)
-    started = models.DateTimeField(blank=True, null=True)
+    started = models.DateTimeField(auto_now_add=True)
     completed = models.DateTimeField(blank=True, null=True)
     report_text = models.JSONField()
 
