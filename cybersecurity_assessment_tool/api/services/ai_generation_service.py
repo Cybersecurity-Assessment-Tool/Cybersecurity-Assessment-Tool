@@ -16,7 +16,7 @@ except KeyError:
     # Using placeholder will allow initalization, but calls will fail until user provides a real key.
     genai.configure(api_key="placeholder_key")
 
-def json_to_str(filepaths: List[str]):
+def _json_to_str(filepaths: List[str]):
     """
     Creates a single compiled string of the JSON files provided.
 
@@ -35,15 +35,15 @@ def json_to_str(filepaths: List[str]):
                 result += f"{file}:\n{json.dumps(data,indent=2)}\n--\n"
         
         except FileNotFoundError:
-            f"[ERROR in json_to_str] File not found at path: {file}"
+            f"[ERROR in _json_to_str] File not found at path: {file}"
         except json.JSONDecodeError:
-            f"[ERROR in json_to_str] Failed to decode JSON from file: {file}. Please check the file's syntax."
+            f"[ERROR in _json_to_str] Failed to decode JSON from file: {file}. Please check the file's syntax."
         except Exception as e:
-            f"[ERROR in json_to_str] An unexpected error occured: {e}"
+            f"[ERROR in _json_to_str] An unexpected error occured: {e}"
 
     return result
 
-def create_example(example_prompt: str, example_data: str, example_result: str):
+def _create_example(example_prompt: str, example_data: str, example_result: str):
     """
     Creates an example for the AI to reference as a template.
     

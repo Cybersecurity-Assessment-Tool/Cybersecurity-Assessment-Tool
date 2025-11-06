@@ -20,6 +20,7 @@ class Color(models.TextChoices):
     LIGHT = 'l', 'Light'
 
 class Frequency(models.TextChoices):
+    NONE = 'n', 'None'
     MONTH = 'm', 'Monthly'
     QUARTER = 'q', 'Quarterly'
 
@@ -63,8 +64,12 @@ class User(AbstractUser):
         help_text='Specific permissions for this user (for exceptions).',
         verbose_name='user permissions',
     )
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    is_automated = models.BooleanField(default=False)
+    organization = organization = models.ForeignKey(
+        Organization, 
+        on_delete=models.CASCADE,
+        null=True,     # allows null value in the database
+        blank=True     # allows the field to be optional in forms/admin
+    )
     auto_frequency = models.CharField(max_length=1, choices=Frequency.choices)
     profile_img = models.FileField(upload_to=user_directory_path, blank=True, null=True)
     font_size = models.IntegerField(default=12) #TODO: check and edit default value

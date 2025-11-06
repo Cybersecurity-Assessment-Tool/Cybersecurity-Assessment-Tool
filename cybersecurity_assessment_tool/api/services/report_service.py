@@ -1,17 +1,18 @@
-import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.db import transaction
 from ..models import Report, User, Organization
+from datetime import time
+import json
 
 @transaction.atomic
 def create_report(
     user_created: User,
     organization: Organization,
     name: str,
-    date_created, # datetime
-    started, # datetime
-    completed, # datetime or None
+    date_created,
+    started,
+    completed=None,
     report_text=None # JSONField content (dict or list in Python)
 ) -> Report:
     """
