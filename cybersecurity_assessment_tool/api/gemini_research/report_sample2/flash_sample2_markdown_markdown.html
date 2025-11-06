@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Export</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1in;
+            @top-center { content: element(header); }
+        }
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1, h2, h3, h4, h5, h6 { color: #1a1a1a; margin-top: 1.5em; }
+        pre {
+            background-color: #f4f4f4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+            font-family: monospace;
+        }
+        code { font-family: monospace; }
+        blockquote {
+            border-left: 5px solid #007bff;
+            padding-left: 1.5rem;
+            color: #555;
+            margin: 1rem 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1.5rem 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+<p><strong>Cybersecurity Readiness Report for G.A.S. Inc.</strong></p>
+<p><strong>Date:</strong> October 14, 2025</p>
+<p><strong>1. Overview</strong></p>
+<p>This report assesses the cybersecurity posture of G.A.S. Inc. based on technical scans (DNS, DMARC, and port scanning) and a self-reported security questionnaire. The findings indicate a significantly low level of cybersecurity readiness across multiple critical areas, presenting substantial risks to the organization's data, systems, and operations. Urgent action is required to address these vulnerabilities.</p>
+<p><strong>2. Organizational Information</strong>
+-   <strong>Organization Name:</strong> G.A.S. Inc.
+-   <strong>Email Domain:</strong> gasinc.net
+-   <strong>Website Domain:</strong> www.gasinc.net
+-   <strong>External IP:</strong> 104.28.1.189
+-   <strong>DNS Hosting:</strong> Self-managed (dns1.gasinc.net, dns2.gasinc.net)
+-   <strong>Email Hosting:</strong> Mailhostbox.com</p>
+<p><strong>3. Security Questionnaire Review</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Security Control</th>
+<th style="text-align: center;">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">MFA for Email</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td style="text-align: center;">MFA for Computer Login</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td style="text-align: center;">MFA for Sensitive Data Systems</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: center;">Acceptable Use Policy</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td style="text-align: center;">New Employee Security Awareness Training</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td style="text-align: center;">Annual All-Employee Security Training</td>
+<td style="text-align: center;">No</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Summary:</strong> The organization's self-assessment reveals a severe lack of fundamental cybersecurity controls. Multi-Factor Authentication (MFA) is largely absent, being only applied to sensitive data systems, leaving email and computer logins vulnerable. Furthermore, there is no employee acceptable use policy and no security awareness training for new or existing employees. This indicates a significant gap in security culture and foundational policy enforcement.</p>
+<p><strong>4. DNS &amp; Email Security</strong></p>
+<p><strong>DNS Records</strong>
+-   DNS is managed internally by G.A.S. Inc. (dns1.gasinc.net, dns2.gasinc.net). While possible, this requires robust internal management and redundancy to ensure reliability and security.
+-   The A record for gasinc.net points to 104.28.1.189, indicating that the website is hosted on the same external IP as the primary network perimeter.</p>
+<p><strong>MX Records (Email)</strong>
+-   G.A.S. Inc. utilizes Mailhostbox.com for email services, as shown by the MX records: <code>mx.mailhostbox.com</code> and <code>mx2.mailhostbox.com</code>.
+-   <strong>SPF Record:</strong> The SPF record is configured as <code>v=spf1 include:spf.mailhostbox.com ~all</code>.
+    -   The <code>~all</code> (softfail) policy indicates that unauthenticated emails from the domain should be treated with suspicion but not necessarily rejected. While better than no SPF, it is not as strong as a <code>-all</code> (fail) policy in preventing spoofing.</p>
+<p><strong>DMARC Record</strong>
+-   A DMARC record for <code>_dmarc.gasinc.net</code> does not exist (NXDOMAIN).
+    -   <strong>Critical Finding:</strong> The absence of a DMARC record means there is no policy to guide receiving mail servers on how to handle emails that fail SPF or DKIM authentication. This leaves the <code>gasinc.net</code> domain highly vulnerable to email spoofing, phishing, and Business Email Compromise (BEC) attacks, as malicious actors can easily send emails purporting to be from G.A.S. Inc. without detection.</p>
+<p><strong>Conclusion:</strong> G.A.S. Inc.'s email security posture is critically weak due to the complete lack of a DMARC policy and a permissive SPF policy. This exposes the organization to significant email-based threats.</p>
+<p><strong>5. Port Scanning Results</strong></p>
+<p>The port scans against the external IP 104.28.1.189 (which hosts both the website and serves as the external firewall) reveal an alarmingly wide-open network perimeter.</p>
+<p><strong>Open Ports on External IP (104.28.1.189)</strong>
+-   <strong>Port 21 (FTP):</strong> Open - File Transfer Protocol is often insecure, transmitting credentials in plaintext, and can be exploited for unauthorized access or file manipulation.
+-   <strong>Port 22 (SSH):</strong> Open - Secure Shell access should ideally be restricted to trusted IPs or via VPN. Direct exposure to the internet is a common target for brute-force attacks.
+-   <strong>Port 25 (SMTP):</strong> Open - While email is hosted by Mailhostbox, an open SMTP port on the external IP could indicate an internal mail server, relay, or an unnecessary exposure that can be abused for spam or other attacks.
+-   <strong>Port 80 (HTTP):</strong> Open - Standard for web traffic.
+-   <strong>Port 110 (POP3):</strong> Open - Post Office Protocol version 3 is an insecure, unencrypted email retrieval protocol. Its external exposure is a severe vulnerability for credential theft. Modern email clients should use secure POP3S (Port 995) or IMAPS (Port 993).
+-   <strong>Port 443 (HTTPS):</strong> Open - Standard for secure web traffic.
+-   <strong>Port 3389 (RDP):</strong> Open - Remote Desktop Protocol is a <em>critical</em> security risk when exposed directly to the internet. RDP is a frequent target for brute-force attacks and exploitation, which can lead to full system compromise.</p>
+<p><strong>Conclusion:</strong> The exposure of multiple high-risk services (FTP, SSH, POP3, RDP, potentially SMTP) directly to the internet on the organization's primary external IP creates an extremely broad and vulnerable attack surface. This configuration dramatically increases the likelihood of unauthorized access, data breaches, and system compromise.</p>
+<p><strong>6. Risk Assessment &amp; Readiness Summary</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Category</th>
+<th style="text-align: center;">Status</th>
+<th style="text-align: center;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Authentication Security</td>
+<td style="text-align: center;">Weak</td>
+<td style="text-align: center;">MFA missing for email and computer logins; only present for sensitive systems.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Email Security</td>
+<td style="text-align: center;">Poor</td>
+<td style="text-align: center;">No DMARC record, and SPF is <code>~all</code> (softfail), leaving the domain highly susceptible to spoofing and phishing.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Network Exposure</td>
+<td style="text-align: center;">Critical</td>
+<td style="text-align: center;">Numerous high-risk services (FTP, SSH, POP3, RDP) directly exposed to the internet, creating a massive attack surface.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Web Hosting</td>
+<td style="text-align: center;">Moderate</td>
+<td style="text-align: center;">Website on same external IP as firewall, but 80/443 expected. Other open ports on this IP are the concern.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Policy &amp; Training</td>
+<td style="text-align: center;">Non-Existent</td>
+<td style="text-align: center;">No Acceptable Use Policy; no security awareness training for new or existing employees.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>7. Recommendations</strong></p>
+<p>Given the significant vulnerabilities identified, G.A.S. Inc. should prioritize and immediately implement the following recommendations:</p>
+<ol>
+<li><strong>Implement Multi-Factor Authentication (MFA) Broadly:</strong><ul>
+<li><strong>Urgent:</strong> Mandate MFA for all email accounts.</li>
+<li><strong>Urgent:</strong> Mandate MFA for all computer logins, especially for users with administrative privileges.</li>
+</ul>
+</li>
+<li><strong>Enhance Email Security:</strong><ul>
+<li><strong>Critical:</strong> Implement a DMARC record for <code>gasinc.net</code>. Start with a <code>p=quarantine</code> policy and move towards <code>p=reject</code> after monitoring DMARC reports to ensure legitimate emails are not affected.</li>
+<li><strong>Stronger SPF:</strong> Consider changing the SPF policy from <code>~all</code> to <code>-all</code> once DMARC is stable and all legitimate email senders are accounted for.</li>
+<li><strong>Verify DKIM:</strong> Ensure DKIM is properly configured for Mailhostbox.com and any other services sending email on behalf of <code>gasinc.net</code>.</li>
+</ul>
+</li>
+<li><strong>Reduce Network Exposure (Firewall Hardening):</strong><ul>
+<li><strong>Critical:</strong> Immediately close or restrict access to <strong>Port 3389 (RDP)</strong>. Remote access should only be allowed through a securely configured Virtual Private Network (VPN) with MFA.</li>
+<li><strong>Critical:</strong> Close <strong>Port 110 (POP3)</strong>. Use secure email retrieval protocols like IMAPS (Port 993) or POP3S (Port 995) if local client access is required, or encourage webmail via HTTPS.</li>
+<li><strong>Urgent:</strong> Close <strong>Port 21 (FTP)</strong>. Migrate to secure file transfer protocols like SFTP or FTPS, or utilize secure cloud-based file sharing solutions.</li>
+<li><strong>Review Port 22 (SSH):</strong> If SSH access is necessary, restrict it to known source IP addresses, disable password authentication in favor of key-based authentication, change the default port, and ensure strong logging and monitoring. Ideally, SSH access should also be behind a VPN.</li>
+<li><strong>Review Port 25 (SMTP):</strong> As email is handled by Mailhostbox, determine if Port 25 on the external IP is truly necessary. If not, close it. If it is for an internal server, ensure it is configured securely and only relays authorized mail.</li>
+</ul>
+</li>
+<li><strong>Establish and Enforce Security Policies:</strong><ul>
+<li>Develop and implement an <strong>Employee Acceptable Use Policy (AUP)</strong> outlining expectations for secure technology usage.</li>
+</ul>
+</li>
+<li><strong>Implement Security Awareness Training:</strong><ul>
+<li>Develop and deliver <strong>mandatory security awareness training</strong> for all new employees upon hire.</li>
+<li>Conduct <strong>annual mandatory security awareness training</strong> for all employees, covering topics like phishing, malware, password hygiene, and data handling.</li>
+</ul>
+</li>
+<li><strong>Regular Vulnerability Management:</strong><ul>
+<li>Conduct regular internal and external vulnerability assessments and penetration testing to identify and remediate weaknesses proactively.</li>
+</ul>
+</li>
+<li><strong>Develop an Incident Response Plan:</strong><ul>
+<li>Create a documented and tested incident response plan to effectively handle security breaches, minimize damage, and ensure business continuity.</li>
+</ul>
+</li>
+</ol>
+<p><strong>8. Conclusion</strong></p>
+<p>G.A.S. Inc. currently operates with critical cybersecurity deficiencies across multiple domains, including user authentication, email security, and network perimeter defense. The absence of basic security policies and employee training further exacerbates these risks. Without immediate and comprehensive action to address the identified vulnerabilities, G.A.S. Inc. faces an exceptionally high risk of cyberattacks, data breaches, and operational disruption. It is imperative that the organization commits to improving its cybersecurity posture as an urgent priority.</p>
+<p><strong>Prepared by:</strong></p>
+<p>Cybersecurity Assessment Team</p>
+<p><strong>Date:</strong> October 14, 2025</p>
+</body>
+</html>

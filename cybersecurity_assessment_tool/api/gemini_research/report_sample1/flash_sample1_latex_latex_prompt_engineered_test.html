@@ -1,0 +1,325 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pandoc LaTeX Export</title>
+    
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+    <!-- KaTeX JS -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmPBMAHmLc" crossorigin="anonymous"></script>
+    
+    <!-- KaTeX Auto-render extension -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURPlLJSytX1omGihka0S8TMFjAOP2kkZJphI/CxKFYDk2nP2/aUAcN" crossorigin="anonymous"></script>
+
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Noto Sans', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        h1, h2, h3, h4, h5, h6 { 
+            color: #1a1a1a; 
+            margin-top: 1.5em; 
+            margin-bottom: 0.5em;
+        }
+        p { 
+            margin-bottom: 1em; 
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+            font-family: monospace;
+        }
+        code { 
+            font-family: monospace;
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        ul, ol {
+            padding-left: 2em;
+            margin-bottom: 1em;
+        }
+        li { 
+            margin-bottom: 0.5em; 
+        }
+        
+        /* KaTeX specific styling for display math */
+        .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0.5em 0;
+        }
+        
+        /* Custom LaTeX styles */
+        .table-wrapper {
+            margin: 1.5em 0;
+            overflow-x: auto;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+        caption {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 0.5em;
+            text-align: left;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        .latex-url, .seqsplit {
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+<h1 id="overview">Overview</h1>
+<p>This report provides an assessment of Apex Innovations’ cybersecurity
+posture, derived from a combination of technical data (DNS records,
+DMARC policy, and port scans) and self-reported information from a
+security questionnaire. The analysis highlights the current security
+standing across key areas, identifying strengths and areas for potential
+enhancement to ensure robust cyber resilience.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name</strong>: Apex Innovations</p></li>
+<li><p><strong>Email Domain</strong>: <a href="apexinnovations.com"
+class="uri">apexinnovations.com</a></p></li>
+<li><p><strong>Website Domain</strong>: <a
+href="www.apexinnovations.com"
+class="uri">www.apexinnovations.com</a></p></li>
+<li><p><strong>External IP (Website/Firewall)</strong>:
+72.21.196.160</p></li>
+<li><p><strong>Website Hosting IPs</strong>:</p></li>
+<li><p><strong>DNS Hosting</strong>: The organization appears to manage
+its own DNS, or it is managed by its web hosting provider, as indicated
+by and nameservers.</p></li>
+</ul>
+<h1 id="security-questionnaire-review">Security Questionnaire
+Review</h1>
+<div id="tab:security_controls">
+<table>
+<caption>Security Control Status</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">MFA for Email Access</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">MFA for Computer Login</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">MFA for Sensitive Data Systems</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">Employee Acceptable Use Policy</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">New Employee Security Awareness
+Training</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">Annual All-Employee Security Training</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Summary</strong>: Apex Innovations demonstrates a strong
+commitment to fundamental cybersecurity practices, with all reported
+controls indicating full implementation. This includes comprehensive
+Multi-Factor Authentication (MFA) across critical access points and a
+robust security awareness training program for all employees. This
+proactive stance significantly enhances the organization’s defense
+against common cyber threats.</p>
+<h1 id="dns-email-security">DNS &amp; Email Security</h1>
+<h2 class="unnumbered" id="dns-records">DNS Records</h2>
+<ul>
+<li><p><strong>Nameservers (NS)</strong>: Apex Innovations utilizes its
+own nameservers ( and ). This implies direct control over DNS
+management, which requires careful security configuration.</p></li>
+<li><p><strong>A Record</strong>: The domain <a
+href="apexinnovations.com" class="uri">apexinnovations.com</a> resolves
+to , which is also identified as the organization’s external IP address.
+This indicates that their primary website is hosted at this IP.</p></li>
+</ul>
+<h2 class="unnumbered" id="mx-records-email">MX Records (Email)</h2>
+<ul>
+<li><p>The Mail Exchange (MX) records point to and . Further analysis of
+the SPF record indicates the use of Microsoft Exchange Online
+(Outlook.com) for email services.</p></li>
+<li><p><strong>SPF Record</strong>: A valid SPF record is configured: .
+The ‘include:spf.protection.outlook.com‘ correctly authorizes
+Microsoft’s mail servers, and the ‘-all‘ mechanism ensures that mail
+from unauthorized senders is rejected, providing strong protection
+against email spoofing.</p></li>
+</ul>
+<h2 class="unnumbered" id="dmarc-record">DMARC Record</h2>
+<ul>
+<li><p>A robust DMARC record is in place: .</p></li>
+<li><p>The ‘p=reject‘ policy is a strong defense, instructing receiving
+mail servers to outright reject emails that fail DMARC authentication.
+This significantly mitigates the risk of phishing and impersonation
+attempts. The ‘rua‘ tag ensures aggregate reports are sent to the
+specified email address, allowing for monitoring and analysis of email
+authentication failures.</p></li>
+</ul>
+<p><strong>Conclusion</strong>: Apex Innovations has implemented robust
+email security protocols, including SPF and a strong DMARC "reject"
+policy, which are crucial for preventing email spoofing and phishing
+attacks.</p>
+<h1 id="port-scanning-results">Port Scanning Results</h1>
+<h2 class="unnumbered" id="external-ip-72.21.196.160">External IP
+(72.21.196.160)</h2>
+<ul>
+<li><p><strong>Port 80 (HTTP)</strong>: Open</p></li>
+<li><p><strong>Port 443 (HTTPS)</strong>: Open</p></li>
+</ul>
+<p>The port scans targeting (identified as the external IP and website
+hosting IP) reveal that ports 80 (HTTP) and 443 (HTTPS) are open. These
+ports are standard and expected for a public-facing web server,
+indicating the presence of a website. It is critical to ensure that all
+web traffic defaults to HTTPS and that robust web application security
+measures are in place.</p>
+<h1 id="risk-assessment-readiness-summary">Risk Assessment &amp;
+Readiness Summary</h1>
+<div id="tab:readiness_summary">
+<table>
+<caption>Readiness Summary</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Category</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+<th style="text-align: left;"><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Authentication Security</td>
+<td style="text-align: center;">Strong</td>
+<td style="text-align: left;">MFA required across email, computer, and
+sensitive systems</td>
+</tr>
+<tr>
+<td style="text-align: left;">Email Security</td>
+<td style="text-align: center;">Strong</td>
+<td style="text-align: left;">SPF and DMARC with "reject" policy in
+place, utilizing Outlook.com</td>
+</tr>
+<tr>
+<td style="text-align: left;">Network Exposure</td>
+<td style="text-align: center;">Moderate</td>
+<td style="text-align: left;">Web server exposed (expected); regular
+hardening is key</td>
+</tr>
+<tr>
+<td style="text-align: left;">Web Hosting Security</td>
+<td style="text-align: center;">Good</td>
+<td style="text-align: left;">Standard web ports open; depends on web
+server hardening</td>
+</tr>
+<tr>
+<td style="text-align: left;">Policy &amp; Training</td>
+<td style="text-align: center;">Comprehensive</td>
+<td style="text-align: left;">Acceptable use policies and regular
+training established</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>While Apex Innovations demonstrates a commendable security posture,
+continuous improvement is vital in the evolving threat landscape. The
+following recommendations are provided to further enhance cybersecurity
+readiness:</p>
+<ol>
+<li><p><strong>Implement DKIM</strong>: Although SPF and DMARC are
+robust, ensure DomainKeys Identified Mail (DKIM) is also fully
+configured and validated for all sending domains. DKIM provides an
+additional layer of email authentication, cryptographically signing
+outgoing emails.</p></li>
+<li><p><strong>Regular Vulnerability Scanning &amp; Penetration
+Testing</strong>: Conduct regular vulnerability assessments and periodic
+penetration tests on the external IP () and internal network. This
+proactive approach helps identify and remediate weaknesses before they
+can be exploited.</p></li>
+<li><p><strong>Web Application Firewall (WAF)</strong>: Given that the
+website is externally accessible, consider deploying a Web Application
+Firewall (WAF) to protect against common web-based attacks (e.g., SQL
+injection, XSS) and to provide an additional layer of security for the
+web server.</p></li>
+<li><p><strong>Incident Response Plan (IRP)</strong>: Develop, document,
+and regularly test a comprehensive Incident Response Plan. This plan
+should detail procedures for identifying, containing, eradicating,
+recovering from, and learning from cybersecurity incidents.</p></li>
+<li><p><strong>SSL/TLS Best Practices</strong>: Ensure that the web
+server enforces strong SSL/TLS configurations, including the use of
+modern cipher suites, HSTS (HTTP Strict Transport Security), and regular
+certificate renewals to protect data in transit.</p></li>
+<li><p><strong>DNS Security (DNSSEC)</strong>: Consider implementing
+DNSSEC (Domain Name System Security Extensions) to protect the
+organization’s DNS records from spoofing and manipulation, enhancing the
+integrity of domain lookups.</p></li>
+</ol>
+<h1 id="conclusion">Conclusion</h1>
+<p>Apex Innovations has established a strong foundation in
+cybersecurity, evidenced by its comprehensive MFA implementation, robust
+email authentication policies (SPF and DMARC with ‘p=reject‘), and
+commitment to employee training. The organization’s external network
+exposure is limited to essential web services, which is a positive
+indicator. By implementing the recommended enhancements, particularly in
+areas of web application security, continuous testing, and incident
+preparedness, Apex Innovations can further fortify its defenses and
+maintain a proactive stance against emerging cyber threats.</p>
+<p>Prepared by:<br />
+Cybersecurity Assessment Team<br />
+Date: October 14, 2025</p>
+
+
+<!-- KaTeX auto-render script -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

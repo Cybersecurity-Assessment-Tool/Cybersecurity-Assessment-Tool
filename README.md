@@ -1,6 +1,8 @@
 # Cybersecurity Assessment Tool
 Our project is a full-stack web application intended to help schools, small businesses, and nonprofits generate a report to evaluate the security of their organization/network and provide recommendations for reducing their risk of cyber attacks.
 
+## Documentation
+
 ## Key Features
 - **User Authentication**: Secure user login and registration.
 - **Report Generation**: Generates detailed security report based on user input via a questionnare and network scan. 
@@ -11,7 +13,6 @@ Our project is a full-stack web application intended to help schools, small busi
 ## Technologies Used
 **Frontend**
 - HTML
-- CSS
 - Bootstrap
 - JQuery
 - JavaScript
@@ -24,7 +25,7 @@ Our project is a full-stack web application intended to help schools, small busi
 - Gemini API
 
 **Hosting**
-- Docker
+- Heroku
 
 **Email Notification**
 - Gmail SMTP
