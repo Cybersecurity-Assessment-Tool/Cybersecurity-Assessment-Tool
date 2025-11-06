@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open, MagicMock
 import json
-from backend.api.services.ai_generation_service import json_to_str, create_example, generate_report_content 
+from ..api.services.ai_generation_service import json_to_str, create_example, generate_report_content 
 
 class TestReportGenerator(unittest.TestCase):
 
