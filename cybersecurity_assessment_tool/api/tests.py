@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open, MagicMock
 import json
-from ..api.services.ai_generation_service import json_to_str, create_example, generate_report_content 
+from .services.ai_generation_service import _json_to_str, _create_example, generate_report_content 
 
 class TestReportGenerator(unittest.TestCase):
 
@@ -18,7 +18,7 @@ class TestReportGenerator(unittest.TestCase):
         )
 
         filepaths = ['data1.json', 'data2.json']
-        result = json_to_str(filepaths)
+        result = _json_to_str(filepaths)
         
         expected_output = (
             'data1.json:\n{\n  "key1": "value1"\n}\n--\n' +
@@ -32,7 +32,7 @@ class TestReportGenerator(unittest.TestCase):
     def test_json_to_str_file_not_found(self, mock_file):
         """Tests handling of FileNotFoundError."""
         filepaths = ['missing.json']
-        result = json_to_str(filepaths)
+        result = _json_to_str(filepaths)
         self.assertEqual(result, '')
         mock_file.assert_called_once_with('missing.json', 'r', encoding='utf-8')
 
@@ -41,7 +41,7 @@ class TestReportGenerator(unittest.TestCase):
     def test_json_to_str_json_decode_error(self, mock_json_load, mock_file):
         """Tests handling of JSONDecodeError."""
         filepaths = ['bad_data.json']
-        result = json_to_str(filepaths)
+        result = _json_to_str(filepaths)
         self.assertEqual(result, '')
         mock_file.assert_called_once()
         mock_json_load.assert_called_once()
@@ -55,11 +55,11 @@ class TestReportGenerator(unittest.TestCase):
         
         expected = "Example:\nCreate a security report.\nfile1.json:\n{...}\n--\nReport Content"
         
-        self.assertEqual(create_example(prompt, data, result_str), expected)
+        self.assertEqual(_create_example(prompt, data, result_str), expected)
         
     def test_create_example_empty_inputs(self):
         """Tests create_example with empty strings."""
-        self.assertEqual(create_example("", "", ""), "Example:\n\n")
+        self.assertEqual(_create_example("", "", ""), "Example:\n\n")
 
     # --- Test Cases for generate_report_content ---
     # Haven't done these yet, as mocking the generation is a little difficult.

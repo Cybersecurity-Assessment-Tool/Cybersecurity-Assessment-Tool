@@ -1,0 +1,123 @@
+{
+  "vulnerabilities": [
+    {
+      "risk_name": "Critical Network Service Exposure",
+      "overview": "The external IP address 104.28.1.189 has multiple high-risk services exposed directly to the public internet, including FTP (Port 21), SSH (Port 22), and RDP (Port 3389). This dramatically increases the attack surface, making the network vulnerable to brute-force attacks and service exploitation.",
+      "severity_cvss_score": 9.3,
+      "affected_elements": [
+        "External IP: 104.28.1.189",
+        "Port 21 (FTP)",
+        "Port 22 (SSH)",
+        "Port 3389 (RDP)"
+      ],
+      "recommendations": {
+        "easy_fix": "Immediately close all unnecessary ports on the external firewall. Services like RDP and SSH must be restricted to trusted IP addresses only.",
+        "long_term_fix": "Implement a Virtual Private Network (VPN) solution and require all remote access (RDP, SSH) to pass through the VPN. Replace FTP with a secure alternative like SFTP or FTPS.",
+        "resources": [
+          {
+            "type": "website",
+            "url": "https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/rds-security-guidance",
+            "description": "Microsoft's security guidance for securing Remote Desktop Services (RDP)."
+          },
+          {
+            "type": "youtube",
+            "url": "https://www.youtube.com/watch?v=example-secure-ssh",
+            "description": "Video tutorial on hardening SSH configurations."
+          }
+        ]
+      }
+    },
+    {
+      "risk_name": "Missing DMARC Policy (Email Spoofing)",
+      "overview": "No DMARC record was found for the gasinc.net domain. This absence is a High Risk vulnerability, as it allows attackers to easily spoof emails claiming to be from G.A.S. Inc., significantly increasing the likelihood of successful phishing and impersonation attacks.",
+      "severity_cvss_score": 8.0,
+      "affected_elements": [
+        "Email Domain: gasinc.net",
+        "DMARC Record"
+      ],
+      "recommendations": {
+        "easy_fix": "Deploy a DMARC record immediately, starting with a monitoring policy (`p=none`) to collect reports without affecting email delivery.",
+        "long_term_fix": "Progress the DMARC policy to quarantine (`p=quarantine`) or reject (`p=reject`) after verifying all legitimate sending sources, ensuring protection against spoofing.",
+        "resources": [
+          {
+            "type": "website",
+            "url": "https://dmarcian.com/dmarc-record-wizard/",
+            "description": "Online tool and guide for generating a DMARC record."
+          },
+          {
+            "type": "documentation",
+            "url": "https://www.agari.com/email-security-blog/dmarc-guide/",
+            "description": "Comprehensive guide to DMARC implementation and policy progression."
+          }
+        ]
+      }
+    },
+    {
+      "risk_name": "Weak SPF Record Configuration",
+      "overview": "The Sender Policy Framework (SPF) record is configured with a softfail (`~all`) mechanism. This instructs receiving servers to accept and mark potentially forged emails, instead of rejecting them outright, weakening the defense against unauthorized email sending.",
+      "severity_cvss_score": 6.5,
+      "affected_elements": [
+        "Email Domain: gasinc.net",
+        "SPF Record"
+      ],
+      "recommendations": {
+        "easy_fix": "Update the SPF record to use a hardfail mechanism (`-all`) to instruct receiving mail servers to reject messages from unauthorized servers immediately.",
+        "long_term_fix": "Review all legitimate third-party senders and ensure their includes are correct before moving to hardfail to prevent false positives.",
+        "resources": [
+          {
+            "type": "website",
+            "url": "https://mxtoolbox.com/spf.aspx",
+            "description": "SPF record testing and diagnostic tool."
+          }
+        ]
+      }
+    },
+    {
+      "risk_name": "Absence of Mandatory Multi-Factor Authentication (MFA)",
+      "overview": "The organization does not mandate Multi-Factor Authentication for email access or computer logins. This foundational gap leaves the organization highly susceptible to credential theft and account takeover via phishing or leaked passwords.",
+      "severity_cvss_score": 8.8,
+      "affected_elements": [
+        "MFA for Email",
+        "MFA for Computer Login",
+        "Employee User Accounts"
+      ],
+      "recommendations": {
+        "easy_fix": "Mandate MFA for all users on critical services, starting with email access and remote access (VPN).",
+        "long_term_fix": "Implement a Single Sign-On (SSO) solution with mandatory MFA for all corporate applications and systems to create a unified, secure login experience.",
+        "resources": [
+          {
+            "type": "youtube",
+            "url": "https://www.youtube.com/watch?v=example-mfa-importance",
+            "description": "Explanation of MFA and its importance in modern cybersecurity."
+          },
+          {
+            "type": "documentation",
+            "url": "https://www.cisa.gov/stop-ransomware/mandatory-mfa",
+            "description": "CISA guidance on enforcing Multi-Factor Authentication."
+          }
+        ]
+      }
+    },
+    {
+      "risk_name": "Deficient Security Policy and Training",
+      "overview": "The organization lacks foundational policies, including an Acceptable Use Policy (AUP) and mandatory security awareness training for all employees (new hires and annual). This deficiency creates a high risk of security incidents originating from human error or lack of security awareness.",
+      "severity_cvss_score": 7.0,
+      "affected_elements": [
+        "Acceptable Use Policy (AUP)",
+        "New Employee Security Awareness Training",
+        "Annual All-Employee Security Training"
+      ],
+      "recommendations": {
+        "easy_fix": "Implement a basic, mandatory security awareness training session for all current employees immediately.",
+        "long_term_fix": "Develop a formal Acceptable Use Policy (AUP) and establish a recurring, mandatory security awareness training program with phishing simulations to build a strong security culture.",
+        "resources": [
+          {
+            "type": "website",
+            "url": "https://www.sans.org/security-awareness-training/",
+            "description": "Resources and guidance for building effective security awareness programs."
+          }
+        ]
+      }
+    }
+  ]
+}

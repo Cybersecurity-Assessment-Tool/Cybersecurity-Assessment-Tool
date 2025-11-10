@@ -1,0 +1,76 @@
+\documentclass[12pt]{article}
+\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{pifont} % For the checkmark symbol \ding{51}
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For links
+\usepackage{fontawesome5}
+\usepackage{setspace} % For line spacing
+\usepackage{url} % Included and applied to domains
+\usepackage{seqsplit} % Applied to long code/IP strings
+\hypersetup{
+    colorlinks=true,
+    urlcolor=blue,
+    linkcolor=black
+}
+\title{\textbf{Cloud Security Audit Report: Innovatech Dynamics}}
+\author{Date: October 25, 2025}
+\date{}
+
+\begin{document}
+\maketitle
+\onehalfspacing
+
+\section{Executive Summary}
+This audit assessed the security posture of Innovatech Dynamics' cloud-native application infrastructure, which utilizes AWS, Kubernetes for orchestration, and a microservices architecture. While the use of modern tools is commendable, the audit identified \textbf{three critical vulnerabilities} stemming from cloud misconfigurations, weak Identity and Access Management (IAM), and unpatched container images. The most significant finding is the public exposure of the S3 data storage bucket, which requires immediate remediation.
+
+\section{Organizational and Technical Context}
+\begin{itemize}
+    \item \textbf{Organization Name}: Innovatech Dynamics
+    \item \textbf{Primary Cloud Provider}: Amazon Web Services (AWS)
+    \item \textbf{Architecture}: Microservices deployed on AWS EKS (Managed Kubernetes)
+    \item \textbf{Main Application Domain}: \url{app.innovatech-dyn.com}
+    \item \textbf{Development Language}: Python/Go microservices
+\end{itemize}
+
+\section{Key Audit Findings}
+
+\subsection*{Cloud Misconfiguration: S3 Bucket Public Exposure}
+\begin{itemize}
+    \item \textbf{Vulnerability}: The S3 bucket named \texttt{innovatech-prod-logs-storage}, used for storing application logs and analytics data, was found to be publicly accessible due to an incorrect bucket policy setting.
+    \item \textbf{Affected Element}: AWS S3 Bucket \seqsplit{\texttt{arn:aws:s3:::innovatech-prod-logs-storage}}.
+    \item \textbf{Data Impact}: The bucket contains customer analytics records, including anonymized session IDs and geolocation data, which is a breach of compliance standards if exposed.
+    \item \textbf{Severity}: \textbf{Critical}.
+\end{itemize}
+
+\subsection*{Kubernetes (EKS) Security Issues}
+\begin{itemize}
+    \item \textbf{Vulnerability}: Multiple container images in the \texttt{product-catalog-service} deployment are running with known, unpatched vulnerabilities (CVE-2024-XXXXX) and, critically, are running with \texttt{root} privileges within the container.
+    \item \textbf{Affected Elements}: Kubernetes Deployment \texttt{product-catalog-service}, specifically the container image \texttt{prod-cat-v2.1} (running as root).
+    \item \textbf{Exploitation Path}: A successful attack could exploit the image vulnerability to escape the container and potentially compromise the EKS worker node.
+    \item \textbf{Severity}: \textbf{High}.
+\end{itemize}
+
+\subsection*{Weak IAM and Credential Management}
+\begin{itemize}
+    \item \textbf{Vulnerability}: A development-focused IAM user, \texttt{dev\_deployer}, has been granted the \texttt{AdministratorAccess} policy instead of a more restrictive custom policy. This user is actively used by a CI/CD pipeline script stored in a private GitHub repository.
+    \item \textbf{Affected Element}: AWS IAM User \texttt{arn:aws:iam::123456789012:user/dev\_deployer}.
+    \item \textbf{Risk}: If the GitHub repository or the CI/CD pipeline is compromised, the attacker gains full administrative control over the entire AWS environment. The Principle of Least Privilege is violated.
+    \item \textbf{Severity}: \textbf{High}.
+\end{itemize}
+
+\section{Recommendations for Immediate Action}
+Immediate action is required to address these critical findings.
+
+\begin{enumerate}
+    \item \textbf{Fix S3 Public Access}: The bucket policy for \texttt{innovatech-prod-logs-storage} must be modified to block all public access. The policy should only allow access via specific IAM roles tied to the application services that require logging access.
+    \item \textbf{Secure Kubernetes Containers}: Update the \texttt{product-catalog-service} deployment to use a patched container image and enforce the \texttt{runAsNonRoot: true} setting via a Pod Security Standard (or policy engine like OPA/Kyverno).
+    \item \textbf{Implement Least Privilege}: Revoke the \texttt{AdministratorAccess} policy from the \texttt{dev\_deployer} IAM user. Replace it with a custom, fine-grained policy that only permits the specific actions necessary for the CI/CD deployment process (e.g., only update EKS deployments, not create new S3 buckets).
+\end{enumerate}
+
+\section{Conclusion}
+Innovatech Dynamics' reliance on cloud and container technologies has led to new security challenges primarily centered around misconfiguration and over-privileged access. While the core microservices design offers resilience, the current configuration exposes the entire environment to critical data breach and account takeover risks. Prompt execution of the outlined recommendations is mandatory to secure the platform.
+
+\vspace{1cm}
+\noindent Prepared by: \\CloudSec Audit Team\\Date: October 25, 2025
+\end{document}

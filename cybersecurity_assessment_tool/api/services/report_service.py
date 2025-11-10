@@ -1,8 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.files.base import ContentFile
 from django.db import transaction
 from ..models import Report, User, Organization
-from datetime import time
 import json
 
 @transaction.atomic
