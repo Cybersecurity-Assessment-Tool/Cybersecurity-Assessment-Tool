@@ -41,7 +41,7 @@ class ReportViewSet(viewsets.ModelViewSet):
     # restrict reports to the user's organization for basic data separation
     def get_queryset(self):
         # Only show reports belonging to the user's organization
-        return Report.objects.filter(organization=self.request.user.organization).order_by('-date_created')
+        return Report.objects.filter(organization=self.request.user.organization).order_by('-started')
         
     # automatically set the user_created and organization fields on creation
     def perform_create(self, serializer):

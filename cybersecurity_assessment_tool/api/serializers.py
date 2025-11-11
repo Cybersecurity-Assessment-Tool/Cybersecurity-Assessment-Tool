@@ -19,25 +19,25 @@ class UserSerializer(serializers.ModelSerializer):
     """
     # use StringRelatedField to display the organization name instead of just the UUID
     organization_name = serializers.ReadOnlyField(source='organization.org_name')
-    
+
     class Meta:
         model = User
         # include all fields except the sensitive ones we'll handle manually
         fields = [
-            'user_id', 'username', 'email', 'first_name', 'last_name', 
+            'user_id', 'username', 'email', 'first_name', 'last_name',
             'is_staff', 'is_active', 'date_joined', 'last_login',
-            'organization', 'organization_name', 
-            'is_automated', 'auto_frequency', 'profile_img', 
-            'font_size', 'color', 
+            'organization', 'organization_name',
+            'auto_frequency', 'profile_img',
+            'font_size', 'color',
             'groups', 'user_permissions'
         ]
-        # these fields are read-only after creation or are for internal use
         read_only_fields = ('user_id', 'is_staff', 'is_active', 'date_joined', 'last_login', 'organization_name')
         # exclude password from the API response
         extra_kwargs = {'password': {'write_only': True}}
-        
+
     def create(self, validated_data):
         """Handle password hashing during user creation."""
+        # use create_user to correctly hash the password
         user = User.objects.create_user(**validated_data)
         return user
 
@@ -53,7 +53,7 @@ class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
         fields = '__all__'
-        read_only_fields = ('report_id', 'date_created', 'user_created_name', 'organization_name')
+        read_only_fields = ('report_id', 'user_created_name', 'organization_name')
 
 class RiskSerializer(serializers.ModelSerializer):
     """
@@ -67,3 +67,4 @@ class RiskSerializer(serializers.ModelSerializer):
         model = Risk
         fields = '__all__'
         # the 'severity' field uses validators defined in the model.
+        read_only_fields = ('risk_id',) # Added risk_id as read_only
