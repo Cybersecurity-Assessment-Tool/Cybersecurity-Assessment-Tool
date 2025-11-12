@@ -258,14 +258,15 @@ def generate_report_content(context: str, system_instruction: str = "", max_retr
     print(f"--- FAILED to generate report content after {max_retries} attempts. ---")
     return None
     
-def generate_risks(report: str, max_retries=4, delay=2):
+def generate_risks(report: str, current_risks: str, max_retries=4, delay=2):
     """
     Calls the AI model to generate risks based on the LaTeX formatted report given.
     Retries on API error, empty response, or invalid JSON, up to max_retries.
     The model currently being used is Gemini 2.5 Flash.
 
     Args:
-        report: A JSON containing the cybersecurity report generated.
+        report: A string containing the LaTeX cybersecurity report generated.
+        current_risks: A filepath to the JSON of the current risks the organization is facing to prevent duplicates.
     
     Returns:
         A JSON list of risks- which are JSON objects with a name, overview,
@@ -281,6 +282,7 @@ def generate_risks(report: str, max_retries=4, delay=2):
         test_report += file.read()
 
     example = _create_example(test_report, json_to_custom_str("../assets/risk_template/test_risk_list.json"))
+    example += "\nOrganization's current risks: " + json_to_custom_str(current_risks)
 
     while retry_count < max_retries:
         print(f"--- Calling Gemini API with model: {MODEL_NAME} (Attempt {retry_count + 1}/{max_retries}) ---")
