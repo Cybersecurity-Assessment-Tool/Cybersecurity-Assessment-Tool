@@ -1,0 +1,225 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive assessment of <strong>Falcon
+Heavy</strong>’s current cybersecurity posture, synthesizing findings
+from a network scan, organizational security questionnaire, and
+pre-existing risk data. The analysis reveals a mixed security landscape
+with commendable practices in some areas, such as maintaining an
+acceptable use policy and conducting annual security awareness training.
+However, critical gaps exist concerning Multi-Factor Authentication
+(MFA) implementation for computer logins and sensitive data access, as
+well as a lack of security awareness training for new employees.
+Furthermore, a critical database service (MySQL 5.7.33) is openly
+exposed, posing a significant risk of unauthorized access and data
+compromise. Addressing these identified risks and implementing the
+recommended controls is crucial to enhancing the organization’s overall
+security resilience.</p>
+<h1 class="unnumbered" id="organizational-information">Organizational
+Information</h1>
+<p>The following information pertains to <strong>Falcon Heavy</strong>,
+gathered from the provided organizational data.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>Falcon
+Heavy</strong></p></li>
+<li><p><strong>Email Domain:</strong>
+<code>FalconHeavy.net</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.FalconHeavy.net</code></p></li>
+<li><p><strong>External IP Address:</strong>
+<code>154.12.149.106</code></p></li>
+</ul>
+<h1 class="unnumbered"
+id="security-control-review-questionnaire">Security Control Review
+(Questionnaire)</h1>
+<p>A review of the security questionnaire indicates the current status
+of several key security controls within <strong>Falcon Heavy</strong>.
+Green checkmarks () denote implemented controls, while red crosses ()
+indicate areas requiring improvement.</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Control Status</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;">(Yes)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;">(No)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;">(No)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;">(Yes)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;">(No)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;">(Yes)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 class="unnumbered" id="technical-scan-results">Technical Scan
+Results</h1>
+<p>A network scan targeting <code>172.16.50.20</code> revealed the
+following open ports and services:</p>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>172.16.50.20</code></p></li>
+<li><p><strong>Scan Date:</strong>
+<code>[Scan Date - Not provided in Input 1, typical Nmap output would include this. Assuming recent.]</code></p></li>
+<li><p><strong>Open Ports and Services:</strong></p>
+<ul>
+<li><p><strong>Port 3306 (TCP):</strong></p>
+<ul>
+<li><p><strong>Service:</strong> MySQL</p></li>
+<li><p><strong>Product:</strong> MySQL</p></li>
+<li><p><strong>Version:</strong> 5.7.33</p></li>
+<li><p><strong>Status:</strong> Open</p></li>
+</ul></li>
+</ul></li>
+</ul>
+<p>The presence of an openly accessible MySQL database server (version
+5.7.33) is a significant concern. MySQL 5.7 has reached its End-of-Life
+(EOL) for public support in October 2023, meaning it no longer receives
+security updates, making systems running this version vulnerable to
+newly discovered exploits.</p>
+<h1 class="unnumbered" id="risk-assessment">Risk Assessment</h1>
+<p>Based on the analysis of the organizational questionnaire, technical
+scan results, and pre-existing risk data, the following risks have been
+identified.</p>
+<div id="tab:risk_assessment">
+<table>
+<caption>Identified Risks and Severity</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Database Exposure</strong></td>
+<td style="text-align: left;">MySQL port 3306 is open to the network,
+exposing a potentially EOL database version (5.7.33).</td>
+<td style="text-align: left;">High (CVSS 7.5)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Weak Authentication - Computer
+Login</strong></td>
+<td style="text-align: left;">Multi-Factor Authentication (MFA) is not
+required for computer logins, increasing the risk of unauthorized access
+via compromised credentials.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Weak Authentication - Sensitive
+Data Access</strong></td>
+<td style="text-align: left;">Multi-Factor Authentication (MFA) is not
+required for accessing sensitive data systems, increasing the risk of
+data breaches.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Inadequate New Employee
+Training</strong></td>
+<td style="text-align: left;">Lack of security awareness training for
+new employees means they may not be prepared to identify and mitigate
+common cyber threats, increasing human-factor risk.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 class="unnumbered" id="recommendations">Recommendations</h1>
+<p>To mitigate the identified risks and improve <strong>Falcon
+Heavy</strong>’s cybersecurity posture, the following recommendations
+are provided:</p>
+<ol>
+<li><p><strong>Database Exposure Mitigation:</strong></p>
+<ul>
+<li><p><strong>Immediate Fix:</strong> Implement strict firewall rules
+to restrict access to port 3306 (MySQL) only from necessary internal IP
+addresses or trusted applications. Access from the general network or
+external sources should be blocked.</p></li>
+<li><p><strong>Long-Term Fix:</strong> Upgrade MySQL to version 8.x,
+which is actively supported and receives security updates. If external
+access is required, implement a VPN or bastion host to secure the
+connection, rather than direct exposure. Regularly patch and update all
+database software.</p></li>
+</ul></li>
+<li><p><strong>Implement MFA for Computer Logins:</strong></p>
+<ul>
+<li><p>Mandate and enforce Multi-Factor Authentication (MFA) for all
+computer logins across the organization. This significantly reduces the
+risk of unauthorized access even if primary credentials are
+compromised.</p></li>
+</ul></li>
+<li><p><strong>Implement MFA for Sensitive Data Systems:</strong></p>
+<ul>
+<li><p>Require Multi-Factor Authentication (MFA) for accessing all
+systems that store, process, or transmit sensitive data. This is a
+critical control for protecting confidential information.</p></li>
+</ul></li>
+<li><p><strong>Develop New Employee Security Awareness
+Training:</strong></p>
+<ul>
+<li><p>Develop and implement a mandatory security awareness training
+program for all new employees as part of their onboarding process. This
+training should cover topics such as phishing, social engineering,
+password best practices, and data handling policies.</p></li>
+</ul></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

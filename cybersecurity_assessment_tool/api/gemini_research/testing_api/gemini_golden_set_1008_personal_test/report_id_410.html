@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This cybersecurity assessment highlights several areas requiring
+immediate attention for True North Travel. While some foundational
+controls are in place, critical gaps exist in multi-factor
+authentication for computer access, the establishment of an acceptable
+use policy, and regular security awareness training. Technical scans
+revealed a severely outdated FTP server allowing anonymous access,
+posing a significant data exposure risk. Furthermore, the organization
+is aware of an existing risk concerning outdated Windows operating
+systems. Addressing these vulnerabilities and control deficiencies is
+paramount to strengthening the organization’s defense against modern
+cyber threats.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following information was provided as part of the organizational
+data for this assessment.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> True North Travel</p></li>
+<li><p><strong>Email Domain:</strong>
+<code>TrueNorthTravel.org</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.TrueNorthTravel.org</code></p></li>
+<li><p><strong>External IP Address:</strong></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of the organization’s security controls based on a
+self-assessment questionnaire. A indicates "Yes," and an indicates
+"No."</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Control Questionnaire Results</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Question</strong></th>
+<th style="text-align: left;"><strong>Status</strong></th>
+<th style="text-align: center;"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An analysis of network scan data provided for target .</p>
+<h2 id="nmap-scan---target-10.0.0.15">Nmap Scan - Target:
+<code>10.0.0.15</code></h2>
+<p>The following open port and service information was identified during
+the Nmap scan.</p>
+<ul>
+<li><p><strong>Target IP:</strong></p></li>
+<li><p><strong>Open Port:</strong> 21/tcp</p></li>
+<li><p><strong>Service:</strong> FTP (<code>ftp</code>)</p></li>
+<li><p><strong>Product/Version:</strong>
+<code>vsftpd 2.3.4</code></p></li>
+<li><p><strong>Script Output:</strong>
+<code>Anonymous FTP login allowed</code></p></li>
+</ul>
+<h3 id="technical-analysis">Technical Analysis</h3>
+<p>The discovery of an FTP service (<code>vsftpd 2.3.4</code>) running
+on port 21/tcp is a significant concern. <code>vsftpd 2.3.4</code> was
+released in 2011 and has several known critical vulnerabilities,
+including a backdoor vulnerability (CVE-2011-2523) that allows arbitrary
+command execution. This version is severely outdated and should not be
+used in production.</p>
+<p>Compounding this issue, the FTP server is configured to allow
+anonymous logins. This means anyone can connect to the FTP server
+without credentials, potentially accessing or uploading files. The
+combination of an outdated, vulnerable service and anonymous access
+presents a critical risk for data breach, system compromise, and
+unauthorized data modification.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section consolidates risks identified from the security control
+review, technical scan, and pre-existing organizational risks.</p>
+<div id="tab:risk_assessment">
+<table>
+<caption>Consolidated Risk Assessment</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Lack of Multi-Factor Authentication for
+Computer Login</td>
+<td style="text-align: left;">No MFA required to log into computers,
+significantly increasing the risk of unauthorized access via compromised
+credentials.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Absence of Acceptable Use Policy
+(AUP)</td>
+<td style="text-align: left;">The organization lacks a formal policy
+defining acceptable employee behavior regarding IT resources,
+potentially leading to misuse or security incidents.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+<tr>
+<td style="text-align: left;">Insufficient Annual Security Awareness
+Training</td>
+<td style="text-align: left;">Employees do not receive regular (at least
+annual) security awareness training, leading to potential knowledge gaps
+and increased susceptibility to social engineering attacks.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated FTP Service
+(<code>vsftpd 2.3.4</code>)</td>
+<td style="text-align: left;">Running a critically outdated FTP server
+version (vsftpd 2.3.4, from 2011) known to have multiple severe
+vulnerabilities, including remote code execution.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Anonymous FTP Access Allowed</td>
+<td style="text-align: left;">The FTP server is configured to allow
+anonymous logins, granting unauthorized access to potentially sensitive
+files or server resources.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated Windows Policy</td>
+<td style="text-align: left;">Computers are running Windows 7, which is
+end-of-life and unsupported. This exposes the organization to known and
+unpatched vulnerabilities.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the assessment, the following recommendations are provided
+to enhance True North Travel’s cybersecurity posture:</p>
+<h2 id="security-control-enhancements">Security Control
+Enhancements</h2>
+<ol>
+<li><p><strong>Implement Multi-Factor Authentication (MFA) for Computer
+Login:</strong></p>
+<ul>
+<li><p><em>Action:</em> Mandate and deploy MFA for all employee computer
+logins.</p></li>
+<li><p><em>Benefit:</em> Significantly reduces the risk of unauthorized
+access even if primary credentials are compromised.</p></li>
+</ul></li>
+<li><p><strong>Develop and Implement an Acceptable Use Policy
+(AUP):</strong></p>
+<ul>
+<li><p><em>Action:</em> Create a clear and comprehensive AUP outlining
+employee responsibilities and acceptable use of organizational IT
+assets. Ensure it is acknowledged by all employees.</p></li>
+<li><p><em>Benefit:</em> Sets clear expectations, reduces misuse, and
+provides a basis for disciplinary action if policies are
+violated.</p></li>
+</ul></li>
+<li><p><strong>Establish Annual Security Awareness
+Training:</strong></p>
+<ul>
+<li><p><em>Action:</em> Implement a mandatory annual security awareness
+training program for all employees, covering topics like phishing,
+password hygiene, and data handling.</p></li>
+<li><p><em>Benefit:</em> Educates employees on current threats, improves
+their ability to identify and report suspicious activities, and
+reinforces a security-conscious culture.</p></li>
+</ul></li>
+</ol>
+<h2 id="technical-mitigation-actions">Technical Mitigation Actions</h2>
+<ol>
+<li><p><strong>Secure or Decommission Outdated FTP Service:</strong></p>
+<ul>
+<li><p><em>Immediate Action:</em> Disable anonymous FTP access on
+immediately.</p></li>
+<li><p><em>Short-term Action:</em> Evaluate if FTP is truly necessary.
+If not, decommission the service.</p></li>
+<li><p><em>Long-term Action:</em> If file transfer is required, replace
+<code>vsftpd 2.3.4</code> with a modern, secure file transfer solution
+(e.g., SFTP, SCP, or a cloud-based file sharing service) with strong
+authentication and encryption. If FTP must be used, upgrade to the
+latest stable and patched version of <code>vsftpd</code> and configure
+it securely.</p></li>
+<li><p><em>Benefit:</em> Eliminates critical vulnerabilities and
+unauthorized access vectors.</p></li>
+</ul></li>
+<li><p><strong>Upgrade Outdated Windows Operating Systems:</strong></p>
+<ul>
+<li><p><em>Action:</em> Develop a plan to migrate all workstations
+currently running Windows 7 to a currently supported operating system
+(e.g., Windows 10 or 11).</p></li>
+<li><p><em>Benefit:</em> Ensures systems receive regular security
+patches, reducing exposure to known vulnerabilities and improving
+overall system stability and performance.</p></li>
+</ul></li>
+</ol>
+<h1 id="conclusion">Conclusion</h1>
+<p>True North Travel faces notable cybersecurity risks stemming from
+outdated software configurations and gaps in essential security
+controls. By systematically addressing the outlined recommendations,
+particularly those concerning MFA, security training, and the vulnerable
+FTP service, the organization can significantly enhance its security
+posture, reduce its attack surface, and protect its valuable assets from
+potential cyber threats. A proactive and continuous approach to
+cybersecurity is crucial in today’s evolving threat landscape.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

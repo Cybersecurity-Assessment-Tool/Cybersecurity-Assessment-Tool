@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This cybersecurity posture assessment highlights the current security
+landscape of New Era. Our analysis identified a concerning set of
+vulnerabilities that collectively elevate the organization’s risk
+profile. A critical finding is the presence of an outdated and highly
+vulnerable ‘vsftpd 2.3.4‘ FTP service on an internal host
+(<code>10.0.0.15</code>), which also permits anonymous logins. This
+combination presents a severe risk of unauthorized access, data
+compromise, and potential system exploitation.</p>
+<p>Furthermore, a key organizational gap was identified: the absence of
+Multi-Factor Authentication (MFA) for access to sensitive data systems,
+leaving these critical assets susceptible to credential-based attacks.
+The continued use of unsupported Windows 7 operating systems on
+workstations also poses a significant risk due to lack of security
+updates and known vulnerabilities.</p>
+<p>While New Era demonstrates strengths in other areas, such as MFA for
+email and computer logins, and regular security awareness training, the
+identified critical and high-severity risks require immediate and
+decisive action to safeguard organizational assets and data
+integrity.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following organizational details were provided for this
+assessment:</p>
+<ul>
+<li><p><strong>Organization Name:</strong> New Era</p></li>
+<li><p><strong>Email Domain:</strong> <code>NewEra.net</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.NewEra.net</code></p></li>
+<li><p><strong>External IP Address:</strong>
+<code>104.92.98.244</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of the organizational security questionnaire responses
+indicates adherence to several best practices but also reveals a
+critical gap related to access to sensitive data systems. The table
+below summarizes the responses:</p>
+<div id="tab:security_controls">
+<table>
+<caption>Organizational Security Questionnaire Results</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Answer</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The absence of MFA for sensitive data systems () is a significant
+security gap that needs immediate attention, as it represents a single
+point of failure for authentication to critical resources.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed on the internal host
+<code>10.0.0.15</code>. The scan date is 2026-01-27. The following
+critical finding was identified:</p>
+<h2 id="host-10.0.0.15">Host: <code>10.0.0.15</code></h2>
+<ul>
+<li><p><strong>Status:</strong> Up</p></li>
+<li><p><strong>Open Port:</strong> 21 (FTP)</p></li>
+<li><p><strong>Service:</strong> FTP</p></li>
+<li><p><strong>Product:</strong> vsftpd</p></li>
+<li><p><strong>Version:</strong> 2.3.4</p></li>
+<li><p><strong>Script Output (ftp-anon):</strong> Anonymous FTP login
+allowed</p></li>
+</ul>
+<h3 id="analysis-of-ftp-service">Analysis of FTP Service</h3>
+<p>The ‘vsftpd‘ version 2.3.4 is extremely outdated, having been
+released in 2011 and is considered End-of-Life (EOL). This version is
+known to contain multiple critical vulnerabilities, including remote
+code execution (e.g., CVE-2011-2523), denial of service, and information
+disclosure flaws. Operating an EOL service without security patches
+exposes the system to a high risk of compromise.</p>
+<p>Furthermore, the scan explicitly indicates that "Anonymous FTP login
+allowed." This configuration permits unauthenticated access to the FTP
+server, potentially exposing sensitive files or allowing an attacker to
+upload malicious content, further exacerbating the risk posed by the
+outdated software version. This is a severe security misconfiguration
+that should be remediated immediately.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>Based on the analysis of the provided data, the following risks have
+been identified and correlated:</p>
+<div id="tab:risk_assessment">
+<table>
+<caption>Summary of Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>ID</strong></th>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+<th style="text-align: left;"><strong>Category</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">R-01</td>
+<td style="text-align: left;">Outdated vsftpd FTP Server</td>
+<td style="text-align: left;">The ‘vsftpd 2.3.4‘ service on
+<code>10.0.0.15</code> is End-of-Life and contains multiple critical
+vulnerabilities (e.g., RCE).</td>
+<td style="text-align: left;">Critical</td>
+<td style="text-align: left;">Technical</td>
+</tr>
+<tr>
+<td style="text-align: left;">R-02</td>
+<td style="text-align: left;">Anonymous FTP Access</td>
+<td style="text-align: left;">Anonymous login is permitted on the FTP
+server (<code>10.0.0.15</code>), allowing unauthorized access and
+potential data exposure/manipulation.</td>
+<td style="text-align: left;">Critical</td>
+<td style="text-align: left;">Technical</td>
+</tr>
+<tr>
+<td style="text-align: left;">R-03</td>
+<td style="text-align: left;">Lack of MFA for Sensitive Data</td>
+<td style="text-align: left;">Multi-Factor Authentication is not
+required for access to sensitive data systems, increasing the risk of
+unauthorized access via compromised credentials.</td>
+<td style="text-align: left;">High</td>
+<td style="text-align: left;">Organizational</td>
+</tr>
+<tr>
+<td style="text-align: left;">R-04</td>
+<td style="text-align: left;">Outdated Windows Policy</td>
+<td style="text-align: left;">Workstations are running Windows 7, which
+is End-of-Life and no longer receives security updates, leaving them
+vulnerable to known exploits.</td>
+<td style="text-align: left;">Medium</td>
+<td style="text-align: left;">Organizational</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>To address the identified risks and improve New Era’s overall
+cybersecurity posture, the following actionable recommendations are
+provided:</p>
+<h2 id="immediate-remediation-for-ftp-server-r-01-r-02">Immediate
+Remediation for FTP Server (R-01, R-02)</h2>
+<ul>
+<li><p><strong>Disable Anonymous FTP:</strong> Immediately disable
+anonymous login functionality on the FTP server at
+<code>10.0.0.15</code>.</p></li>
+<li><p><strong>Upgrade/Replace FTP Service:</strong> Upgrade ‘vsftpd‘ to
+the latest stable and supported version, or ideally, replace it with a
+more secure file transfer protocol such as SFTP (SSH File Transfer
+Protocol) or SCP (Secure Copy Protocol) which encrypts data in transit
+and offers stronger authentication mechanisms.</p></li>
+<li><p><strong>Restrict Access:</strong> Implement strict firewall rules
+and access control lists (ACLs) to limit access to the FTP server only
+to necessary internal IP addresses or networks.</p></li>
+<li><p><strong>Review Data:</strong> Conduct an audit of the FTP
+server’s contents to ensure no sensitive or confidential data was
+exposed or uploaded maliciously due to anonymous access.</p></li>
+</ul>
+<h2 id="implement-mfa-for-sensitive-data-systems-r-03">Implement MFA for
+Sensitive Data Systems (R-03)</h2>
+<ul>
+<li><p><strong>Mandate MFA:</strong> Deploy and enforce Multi-Factor
+Authentication for all systems, applications, and databases that store,
+process, or transmit sensitive organizational data.</p></li>
+<li><p><strong>Access Review:</strong> Conduct a comprehensive review of
+all sensitive data access points to identify systems where MFA is
+currently absent and prioritize its implementation.</p></li>
+<li><p><strong>Employee Training:</strong> Provide training to employees
+on the importance and usage of MFA for sensitive data access.</p></li>
+</ul>
+<h2 id="upgrade-outdated-operating-systems-r-04">Upgrade Outdated
+Operating Systems (R-04)</h2>
+<ul>
+<li><p><strong>OS Upgrade Project:</strong> Initiate a project to
+systematically upgrade all workstations currently running Windows 7 to a
+modern, supported operating system (e.g., Windows 10 or 11).</p></li>
+<li><p><strong>Patch Management:</strong> Establish and maintain a
+robust patch management program to ensure all operating systems and
+applications are kept up-to-date with the latest security
+patches.</p></li>
+<li><p><strong>Compensating Controls (if applicable):</strong> If
+immediate upgrades are not feasible for all systems, implement
+compensating controls such as network segmentation for legacy systems,
+enhanced endpoint detection and response (EDR) solutions, and strict
+egress filtering to limit potential attack vectors.</p></li>
+</ul>
+<h2 id="general-security-best-practices">General Security Best
+Practices</h2>
+<ul>
+<li><p><strong>Regular Vulnerability Scans:</strong> Establish a
+schedule for regular internal and external vulnerability scanning to
+proactively identify new risks and misconfigurations.</p></li>
+<li><p><strong>Security Awareness:</strong> Continue and enhance
+existing security awareness training programs, especially focusing on
+identifying phishing attempts and the importance of secure data
+handling.</p></li>
+<li><p><strong>Incident Response Plan:</strong> Ensure a well-documented
+and regularly tested incident response plan is in place to effectively
+manage and mitigate the impact of security incidents.</p></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

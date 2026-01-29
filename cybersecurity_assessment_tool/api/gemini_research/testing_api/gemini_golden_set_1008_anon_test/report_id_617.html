@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive assessment of the organization’s
+current cybersecurity posture, synthesized from security questionnaire
+responses, network scan data, and pre-existing risk information. The
+analysis reveals several critical gaps and high-severity risks that
+warrant immediate attention.</p>
+<p>Key findings indicate a concerning lack of Multi-Factor
+Authentication (MFA) for email and computer logins, which are
+fundamental controls against credential theft. Furthermore, the absence
+of an Acceptable Use Policy (AUP) and insufficient annual security
+awareness training expose the organization to internal and external
+threats, as employees may lack clear guidelines and up-to-date knowledge
+of evolving risks. Critically, an open Remote Desktop Protocol (RDP)
+service (port 3389) was identified, corroborating a pre-existing
+high-severity vulnerability, presenting a direct pathway for
+unauthorized access.</p>
+<p>Urgent recommendations include the immediate implementation of MFA
+across all critical access points, establishment of clear security
+policies, and a robust, recurring security awareness training program.
+Additionally, the RDP exposure must be addressed by either closing the
+port or securing it with strong authentication and a VPN. Addressing
+these issues will significantly enhance the organization’s overall
+security resilience.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<h2 id="client-details">Client Details</h2>
+<p>The following details pertain to the client organization for which
+this assessment was performed. Where specific identity information was
+not provided, placeholders have been used as per assessment
+guidelines.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Email Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>External Client IP (if applicable):</strong>
+<code>[Client IP]</code></p></li>
+<li><p><strong>Scanned Target IP (from Nmap):</strong></p></li>
+<li><p><strong>Network Scan Date:</strong> Not Available (scan metadata
+did not include a date)</p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of the provided security questionnaire responses reveals the
+current state of various security controls within the organization. A
+indicates a ’Yes’ response, while a indicates a ’No’ response,
+highlighting potential gaps.</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<h2 id="network-scan-details">Network Scan Details</h2>
+<p>A targeted network scan using Nmap was performed. The scan aimed to
+identify open ports and services on the designated target.</p>
+<ul>
+<li><p><strong>Scanner Used:</strong> Nmap</p></li>
+<li><p><strong>Target Host Status:</strong> Up</p></li>
+<li><p><strong>Discovered Open Ports and Services:</strong></p>
+<ul>
+<li><p><strong>Port:</strong> <code>3389</code></p></li>
+<li><p><strong>State:</strong> Open</p></li>
+<li><p><strong>Service Name:</strong> <code>ms-wbt-server</code>
+(Microsoft Remote Desktop Protocol)</p></li>
+<li><p><strong>Product/Version:</strong> Not identified by scan (common
+for RDP without full version enumeration)</p></li>
+</ul></li>
+</ul>
+<p><strong>Analysis:</strong> The presence of an open port
+<code>3389</code> indicates that the Microsoft Remote Desktop Protocol
+(RDP) service is accessible. RDP is a common target for attackers,
+especially when exposed directly to the internet without additional
+security layers like a VPN or Multi-Factor Authentication (MFA).
+Exploitation of RDP vulnerabilities or successful brute-force attacks
+can lead to full system compromise. This finding correlates directly
+with a pre-existing high-severity risk.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section details the identified risks, categorized by their
+source and severity. The assessment correlates findings from the
+security questionnaire, technical scans, and pre-existing vulnerability
+data.</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Cybersecurity Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+<th style="text-align: left;"><strong>Source</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Lack of MFA for Email
+Access</strong></td>
+<td style="text-align: left;">Without MFA, email accounts are highly
+vulnerable to credential stuffing and phishing attacks, potentially
+leading to business email compromise (BEC) and data breaches.</td>
+<td style="text-align: left;">High</td>
+<td style="text-align: left;">Questionnaire</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lack of MFA for Computer
+Logins</strong></td>
+<td style="text-align: left;">Weakens endpoint security, making systems
+susceptible to unauthorized access if credentials are compromised,
+enabling lateral movement within the network.</td>
+<td style="text-align: left;">High</td>
+<td style="text-align: left;">Questionnaire</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Absence of Acceptable Use Policy
+(AUP)</strong></td>
+<td style="text-align: left;">Without a formal AUP, employees may not
+understand their responsibilities regarding IT asset usage, increasing
+risks of misuse, data leakage, and compliance issues.</td>
+<td style="text-align: left;">Medium</td>
+<td style="text-align: left;">Questionnaire</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Insufficient Annual Security
+Awareness Training</strong></td>
+<td style="text-align: left;">Lack of regular training leaves employees
+vulnerable to evolving threats like phishing, social engineering, and
+malware, as their knowledge and vigilance become outdated.</td>
+<td style="text-align: left;">Medium</td>
+<td style="text-align: left;">Questionnaire</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>RDP Exposure (Port 3389
+Open)</strong></td>
+<td style="text-align: left;">Remote Desktop Protocol (RDP) is exposed,
+potentially allowing attackers to attempt brute-force attacks or exploit
+RDP vulnerabilities to gain unauthorized access to systems.</td>
+<td style="text-align: left;">Critical</td>
+<td style="text-align: left;">Scan / Existing</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="severity-legend">Severity Legend</h2>
+<ul>
+<li><p><strong>Critical:</strong> Direct and immediate threat, likely to
+result in significant impact (e.g., data breach, system compromise,
+operational disruption). Requires urgent remediation. (Typically CVSS
+9.0-10.0)</p></li>
+<li><p><strong>High:</strong> Significant threat, likely to result in
+substantial impact. Remediation should be prioritized. (Typically CVSS
+7.0-8.9)</p></li>
+<li><p><strong>Medium:</strong> Moderate threat, could result in some
+impact. Remediation should be planned. (Typically CVSS 4.0-6.9)</p></li>
+<li><p><strong>Low:</strong> Minor threat, unlikely to result in
+significant impact. Remediation can be addressed in routine maintenance.
+(Typically CVSS 0.1-3.9)</p></li>
+</ul>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the identified risks, the following recommendations are
+provided to enhance the organization’s cybersecurity posture and
+mitigate potential threats.</p>
+<h2 id="policy-training-and-awareness">Policy, Training, and
+Awareness</h2>
+<ul>
+<li><p><strong>Implement Acceptable Use Policy (AUP):</strong> Develop,
+communicate, and enforce a clear AUP that outlines employee
+responsibilities when using organizational IT assets and resources. This
+policy should be acknowledged by all employees.</p></li>
+<li><p><strong>Mandatory Annual Security Awareness Training:</strong>
+Establish and conduct mandatory annual security awareness training for
+all employees. The content should be regularly updated to cover emerging
+threats such as advanced phishing techniques, ransomware, and social
+engineering to maintain employee vigilance.</p></li>
+</ul>
+<h2 id="identity-and-access-management-iam">Identity and Access
+Management (IAM)</h2>
+<ul>
+<li><p><strong>Implement MFA for Email Access:</strong> Deploy and
+enforce Multi-Factor Authentication (MFA) for all user accounts
+accessing organizational email services. This significantly reduces the
+risk of account compromise from credential theft.</p></li>
+<li><p><strong>Implement MFA for Computer Logins:</strong> Require MFA
+for all user logins to company computers and endpoints, especially for
+administrative accounts and critical systems, to prevent unauthorized
+access.</p></li>
+</ul>
+<h2 id="network-security">Network Security</h2>
+<ul>
+<li><p><strong>Secure RDP Exposure:</strong></p>
+<ul>
+<li><p><strong>Immediate Fix:</strong> Block inbound access to port
+<code>3389</code> (RDP) from external networks at the perimeter
+firewall. This is the most direct way to mitigate immediate external
+exposure.</p></li>
+<li><p><strong>Long-Term Solution:</strong> If remote RDP access is a
+business requirement, implement a Virtual Private Network (VPN) solution
+with strong authentication (preferably MFA) that must be used to
+establish a secure tunnel before RDP connections can be made to internal
+systems.</p></li>
+<li><p><strong>Advanced Control:</strong> Consider deploying a jump box
+or bastion host for RDP access. This minimizes the attack surface by
+only exposing the jump box to external networks, and all RDP connections
+to internal resources are proxied through it.</p></li>
+</ul></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

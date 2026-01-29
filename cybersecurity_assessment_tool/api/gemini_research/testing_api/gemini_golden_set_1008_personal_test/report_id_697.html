@@ -1,0 +1,269 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-overview">Executive Overview</h1>
+<p>This report details the findings from a recent cybersecurity posture
+assessment conducted for Brimstone Manufacturing. The assessment
+included a review of organizational security controls via a
+questionnaire, a technical network scan, and an analysis of existing
+risk data.</p>
+<p>Overall, Brimstone Manufacturing demonstrates a commendable
+commitment to multi-factor authentication (MFA) across critical systems.
+However, the assessment identified significant vulnerabilities, most
+notably an critically outdated web server (Nginx 1.18.0) which poses a
+severe risk due to known exploits. Furthermore, gaps in foundational
+security practices, specifically the absence of an employee acceptable
+use policy and a lack of security awareness training for new employees,
+introduce considerable human-factor risks. Addressing these critical and
+high-priority recommendations is paramount to enhancing the
+organization’s overall security posture.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following information was collected to provide context for the
+security assessment.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> Brimstone
+Manufacturing</p></li>
+<li><p><strong>Email Domain:</strong>
+<code>BrimstoneManufacturing.com</code></p></li>
+<li><p><strong>Website Domain:</strong> <a
+href="www.BrimstoneManufacturing.com"
+class="uri">www.BrimstoneManufacturing.com</a></p></li>
+<li><p><strong>External IP:</strong> <code>37.247.87.174</code></p></li>
+<li><p><strong>Targeted Internal IP (for scan):</strong>
+<code>192.168.10.5</code></p></li>
+<li><p><strong>Scan Date:</strong> 2025-11-22T10:00:00Z</p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<h2 id="security-questionnaire-results">Security Questionnaire
+Results</h2>
+<p>A review of the organization’s self-reported security controls
+revealed the following:</p>
+<div id="tab:questionnaire">
+<table>
+<caption>Security Questionnaire Findings</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Area</strong></th>
+<th style="text-align: left;"><strong>Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Access Control</strong></td>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Policy &amp;
+Training</strong></td>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<h2 id="nmap-scan-findings---target-192.168.10.5">Nmap Scan Findings -
+Target: <code>192.168.10.5</code></h2>
+<p>A network scan was conducted on the internal target
+<code>192.168.10.5</code>. The scan revealed the following open port and
+service information:</p>
+<ul>
+<li><p><strong>Port:</strong> 443/tcp</p></li>
+<li><p><strong>State:</strong> Open</p></li>
+<li><p><strong>Service:</strong> <code>https</code></p></li>
+<li><p><strong>Product:</strong> Nginx</p></li>
+<li><p><strong>Version:</strong> 1.18.0</p></li>
+<li><p><strong>SSL Certificate CommonName:</strong>
+<code>www.acme-corp.com</code></p></li>
+</ul>
+<h3 class="unnumbered" id="analysis-of-technical-findings">Analysis of
+Technical Findings</h3>
+<p>The most critical finding from the network scan is the presence of an
+Nginx web server running version <code>1.18.0</code> on port 443. This
+version was released in April 2020 and is significantly outdated. Modern
+stable Nginx versions are in the 1.26.x series, and mainline releases
+are even newer. Running such an old version exposes the organization to
+numerous known vulnerabilities, which could lead to remote code
+execution, denial of service, information disclosure, or other severe
+security breaches. This poses a <strong>Critical</strong> risk.</p>
+<p>Additionally, it was noted that the SSL certificate’s common name
+(<code>www.acme-corp.com</code>) does not match the organization’s
+website domain (<code>www.BrimstoneManufacturing.com</code>). While this
+might indicate a third-party service or a complex network setup, it
+could also point to a misconfiguration or an expired certificate if it’s
+intended to serve Brimstone Manufacturing’s content directly. Further
+investigation is recommended to clarify this discrepancy.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<h2 id="identified-risks-and-vulnerabilities">Identified Risks and
+Vulnerabilities</h2>
+<p>The assessment identified the following risks, categorized by
+severity:</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Risks and Vulnerabilities</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Outdated Nginx Web Server
+(1.18.0)</strong></td>
+<td style="text-align: left;">The Nginx web server on
+<code>192.168.10.5</code> is significantly outdated. Version 1.18.0
+contains multiple known vulnerabilities that can be exploited by
+attackers, leading to severe consequences like remote code execution or
+data breaches.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Absence of Employee Acceptable Use
+Policy (AUP)</strong></td>
+<td style="text-align: left;">The lack of a formal AUP means employees
+may not be aware of appropriate use of company IT resources, increasing
+risks of misuse, insider threats, and legal liabilities due to
+unauthorized activities.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Inadequate Security Awareness
+Training for New Employees</strong></td>
+<td style="text-align: left;">New employees are not receiving essential
+security awareness training. This leaves them vulnerable to social
+engineering attacks (e.g., phishing) and unaware of crucial security
+protocols from the start, introducing potential entry points for
+attackers.</td>
+<td style="text-align: left;">High</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<h2 id="prioritized-action-items">Prioritized Action Items</h2>
+<p>Based on the identified risks, the following recommendations are
+provided to enhance Brimstone Manufacturing’s cybersecurity posture:</p>
+<ol>
+<li><p><strong>Immediate Action: Update Nginx Web Server (Critical
+Risk)</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Immediately plan and execute an upgrade
+of the Nginx web server on <code>192.168.10.5</code> to the latest
+stable version (e.g., Nginx 1.26.x or newer).</p></li>
+<li><p><strong>Justification:</strong> This is the most critical
+vulnerability identified, as outdated software is a primary target for
+attackers. Updating will patch known vulnerabilities and improve
+security and performance.</p></li>
+<li><p><strong>Priority:</strong> Critical</p></li>
+</ul></li>
+<li><p><strong>Develop and Implement an Employee Acceptable Use Policy
+(High Risk)</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Draft, finalize, and disseminate a
+comprehensive Employee Acceptable Use Policy (AUP). Ensure all employees
+acknowledge and understand the policy.</p></li>
+<li><p><strong>Justification:</strong> An AUP sets clear expectations
+for employee conduct regarding company IT assets, reducing misuse,
+insider threats, and legal risks.</p></li>
+<li><p><strong>Priority:</strong> High</p></li>
+</ul></li>
+<li><p><strong>Establish Security Awareness Training for New Employees
+(High Risk)</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Integrate mandatory security awareness
+training into the onboarding process for all new employees. This
+training should cover topics like phishing, password security, data
+handling, and company security policies.</p></li>
+<li><p><strong>Justification:</strong> New employees are often prime
+targets for social engineering. Early training reduces the risk of human
+error-induced breaches and instills a security-first culture from day
+one.</p></li>
+<li><p><strong>Priority:</strong> High</p></li>
+</ul></li>
+<li><p><strong>Review SSL Certificate Configuration
+(Medium/Informational)</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Investigate why the SSL certificate
+common name on <code>192.168.10.5</code> is
+<code>www.acme-corp.com</code> instead of
+<code>www.BrimstoneManufacturing.com</code>. Ensure the certificate is
+valid, correctly configured, and appropriate for the service being
+hosted.</p></li>
+<li><p><strong>Justification:</strong> A mismatch or an incorrect
+certificate can lead to trust issues, security warnings for users, or
+indicate a misconfiguration that could be leveraged by
+attackers.</p></li>
+<li><p><strong>Priority:</strong> Medium</p></li>
+</ul></li>
+</ol>
+<h1 id="conclusion">Conclusion</h1>
+<p>Brimstone Manufacturing has established a strong foundation regarding
+MFA implementation. However, the critical vulnerability posed by the
+outdated Nginx web server and the high risks associated with gaps in
+policy and new employee training require immediate attention. By
+addressing these prioritized recommendations, Brimstone Manufacturing
+can significantly enhance its resilience against cyber threats and build
+a more robust and secure operational environment. Continuous monitoring
+and regular security assessments are also recommended to maintain a
+strong security posture.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

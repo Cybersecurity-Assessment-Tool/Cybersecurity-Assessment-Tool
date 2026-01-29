@@ -1,0 +1,326 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report details the findings from a cybersecurity posture
+assessment for Astraeus Aerospace. The assessment combined an
+organizational security questionnaire review, technical network
+scanning, and an analysis of existing risk documentation.</p>
+<p>The overall security posture is assessed as <strong>High
+Risk</strong>. While some foundational controls are in place (e.g., MFA
+for email and computer login, AUP), several critical gaps were
+identified. Most notably, Multi-Factor Authentication is not enforced
+for sensitive data systems, and security awareness training for
+employees is significantly lacking.</p>
+<p><strong>A critical finding is the direct contradiction between an
+existing risk assessment and live technical scan data.</strong> An
+internal document incorrectly states "Port 8080 Secured" with zero
+severity, yet our scan identified this very port as open and exposing a
+service explicitly titled "TOP SECRET DB". This not only represents an
+unmitigated, highly sensitive data exposure but also indicates a severe
+deficiency in the organization’s risk management, vulnerability
+assessment, and remediation processes. Immediate action is required to
+address this critical exposure and rectify the underlying process
+failures.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following organizational details were provided:</p>
+<ul>
+<li><p><strong>Organization Name:</strong> Astraeus Aerospace</p></li>
+<li><p><strong>Email Domain:</strong>
+<code>AstraeusAerospace.net</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.AstraeusAerospace.net</code></p></li>
+<li><p><strong>External IP Address:</strong>
+<code>57.111.68.53</code></p></li>
+<li><p><strong>Target IP Scanned:</strong>
+<code>10.5.5.5</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of the provided security questionnaire responses highlights
+the current state of several key security controls within Astraeus
+Aerospace.</p>
+<div id="tab:security_controls">
+<table style="width:60%;">
+<caption>Security Control Questionnaire Review</caption>
+<colgroup>
+<col style="width: 60%" />
+<col />
+<col />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+<th style="text-align: left;"><strong>Implication/Risk
+Level</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><em>Good: Stronger protection against
+email compromise.</em></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><em>Good: Enhances endpoint
+security.</em></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>Critical Gap: High risk of
+unauthorized access with compromised credentials.</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><em>Good: Establishes clear guidelines for
+technology use.</em></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>High Risk: New employees may lack
+critical security knowledge from day one.</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>High Risk: Employees may not be
+up-to-date on current threats; increased human error risk.</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed against the target IP address
+<code>10.5.5.5</code>. The following findings are noteworthy:</p>
+<ul>
+<li><p><strong>Scan Target:</strong> <code>10.5.5.5</code></p></li>
+<li><p><strong>Open Port:</strong> <code>8080</code></p></li>
+<li><p><strong>Service Details:</strong></p>
+<ul>
+<li><p>A service is running on port <code>8080</code>.</p></li>
+<li><p>An <code>http-title</code> script returned the title:
+<strong>"TOP SECRET DB"</strong>.</p></li>
+</ul></li>
+</ul>
+<p><strong>Analysis:</strong> The presence of an open port
+<code>8080</code> with a service explicitly advertising itself as a "TOP
+SECRET DB" is a severe finding. This indicates a potential exposure of
+highly sensitive information or direct access to a critical database
+system. While specific product and version information was not obtained,
+the disclosed title alone is a significant security risk, suggesting
+either a misconfigured service, an unprotected development environment,
+or a critical information leak.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section synthesizes the findings into a comprehensive risk
+assessment, including new risks identified during this analysis and
+correlating them with previously documented risks.</p>
+<div id="tab:risk_assessment">
+<table style="width:90%;">
+<caption>Consolidated Risk Assessment</caption>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 20%" />
+<col style="width: 10%" />
+<col style="width: 40%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk ID</strong></th>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Affected Elements</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">RA-001</td>
+<td style="text-align: left;"><strong>Exposed "TOP SECRET DB" on Port
+8080</strong></td>
+<td style="text-align: left;">Critical</td>
+<td style="text-align: left;">An open port <code>8080</code> on
+<code>10.5.5.5</code> publicly exposes a service titled "TOP SECRET DB".
+This represents an immediate and critical risk of sensitive data
+compromise and potential unauthorized access.</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">RA-002</td>
+<td style="text-align: left;"><strong>Critical Risk
+Misassessment</strong></td>
+<td style="text-align: left;">Critical</td>
+<td style="text-align: left;">An existing risk assessment (from Input 3)
+erroneously claims "Port 8080 Secured" with a severity of 0.0. This
+directly contradicts live scan data (RA-001) and highlights a critical
+failure in the organization’s risk management, vulnerability validation,
+or asset inventory processes.</td>
+<td style="text-align: left;">Risk Management Process, Asset
+Inventory</td>
+</tr>
+<tr>
+<td style="text-align: left;">RA-003</td>
+<td style="text-align: left;"><strong>Lack of MFA for Sensitive Data
+Systems</strong></td>
+<td style="text-align: left;">High</td>
+<td style="text-align: left;">Access to critical or sensitive data
+systems is not protected by Multi-Factor Authentication. This
+significantly increases the attack surface for credential-based attacks
+(e.g., phishing, brute-force, credential stuffing).</td>
+<td style="text-align: left;">Sensitive Data Systems, User Accounts</td>
+</tr>
+<tr>
+<td style="text-align: left;">RA-004</td>
+<td style="text-align: left;"><strong>Inadequate Employee Security
+Awareness Training</strong></td>
+<td style="text-align: left;">High</td>
+<td style="text-align: left;">The organization lacks mandatory security
+awareness training for new employees and annual refresher training for
+all staff. This leaves the organization vulnerable to human-factor risks
+such as phishing, social engineering, and poor security practices.</td>
+<td style="text-align: left;">Employees, Organizational Culture</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><em>Existing/Debunked Risks (from
+Input 3)</em></strong></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">ER-001</td>
+<td style="text-align: left;"><em>Port 8080 Secured</em></td>
+<td style="text-align: left;"><em>Low (Debunked)</em></td>
+<td style="text-align: left;"><em>Original assessment (CVSS 0.0) claimed
+port 8080 was secure and a false positive. <strong>This assessment is
+critically disproven by current live scan data (RA-001) and should be
+immediately updated.</strong></em></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the analysis, the following actionable recommendations are
+provided to improve Astraeus Aerospace’s cybersecurity posture:</p>
+<h2 id="immediate-actions-critical-risks">Immediate Actions (Critical
+Risks)</h2>
+<ol>
+<li><p><strong>Investigate and Secure Port <code>8080</code>
+(RA-001):</strong></p>
+<ul>
+<li><p>Immediately investigate the service running on . Determine its
+purpose, what data it processes or stores, and its intended
+audience.</p></li>
+<li><p>Take the service offline immediately if it is not intended for
+public access or contains sensitive data.</p></li>
+<li><p>If the service is legitimate, implement strong access controls
+(e.g., firewall rules, VPN access, granular IP restrictions) and
+appropriate authentication mechanisms.</p></li>
+<li><p>Change the HTTP title to remove any indication of sensitive
+content ("TOP SECRET DB").</p></li>
+</ul></li>
+<li><p><strong>Audit and Rectify Risk Management Processes
+(RA-002):</strong></p>
+<ul>
+<li><p>Conduct an urgent post-mortem to understand why the "Port 8080
+Secured" assessment was made and why it was not flagged or updated
+following a live system check.</p></li>
+<li><p>Implement robust verification steps for vulnerability closure and
+risk acceptance. This should include re-scanning or manual validation by
+an independent party.</p></li>
+<li><p>Ensure a clear process for integrating new technical scan
+findings with existing risk registers.</p></li>
+</ul></li>
+</ol>
+<h2 id="high-priority-actions">High Priority Actions</h2>
+<ol start="3">
+<li><p><strong>Implement Multi-Factor Authentication for Sensitive Data
+Systems (RA-003):</strong></p>
+<ul>
+<li><p>Mandate and enforce MFA for all systems and applications that
+store, process, or provide access to sensitive organizational
+data.</p></li>
+<li><p>Prioritize implementation based on the criticality and
+sensitivity of the data.</p></li>
+</ul></li>
+<li><p><strong>Establish Comprehensive Security Awareness Training
+Program (RA-004):</strong></p>
+<ul>
+<li><p>Develop and implement a mandatory security awareness training
+program for all new employees during their onboarding process. This
+should cover common threats, organizational policies, and best
+practices.</p></li>
+<li><p>Implement mandatory annual security awareness training for all
+employees to keep them informed about evolving threats and reinforce
+good security hygiene.</p></li>
+<li><p>Consider regular phishing simulation exercises to test and
+improve employee vigilance.</p></li>
+</ul></li>
+</ol>
+<h2 id="general-security-enhancements">General Security
+Enhancements</h2>
+<ol start="5">
+<li><p><strong>Regular Vulnerability Scanning and Penetration
+Testing:</strong></p>
+<ul>
+<li><p>Implement a schedule for regular, automated vulnerability
+scanning across all external and internal assets.</p></li>
+<li><p>Engage third-party experts for periodic external and internal
+penetration tests to identify complex vulnerabilities and validate
+existing controls.</p></li>
+</ul></li>
+<li><p><strong>Asset Inventory and Configuration
+Management:</strong></p>
+<ul>
+<li><p>Maintain an up-to-date and accurate inventory of all network
+assets, including services and open ports.</p></li>
+<li><p>Implement strict configuration management policies to ensure all
+systems are securely configured and monitored for deviations.</p></li>
+</ul></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

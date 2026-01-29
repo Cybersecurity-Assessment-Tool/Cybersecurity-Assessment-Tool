@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-overview">Executive Overview</h1>
+<p>This report details the findings of a cybersecurity posture
+assessment conducted for <strong>[Organization Name]</strong>. The
+assessment combined an automated network scan, a review of existing risk
+documentation, and an analysis of organizational security controls via a
+questionnaire.</p>
+<p>The overall security posture is assessed as
+<strong>High-Risk</strong>. Several critical vulnerabilities and
+security gaps were identified that require immediate attention.</p>
+<h4 id="key-findings">Key Findings:</h4>
+<ul>
+<li><p><strong>Critical Control Gaps:</strong> The organization does not
+enforce Multi-Factor Authentication (MFA) for accessing email or other
+sensitive data systems. This represents a critical vulnerability, as
+compromised credentials could lead to a significant data
+breach.</p></li>
+<li><p><strong>Publicly Exposed Database:</strong> An external scan
+confirmed that a MySQL database server is directly exposed to the
+internet on port 3306. This finding validates a pre-existing documented
+risk.</p></li>
+<li><p><strong>End-of-Life Software:</strong> The exposed MySQL server
+is running version 5.7.33. This version is officially End-of-Life (EOL)
+as of October 2023 and no longer receives security updates from the
+vendor, making it an attractive target for attackers.</p></li>
+</ul>
+<p>Immediate remediation is required to address the lack of MFA and
+restrict access to the exposed database. A strategic plan must be
+developed to upgrade the end-of-life database software to a supported
+version. This report provides detailed analysis and actionable
+recommendations to mitigate these identified risks.</p>
+<h1 id="organizational-and-scan-information">Organizational and Scan
+Information</h1>
+<p>This section provides general information about the client
+organization and the scope of the technical scan. The data has been
+anonymized as per the engagement agreement.</p>
+<table>
+<caption>Client and Scan Scope Details.</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Item</strong></th>
+<th style="text-align: left;"><strong>Detail</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;"><strong>[Organization Name]</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Primary Domain</td>
+<td style="text-align: left;"><code>[Domain]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Scanned</td>
+<td style="text-align: left;"><code>[Target IP]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Scan Date</td>
+<td style="text-align: left;">2024-05-21</td>
+</tr>
+</tbody>
+</table>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>The following table summarizes the organization’s responses to a
+security controls questionnaire. "No" answers indicate significant gaps
+in the security framework and are correlated with identified risks.</p>
+<table>
+<caption>Security Controls Questionnaire Analysis.</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th colspan="2"
+style="text-align: center;"><strong>Response</strong></th>
+<th style="text-align: left;"><strong>Assessment</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">(No)</td>
+<td style="text-align: left;"><span style="color: red"><strong>Critical
+Gap</strong></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">(Yes)</td>
+<td style="text-align: left;">Meets Best Practice</td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">(No)</td>
+<td style="text-align: left;"><span style="color: red"><strong>Critical
+Gap</strong></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">(Yes)</td>
+<td style="text-align: left;">Meets Best Practice</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">(Yes)</td>
+<td style="text-align: left;">Meets Best Practice</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">(Yes)</td>
+<td style="text-align: left;">Meets Best Practice</td>
+</tr>
+</tbody>
+</table>
+<h4 id="analysis">Analysis:</h4>
+<p>The lack of MFA on email and sensitive systems is a severe weakness.
+Email is a primary target for phishing and account takeover attacks,
+which can serve as a gateway to the entire network. Similarly, sensitive
+data systems without MFA are vulnerable to credential stuffing and
+brute-force attacks.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An Nmap scan was performed against the target IP address
+<code>[Target IP]</code>. The scan identified the following open port
+and service.</p>
+<table>
+<caption>Open Ports Identified on <code>[Target IP]</code>.</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+<th style="text-align: left;"><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3306/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">mysql</td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">5.7.33</td>
+<td style="text-align: left;"><span
+style="color: red"><strong>End-of-Life</strong></span></td>
+</tr>
+</tbody>
+</table>
+<h4 id="analysis-1">Analysis:</h4>
+<p>The scan confirms that a MySQL database is publicly accessible. The
+identified version, 5.7.33, reached its official End-of-Life (EOL) in
+October 2023. EOL software no longer receives security patches, meaning
+any new vulnerabilities discovered will not be fixed by the vendor. This
+presents a severe and unmitigable risk as long as the software remains
+in use and exposed.</p>
+<h1 id="consolidated-risk-assessment">Consolidated Risk Assessment</h1>
+<p>This section synthesizes findings from the security controls review,
+technical scan, and pre-existing risk documentation into a consolidated
+list of key risks.</p>
+<table>
+<caption>Summary of Identified Risks.</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Description</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Database Exposure</strong></td>
+<td style="text-align: left;">The MySQL database on port 3306 is open to
+the public internet, allowing attackers to perform reconnaissance,
+brute-force attacks, or exploit vulnerabilities.</td>
+<td style="text-align: left;"><strong>High (7.5)</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Use of End-of-Life
+Software</strong></td>
+<td style="text-align: left;">The exposed MySQL server is running an EOL
+version (5.7.33) that no longer receives security updates, leaving it
+perpetually vulnerable to newly discovered exploits.</td>
+<td style="text-align: left;"><strong>Critical (9.8)</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>No MFA on Email</strong></td>
+<td style="text-align: left;">Lack of MFA on email accounts makes them
+highly susceptible to phishing and account takeover, which can lead to
+business email compromise and further internal attacks.</td>
+<td style="text-align: left;"><strong>Critical (9.4)</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>No MFA on Sensitive
+Systems</strong></td>
+<td style="text-align: left;">Sensitive data systems are protected only
+by username and password, making them vulnerable to credential-based
+attacks and unauthorized data access.</td>
+<td style="text-align: left;"><strong>Critical (9.1)</strong></td>
+</tr>
+</tbody>
+</table>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actions are recommended to mitigate the identified
+risks. Recommendations are prioritized based on severity and ease of
+implementation.</p>
+<h2 id="immediate-actions-to-be-completed-within-72-hours">Immediate
+Actions (To be completed within 72 hours)</h2>
+<ol>
+<li><p><strong>Restrict Access to Database Port:</strong> Implement
+strict firewall rules to deny all public access to TCP port 3306 on
+<code>[Target IP]</code>. Access should only be permitted from trusted
+internal IP addresses or through a secure VPN connection. This
+immediately mitigates the <em>Database Exposure</em> risk.</p></li>
+</ol>
+<h2
+id="high-priority-actions-to-be-completed-within-30-days">High-Priority
+Actions (To be completed within 30 days)</h2>
+<ol>
+<li><p><strong>Enforce MFA on All Email Accounts:</strong> Enable and
+enforce MFA for all user mailboxes. This is the single most effective
+control to prevent account takeovers and significantly reduces the risk
+of business email compromise.</p></li>
+<li><p><strong>Enforce MFA on Sensitive Systems:</strong> Identify all
+systems containing sensitive data and enforce MFA for all user access,
+especially for administrative accounts.</p></li>
+</ol>
+<h2 id="strategic-actions-to-be-completed-within-6-12-months">Strategic
+Actions (To be completed within 6-12 months)</h2>
+<ol>
+<li><p><strong>Upgrade End-of-Life Database:</strong> Develop and
+execute a plan to migrate the MySQL 5.7.33 database to a modern, fully
+supported version (e.g., MySQL 8.x or a managed cloud equivalent). This
+is the only long-term solution to the <em>Use of End-of-Life
+Software</em> risk.</p></li>
+<li><p><strong>Implement a Bastion Host or VPN:</strong> For any
+required remote database administration, implement a secure access
+method such as a VPN or a hardened bastion host. Direct database access
+over the internet should be permanently prohibited.</p></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

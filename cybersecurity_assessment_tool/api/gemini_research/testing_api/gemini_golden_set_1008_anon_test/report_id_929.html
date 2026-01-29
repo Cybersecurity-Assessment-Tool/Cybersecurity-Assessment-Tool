@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="introduction">Introduction</h1>
+<p>This report details the current cybersecurity posture of
+<strong>[Organization Name]</strong>, based on an analysis of provided
+data inputs. The assessment aims to identify vulnerabilities, assess
+risks, and provide actionable recommendations to enhance the
+organization’s overall security.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Email Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>External IP (Client-facing):</strong>
+<code>[Client IP]</code></p></li>
+</ul>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>The assessment reveals a concerning combination of technical
+vulnerabilities and control deficiencies. Specifically, the open Remote
+Desktop Protocol (RDP) port on <code>[Target IP]</code> poses a direct
+external attack surface. This is exacerbated by the absence of
+Multi-Factor Authentication (MFA) for email access, which is a critical
+security gap. The correlation between an externally exposed RDP service
+and a lack of strong authentication for internal systems (like email,
+often a gateway to other resources) significantly elevates the risk of
+successful exploitation, potentially leading to initial access,
+privilege escalation, and lateral movement within the network. These
+issues are compounded by an existing high-severity risk concerning RDP
+exposure. Addressing these findings with urgency is paramount to
+protecting organizational assets.</p>
+<h1 id="security-control-review-questionnaire-results">Security Control
+Review: Questionnaire Results</h1>
+<p>A review of the organizational security questionnaire highlights
+adherence to several best practices but also reveals a critical gap.
+Each question has been evaluated against industry standards.</p>
+<div id="tab:questionnaire">
+<table>
+<caption>Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Question</strong></th>
+<th style="text-align: left;"><strong>Response</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis-of-questionnaire-results">Analysis
+of Questionnaire Results</h2>
+<p>The most significant finding from the questionnaire is the lack of
+MFA for email access. Email is often a primary target for phishing and
+credential compromise. Without MFA, a single compromised password can
+grant an attacker access to an employee’s inbox, potentially leading to
+further attacks such as business email compromise (BEC), data
+exfiltration, or password resets for other services. This critical gap
+significantly elevates the organization’s risk profile.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed to identify open ports and services on
+the designated target.</p>
+<ul>
+<li><p><strong>Target IP:</strong> <code>[Target IP]</code></p></li>
+<li><p><strong>Scan Date:</strong> <em>Not provided in scan
+metadata.</em></p></li>
+<li><p><strong>Scanner Used:</strong> Nmap</p></li>
+</ul>
+<h2 class="unnumbered" id="discovered-services">Discovered Services</h2>
+<p>The scan identified the following open ports and services:</p>
+<div id="tab:open_ports">
+<table>
+<caption>Open Ports and Services</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>Protocol</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3389</td>
+<td style="text-align: left;">TCP</td>
+<td style="text-align: left;">ms-wbt-server (RDP)</td>
+<td style="text-align: left;">open</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis-of-technical-findings">Analysis of
+Technical Findings</h2>
+<p>The discovery of an open Remote Desktop Protocol (RDP) service (port
+3389) on <code>[Target IP]</code> is a critical concern. RDP, when
+exposed to the internet without proper security controls (such as a VPN,
+strong, unique passwords, and crucially, Multi-Factor Authentication),
+is a frequently exploited attack vector. Threat actors often leverage
+brute-force attacks or exploit known vulnerabilities in RDP to gain
+initial access to systems.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section correlates findings from the questionnaire, technical
+scans, and existing risk data to provide a consolidated view of the
+organization’s risk landscape.</p>
+<div id="tab:risk_assessment">
+<table>
+<caption>Consolidated Risk Assessment</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Source</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">RDP Exposure</td>
+<td style="text-align: left;">Scan / Existing Risk Register</td>
+<td style="text-align: left;">Remote Desktop Protocol (port 3389) is
+exposed externally, making it vulnerable to brute-force attacks or
+exploits. This correlates with an existing high-severity risk.</td>
+<td style="text-align: left;">Critical (CVSS 9.0)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of MFA for Email</td>
+<td style="text-align: left;">Questionnaire</td>
+<td style="text-align: left;">Email access lacks Multi-Factor
+Authentication, making accounts susceptible to credential compromise via
+phishing or password spraying.</td>
+<td style="text-align: left;">High</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="combined-risk-implications">Combined Risk
+Implications</h2>
+<p>The combination of an exposed RDP service and the absence of MFA for
+email access creates a synergistic risk environment. An attacker could
+potentially:</p>
+<ol>
+<li><p>Exploit the exposed RDP service to gain initial access to an
+internal system.</p></li>
+<li><p>Once inside, attempt to access email accounts using credentials
+obtained internally or via phishing. Without MFA on email, this access
+would be unimpeded.</p></li>
+<li><p>Leverage email access for further attacks, such as Business Email
+Compromise (BEC), compromising other accounts via password resets, or
+exfiltrating sensitive data.</p></li>
+</ol>
+<p>This scenario represents a direct path to a significant breach,
+highlighting the critical nature of these findings.</p>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following recommendations are provided to mitigate the identified
+risks and improve the organization’s cybersecurity posture. They are
+prioritized based on severity and potential impact.</p>
+<h2 id="immediate-actions-high-priority">Immediate Actions (High
+Priority)</h2>
+<ol>
+<li><p><strong>Implement Multi-Factor Authentication (MFA) for Email
+Access:</strong></p>
+<ul>
+<li><p>Enable and enforce MFA for all user accounts accessing email.
+This is the most critical step to prevent credential-based
+attacks.</p></li>
+</ul></li>
+<li><p><strong>Restrict External RDP Access:</strong></p>
+<ul>
+<li><p>Immediately review and restrict public internet access to port
+3389 (RDP).</p></li>
+<li><p><strong>Preferred Method:</strong> Place RDP behind a Virtual
+Private Network (VPN) such that RDP is only accessible to authenticated
+VPN users.</p></li>
+<li><p><strong>Alternative (Less Secure):</strong> If VPN is not
+immediately feasible, restrict RDP access to a specific whitelist of
+trusted source IP addresses at the network perimeter firewall. Ensure
+strong, unique passwords are used, and implement account lockout
+policies.</p></li>
+<li><p><strong>Implement MFA for RDP Access:</strong> If RDP must be
+externally accessible (e.g., via VPN), ensure MFA is enforced for all
+RDP connections.</p></li>
+</ul></li>
+</ol>
+<h2 id="mid-term-actions-medium-priority">Mid-Term Actions (Medium
+Priority)</h2>
+<ol>
+<li><p><strong>Regular Vulnerability Scanning:</strong></p>
+<ul>
+<li><p>Implement a schedule for regular internal and external
+vulnerability scans to identify new exposures or
+misconfigurations.</p></li>
+</ul></li>
+<li><p><strong>Security Awareness Training Reinforcement:</strong></p>
+<ul>
+<li><p>Conduct targeted training on phishing awareness and the
+importance of MFA for all employees, especially given the email MFA
+gap.</p></li>
+</ul></li>
+</ol>
+<h2 id="long-term-actions-ongoing">Long-Term Actions (Ongoing)</h2>
+<ol>
+<li><p><strong>Incident Response Plan Review:</strong></p>
+<ul>
+<li><p>Regularly review and test the incident response plan to ensure
+the organization can effectively detect, respond to, and recover from
+security incidents.</p></li>
+</ul></li>
+<li><p><strong>Patch Management Program:</strong></p>
+<ul>
+<li><p>Ensure all systems, especially those exposed to the internet, are
+kept up-to-date with the latest security patches.</p></li>
+</ul></li>
+</ol>
+<h1 id="conclusion">Conclusion</h1>
+<p>The current cybersecurity posture of <strong>[Organization
+Name]</strong> requires urgent attention, particularly regarding the
+exposed RDP service and the absence of MFA for email. By diligently
+implementing the recommended actions, the organization can significantly
+enhance its defenses against common attack vectors and reduce the
+likelihood and impact of a security breach. Continued vigilance and a
+proactive approach to cybersecurity are essential for maintaining a
+robust security posture.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="executive-summary">Executive Summary</h1>
+<p>Nomad Gear Co. currently exhibits a <strong>critical risk
+posture</strong>, primarily due to significant gaps in fundamental
+security controls and the presence of highly vulnerable, misconfigured
+services directly exposed. Key findings include a pervasive lack of
+Multi-Factor Authentication (MFA) across critical systems, an outdated
+and anonymously accessible FTP service, and existing vulnerabilities
+related to deprecated operating systems. The combination of these
+factors creates a substantial attack surface that could lead to
+unauthorized access, data breaches, and operational disruption.
+Immediate action is required to mitigate these critical risks and
+strengthen the organization’s overall security posture.</p>
+<h1 class="unnumbered" id="organizational-information">1. Organizational
+Information</h1>
+<p>This section outlines the key organizational details pertinent to
+this security assessment.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> Nomad Gear Co.</p></li>
+<li><p><strong>Email Domain:</strong></p></li>
+<li><p><strong>Website Domain:</strong></p></li>
+<li><p><strong>External IP:</strong></p></li>
+</ul>
+<h1 class="unnumbered" id="security-control-review">2. Security Control
+Review</h1>
+<p>A review of the provided security questionnaire responses reveals
+several critical gaps in security controls, particularly concerning
+authentication and ongoing security awareness.</p>
+<div id="tab:security_review">
+<table>
+<caption>Security Questionnaire Review</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis-of-security-control-gaps">Analysis
+of Security Control Gaps:</h2>
+<ul>
+<li><p><strong>Lack of Multi-Factor Authentication (MFA):</strong> The
+absence of MFA for email, computer logins, and sensitive data systems
+represents a severe vulnerability. Without MFA, compromised credentials
+(e.g., via phishing or brute-force attacks) can directly lead to
+unauthorized access to critical organizational resources. This is a
+primary target for attackers and significantly increases the risk of
+account takeover and data breaches.</p></li>
+<li><p><strong>Insufficient Annual Security Awareness Training:</strong>
+While new employees receive training, the lack of annual refreshers for
+all staff means employees may not be kept up-to-date on evolving
+threats, best practices, and organizational policies. This increases the
+likelihood of human error leading to security incidents.</p></li>
+</ul>
+<h1 class="unnumbered" id="technical-scan-results">3. Technical Scan
+Results</h1>
+<p>A network scan targeting was analyzed. Note that a specific scan date
+was not provided in the input data.</p>
+<h2 class="unnumbered" id="key-findings">Key Findings:</h2>
+<ul>
+<li><p><strong>Open Port 21 (FTP Service)</strong></p>
+<ul>
+<li><p><strong>Service:</strong> FTP (File Transfer Protocol)</p></li>
+<li><p><strong>Product/Version:</strong>
+<code>vsftpd 2.3.4</code></p></li>
+<li><p><strong>Script Output (ftp-anon):</strong>
+<code>Anonymous FTP login allowed</code></p></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered" id="analysis-of-technical-findings">Analysis of
+Technical Findings:</h2>
+<p>The discovery of an open FTP service running
+<code>vsftpd 2.3.4</code> with anonymous login enabled represents a
+<strong>critical security flaw</strong>:</p>
+<ul>
+<li><p><strong>Outdated Software Version:</strong>
+<code>vsftpd 2.3.4</code> is an extremely old version, released in 2011,
+and is known to contain several critical vulnerabilities. Most notably,
+this specific version was found to contain a backdoor (CVE-2011-2523)
+allowing remote command execution, making the server highly susceptible
+to complete compromise. Running such an outdated and vulnerable service
+publicly is an extreme risk.</p></li>
+<li><p><strong>Anonymous FTP Access:</strong> Allowing anonymous FTP
+login provides unauthorized users with direct access to files and
+directories on the server without any authentication. This configuration
+can lead to unauthorized information disclosure, data exfiltration, or
+even the uploading of malicious files, depending on server
+permissions.</p></li>
+</ul>
+<h1 class="unnumbered" id="risk-assessment">4. Risk Assessment</h1>
+<p>This section consolidates all identified risks from the
+organizational data, security questionnaire, and technical scan.</p>
+<div id="tab:risk_assessment">
+<table>
+<caption>Consolidated Risk Assessment</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Lack of MFA for Email Access</td>
+<td style="text-align: left;">Without MFA, email accounts are highly
+susceptible to credential stuffing and phishing attacks, leading to
+potential account takeover.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of MFA for Computer Login</td>
+<td style="text-align: left;">Accounts without MFA are easily
+compromised, leading to unauthorized system access and lateral movement
+within the network.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of MFA for Sensitive Data
+Systems</td>
+<td style="text-align: left;">Critical data systems are vulnerable to
+unauthorized access if credentials are stolen, risking data breaches and
+compliance violations.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated and Vulnerable FTP Service</td>
+<td style="text-align: left;"><code>vsftpd 2.3.4</code> contains known
+severe vulnerabilities, including a backdoor (CVE-2011-2523), allowing
+remote code execution and server compromise.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Anonymous FTP Access Enabled</td>
+<td style="text-align: left;">Allows unauthorized access to potentially
+sensitive files or server resources without any authentication, leading
+to information disclosure or data tampering.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Insufficient Annual Security Awareness
+Training</td>
+<td style="text-align: left;">Employees may not be aware of current
+threats and best practices, increasing the likelihood of human error
+leading to security incidents.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated Windows Policy</td>
+<td style="text-align: left;">Computers running Windows 7 are
+unsupported by Microsoft and lack security updates, making them highly
+vulnerable to modern exploits and malware.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 class="unnumbered" id="recommendations">5. Recommendations</h1>
+<p>Based on the assessment, the following recommendations are provided
+to improve Nomad Gear Co.’s cybersecurity posture. Immediate action is
+crucial for the critical findings.</p>
+<h2 class="unnumbered" id="immediate-actions-within-1-7-days">5.1.
+Immediate Actions (Within 1-7 Days)</h2>
+<ul>
+<li><p><strong>Secure/Decommission FTP Service:</strong></p>
+<ul>
+<li><p>Immediately disable or block external access to port 21 on
+.</p></li>
+<li><p>Disable anonymous FTP access immediately.</p></li>
+<li><p>If FTP functionality is absolutely required, decommission
+<code>vsftpd 2.3.4</code> and implement a secure file transfer solution
+(e.g., SFTP, FTPS) with strong authentication and least privilege
+principles.</p></li>
+</ul></li>
+<li><p><strong>Implement MFA for Email:</strong> Prioritize the
+implementation of Multi-Factor Authentication (MFA) for all email
+accounts.</p></li>
+</ul>
+<h2 class="unnumbered" id="short-term-actions-within-1-3-months">5.2.
+Short-Term Actions (Within 1-3 Months)</h2>
+<ul>
+<li><p><strong>Implement MFA for All Systems:</strong> Roll out MFA for
+all computer logins and access to sensitive data systems.</p></li>
+<li><p><strong>Mandatory Annual Security Awareness Training:</strong>
+Develop and implement a program for mandatory annual security awareness
+training for all employees, covering current threats, phishing, secure
+practices, and organizational policies.</p></li>
+</ul>
+<h2 class="unnumbered" id="long-term-actions-within-3-12-months">5.3.
+Long-Term Actions (Within 3-12 Months)</h2>
+<ul>
+<li><p><strong>Operating System Upgrade Strategy:</strong> Develop and
+execute a comprehensive plan to upgrade all operating systems,
+prioritizing machines running Windows 7 to supported versions (e.g.,
+Windows 10/11) to ensure ongoing security updates and support.</p></li>
+<li><p><strong>Regular Vulnerability Management:</strong> Implement a
+routine vulnerability scanning program for all external and internal
+systems, combined with regular penetration testing to proactively
+identify and remediate security weaknesses.</p></li>
+<li><p><strong>Incident Response Plan:</strong> Develop or review and
+test a comprehensive incident response plan to ensure the organization
+can effectively detect, respond to, and recover from security
+incidents.</p></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

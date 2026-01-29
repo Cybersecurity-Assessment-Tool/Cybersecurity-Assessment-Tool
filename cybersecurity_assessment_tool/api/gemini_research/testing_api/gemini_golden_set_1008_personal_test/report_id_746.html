@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>The cybersecurity posture of Gilded Cage Design exhibits significant
+weaknesses that require urgent attention. Key findings indicate a lack
+of foundational security controls and the presence of highly exploitable
+services. Specifically:</p>
+<ul>
+<li><p><strong>Critical MFA Gap:</strong> Multi-Factor Authentication
+(MFA) is not enforced for email access, making user accounts highly
+susceptible to phishing and credential theft, which can lead to Business
+Email Compromise (BEC) and data breaches.</p></li>
+<li><p><strong>Vulnerable FTP Service:</strong> An FTP service running
+<code>vsftpd 2.3.4</code> was detected on an internal network segment,
+allowing anonymous access. This version is known to contain a severe
+backdoor (CVE-2011-2523), posing an immediate and critical risk of
+remote code execution and full system compromise.</p></li>
+<li><p><strong>Outdated Operating Systems:</strong> Workstations are
+reportedly running Windows 7, an unsupported operating system. This
+leaves systems vulnerable to known exploits for which no security
+patches are available, increasing the risk of malware infection and data
+compromise.</p></li>
+</ul>
+<p>These issues, particularly the exposed and vulnerable FTP service,
+represent critical entry points for attackers. Addressing these findings
+with the provided recommendations is paramount to protecting Gilded Cage
+Design’s assets and data.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following information was provided for Gilded Cage Design:</p>
+<ul>
+<li><p><strong>Organization Name:</strong> Gilded Cage Design</p></li>
+<li><p><strong>Email Domain:</strong>
+<code>GildedCageDesign.com</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.GildedCageDesign.com</code></p></li>
+<li><p><strong>External IP:</strong> <code>61.164.129.38</code></p></li>
+</ul>
+<h1 id="security-control-review-questionnaire">Security Control Review
+(Questionnaire)</h1>
+<p>A review of the provided security questionnaire responses highlights
+the current state of implemented security controls.</p>
+<div id="tab:questionnaire">
+<table>
+<caption>Security Control Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The primary gap identified from the questionnaire is the absence of
+MFA for email access, which is a significant security weakness.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed on the target <code>10.0.0.15</code>.
+The following open ports and services were identified:</p>
+<ul>
+<li><p><strong>Target IP:</strong> <code>10.0.0.15</code></p></li>
+<li><p><strong>Open Port:</strong> <code>21/tcp</code> (FTP)</p>
+<ul>
+<li><p><strong>Service Name:</strong> <code>ftp</code></p></li>
+<li><p><strong>Product:</strong> <code>vsftpd</code></p></li>
+<li><p><strong>Version:</strong> <code>2.3.4</code></p></li>
+<li><p><strong>Nmap Script Output:</strong>
+<code>Anonymous FTP login allowed</code></p></li>
+</ul></li>
+</ul>
+<p><strong>Analysis:</strong> The presence of an FTP service running
+<code>vsftpd 2.3.4</code> is a critical finding. This specific version,
+released in 2011, is notorious for a severe backdoor vulnerability
+(CVE-2011-2523) that allows an attacker to execute arbitrary commands
+remotely. Furthermore, the configuration permitting anonymous FTP login
+significantly increases the attack surface, allowing unauthorized access
+to files and potentially aiding in further exploitation. This represents
+an immediate and high-risk vector for system compromise.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>Based on the collected data, the following risks have been identified
+and assessed:</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Risks and Severity</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">MFA for Email Access Missing</td>
+<td style="text-align: left;">The organization does not enforce
+Multi-Factor Authentication (MFA) for email access, leaving accounts
+vulnerable to compromise via phishing or credential stuffing
+attacks.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Critical FTP Vulnerability and
+Misconfiguration</td>
+<td style="text-align: left;">An FTP service (<code>vsftpd 2.3.4</code>)
+is exposed and allows anonymous login. This version is critically
+vulnerable (CVE-2011-2523), allowing remote code execution, and
+anonymous access provides an easy entry point for attackers.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated Windows Policy</td>
+<td style="text-align: left;">Workstations are running unsupported
+operating systems (Windows 7). This lack of security updates leaves
+systems vulnerable to known exploits, increasing the risk of malware and
+data compromise.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>To significantly improve Gilded Cage Design’s cybersecurity posture
+and mitigate the identified risks, the following recommendations are
+provided:</p>
+<h2 id="immediate-actions-critical-high-severity">Immediate Actions
+(Critical &amp; High Severity)</h2>
+<ul>
+<li><p><strong>Implement MFA for Email Access:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Immediately enable and enforce
+Multi-Factor Authentication (MFA) for all user accounts accessing email
+services (e.g., Microsoft 365, Google Workspace).</p></li>
+<li><p><strong>Benefit:</strong> Reduces the risk of credential
+stuffing, phishing, and Business Email Compromise (BEC) by requiring a
+second verification factor.</p></li>
+</ul></li>
+<li><p><strong>Secure/Decommission FTP Service:</strong></p>
+<ul>
+<li><p><strong>Action 1 (Immediate):</strong> Disable the FTP service on
+<code>10.0.0.15</code> if it is not absolutely essential. If required,
+disable anonymous access and restrict access to trusted internal
+networks only via firewall rules.</p></li>
+<li><p><strong>Action 2 (Urgent):</strong> Plan to upgrade
+<code>vsftpd</code> to the latest stable version (e.g.,
+<code>vsftpd 3.x</code>) or replace it with a more secure file transfer
+solution such as SFTP (SSH File Transfer Protocol) or SCP (Secure Copy
+Protocol).</p></li>
+<li><p><strong>Benefit:</strong> Eliminates a critical remote code
+execution vulnerability and closes an unauthorized access
+vector.</p></li>
+</ul></li>
+</ul>
+<h2 id="strategic-actions-medium-severity">Strategic Actions (Medium
+Severity)</h2>
+<ul>
+<li><p><strong>Upgrade Operating Systems:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Plan and execute a migration strategy
+for all workstations running Windows 7 to a currently supported
+operating system (e.g., Windows 10 or Windows 11). Prioritize systems
+with access to sensitive data or internet connectivity.</p></li>
+<li><p><strong>Benefit:</strong> Ensures systems receive regular
+security updates, protecting against known vulnerabilities and reducing
+the risk of malware infections.</p></li>
+</ul></li>
+</ul>
+<h2 id="general-security-enhancements">General Security
+Enhancements</h2>
+<ul>
+<li><p><strong>Regular Vulnerability Scanning &amp; Penetration
+Testing:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Implement a schedule for regular
+internal and external vulnerability scanning, supplemented by periodic
+penetration testing, to proactively identify and address security
+weaknesses.</p></li>
+<li><p><strong>Benefit:</strong> Provides continuous insight into the
+security posture and helps discover new vulnerabilities before they can
+be exploited.</p></li>
+</ul></li>
+<li><p><strong>Security Awareness Training Reinforcement:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Continue and enhance regular security
+awareness training for all employees, emphasizing the importance of
+strong, unique passwords, identifying phishing attempts, and the
+critical role of MFA in protecting accounts.</p></li>
+<li><p><strong>Benefit:</strong> Strengthens the "human firewall" and
+reduces the likelihood of successful social engineering
+attacks.</p></li>
+</ul></li>
+<li><p><strong>Patch Management Policy:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Establish and strictly adhere to a
+comprehensive patch management policy for all software, operating
+systems, and network devices.</p></li>
+<li><p><strong>Benefit:</strong> Ensures that all systems are protected
+against the latest known vulnerabilities.</p></li>
+</ul></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

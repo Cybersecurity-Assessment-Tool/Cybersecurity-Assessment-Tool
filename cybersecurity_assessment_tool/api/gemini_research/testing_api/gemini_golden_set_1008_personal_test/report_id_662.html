@@ -1,0 +1,297 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report details the cybersecurity posture assessment for
+<strong>Falcon Heavy</strong>, synthesized from organizational data,
+network scan results, and an existing risk inventory. The analysis
+reveals several critical vulnerabilities and control gaps that
+significantly elevate the organization’s risk profile. Key findings
+include an extremely outdated and insecure FTP service with anonymous
+access enabled on an internal host, a pervasive lack of Multi-Factor
+Authentication (MFA) across critical access points (email, computer
+login, sensitive data systems), and the absence of a fundamental
+Acceptable Use Policy. Furthermore, the reliance on End-of-Life (EOL)
+operating systems (Windows 7) for workstations poses a severe and
+ongoing threat. Immediate and decisive action is required to address
+these deficiencies and mitigate the high potential for critical
+breaches, unauthorized access, and operational disruption.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>This section provides an overview of the client’s information as
+derived from the initial data input.</p>
+<h2 id="client-details">Client Details</h2>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>Falcon
+Heavy</strong></p></li>
+<li><p><strong>Email Domain:</strong>
+<code>FalconHeavy.com</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.FalconHeavy.com</code></p></li>
+<li><p><strong>External IP Address:</strong>
+<code>118.80.18.159</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of the organization’s self-reported security controls
+reveals critical gaps in foundational security practices, indicating
+areas of high risk due to policy or implementation shortcomings.</p>
+<h2 id="questionnaire-findings">Questionnaire Findings</h2>
+<p>The following table summarizes the responses to key security control
+questions. A ’No’ response is highlighted as a significant control gap
+or vulnerability.</p>
+<div id="tab:questionnaire">
+<table>
+<caption>Security Control Questionnaire Results</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Answer</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>Network scanning was performed to identify open ports, running
+services, and potential vulnerabilities on accessible hosts. The scan
+metadata did not include a specific scan date.</p>
+<h2 id="network-scan-findings">Network Scan Findings</h2>
+<h3 id="host-10.0.0.15">Host <code>10.0.0.15</code></h3>
+<p>The internal scan of host <code>10.0.0.15</code> revealed the
+following critical findings:</p>
+<ul>
+<li><p><strong>Port 21/tcp (FTP) - Open</strong></p>
+<ul>
+<li><p><strong>Service:</strong> FTP</p></li>
+<li><p><strong>Product:</strong> <code>vsftpd</code></p></li>
+<li><p><strong>Version:</strong> <code>2.3.4</code></p></li>
+<li><p><strong>Vulnerability Details:</strong> <code>vsftpd</code>
+version 2.3.4, released in 2011, is an End-of-Life (EOL) product with
+numerous well-documented critical vulnerabilities. These include severe
+flaws like remote code execution (e.g., CVE-2011-2523, CVE-2011-0761),
+which could allow an attacker to gain complete control over the
+host.</p></li>
+<li><p><strong>Configuration Issue:</strong> The service explicitly
+allows <strong>Anonymous FTP login</strong>. This severe
+misconfiguration enables unauthorized users to access, potentially
+upload, or delete files without any authentication. This presents a
+critical risk for data exposure, data integrity compromise, and serves
+as a potential staging ground for further attacks on the internal
+network.</p></li>
+</ul></li>
+</ul>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section consolidates all identified risks, combining findings
+from the security questionnaire, technical scans, and existing
+vulnerability data. Each risk is categorized by its severity and
+described with its potential impact.</p>
+<h2 id="identified-risks">Identified Risks</h2>
+<div id="tab:risks">
+<table>
+<caption>Summary of Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Outdated FTP Service (vsftpd
+2.3.4)</strong></td>
+<td style="text-align: left;">The FTP service on host
+<code>10.0.0.15</code> is running an End-of-Life (EOL) version
+(<code>vsftpd 2.3.4</code>) with known critical remote code execution
+vulnerabilities.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Anonymous FTP Access
+Enabled</strong></td>
+<td style="text-align: left;">The FTP service on <code>10.0.0.15</code>
+is configured to allow anonymous login, enabling unauthorized access to
+potentially sensitive files and presenting a data breach/integrity
+risk.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lack of MFA for Email
+Access</strong></td>
+<td style="text-align: left;">Multi-Factor Authentication (MFA) is not
+required for email access, making accounts highly susceptible to
+phishing, credential theft, and subsequent unauthorized access.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lack of MFA for Computer
+Login</strong></td>
+<td style="text-align: left;">Multi-Factor Authentication (MFA) is not
+required for computer login, significantly increasing the risk of
+unauthorized access to internal systems through compromised
+credentials.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lack of MFA for Sensitive Data
+Systems</strong></td>
+<td style="text-align: left;">Multi-Factor Authentication (MFA) is not
+required for access to sensitive data systems, posing a severe risk of
+data breach, compliance violations, and intellectual property
+theft.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Absence of Acceptable Use Policy
+(AUP)</strong></td>
+<td style="text-align: left;">The organization lacks a formal Acceptable
+Use Policy (AUP) for employees, leading to unclear expectations
+regarding IT resource usage, increased risk of misuse, and potential
+legal exposure.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Outdated Windows Policy (Windows
+7)</strong></td>
+<td style="text-align: left;">Workstations are running Windows 7, an
+End-of-Life (EOL) operating system. This means no security updates are
+received, leaving systems exposed to known and unpatched
+vulnerabilities.</td>
+<td style="text-align: left;">High</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>To significantly improve <strong>Falcon Heavy</strong>’s
+cybersecurity posture and mitigate the identified risks, the following
+actionable recommendations are provided, categorized by urgency and
+impact.</p>
+<h2 id="immediate-actions-critical-priority">Immediate Actions (Critical
+Priority)</h2>
+<p>These actions address the most severe vulnerabilities and should be
+prioritized for immediate implementation.</p>
+<ul>
+<li><p><strong>Disable or Secure FTP Service:</strong></p>
+<ul>
+<li><p>Immediately disable the FTP service on <code>10.0.0.15</code> if
+it is not absolutely essential for business operations.</p></li>
+<li><p>If FTP functionality is required, replace
+<code>vsftpd 2.3.4</code> with a modern, securely configured SFTP (SSH
+File Transfer Protocol) or FTPS (FTP over SSL/TLS) solution. Ensure
+strong authentication and encryption are in place.</p></li>
+</ul></li>
+<li><p><strong>Eliminate Anonymous FTP Access:</strong> If the FTP
+service cannot be immediately replaced, reconfigure it to strictly
+disallow anonymous login. All access must require strong, unique
+credentials.</p></li>
+<li><p><strong>Implement MFA Across All Critical Systems:</strong></p>
+<ul>
+<li><p><strong>Email Access:</strong> Deploy and enforce Multi-Factor
+Authentication for all email accounts across the organization.</p></li>
+<li><p><strong>Computer Login:</strong> Deploy and enforce Multi-Factor
+Authentication for all computer logins, especially for administrative
+and privileged accounts.</p></li>
+<li><p><strong>Sensitive Data Systems:</strong> Deploy and enforce
+Multi-Factor Authentication for all access to sensitive data systems,
+applications, and databases.</p></li>
+</ul></li>
+</ul>
+<h2 id="strategic-improvements-high-priority">Strategic Improvements
+(High Priority)</h2>
+<p>These actions address significant risks and contribute to a stronger,
+more resilient security posture.</p>
+<ul>
+<li><p><strong>Develop and Implement an Acceptable Use Policy
+(AUP):</strong> Create a comprehensive AUP for all employees, clearly
+defining acceptable and unacceptable use of company IT resources,
+internet, email, and data. Ensure mandatory sign-off from all employees
+and conduct regular reviews and updates.</p></li>
+<li><p><strong>Upgrade End-of-Life Operating Systems:</strong> Develop
+and execute a phased plan to immediately upgrade all workstations
+running Windows 7 to a currently supported operating system (e.g.,
+Windows 10 or Windows 11). This ensures receipt of critical security
+updates, patches, and access to modern security features.</p></li>
+<li><p><strong>Implement Regular Vulnerability Scanning and Penetration
+Testing:</strong> Establish a schedule for regular internal and external
+vulnerability scanning to proactively identify and remediate new
+security weaknesses. Consider periodic penetration testing to validate
+the effectiveness of implemented controls.</p></li>
+<li><p><strong>Reinforce Security Awareness Training:</strong> While
+existing training is noted, expand and reinforce security awareness
+training, emphasizing the importance of secure configurations, strong
+password practices, phishing prevention (especially given the current
+lack of MFA), and incident reporting procedures.</p></li>
+<li><p><strong>Regular Security Audits:</strong> Conduct regular
+internal and external security audits to ensure compliance with best
+practices and internal policies.</p></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

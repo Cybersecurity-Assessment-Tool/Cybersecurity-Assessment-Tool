@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive cybersecurity posture assessment
+for <strong>[Organization Name]</strong>, synthesizing data from network
+scans, organizational security questionnaires, and a review of existing
+risks. The assessment identified several critical areas requiring
+immediate attention, including significant gaps in Multi-Factor
+Authentication (MFA) implementation, lack of foundational security
+policies and training, and the exposure of an outdated database service.
+Specifically, an open MySQL 5.7.33 port was discovered, which is
+End-of-Life (EOL) and poses a severe risk. Addressing these findings
+with the provided recommendations is crucial for enhancing the overall
+security posture and reducing the attack surface.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Primary Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>Client IP:</strong></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A questionnaire was used to assess the current implementation of
+critical security controls. The findings highlight several areas where
+current practices deviate from recommended security postures.</p>
+<h2 id="questionnaire-results">Questionnaire Results</h2>
+<div id="tab:questionnaire">
+<table>
+<caption>Security Control Questionnaire Results</caption>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>ID</strong></th>
+<th style="text-align: left;"><strong>Security Question</strong></th>
+<th style="text-align: center;"><strong>Answer</strong></th>
+<th style="text-align: left;"><strong>Analysis</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Q1</td>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">Good practice. This protects against email
+account compromise.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Q2</td>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>Critical Gap:</strong> Lack of MFA
+on workstations/servers significantly increases the risk of unauthorized
+access through compromised credentials.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Q3</td>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>Critical Gap:</strong> Without
+MFA, sensitive data systems are highly vulnerable to credential theft,
+leading to potential data breaches.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Q4</td>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>High Risk:</strong> Absence of an
+Acceptable Use Policy (AUP) leads to inconsistent employee behavior,
+increased insider risk, and potential security lapses.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Q5</td>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>High Risk:</strong> New employees
+are a common target for social engineering without proper foundational
+security awareness training.</td>
+</tr>
+<tr>
+<td style="text-align: center;">Q6</td>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">Good practice. Regular training reinforces
+good security habits.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="summary-of-questionnaire-gaps">Summary of Questionnaire
+Gaps</h2>
+<p>The review indicates significant deficiencies in implementing
+fundamental security practices. Key gaps include:</p>
+<ul>
+<li><p><strong>MFA Adoption:</strong> Critical lack of MFA for computer
+logins and access to sensitive data systems, exposing the organization
+to credential compromise risks and unauthorized access.</p></li>
+<li><p><strong>Policy and Governance:</strong> Absence of an Employee
+Acceptable Use Policy creates ambiguity regarding acceptable technology
+use, increasing potential liabilities and security
+inconsistencies.</p></li>
+<li><p><strong>Employee Onboarding Security:</strong> Failure to conduct
+security awareness training for new employees leaves them unprepared
+against common cyber threats such as phishing and social
+engineering.</p></li>
+</ul>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was conducted on on <code>[Scan Date]</code>. The scan
+identified the following open ports and services:</p>
+<ul>
+<li><p><strong>Target:</strong></p></li>
+<li><p><strong>Scan Date:</strong> <code>[Scan Date]</code></p></li>
+<li><p><strong>Open Port 3306 (TCP):</strong></p>
+<ul>
+<li><p><strong>Service Name:</strong> <code>mysql</code></p></li>
+<li><p><strong>Product:</strong> MySQL</p></li>
+<li><p><strong>Version:</strong> 5.7.33</p></li>
+<li><p><strong>Analysis:</strong> MySQL version 5.7.33 reached its
+End-of-Life (EOL) in October 2023. Running EOL software is a critical
+security risk as it no longer receives security updates or patches for
+newly discovered vulnerabilities, leaving it highly susceptible to
+exploits. The fact that this database port is reported as open to the
+network significantly amplifies this risk, potentially allowing
+unauthorized access to sensitive data, denial of service, or
+facilitating further compromise of the network.</p></li>
+</ul></li>
+</ul>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section synthesizes the findings from the questionnaire,
+technical scans, and pre-existing vulnerabilities into a consolidated
+risk assessment. Severities are assigned based on potential impact and
+likelihood.</p>
+<div id="tab:risks">
+<table>
+<caption>Consolidated Risk Assessment</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Lack of MFA for Computer
+Logins</strong></td>
+<td style="text-align: left;">Without MFA for computer logins,
+compromised user credentials can lead to unauthorized access to
+workstations and internal network resources.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lack of MFA for Sensitive Data
+Systems</strong></td>
+<td style="text-align: left;">Failure to enforce MFA on sensitive data
+systems makes them highly susceptible to unauthorized access and
+potential data breaches through credential compromise.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>No Employee Acceptable Use
+Policy</strong></td>
+<td style="text-align: left;">The absence of a clear AUP can lead to
+misuse of IT resources, unintended data leakage, and compliance issues
+due to inconsistent employee behavior.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>No New Employee Security
+Training</strong></td>
+<td style="text-align: left;">Untrained new employees are highly
+vulnerable to social engineering attacks (e.g., phishing), potentially
+leading to malware introduction or credential compromise.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Database Exposure</strong></td>
+<td style="text-align: left;">MySQL port 3306 is open to the network, as
+identified in pre-existing risks and confirmed by the technical scan.
+This exposes the database service to potential external attacks.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Outdated EOL MySQL
+Service</strong></td>
+<td style="text-align: left;">MySQL 5.7.33 is End-of-Life (EOL), meaning
+it no longer receives security patches. This makes the exposed database
+service highly vulnerable to known and future exploits.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the assessment, the following recommendations are provided
+to enhance the organization’s cybersecurity posture and mitigate
+identified risks.</p>
+<h2 id="immediate-actions-high-priority">Immediate Actions (High
+Priority)</h2>
+<ul>
+<li><p><strong>Implement Multi-Factor Authentication (MFA):</strong></p>
+<ul>
+<li><p>Enforce MFA for all computer logins, including desktops, laptops,
+and servers (addresses Q2).</p></li>
+<li><p>Implement MFA for access to all sensitive data systems and
+applications (addresses Q3).</p></li>
+</ul></li>
+<li><p><strong>Secure Database Service (Port 3306):</strong></p>
+<ul>
+<li><p><strong>Restrict Access:</strong> Immediately implement firewall
+rules or Access Control Lists (ACLs) to restrict access to MySQL port
+3306. It should only be accessible from trusted internal IP addresses
+and services, and not directly exposed to the internet.</p></li>
+<li><p><strong>Upgrade/Patch Database:</strong> Prioritize upgrading
+MySQL 5.7.33 to a currently supported, patched version (e.g., MySQL
+8.0). Establish a regular patching schedule for all database
+software.</p></li>
+<li><p><strong>Network Segmentation:</strong> Consider placing the
+database within a segmented network accessible only by authorized
+personnel and applications, isolating it from less trusted network
+zones.</p></li>
+</ul></li>
+</ul>
+<h2 id="medium-term-actions">Medium-Term Actions</h2>
+<ul>
+<li><p><strong>Develop and Implement Acceptable Use Policy:</strong>
+Create and formally implement a comprehensive Employee Acceptable Use
+Policy (AUP). Ensure all employees acknowledge and understand it
+(addresses Q4).</p></li>
+<li><p><strong>Mandatory New Employee Security Training:</strong>
+Establish a mandatory security awareness training program for all new
+employees as part of their onboarding process (addresses Q5).</p></li>
+<li><p><strong>Regular Security Audits:</strong> Conduct regular
+internal and external security audits and vulnerability assessments to
+proactively identify and remediate weaknesses.</p></li>
+</ul>
+<h2 id="long-term-security-enhancements">Long-Term Security
+Enhancements</h2>
+<ul>
+<li><p><strong>Robust Patch Management Program:</strong> Implement an
+automated and systematic patch management program to ensure all
+operating systems, applications, and services are consistently kept
+up-to-date.</p></li>
+<li><p><strong>Incident Response Plan Development:</strong> Develop,
+document, and regularly test a comprehensive incident response plan to
+ensure the organization can effectively detect, contain, eradicate, and
+recover from cybersecurity incidents.</p></li>
+<li><p><strong>Data Backup and Recovery Strategy:</strong> Implement and
+regularly test a robust data backup and recovery strategy for critical
+systems and data to ensure business continuity in case of data loss or
+compromise.</p></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

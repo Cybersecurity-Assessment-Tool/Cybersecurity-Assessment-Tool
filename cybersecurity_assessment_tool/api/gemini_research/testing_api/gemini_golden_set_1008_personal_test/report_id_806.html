@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive cybersecurity posture assessment
+for <strong>Arcane Security</strong>, incorporating data from a network
+scan, organizational security questionnaire, and pre-existing risk
+register. The analysis reveals critical vulnerabilities, notably the
+absence of Multi-Factor Authentication (MFA) for email access, the
+operation of a severely outdated and vulnerable FTP service
+(<code>vsftpd</code> 2.3.4) with anonymous login enabled, and the
+continued use of end-of-life Windows 7 operating systems. These issues
+collectively present significant risks to data confidentiality,
+integrity, and system availability. Immediate and decisive action is
+required to remediate these critical findings and enhance the
+organization’s overall security resilience.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>This section outlines key organizational details pertinent to the
+security assessment.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>Arcane
+Security</strong></p></li>
+<li><p><strong>Email Domain:</strong>
+<code>ArcaneSecurity.org</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.ArcaneSecurity.org</code></p></li>
+<li><p><strong>External IP Address:</strong></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of self-reported security controls, based on the provided
+questionnaire, highlights both strengths and critical areas for
+improvement within the organization’s security framework.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>ID</strong></th>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">SC-001</td>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">SC-002</td>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">SC-003</td>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">SC-004</td>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">SC-005</td>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">SC-006</td>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered" id="analysis-of-security-controls">Analysis of
+Security Controls</h2>
+<p>While the organization demonstrates commendable practices in
+implementing MFA for sensitive data systems and computer logins,
+alongside robust security awareness training and acceptable use
+policies, a significant deficiency exists. The absence of Multi-Factor
+Authentication for email access (SC-001) represents a critical
+vulnerability. Email is a primary vector for phishing, business email
+compromise, and credential theft, making its protection with MFA
+paramount to preventing unauthorized access and subsequent broader
+system compromises.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A targeted network scan was conducted, focusing on the internal host
+. The scan identified the following open ports and services:</p>
+<ul>
+<li><p><strong>Target IP:</strong></p></li>
+<li><p><strong>Scan Date:</strong> 2026-01-27</p></li>
+<li><p><strong>Open Ports and Services:</strong></p>
+<ul>
+<li><p><strong>Port 21 (FTP):</strong></p>
+<ul>
+<li><p><strong>Service Name:</strong> <code>ftp</code></p></li>
+<li><p><strong>Product:</strong> <code>vsftpd</code></p></li>
+<li><p><strong>Version:</strong> <code>2.3.4</code></p></li>
+<li><p><strong>Script Output:</strong>
+<code>Anonymous FTP login allowed</code></p></li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered" id="technical-analysis">Technical Analysis</h2>
+<p>The identification of an open FTP service running <code>vsftpd</code>
+version 2.3.4 is a <strong>critical security finding</strong>. This
+version, released in 2011, is notoriously outdated and contains a severe
+backdoor vulnerability (CVE-2011-2523) that allows for arbitrary command
+execution. This vulnerability enables a remote attacker to gain full
+control over the affected system. Compounding this, the server
+explicitly permits anonymous FTP logins, which can lead to unauthorized
+access, data exposure, arbitrary file uploads, and further exploitation,
+even without leveraging the specific backdoor. This configuration poses
+an immediate and severe threat to the confidentiality, integrity, and
+availability of the server and potentially the wider network.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section consolidates all identified risks from the security
+control review, technical scan findings, and pre-existing
+vulnerabilities, providing a holistic view of the organization’s risk
+landscape.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Lack of Multi-Factor Authentication for
+Email</td>
+<td style="text-align: left;">No MFA is enforced for email access,
+significantly increasing the risk of account compromise through phishing
+or credential stuffing, leading to potential business email compromise
+and data breaches.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Highly Outdated and Vulnerable FTP
+Service</td>
+<td style="text-align: left;">An FTP service (<code>vsftpd</code> 2.3.4)
+is running a version with a known critical backdoor (CVE-2011-2523),
+allowing remote code execution and full system compromise.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Anonymous FTP Access Enabled</td>
+<td style="text-align: left;">The FTP server explicitly permits
+anonymous logins, which could lead to unauthorized data access,
+modification, or exposure of sensitive information, or serve as an entry
+point for malware.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated Windows Operating Systems</td>
+<td style="text-align: left;">Several organizational computers are
+running Windows 7, an operating system that has reached its end-of-life
+and no longer receives security updates, leaving them highly susceptible
+to known and unpatched vulnerabilities.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+</tbody>
+</table>
+<h1 id="recommendations">Recommendations</h1>
+<p>To address the identified risks and significantly enhance the
+cybersecurity posture of <strong>Arcane Security</strong>, the following
+actionable recommendations are provided:</p>
+<ol>
+<li><p><strong>Implement Multi-Factor Authentication (MFA) for Email
+Access:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Immediately deploy and enforce MFA for
+all user accounts accessing organizational email.</p></li>
+<li><p><strong>Rationale:</strong> MFA is a fundamental security control
+that provides a strong defense against credential theft and unauthorized
+access, even if passwords are compromised.</p></li>
+</ul></li>
+<li><p><strong>Decommission or Secure the FTP Service at :</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Given the critical vulnerabilities and
+anonymous access, the FTP service should be immediately decommissioned
+if it is not absolutely essential. If an FTP-like service is required,
+replace it with a secure alternative (e.g., SFTP, FTPS) running a
+current, supported version, with strong authentication, disabled
+anonymous access, and strict access controls.</p></li>
+<li><p><strong>Rationale:</strong> The current FTP setup is an open and
+severe vulnerability that could lead to complete system compromise and
+data loss.</p></li>
+</ul></li>
+<li><p><strong>Upgrade End-of-Life Operating Systems:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Develop and execute a comprehensive plan
+to upgrade all Windows 7 machines to a currently supported operating
+system (e.g., Windows 10 or 11) within a defined timeframe.</p></li>
+<li><p><strong>Rationale:</strong> Running unsupported operating systems
+means systems are permanently vulnerable to newly discovered exploits
+and cannot be patched, creating a significant attack surface.</p></li>
+</ul></li>
+<li><p><strong>Enhance and Tailor Security Awareness
+Training:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> While security awareness training
+exists, ensure it specifically covers the importance of MFA, advanced
+phishing identification techniques, and procedures for reporting
+suspicious activities.</p></li>
+<li><p><strong>Rationale:</strong> User education is a critical defense
+layer, helping to prevent human error from becoming a security
+incident.</p></li>
+</ul></li>
+<li><p><strong>Implement Continuous Vulnerability Management and
+Patching:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Establish a robust, continuous
+vulnerability scanning and patch management program across all assets.
+This includes regular scans, timely application of security patches, and
+verification of remediation efforts.</p></li>
+<li><p><strong>Rationale:</strong> Proactive identification and
+remediation of vulnerabilities are essential to maintaining a strong
+security posture against evolving threats.</p></li>
+</ul></li>
+</ol>
+<h1 id="conclusion">Conclusion</h1>
+<p>The cybersecurity assessment for <strong>Arcane Security</strong>
+reveals several critical weaknesses that demand immediate attention. By
+prioritizing the implementation of MFA for email, securing or
+decommissioning the vulnerable FTP service, and upgrading end-of-life
+operating systems, the organization can substantially mitigate its
+current risk exposure. Adherence to these recommendations will
+significantly bolster the organization’s defenses, protect sensitive
+data, and strengthen its overall resilience against cyber threats.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,339 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="titlepage">
+<p><span><strong>Cybersecurity Posture Assessment
+Report</strong></span><br />
+<span><strong>for Titanium Core</strong></span><br />
+<span>Prepared by: Expert Cybersecurity Analyst</span><br />
+<span>Date: 2026-01-27</span><br />
+</p>
+</div>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report details a comprehensive cybersecurity posture assessment
+for Titanium Core, derived from network scan data, organizational
+security questionnaire responses, and pre-existing risk information. The
+analysis uncovered several critical vulnerabilities and significant
+security gaps demanding immediate attention. Key findings include the
+presence of an extremely outdated FTP server (<code>vsftpd 2.3.4</code>)
+with a known critical backdoor, active anonymous FTP access, and crucial
+deficiencies in Multi-Factor Authentication (MFA) implementation for
+sensitive data systems and computer logins. Addressing these issues is
+paramount to significantly improving Titanium Core’s security posture
+and reducing its exposure to sophisticated cyber threats.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>Based on the provided organizational data, Titanium Core’s details
+are as follows:</p>
+<ul>
+<li><p><strong>Organization Name:</strong> Titanium Core</p></li>
+<li><p><strong>Email Domain:</strong>
+<code>TitaniumCore.net</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.TitaniumCore.net</code></p></li>
+<li><p><strong>External IP Address:</strong>
+<code>80.167.84.81</code></p></li>
+</ul>
+<h1 id="security-control-review-questionnaire-analysis">Security Control
+Review: Questionnaire Analysis</h1>
+<p>A review of the organizational security questionnaire responses
+provides insight into Titanium Core’s current security control
+implementation. While some positive controls are noted, several critical
+weaknesses were identified.</p>
+<div id="tab:questionnaire">
+<table>
+<caption>Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: left;"><strong>Response</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis-of-questionnaire-gaps">Analysis of
+Questionnaire Gaps</h2>
+<p>The "No" responses highlight critical areas of concern:</p>
+<ul>
+<li><p><strong>Lack of MFA for Computers and Sensitive Data
+Systems:</strong> This represents a significant authentication weakness.
+Without MFA, systems storing or processing sensitive data are highly
+vulnerable to unauthorized access if primary credentials are stolen or
+compromised. Similarly, the lack of MFA for general computer logins
+increases the risk of lateral movement within the network.</p></li>
+<li><p><strong>Absence of an Employee Acceptable Use Policy
+(AUP):</strong> Without a formal AUP, employees may lack clear
+guidelines on the permissible use of company IT resources, increasing
+risks related to data leakage, compliance violations, and general
+misuse.</p></li>
+<li><p><strong>No Security Awareness Training for New
+Employees:</strong> New hires often represent a significant attack
+vector if they are not immediately trained on cybersecurity best
+practices. This gap increases the organization’s susceptibility to
+social engineering, phishing, and malware attacks targeting new
+personnel.</p></li>
+</ul>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was executed on the internal target
+<code>10.0.0.15</code>. The scan revealed the following open ports and
+services, along with identified vulnerabilities.</p>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>10.0.0.15</code></p></li>
+</ul>
+<h2 class="unnumbered" id="open-ports-and-services">Open Ports and
+Services</h2>
+<ul>
+<li><p><strong>Port 21/TCP (FTP)</strong></p>
+<ul>
+<li><p><strong>State:</strong> Open</p></li>
+<li><p><strong>Service Name:</strong> <code>ftp</code></p></li>
+<li><p><strong>Product:</strong> <code>vsftpd</code></p></li>
+<li><p><strong>Version:</strong> <code>2.3.4</code></p></li>
+<li><p><strong>Scripts Output:</strong> Anonymous FTP login
+allowed.</p></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered" id="technical-vulnerability-analysis">Technical
+Vulnerability Analysis</h2>
+<p>The findings from the network scan indicate severe vulnerabilities
+that pose an immediate threat:</p>
+<ul>
+<li><p><strong>Highly Outdated <code>vsftpd</code> Version
+(2.3.4):</strong> This specific version of VSFTPD is known to be
+critically vulnerable to a backdoor exploit (CVE-2011-2523). This
+vulnerability allows remote attackers to execute arbitrary commands by
+injecting a specific payload into the username, granting full remote
+control over the affected system. This represents an immediate and
+critical compromise risk.</p></li>
+<li><p><strong>Anonymous FTP Access Allowed:</strong> The ability to log
+into the FTP server anonymously without requiring any credentials is a
+critical misconfiguration. This allows unauthorized access to
+potentially sensitive files stored on the server and could enable
+attackers to upload malicious content, further compromising the system
+or using it as a pivot point for other attacks within the
+network.</p></li>
+</ul>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section consolidates all identified risks from the questionnaire
+analysis, technical scan results, and pre-existing vulnerabilities
+provided in the initial data. Risks are categorized by severity.</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Risks and Severities</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Outdated <code>vsftpd</code> 2.3.4</td>
+<td style="text-align: left;">Critical backdoor (CVE-2011-2523) allowing
+remote code execution.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Anonymous FTP Access</td>
+<td style="text-align: left;">Unauthorized access to potentially
+sensitive files and system.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">No MFA for Sensitive Data Systems</td>
+<td style="text-align: left;">Weak authentication for critical data,
+high risk of unauthorized access.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">No MFA for Computer Login</td>
+<td style="text-align: left;">Weak authentication for internal systems,
+increasing credential theft risk.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">No Employee Acceptable Use Policy</td>
+<td style="text-align: left;">Lack of clear guidelines for resource
+usage, increasing misuse risk.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">No New Employee Security Awareness
+Training</td>
+<td style="text-align: left;">New hires are vulnerable to social
+engineering attacks.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated Windows Policy</td>
+<td style="text-align: left;">Computers are running Windows 7, which is
+end-of-life and insecure.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>To mitigate the identified risks and substantially improve Titanium
+Core’s cybersecurity posture, the following actionable recommendations
+are provided. Prioritization is given to Critical and High severity
+risks.</p>
+<h2 class="unnumbered"
+id="critical-recommendations-immediate-action-required">Critical
+Recommendations (Immediate Action Required)</h2>
+<ol>
+<li><p><strong>Upgrade/Patch <code>vsftpd</code> Server or Disable FTP
+Service:</strong></p>
+<ul>
+<li><p>Immediately disable or remove the <code>vsftpd 2.3.4</code>
+service. This version is critically vulnerable with an active backdoor
+that can lead to complete system compromise.</p></li>
+<li><p>If FTP functionality is absolutely essential, upgrade to a
+current, patched, and supported version of <code>vsftpd</code>, or
+replace it with a more secure file transfer protocol (e.g., SFTP, SCP)
+running on a hardened server.</p></li>
+</ul></li>
+<li><p><strong>Disable Anonymous FTP Access:</strong></p>
+<ul>
+<li><p>Reconfigure the FTP server to strictly disallow anonymous logins.
+All FTP access must require strong authentication credentials.</p></li>
+<li><p>Review and restrict file and directory permissions on the FTP
+server to the absolute minimum necessary to prevent unauthorized data
+access or modification.</p></li>
+</ul></li>
+<li><p><strong>Implement MFA for Sensitive Data Systems:</strong></p>
+<ul>
+<li><p>Mandate Multi-Factor Authentication for all systems that store,
+process, or transmit sensitive data. This is crucial to prevent
+unauthorized access, even in the event of primary credential
+compromise.</p></li>
+<li><p>Conduct a comprehensive inventory of all sensitive data systems
+to ensure consistent MFA implementation.</p></li>
+</ul></li>
+</ol>
+<h2 class="unnumbered" id="high-priority-recommendations">High Priority
+Recommendations</h2>
+<ol>
+<li><p><strong>Implement MFA for Computer Logins:</strong></p>
+<ul>
+<li><p>Extend MFA requirements to all corporate computer logins
+(desktops, laptops, servers). This significantly strengthens
+authentication security against credential theft and reduces the risk of
+lateral movement.</p></li>
+</ul></li>
+<li><p><strong>Develop and Implement an Acceptable Use Policy
+(AUP):</strong></p>
+<ul>
+<li><p>Create a comprehensive AUP outlining the proper use of company IT
+resources, data handling procedures, internet usage, and communication
+policies.</p></li>
+<li><p>Ensure all employees formally review and acknowledge the AUP upon
+hiring, with mandatory refresher acknowledgements annually.</p></li>
+</ul></li>
+<li><p><strong>Introduce Security Awareness Training for New
+Employees:</strong></p>
+<ul>
+<li><p>Integrate mandatory security awareness training into the
+onboarding process for all new employees before they are granted network
+access.</p></li>
+<li><p>Training should cover essential topics such as phishing
+identification, malware prevention, strong password hygiene, social
+engineering tactics, and incident reporting procedures.</p></li>
+</ul></li>
+</ol>
+<h2 class="unnumbered" id="medium-priority-recommendations">Medium
+Priority Recommendations</h2>
+<ol>
+<li><p><strong>Upgrade End-of-Life Operating Systems:</strong></p>
+<ul>
+<li><p>Plan and execute a migration strategy to upgrade all workstations
+currently running Windows 7 to supported operating systems (e.g.,
+Windows 10 or newer). Windows 7 is end-of-life and no longer receives
+security updates, making it highly vulnerable.</p></li>
+<li><p>Establish a robust patch management program to ensure all
+operating systems and applications are regularly updated.</p></li>
+</ul></li>
+</ol>
+<h1 id="conclusion">Conclusion</h1>
+<p>Titanium Core is currently exposed to significant cybersecurity risks
+stemming from critically outdated and insecure services, coupled with
+fundamental gaps in security controls such as Multi-Factor
+Authentication and critical security policies. Addressing the high and
+critical risks outlined in this report is absolutely essential for
+safeguarding organizational assets, protecting sensitive data, and
+maintaining a strong reputation. A proactive, systematic, and
+comprehensive approach to implementing these recommendations will
+significantly bolster Titanium Core’s overall security posture against
+evolving cyber threats.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

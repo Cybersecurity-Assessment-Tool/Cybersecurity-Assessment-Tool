@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="overview">Overview</h1>
+<p>This assessment synthesizes technical findings from a network scan
+with organizational security control data and existing risk registers.
+The objective is to present a holistic view of the current cybersecurity
+posture, identify critical vulnerabilities and control deficiencies, and
+propose actionable recommendations. The analysis highlights several
+areas requiring urgent attention, particularly concerning
+external-facing services and foundational security practices.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name:</strong> Swift Current Labs</p></li>
+<li><p><strong>Email Domain:</strong>
+<code>SwiftCurrentLabs.org</code></p></li>
+<li><p><strong>Website Domain:</strong></p></li>
+<li><p><strong>External IP Address:</strong>
+<code>186.91.1.149</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of organizational security controls was conducted based on
+responses to a security questionnaire. The findings are summarized
+below:</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Compliance</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="analysis-of-security-control-gaps">Analysis of Security Control
+Gaps</h2>
+<p>The questionnaire revealed two significant security control gaps:</p>
+<ul>
+<li><p><strong>Lack of MFA for Computer Logins:</strong> Not requiring
+MFA for computer logins significantly increases the risk of unauthorized
+access if credentials are stolen or guessed. This is a critical
+deficiency for endpoint security.</p></li>
+<li><p><strong>No Security Awareness Training for New
+Employees:</strong> New employees are particularly vulnerable to social
+engineering and phishing attacks without initial security awareness
+training. This gap exposes the organization to increased human-factor
+risks from day one.</p></li>
+</ul>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed targeting the IP address
+<code>10.0.0.15</code>. The scan date was not provided in the metadata.
+The following critical findings were identified:</p>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>10.0.0.15</code></p></li>
+<li><p><strong>Open Port:</strong> 21/tcp</p></li>
+<li><p><strong>Service:</strong> FTP (File Transfer Protocol)</p></li>
+<li><p><strong>Product/Version:</strong> vsftpd 2.3.4</p></li>
+<li><p><strong>Key Script Output:</strong></p></li>
+</ul>
+<h2 id="technical-analysis">Technical Analysis</h2>
+<p>The presence of an open FTP service running <code>vsftpd 2.3.4</code>
+is a severe vulnerability. This specific version of vsftpd (2.3.4) is
+publicly known to contain a backdoor vulnerability (CVE-2011-2523) which
+can allow arbitrary command execution. More critically, the scan
+identified that anonymous FTP login is allowed, providing
+unauthenticated access to the FTP server. This combination poses an
+immediate and direct threat, potentially allowing attackers to upload
+malicious files, download sensitive information, or execute commands on
+the server.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section consolidates all identified risks, categorizing them by
+source and assigning a severity level.</p>
+<div id="tab:risk_assessment">
+<table>
+<caption>Consolidated Risk Assessment</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Anonymous FTP Access</td>
+<td style="text-align: left;">The FTP service on <code>10.0.0.15</code>
+allows anonymous, unauthenticated login, leading to potential data
+exposure, unauthorized file uploads, or server compromise.</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated FTP Service (vsftpd 2.3.4)</td>
+<td style="text-align: left;">The vsftpd 2.3.4 version is known to
+contain a critical backdoor vulnerability (CVE-2011-2523) enabling
+remote code execution.</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">No MFA for Computer Logins</td>
+<td style="text-align: left;">Multi-Factor Authentication is not
+required for computer logins, making endpoints highly susceptible to
+credential-based attacks.</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">No Security Awareness Training for New
+Employees</td>
+<td style="text-align: left;">New employees are not trained on security
+best practices, increasing the risk of successful phishing, social
+engineering, or accidental data breaches.</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated Windows Policy</td>
+<td style="text-align: left;">Several computers are reportedly running
+Windows 7, which is an End-of-Life (EoL) operating system no longer
+receiving security updates, leaving them vulnerable to exploits.</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following recommendations are provided to address the identified
+risks and improve the overall cybersecurity posture of <strong>Swift
+Current Labs</strong>.</p>
+<h2 id="immediate-actions-critical-high-risks">Immediate Actions
+(Critical &amp; High Risks)</h2>
+<ul>
+<li><p><strong>Disable Anonymous FTP Access:</strong> Immediately
+disable anonymous login functionality on the FTP server at
+<code>10.0.0.15</code>. If FTP is required, implement strong
+authentication and authorization controls.</p></li>
+<li><p><strong>Address Outdated FTP Service:</strong></p>
+<ul>
+<li><p>If FTP is not essential, <strong>disable the service
+entirely</strong> to eliminate the attack surface.</p></li>
+<li><p>If FTP is required, <strong>urgently upgrade vsftpd</strong> to a
+current, supported version, or migrate to a more secure file transfer
+protocol (e.g., SFTP, SCP) if possible.</p></li>
+</ul></li>
+<li><p><strong>Implement MFA for Computer Logins:</strong> Deploy and
+enforce Multi-Factor Authentication for all computer logins across the
+organization to significantly enhance protection against stolen or weak
+credentials.</p></li>
+<li><p><strong>Mandate New Employee Security Awareness
+Training:</strong> Establish a mandatory security awareness training
+program for all new employees that must be completed before they are
+granted access to organizational systems and data.</p></li>
+</ul>
+<h2 id="strategic-long-term-actions-medium-risks">Strategic &amp;
+Long-Term Actions (Medium Risks)</h2>
+<ul>
+<li><p><strong>Upgrade End-of-Life Operating Systems:</strong> Develop
+and execute a plan to upgrade all Windows 7 machines to a currently
+supported operating system (e.g., Windows 10, Windows 11). Prioritize
+machines with access to sensitive data or external networks.</p></li>
+<li><p><strong>Regular Vulnerability Scanning:</strong> Implement a
+schedule for regular internal and external vulnerability scanning to
+proactively identify and remediate new security weaknesses.</p></li>
+<li><p><strong>Continuous Security Awareness Training
+Enhancement:</strong> Review and enhance the annual security awareness
+training program to cover emerging threats and reinforce best practices
+effectively.</p></li>
+<li><p><strong>Review and Update Security Policies:</strong>
+Periodically review and update all security policies, including the
+acceptable use policy, to ensure they align with current best practices
+and organizational risks.</p></li>
+</ul>
+<h1 class="unnumbered" id="disclaimer">Disclaimer</h1>
+<p>This report is based on the provided input data and represents a
+snapshot of the cybersecurity posture at the time of analysis. While
+every effort has been made to ensure accuracy and completeness, new
+vulnerabilities and threats emerge constantly. This assessment should
+not be considered exhaustive, and continuous monitoring and security
+improvements are essential.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report details the findings from a cybersecurity posture
+assessment for Radiant Life, conducted on <code>2025-11-22</code>. The
+assessment combined a review of organizational security controls through
+a questionnaire, a technical network scan, and an analysis of
+pre-existing risk data.</p>
+<p>Radiant Life demonstrates good foundational security practices
+regarding Multi-Factor Authentication (MFA) across email, computer
+logins, and sensitive data systems. However, several critical gaps were
+identified. The organization currently lacks an employee acceptable use
+policy and does not conduct security awareness training for new or
+existing employees. Technically, a public-facing Nginx web server
+(<code>192.168.10.5</code>) was found to be running an outdated version
+(<code>1.18.0</code>), posing a potential security risk due to unpatched
+vulnerabilities. Additionally, the SSL certificate on this server was
+issued for <code>www.acme-corp.com</code>, which differs from the
+organization’s domain.</p>
+<p>Immediate recommendations focus on implementing comprehensive
+security awareness training, developing an acceptable use policy, and
+updating critical public-facing infrastructure.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>Based on the provided data, the following organizational details were
+recorded:</p>
+<ul>
+<li><p><strong>Organization Name:</strong> Radiant Life</p></li>
+<li><p><strong>Email Domain:</strong>
+<code>RadiantLife.net</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.RadiantLife.net</code></p></li>
+<li><p><strong>External IP Address:</strong>
+<code>56.127.98.207</code></p></li>
+</ul>
+<h1 id="security-control-review-questionnaire">Security Control Review
+(Questionnaire)</h1>
+<p>A review of the organization’s self-reported security controls
+revealed the following posture:</p>
+<div id="tab:questionnaire">
+<table>
+<caption>Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>#</strong></th>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="analysis-of-questionnaire-responses">Analysis of Questionnaire
+Responses</h2>
+<p>The organization has implemented strong MFA requirements across key
+access points, which is an excellent security practice and significantly
+reduces the risk of unauthorized access due to compromised credentials.
+However, significant deficiencies were identified regarding security
+policies and employee training:</p>
+<ul>
+<li><p><strong>Lack of Acceptable Use Policy (AUP):</strong> Without a
+formal AUP, employees may not be aware of their responsibilities when
+using company resources. This gap can lead to inconsistent behavior,
+potential misuse of IT assets, and increased risk of security incidents,
+compliance violations, or legal issues.</p></li>
+<li><p><strong>Absence of Security Awareness Training:</strong> The lack
+of both new employee and annual security awareness training represents a
+major vulnerability. Employees are often the first line of defense;
+without proper education, they are highly susceptible to social
+engineering attacks (e.g., phishing, pretexting, baiting) and may
+inadvertently introduce malware, expose sensitive data, or fail to
+follow secure operational procedures, significantly increasing the risk
+of data breaches or system compromise.</p></li>
+</ul>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed on target <code>192.168.10.5</code> on
+<code>2025-11-22</code> at <code>10:00:00Z</code>. The scan identified
+the following open ports and services:</p>
+<div id="tab:scan_results">
+<table>
+<caption>Open Ports and Services</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">443/TCP</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">https</td>
+<td style="text-align: left;">nginx</td>
+<td style="text-align: left;">1.18.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="analysis-of-technical-scan">Analysis of Technical Scan</h2>
+<p>The scan identified one open port, <code>443/TCP</code>, running an
+HTTPS service. The server product is identified as <code>nginx</code>
+version <code>1.18.0</code>.</p>
+<ul>
+<li><p><strong>Outdated Nginx Version:</strong> Nginx
+<code>1.18.0</code> was released in April 2020. This version is
+significantly outdated; multiple security vulnerabilities (CVEs) have
+been discovered and patched in subsequent releases. Running outdated
+software exposes the server to known exploits, potentially leading to
+unauthorized access, remote code execution, denial of service, or data
+compromise. Regularly updating web servers is a critical security
+practice.</p></li>
+<li><p><strong>SSL Certificate Anomaly:</strong> The SSL certificate’s
+common name was <code>www.acme-corp.com</code>, which differs from the
+organization’s reported website domain
+(<code>www.RadiantLife.net</code>). While not a direct vulnerability,
+this could indicate a misconfigured certificate, a certificate issued
+for a different entity (e.g., a shared hosting provider), or a potential
+for trust issues if users expect to see a certificate matching the
+current domain. This discrepancy should be investigated to ensure proper
+configuration, ownership, and to prevent potential browser warnings or
+user distrust.</p></li>
+</ul>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>Based on the analysis of organizational controls and technical
+findings, the following risks have been identified. Note that no
+pre-existing vulnerabilities were provided in Input 3.</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Lack of Employee Acceptable Use
+Policy</td>
+<td style="text-align: left;">Without a clear AUP, employees may
+unknowingly engage in activities that compromise security, violate
+compliance, or lead to legal issues by misusing company resources.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Insufficient Security Awareness
+Training</td>
+<td style="text-align: left;">Employees untrained in cybersecurity best
+practices are highly susceptible to social engineering attacks,
+increasing the risk of credential theft, malware infection, and data
+breaches.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated Web Server Software (Nginx)</td>
+<td style="text-align: left;">Running Nginx version <code>1.18.0</code>
+exposes the server to numerous known vulnerabilities (CVEs) that have
+been patched in newer versions. This significantly increases the risk of
+remote code execution, denial of service, or data compromise.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">SSL Certificate Mismatch</td>
+<td style="text-align: left;">The SSL certificate for
+<code>192.168.10.5</code> has a common name
+(<code>www.acme-corp.com</code>) that does not match the organization’s
+domain. This can lead to browser warnings, user distrust, and potential
+for misconfiguration.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>To address the identified risks and improve the overall cybersecurity
+posture of Radiant Life, the following actionable recommendations are
+provided:</p>
+<ol>
+<li><p><strong>Implement a Comprehensive Employee Acceptable Use Policy
+(AUP):</strong></p>
+<ul>
+<li><p>Develop, disseminate, and formally enforce a clear AUP that
+outlines acceptable and unacceptable use of company IT resources, data,
+internet access, and communication systems.</p></li>
+<li><p>Ensure all employees read, understand, and formally acknowledge
+the AUP, ideally upon hiring and annually thereafter.</p></li>
+<li><p>Integrate AUP review into employee onboarding and ongoing
+training programs.</p></li>
+</ul></li>
+<li><p><strong>Establish a Robust Security Awareness Training
+Program:</strong></p>
+<ul>
+<li><p><strong>New Employees:</strong> Mandate comprehensive security
+awareness training as a critical component of the onboarding process for
+all new hires before they gain access to company systems.</p></li>
+<li><p><strong>Annual Training:</strong> Conduct mandatory annual
+security awareness training for all employees, covering essential topics
+such as identifying phishing and social engineering attempts, strong
+password hygiene, secure data handling procedures, incident reporting
+protocols, and remote work best practices.</p></li>
+<li><p><strong>Regular Reinforcement:</strong> Supplement annual
+training with regular, targeted communications, quarterly
+micro-trainings, or simulated phishing exercises to keep employees
+vigilant and informed about current threats.</p></li>
+</ul></li>
+<li><p><strong>Update and Patch Outdated Software (Nginx):</strong></p>
+<ul>
+<li><p>Immediately plan and execute an upgrade of the Nginx web server
+on <code>192.168.10.5</code> to the latest stable version (e.g., 1.24.x
+or 1.26.x). Prioritize this upgrade due to the significant security risk
+posed by outdated software.</p></li>
+<li><p>Establish a robust patch management program for all public-facing
+and critical internal systems to ensure timely application of security
+updates.</p></li>
+<li><p>Prior to upgrading, ensure proper testing in a staging
+environment to prevent service disruption, and maintain a clear rollback
+plan.</p></li>
+</ul></li>
+<li><p><strong>Review and Correct SSL Certificate
+Configuration:</strong></p>
+<ul>
+<li><p>Investigate the SSL certificate on <code>192.168.10.5</code> to
+understand why its common name is
+<code>www.acme-corp.com</code>.</p></li>
+<li><p>Replace the existing certificate with one that correctly matches
+the organization’s domain (<code>www.RadiantLife.net</code>) and is
+properly owned and managed by Radiant Life.</p></li>
+<li><p>Ensure all certificates are configured to use strong encryption
+protocols (e.g., TLS 1.2 or 1.3 only) and have appropriate validity
+periods.</p></li>
+</ul></li>
+</ol>
+<h1 id="conclusion">Conclusion</h1>
+<p>While Radiant Life has made commendable strides in implementing
+Multi-Factor Authentication, there are critical areas requiring
+immediate attention in terms of security policy, employee training, and
+software patching. Addressing the identified risks, particularly the
+absence of security awareness training and the use of outdated
+public-facing software, will significantly enhance the organization’s
+defensive posture against common cyber threats and reduce the likelihood
+of successful attacks. Continuous monitoring, proactive risk management,
+and a culture of cybersecurity are essential for maintaining a strong
+security posture in the evolving threat landscape.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

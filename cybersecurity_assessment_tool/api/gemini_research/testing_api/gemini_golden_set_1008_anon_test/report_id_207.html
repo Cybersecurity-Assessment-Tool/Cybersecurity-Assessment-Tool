@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="introduction">Introduction</h1>
+<p>This document details a cybersecurity assessment conducted for
+<strong>[Organization Name]</strong>. The objective was to evaluate the
+organization’s current security posture by correlating technical scan
+results with declared security practices and known risks. This holistic
+approach aims to provide actionable insights for improving resilience
+against cyber threats, addressing potential vulnerabilities before they
+can be exploited.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>Based on the provided data, the following organizational details are
+used for this report:</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Email Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>External IP Address (Identified):</strong>
+<code>[Client IP]</code></p></li>
+</ul>
+<h1 id="security-control-review-questionnaire-analysis">Security Control
+Review: Questionnaire Analysis</h1>
+<p>A review of the organization’s self-reported security controls
+reveals areas of strength and significant gaps. The following table
+summarizes the responses to a critical security questionnaire designed
+to assess foundational security practices.</p>
+<div id="tab:questionnaire">
+<table>
+<caption>Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: left;"><strong>Response</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="key-gaps-identified-from-questionnaire">Key Gaps Identified from
+Questionnaire</h2>
+<ul>
+<li><p><strong>MFA for Sensitive Data Systems:</strong> The lack of
+Multi-Factor Authentication (MFA) for systems handling sensitive data
+represents a critical vulnerability. This omission significantly
+increases the risk of unauthorized access in the event of compromised
+credentials, potentially leading to data breaches or compliance
+violations.</p></li>
+<li><p><strong>Annual Security Awareness Training:</strong> While new
+employees receive security awareness training, the absence of mandatory
+annual refresher training for all employees is a notable gap. Without
+regular reinforcement, employees may become less vigilant to evolving
+threats such as sophisticated phishing attacks and social engineering,
+thereby increasing the organization’s overall susceptibility to
+human-factor vulnerabilities.</p></li>
+</ul>
+<h1 id="technical-scan-results-nmap-network-scan">Technical Scan
+Results: Nmap Network Scan</h1>
+<p>A targeted network scan was performed using Nmap against the
+specified target. The scan aimed to identify open ports and services,
+providing insights into the network’s exposure.</p>
+<ul>
+<li><p><strong>Target Scanned:</strong>
+<code>[Target IP]</code></p></li>
+</ul>
+<div id="tab:nmap">
+<table>
+<caption>Summary of Open Ports and Services</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3306</td>
+<td style="text-align: left;">mysql</td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">5.7.33</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="technical-findings-analysis">Technical Findings Analysis</h2>
+<ul>
+<li><p><strong>Open MySQL Port (3306):</strong> The scan identified
+MySQL port 3306 as open. This indicates that a MySQL database server is
+accessible on the scanned target. While MySQL version 5.7.33 is still
+supported, direct exposure of a database port to the network (especially
+if internet-facing) without stringent access controls (e.g., VPN, IP
+whitelisting, bastion hosts) constitutes a critical security risk.
+Attackers frequently target open database ports to exploit
+vulnerabilities, attempt brute-force attacks, or leverage default
+credentials, potentially leading to unauthorized data access,
+manipulation, or exfiltration. This finding correlates directly with the
+"Database Exposure" risk identified in the pre-existing risk
+register.</p></li>
+</ul>
+<h1 id="risk-assessment-and-correlation">Risk Assessment and
+Correlation</h1>
+<p>This section consolidates the findings from the security
+questionnaire, technical network scans, and the organization’s
+pre-existing risk register to present a holistic view of the current
+cybersecurity risk landscape. Each identified risk is assigned a
+severity level based on its potential impact and likelihood.</p>
+<div id="tab:risks">
+<table>
+<caption>Consolidated Risk Register</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Database Exposure</td>
+<td style="text-align: left;">MySQL port 3306 is open to the network,
+increasing the risk of unauthorized database access, data breaches, and
+potential service disruption.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of MFA for Sensitive Data
+Systems</td>
+<td style="text-align: left;">The absence of Multi-Factor Authentication
+on sensitive data systems makes them highly vulnerable to credential
+stuffing, phishing, and other attacks that could lead to unauthorized
+data access and compromise.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Insufficient Security Awareness
+Training</td>
+<td style="text-align: left;">The lack of comprehensive and annual
+security awareness training for all employees increases the
+organization’s susceptibility to social engineering tactics, malware
+propagation, and reduces overall human firewall effectiveness.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>To effectively mitigate the identified risks and significantly
+enhance the overall cybersecurity posture, the following actionable
+recommendations are provided. These recommendations are prioritized
+based on their potential impact on reducing critical and high-severity
+risks.</p>
+<ol>
+<li><p><strong>Implement Multi-Factor Authentication (MFA) for Sensitive
+Data Systems:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Immediately mandate and enforce MFA for
+all systems that contain or provide access to sensitive organizational
+data. This includes databases, critical applications, cloud resources,
+and administrative interfaces.</p></li>
+<li><p><strong>Benefit:</strong> This is a fundamental control that
+drastically reduces the risk of unauthorized access even if primary
+credentials (username/password) are compromised.</p></li>
+</ul></li>
+<li><p><strong>Establish Comprehensive Annual Security Awareness
+Training Program:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Develop and implement a mandatory,
+comprehensive annual security awareness training program for all
+employees. The training should cover current threats such as
+sophisticated phishing, social engineering tactics, ransomware, secure
+browsing, password hygiene, and proper data handling procedures. Regular
+simulated phishing exercises should also be incorporated.</p></li>
+<li><p><strong>Benefit:</strong> Enhances employees’ ability to identify
+and report threats, transforming them into a robust human firewall and
+significantly reducing the likelihood of successful social engineering
+attacks.</p></li>
+</ul></li>
+<li><p><strong>Secure Open MySQL Port (3306):</strong></p>
+<ul>
+<li><p><strong>Action (Immediate):</strong> Implement strict firewall
+rules to restrict access to MySQL port 3306. Allow connections only from
+explicitly trusted internal IP addresses, specific application servers,
+or via a secure VPN connection. If the database is only accessed locally
+by applications on the same server, bind MySQL to the localhost
+interface (127.0.0.1).</p></li>
+<li><p><strong>Action (Long-term):</strong> Review the network
+architecture to ensure no database ports are directly exposed to the
+internet. Implement a secure bastion host or VPN solution for all remote
+and administrative database access, enforcing least privilege and jump
+box methodologies.</p></li>
+<li><p><strong>Benefit:</strong> Prevents unauthorized external access
+attempts, significantly reduces the attack surface on critical
+databases, and protects sensitive data from exposure.</p></li>
+</ul></li>
+<li><p><strong>Regularly Review and Patch Database
+Software:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Establish a routine schedule for
+monitoring vendor releases and applying security patches and updates for
+MySQL and all other database software. While MySQL 5.7.33 is currently
+supported, staying current with minor versions and preparing for major
+version upgrades is crucial for long-term security.</p></li>
+<li><p><strong>Benefit:</strong> Mitigates risks associated with known
+software vulnerabilities, ensures system stability, and maintains
+compliance with security standards.</p></li>
+</ul></li>
+<li><p><strong>Conduct Regular Vulnerability Assessments and Penetration
+Tests:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Implement a recurring program for
+internal and external vulnerability assessments and penetration tests.
+These should be conducted at least annually, or after significant
+infrastructure changes, to proactively identify and remediate security
+weaknesses before they can be exploited by malicious actors.</p></li>
+<li><p><strong>Benefit:</strong> Provides continuous visibility into the
+security posture, validates the effectiveness of implemented controls,
+and helps uncover emerging risks.</p></li>
+</ul></li>
+</ol>
+<h1 id="conclusion">Conclusion</h1>
+<p>This comprehensive assessment highlights several critical areas
+requiring immediate attention to bolster <strong>[Organization
+Name]</strong>’s cybersecurity defenses. The lack of MFA for sensitive
+data systems, insufficient annual security awareness training, and the
+exposed MySQL port 3306 represent significant vulnerabilities that could
+be exploited. By diligently implementing the provided recommendations,
+<strong>[Organization Name]</strong> can significantly reduce its attack
+surface, enhance its resilience against evolving cyber threats, and
+foster a more robust security-aware culture. Continuous monitoring,
+proactive risk management, and a commitment to security best practices
+are paramount for maintaining a strong and defensible security
+posture.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

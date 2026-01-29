@@ -1,0 +1,306 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="introduction">Introduction</h1>
+<p>This report provides a comprehensive cybersecurity posture assessment
+for <strong>[Organization Name]</strong>, based on an analysis of
+network scan data, organizational security questionnaire responses, and
+a review of existing identified risks. The goal is to identify
+vulnerabilities, assess potential impacts, and recommend actionable
+mitigation strategies to enhance the overall security posture.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Email Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>External IP Address (Assessment Scope):</strong>
+<code>[Client IP]</code></p></li>
+</ul>
+<h1 id="security-control-review-questionnaire-analysis">Security Control
+Review (Questionnaire Analysis)</h1>
+<p>A review of the provided security questionnaire responses highlights
+the current state of several key security controls. These controls are
+foundational for a robust security posture.</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Control Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: left;"><strong>Response</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="analysis-of-questionnaire-findings">Analysis of Questionnaire
+Findings</h2>
+<p>While Multi-Factor Authentication (MFA) is commendably implemented
+across critical access points, significant gaps exist in foundational
+security awareness and policy enforcement:</p>
+<ul>
+<li><p><strong>Lack of Acceptable Use Policy (AUP):</strong> The absence
+of an AUP leaves the organization vulnerable to misuse of IT resources,
+potential data breaches, and non-compliance issues, as employees may not
+be aware of their responsibilities or prohibited activities.</p></li>
+<li><p><strong>Insufficient Security Awareness Training:</strong> The
+lack of both new employee and annual security awareness training is a
+critical vulnerability. Employees are often the first line of defense,
+and without proper training, they are more susceptible to social
+engineering attacks (e.g., phishing), malware, and insider threats. This
+significantly increases the risk of human error leading to security
+incidents.</p></li>
+</ul>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed on <code>[Target IP]</code>. The scan
+identified one open port with a critical vulnerability.</p>
+<ul>
+<li><p><strong>Target IP:</strong> <code>[Target IP]</code></p></li>
+<li><p><strong>Scan Date:</strong> [Scan Date Not Available]</p></li>
+<li><p><strong>Open Port(s) Identified:</strong></p>
+<ul>
+<li><p><strong>Port 21/TCP (FTP):</strong></p>
+<ul>
+<li><p><strong>Service:</strong> FTP</p></li>
+<li><p><strong>Product:</strong> vsftpd</p></li>
+<li><p><strong>Version:</strong> <code>2.3.4</code></p></li>
+<li><p><strong>Script Output:</strong> Anonymous FTP login
+allowed</p></li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 id="analysis-of-technical-findings">Analysis of Technical
+Findings</h2>
+<p>The presence of an accessible FTP service running
+<code>vsftpd 2.3.4</code> with anonymous login enabled represents an
+extremely high-risk vulnerability:</p>
+<ul>
+<li><p><strong>Outdated Software:</strong> <code>vsftpd 2.3.4</code> is
+a severely outdated version, released over a decade ago (June 2011).
+This specific version is notoriously known for a critical backdoor
+vulnerability (CVE-2011-2523), which allows remote attackers to execute
+arbitrary commands via a smiley face ‘:)‘ in the username. Many other
+vulnerabilities affecting older ‘vsftpd‘ versions are also likely
+present.</p></li>
+<li><p><strong>Anonymous FTP Access:</strong> Allowing anonymous FTP
+access is a significant security misconfiguration. This permits
+unauthorized users to connect to the FTP server without credentials,
+potentially allowing:</p>
+<ul>
+<li><p>Data exfiltration or unauthorized file access if sensitive data
+is stored on the FTP server.</p></li>
+<li><p>Upload of malicious files (e.g., malware, web shells) if write
+permissions are enabled, leading to further compromise of the system or
+network.</p></li>
+<li><p>Use as a staging ground for other attacks.</p></li>
+</ul></li>
+</ul>
+<p>This combination of an outdated, vulnerable service and a dangerous
+configuration creates an immediate and severe risk of system compromise
+and data breach.</p>
+<h1 id="consolidated-risk-assessment">Consolidated Risk Assessment</h1>
+<p>This section consolidates risks identified from the organizational
+questionnaire, technical scan, and pre-existing vulnerability data.</p>
+<div id="tab:risks">
+<table>
+<caption>Summary of Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Outdated Windows Policy</td>
+<td style="text-align: left;">Computers are running Windows 7, an
+unsupported operating system with known security vulnerabilities.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of Employee AUP</td>
+<td style="text-align: left;">Absence of an Acceptable Use Policy
+increases risk of misuse of IT resources and potential data
+breaches.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Insufficient Security Training</td>
+<td style="text-align: left;">Lack of security awareness training (new
+and annual) significantly increases susceptibility to social engineering
+and human error-induced incidents.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Critical vsftpd Vulnerability</td>
+<td style="text-align: left;">is severely outdated and contains known
+critical vulnerabilities (e.g., CVE-2011-2523 backdoor).</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Anonymous FTP Access</td>
+<td style="text-align: left;">Anonymous login is enabled on the FTP
+server, allowing unauthorized users potential access, data exposure, and
+system compromise.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="risk-prioritization">Risk Prioritization</h2>
+<p>The identified risks present a significant challenge to the
+organization’s security posture.</p>
+<ul>
+<li><p><strong>Critical Risks:</strong> The <code>vsftpd</code>
+vulnerabilities (outdated version and anonymous access) are immediate
+critical threats that could lead to full system compromise or data
+breach with minimal effort from an attacker. These require urgent
+remediation.</p></li>
+<li><p><strong>High Risks:</strong> Lack of foundational security
+policies (AUP) and training leaves the organization highly susceptible
+to human-factor risks, which can be just as devastating as technical
+vulnerabilities.</p></li>
+<li><p><strong>Medium Risks:</strong> Running unsupported operating
+systems like Windows 7 poses a continuous and evolving threat due to
+unpatched vulnerabilities.</p></li>
+</ul>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the assessment, the following recommendations are provided
+to mitigate identified risks and improve the overall cybersecurity
+posture.</p>
+<h2 id="immediate-critical-actions">Immediate Critical Actions</h2>
+<ul>
+<li><p><strong>Secure/Remove FTP Service:</strong></p>
+<ul>
+<li><p><strong>Disable Anonymous Access:</strong> Immediately
+reconfigure the <code>vsftpd</code> service to disallow anonymous
+login.</p></li>
+<li><p><strong>Upgrade/Remove <code>vsftpd 2.3.4</code>:</strong> The
+most secure option is to disable and remove the FTP service if it is not
+essential. If FTP is required, upgrade to a modern, supported version of
+<code>vsftpd</code> or an alternative secure file transfer protocol
+(e.g., SFTP/SCP). Ensure any required FTP access is authenticated,
+encrypted (FTPS), and properly restricted.</p></li>
+</ul></li>
+</ul>
+<h2 id="high-priority-actions">High Priority Actions</h2>
+<ul>
+<li><p><strong>Develop and Implement an Acceptable Use Policy
+(AUP):</strong></p>
+<ul>
+<li><p>Define clear guidelines for the appropriate use of organizational
+IT resources, data, and internet access.</p></li>
+<li><p>Ensure all employees review and sign the AUP upon hiring and
+periodically thereafter.</p></li>
+</ul></li>
+<li><p><strong>Establish Comprehensive Security Awareness
+Training:</strong></p>
+<ul>
+<li><p>Implement mandatory security awareness training for all new
+employees during their onboarding process.</p></li>
+<li><p>Conduct annual refresher training for all employees, covering
+topics such as phishing, social engineering, password hygiene, data
+handling, and incident reporting.</p></li>
+<li><p>Tailor training content to be engaging and relevant to current
+threat landscapes.</p></li>
+</ul></li>
+</ul>
+<h2 id="medium-priority-actions">Medium Priority Actions</h2>
+<ul>
+<li><p><strong>Upgrade Outdated Operating Systems:</strong></p>
+<ul>
+<li><p>Develop a phased plan to upgrade all workstations running Windows
+7 to a currently supported operating system (e.g., Windows 10/11 or a
+supported Linux distribution).</p></li>
+<li><p>Prioritize critical systems and those handling sensitive
+data.</p></li>
+</ul></li>
+<li><p><strong>Regular Patch Management:</strong></p>
+<ul>
+<li><p>Implement a robust patch management program for all operating
+systems, applications, and network devices to ensure they are
+consistently updated with the latest security patches.</p></li>
+</ul></li>
+</ul>
+<h1 id="conclusion">Conclusion</h1>
+<p>The current cybersecurity posture of <strong>[Organization
+Name]</strong> exhibits critical vulnerabilities stemming from outdated
+software with severe configuration flaws, combined with significant gaps
+in security policies and employee awareness. Addressing the immediate
+technical risks, particularly the vulnerable FTP service, and
+concurrently building a stronger human firewall through policies and
+training, are paramount for protecting organizational assets. A
+proactive and continuous approach to cybersecurity, integrating both
+technical controls and human factors, is essential for long-term
+resilience against evolving threats.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

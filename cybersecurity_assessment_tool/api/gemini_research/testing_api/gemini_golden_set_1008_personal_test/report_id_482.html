@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive assessment of the cybersecurity
+posture for <strong>Sovereign Trust</strong>, based on network scan
+data, organizational security questionnaire responses, and pre-existing
+risk information. The analysis reveals several critical vulnerabilities
+and significant gaps in security controls that require immediate
+attention.</p>
+<p>Key findings include:</p>
+<ul>
+<li><p><strong>Critical Lack of Multi-Factor Authentication
+(MFA):</strong> MFA is not required for email access or computer logins,
+creating significant exposure to credential-based attacks.</p></li>
+<li><p><strong>Highly Vulnerable FTP Service:</strong> An outdated
+<code>vsftpd 2.3.4</code> service, known to contain a backdoor
+(CVE-2011-2523), is exposed on the network, along with dangerous
+anonymous FTP access enabled.</p></li>
+<li><p><strong>Outdated Operating Systems:</strong> Acknowledged use of
+End-of-Life Windows 7 systems poses a substantial security risk due to
+lack of vendor support and patches.</p></li>
+</ul>
+<p>These issues collectively indicate a high-risk security posture that
+needs urgent remediation to protect against sophisticated cyber threats.
+Immediate implementation of the recommended actions is crucial to
+mitigate these identified risks.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following organizational details were provided for this
+assessment:</p>
+<div id="tab:org_info">
+<table>
+<caption>Organizational Details</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Detail</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;">Sovereign Trust</td>
+</tr>
+<tr>
+<td style="text-align: left;">Email Domain</td>
+<td style="text-align: left;"><code>SovereignTrust.com</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Website Domain</td>
+<td style="text-align: left;"><code>www.SovereignTrust.com</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Address</td>
+<td style="text-align: left;"><code>200.174.134.176</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="security-control-review-questionnaire">Security Control Review
+(Questionnaire)</h1>
+<p>An assessment of the organization’s security controls was conducted
+based on responses to a key security questionnaire. Responses are
+indicated by  (Yes) or  (No).</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Control Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: left;"><strong>Response</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis-of-questionnaire-gaps">Analysis of
+Questionnaire Gaps</h2>
+<p>The questionnaire highlights significant weaknesses related to
+Multi-Factor Authentication (MFA):</p>
+<ul>
+<li><p><strong>MFA for Email Access:</strong> The lack of MFA for email
+access is a critical vulnerability. Email accounts are often targets for
+phishing and credential stuffing, and without MFA, a compromised
+password can lead to full account takeover, potentially granting access
+to sensitive communications and systems.</p></li>
+<li><p><strong>MFA for Computer Logins:</strong> Similarly, not
+requiring MFA for computer logins dramatically increases the risk of
+lateral movement and unauthorized access within the network if a user’s
+local credentials are stolen or guessed.</p></li>
+</ul>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed targeting <code>10.0.0.15</code>. The
+scan date was not explicitly provided in the input data.</p>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>10.0.0.15</code></p></li>
+<li><p><strong>Scanner:</strong> Nmap</p></li>
+<li><p><strong>Scan Findings:</strong></p>
+<ul>
+<li><p><strong>Port 21/TCP (FTP):</strong></p>
+<ul>
+<li><p><strong>State:</strong> Open</p></li>
+<li><p><strong>Service:</strong> <code>ftp</code></p></li>
+<li><p><strong>Product:</strong> <code>vsftpd</code></p></li>
+<li><p><strong>Version:</strong> <code>2.3.4</code></p></li>
+<li><p><strong>Script Output:</strong>
+<code>ftp-anon: Anonymous FTP login allowed</code></p></li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered" id="analysis-of-technical-findings">Analysis of
+Technical Findings</h2>
+<p>The technical scan reveals severe vulnerabilities associated with the
+FTP service:</p>
+<ul>
+<li><p><strong>Outdated and Vulnerable vsftpd Version:</strong>
+<code>vsftpd version 2.3.4</code> is notoriously insecure. This specific
+version is known to contain a critical backdoor vulnerability
+(CVE-2011-2523), which allows an attacker to gain root access to the
+system. This represents an immediate and critical compromise
+risk.</p></li>
+<li><p><strong>Anonymous FTP Access Enabled:</strong> Allowing anonymous
+FTP login is a dangerous misconfiguration. Depending on the server’s
+configuration, this could permit unauthorized access to read, write, or
+modify files, leading to data breaches, unauthorized content hosting, or
+system compromise.</p></li>
+</ul>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>Based on the analysis of the questionnaire, technical scan, and
+existing risk data, the following risks have been identified:</p>
+<div id="tab:risk_assessment">
+<table>
+<caption>Identified Risks and Severities</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Lack of Multi-Factor Authentication (MFA)
+for Email Access</td>
+<td style="text-align: left;">Organization does not require MFA for
+email access, making accounts highly susceptible to credential stuffing
+and phishing attacks.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of Multi-Factor Authentication (MFA)
+for Computer Logins</td>
+<td style="text-align: left;">Organization does not require MFA for
+logging into computers, increasing the risk of unauthorized access to
+internal systems if credentials are compromised.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated and Vulnerable FTP Service
+(<code>vsftpd 2.3.4</code>)</td>
+<td style="text-align: left;">The FTP service
+(<code>vsftpd 2.3.4</code>) running on port 21 is an outdated version
+known to contain a severe backdoor vulnerability (CVE-2011-2523),
+allowing root compromise.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Anonymous FTP Access Enabled</td>
+<td style="text-align: left;">The FTP service allows anonymous logins,
+potentially exposing sensitive files or allowing unauthorized uploads
+and data exfiltration.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated Windows Operating Systems</td>
+<td style="text-align: left;">Computers are reportedly running Windows
+7, an End-of-Life operating system that no longer receives security
+updates, posing a significant risk to the organization’s endpoints.</td>
+<td style="text-align: left;">High</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following recommendations are provided to address the identified
+risks and improve <strong>Sovereign Trust</strong>’s cybersecurity
+posture. Prioritization is given to critical and high-severity
+issues.</p>
+<h2 class="unnumbered" id="immediate-critical-actions">Immediate
+Critical Actions</h2>
+<ul>
+<li><p><strong>Remediate FTP Service Vulnerabilities:</strong></p>
+<ul>
+<li><p>Immediately disable anonymous FTP login on the server running
+<code>vsftpd 2.3.4</code>.</p></li>
+<li><p>Upgrade <code>vsftpd</code> to the latest stable version, or
+ideally, replace FTP with a more secure file transfer protocol like SFTP
+or SCP. If FTP is not strictly required, disable the service
+entirely.</p></li>
+<li><p>Conduct a thorough audit of the compromised system for signs of
+intrusion given the backdoor vulnerability.</p></li>
+</ul></li>
+<li><p><strong>Implement Multi-Factor Authentication (MFA) for
+Email:</strong></p>
+<ul>
+<li><p>Enable and enforce MFA for all organizational email accounts.
+This significantly reduces the risk of successful phishing and
+credential stuffing attacks.</p></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered" id="high-priority-actions">High Priority
+Actions</h2>
+<ul>
+<li><p><strong>Implement Multi-Factor Authentication (MFA) for Computer
+Logins:</strong></p>
+<ul>
+<li><p>Deploy and enforce MFA for all employee computer logins,
+especially for systems accessing sensitive data or critical
+infrastructure.</p></li>
+</ul></li>
+<li><p><strong>Upgrade Outdated Windows Operating Systems:</strong></p>
+<ul>
+<li><p>Develop and execute a plan to upgrade all Windows 7 machines to a
+currently supported operating system (e.g., Windows 10 or Windows 11)
+immediately.</p></li>
+<li><p>If immediate upgrades are not feasible, isolate these machines
+from the main network, restrict their capabilities, and apply
+compensating controls.</p></li>
+<li><p>For long-term planning, consider hardware refreshes to support
+newer OS versions.</p></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered" id="general-best-practices">General Best
+Practices</h2>
+<ul>
+<li><p><strong>Regular Security Audits:</strong> Conduct regular network
+scans and security assessments to proactively identify and address
+vulnerabilities.</p></li>
+<li><p><strong>Patch Management:</strong> Ensure a robust patch
+management program is in place for all operating systems, applications,
+and network devices.</p></li>
+<li><p><strong>Security Awareness Training:</strong> Continue and
+enhance security awareness training, ensuring employees understand the
+risks associated with phishing, social engineering, and the importance
+of MFA.</p></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

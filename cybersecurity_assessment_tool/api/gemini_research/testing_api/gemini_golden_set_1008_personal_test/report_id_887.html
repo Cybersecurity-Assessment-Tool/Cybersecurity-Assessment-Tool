@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="executive-summary">Executive Summary</h1>
+<p>This report provides an initial cybersecurity posture assessment for
+Open Door, based on a network scan, organizational security
+questionnaire responses, and a review of pre-existing known risks. The
+analysis reveals critical gaps in multi-factor authentication (MFA)
+implementation across key systems (email, computer logins, sensitive
+data) which pose significant risks. An Nmap scan indicated an open SSH
+port on localhost, corroborating a pre-existing "Localhost Exposed"
+risk. While the organization demonstrates a commitment to security
+awareness training and acceptable use policies, the foundational MFA
+weaknesses require immediate attention to bolster overall security
+against common attack vectors.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name:</strong> Open Door</p></li>
+<li><p><strong>Email Domain:</strong> <code>OpenDoor.org</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.OpenDoor.org</code></p></li>
+<li><p><strong>External IP Address:</strong></p></li>
+</ul>
+<h1 id="security-control-review-questionnaire-analysis">Security Control
+Review: Questionnaire Analysis</h1>
+<p>A review of the provided security questionnaire responses highlights
+several areas of strength and significant weaknesses. The organization
+has policies and training in place, but lacks fundamental access
+controls.</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Control Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Category</strong></th>
+<th style="text-align: left;"><strong>Security Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Access Control</td>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Access Control</td>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Access Control</td>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Policy</td>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Training</td>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Training</td>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis-of-questionnaire-gaps">Analysis of
+Questionnaire Gaps</h2>
+<p>The most critical findings from the questionnaire are the complete
+lack of multi-factor authentication (MFA) for email access, computer
+logins, and sensitive data systems. This represents a severe
+vulnerability, as compromised credentials (e.g., via phishing) could
+grant attackers full access without an additional layer of verification,
+potentially leading to data breaches or system compromise.</p>
+<h1 id="technical-scan-results-nmap-assessment">Technical Scan Results:
+Nmap Assessment</h1>
+<p>A targeted Nmap scan was performed on the specified target.</p>
+<ul>
+<li><p><strong>Target IP Address:</strong></p></li>
+<li><p><strong>Scan Date:</strong> Not available in provided
+data.</p></li>
+<li><p><strong>Scanner Used:</strong> Nmap</p></li>
+</ul>
+<h2 class="unnumbered" id="open-ports-and-services">Open Ports and
+Services</h2>
+<p>The scan identified the following open ports on the target
+<code>127.0.0.1</code>:</p>
+<ul>
+<li><p><strong>Port 22/tcp:</strong> State: open.</p>
+<ul>
+<li><p><em>Service/Product/Version:</em> Not detailed in scan
+data.</p></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered" id="technical-findings">Technical Findings</h2>
+<p>The presence of an open SSH port (22/tcp) on the local loopback
+interface (<code>127.0.0.1</code>) indicates that an SSH service is
+running and accessible locally. While typically used for local
+administration and often not directly reachable from external networks,
+if the host system itself is compromised or if this service is
+inadvertently exposed to external interfaces (e.g., via misconfiguration
+or port forwarding rules), it could serve as a valuable pivot point or
+attack vector for an adversary. The lack of detailed
+service/product/version information prevents an immediate assessment of
+known vulnerabilities specific to the SSH daemon version in use. This
+finding corroborates the pre-existing "Localhost Exposed" risk.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section synthesizes findings from the questionnaire, technical
+scan, and pre-existing vulnerabilities to provide a comprehensive risk
+overview.</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Risks and Severity</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: center;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Lack of MFA for Email</td>
+<td style="text-align: left;">No multi-factor authentication required
+for email access, leaving accounts highly vulnerable to phishing,
+credential stuffing, and business email compromise (BEC) attacks.</td>
+<td style="text-align: center;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of MFA for Computer Logins</td>
+<td style="text-align: left;">No multi-factor authentication required
+for employee computer logins, significantly increasing the risk of
+unauthorized system access via compromised credentials.</td>
+<td style="text-align: center;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of MFA for Sensitive Data
+Systems</td>
+<td style="text-align: left;">No multi-factor authentication required
+for access to systems containing sensitive organizational or customer
+data, directly exposing critical information to potential breaches upon
+credential compromise.</td>
+<td style="text-align: center;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Localhost Exposed (Port 22 Open)</td>
+<td style="text-align: left;">An SSH service (port 22) is open on the
+local loopback interface (<code>127.0.0.1</code>). While potentially for
+legitimate local administration, this can be an attack surface if the
+host itself is compromised or misconfigured for external exposure. This
+risk was pre-identified and has a CVSS score of 10.0, indicating
+critical severity.</td>
+<td style="text-align: center;">Critical</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the comprehensive assessment, the following recommendations
+are provided to improve Open Door’s cybersecurity posture and mitigate
+identified risks:</p>
+<h2 id="immediate-actions-high-priority">Immediate Actions (High
+Priority)</h2>
+<ol>
+<li><p><strong>Implement Multi-Factor Authentication (MFA) Across All
+Critical Systems:</strong></p>
+<ul>
+<li><p><strong>Email Access:</strong> Immediately implement and enforce
+MFA for all organizational email accounts. Prioritize strong MFA methods
+such as hardware security keys, authenticator apps (e.g., Google
+Authenticator, Microsoft Authenticator), or biometric
+verification.</p></li>
+<li><p><strong>Computer Logins:</strong> Roll out MFA for all employee
+computer logins, especially for devices accessing sensitive data,
+critical network resources, or administrative interfaces.</p></li>
+<li><p><strong>Sensitive Data Systems:</strong> Mandate MFA for all
+access to systems containing sensitive organizational or customer data
+(e.g., CRM, ERP, HR systems, databases).</p></li>
+</ul></li>
+<li><p><strong>Review and Secure SSH Configuration on Localhost
+():</strong></p>
+<ul>
+<li><p>Verify that the SSH service on <code>127.0.0.1</code> is strictly
+necessary. If not, disable the service to reduce the attack
+surface.</p></li>
+<li><p>If required, ensure it is configured securely, including
+enforcing key-based authentication (disabling password authentication),
+using strong, unique passwords for any allowed password-based logins,
+and restricting access to necessary users.</p></li>
+<li><p>Confirm this service is not inadvertently exposed to external
+networks through improper firewall rules or port forwarding.</p></li>
+<li><p>If possible, identify the exact SSH daemon version to check for
+specific known vulnerabilities and apply necessary patches or
+updates.</p></li>
+</ul></li>
+</ol>
+<h2 id="long-term-strategic-actions">Long-Term Strategic Actions</h2>
+<ol start="3">
+<li><p><strong>Regular Vulnerability Scanning and Penetration
+Testing:</strong> Conduct periodic external and internal vulnerability
+scans and penetration tests. These proactive measures help identify and
+remediate emerging risks before they can be exploited.</p></li>
+<li><p><strong>Enhanced Logging and Monitoring:</strong> Implement
+comprehensive logging for all critical systems and establish a Security
+Information and Event Management (SIEM) solution. This enables real-time
+monitoring, alert generation for suspicious activities (e.g., multiple
+failed login attempts, unusual data access patterns), and improved
+incident detection capabilities.</p></li>
+<li><p><strong>Develop/Refine Incident Response Plan:</strong> Develop
+or refine a robust incident response plan to ensure the organization can
+effectively detect, respond to, contain, and recover from cybersecurity
+incidents in a timely and structured manner. Regular drills and tabletop
+exercises should be conducted.</p></li>
+</ol>
+<h1 class="unnumbered" id="conclusion">Conclusion</h1>
+<p>Open Door has established foundational security practices like
+acceptable use policies and security awareness training, which are
+commendable. However, the identified critical gaps in multi-factor
+authentication implementation across key access points and the confirmed
+exposure of a local service pose significant and immediate risks to the
+organization’s data and systems. Addressing these concerns, particularly
+the widespread deployment of MFA, is paramount to significantly
+enhancing Open Door’s defensive capabilities against prevalent cyber
+threats and improving its overall security posture.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

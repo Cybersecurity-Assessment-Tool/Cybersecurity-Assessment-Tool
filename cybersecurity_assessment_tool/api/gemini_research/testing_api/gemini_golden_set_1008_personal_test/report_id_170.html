@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="executive-summary">1. Executive Summary</h1>
+<p>The cybersecurity assessment for Grizzly Peak has identified several
+critical security vulnerabilities and significant control gaps. Most
+notably, an internal FTP service (<code>10.0.0.15</code>) is running an
+outdated and critically vulnerable version of <code>vsftpd</code>
+(2.3.4), allowing anonymous login. This specific version is known to
+contain a backdoor vulnerability (CVE-2011-2523) that could lead to
+root-level compromise. Furthermore, the organization lacks Multi-Factor
+Authentication (MFA) for access to sensitive data systems, an employee
+acceptable use policy, and initial security awareness training for new
+hires. These findings, when correlated with pre-existing risks such as
+outdated Windows operating systems, highlight an urgent need for
+security enhancements across the organization’s IT infrastructure and
+security processes to prevent potential breaches and ensure data
+integrity.</p>
+<h1 class="unnumbered" id="organizational-information">2. Organizational
+Information</h1>
+<p>The following information was provided for the assessment:</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>Grizzly
+Peak</strong></p></li>
+<li><p><strong>Email Domain:</strong>
+<code>GrizzlyPeak.net</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.GrizzlyPeak.net</code></p></li>
+<li><p><strong>External IP Address:</strong>
+<code>94.20.116.208</code></p></li>
+</ul>
+<h1 class="unnumbered" id="security-control-review">3. Security Control
+Review</h1>
+<p>A review of the organizational security questionnaire responses
+indicates several strengths, but also highlights critical areas where
+security controls are either absent or insufficient.</p>
+<div id="tab:security_review">
+<table>
+<caption>Security Questionnaire Review</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Question</strong></th>
+<th style="text-align: left;"><strong>Detail</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">MFA for Email Access?</td>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">MFA for Computer Login?</td>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">MFA for Sensitive Data Systems?</td>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Employee Acceptable Use Policy?</td>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">New Employee SA Training?</td>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Annual All Employee SA Training?</td>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 class="unnumbered" id="technical-scan-results">4. Technical Scan
+Results</h1>
+<p>An Nmap scan was performed on the specified target, identifying the
+following open services and vulnerabilities:</p>
+<h2 class="unnumbered" id="scan-details">4.1. Scan Details</h2>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>10.0.0.15</code></p></li>
+</ul>
+<h2 class="unnumbered" id="open-ports-and-services">4.2. Open Ports and
+Services</h2>
+<ul>
+<li><p><strong>Port 21/tcp: Open - FTP Service</strong></p>
+<ul>
+<li><p><strong>Service Name:</strong> <code>ftp</code></p></li>
+<li><p><strong>Product:</strong> <code>vsftpd</code></p></li>
+<li><p><strong>Version:</strong> <code>2.3.4</code></p></li>
+<li><p><strong>Script Output:</strong> Anonymous FTP login
+allowed.</p></li>
+<li><p><strong>Analysis:</strong> The FTP service running
+<code>vsftpd</code> version 2.3.4 is highly concerning. This specific
+version is notoriously known to contain a critical backdoor
+vulnerability (CVE-2011-2523), which could allow an attacker to gain
+root access to the system through a crafted username. The enablement of
+anonymous FTP login further exacerbates this risk by providing
+unauthenticated access, potentially exposing sensitive files or allowing
+an attacker to leverage the backdoor with minimal effort. This
+represents an immediate and severe security risk.</p></li>
+</ul></li>
+</ul>
+<h1 class="unnumbered" id="risk-assessment">5. Risk Assessment</h1>
+<p>The following table summarizes the identified risks, combining
+findings from the technical scan, questionnaire review, and pre-existing
+organizational risk data.</p>
+<div id="tab:risk_assessment">
+<table>
+<caption>Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk ID</strong></th>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: center;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">R1</td>
+<td style="text-align: left;">Unsecured FTP Service with Critical
+Vulnerability</td>
+<td style="text-align: left;">FTP service running
+<code>vsftpd 2.3.4</code> on <code>10.0.0.15</code> allows anonymous
+login. This specific version is known to have a backdoor vulnerability
+() allowing root access.</td>
+<td style="text-align: center;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">R2</td>
+<td style="text-align: left;">Lack of Multi-Factor Authentication for
+Sensitive Data Systems</td>
+<td style="text-align: left;">Multi-Factor Authentication (MFA) is not
+enforced for systems that store or process sensitive organizational
+data, increasing the risk of unauthorized access via compromised
+credentials.</td>
+<td style="text-align: center;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">R3</td>
+<td style="text-align: left;">Absence of Employee Acceptable Use Policy
+(AUP)</td>
+<td style="text-align: left;">There is no formal Acceptable Use Policy
+(AUP) to guide employees on the appropriate use of company IT resources,
+leading to potential misuse, data leakage, and compliance issues.</td>
+<td style="text-align: center;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">R4</td>
+<td style="text-align: left;">Insufficient Security Awareness Training
+for New Employees</td>
+<td style="text-align: left;">New employees are not provided with
+initial security awareness training, leaving them susceptible to social
+engineering attacks, phishing, and other common cyber threats from the
+outset.</td>
+<td style="text-align: center;">Medium</td>
+</tr>
+<tr>
+<td style="text-align: left;">R5</td>
+<td style="text-align: left;">Outdated Windows Operating Systems
+(Existing Risk)</td>
+<td style="text-align: left;">Several workstations are running Windows
+7, an operating system that has reached its end-of-life and no longer
+receives security updates, making them vulnerable to known
+exploits.</td>
+<td style="text-align: center;">Medium (CVSS 5.0)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 class="unnumbered" id="recommendations">6. Recommendations</h1>
+<p>Based on the assessment findings, the following recommendations are
+provided to enhance Grizzly Peak’s cybersecurity posture.</p>
+<h2 class="unnumbered" id="urgent-critical-recommendations">6.1. Urgent
+/ Critical Recommendations</h2>
+<ul>
+<li><p><strong>R1 - Secure or Decommission FTP Service:</strong></p>
+<ul>
+<li><p>Immediately disable anonymous FTP login on
+<code>10.0.0.15</code>.</p></li>
+<li><p>Prioritize upgrading <code>vsftpd</code> to a patched and
+supported version (e.g., 3.0.3 or higher) or, ideally, decommission the
+FTP service entirely.</p></li>
+<li><p>If FTP functionality is essential, replace it with more secure
+protocols such as SFTP (SSH File Transfer Protocol) or FTPS (FTP
+Secure), ensuring strong authentication and encryption are
+mandated.</p></li>
+<li><p>Isolate the server from critical internal networks until a secure
+solution is in place.</p></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered" id="high-priority-recommendations">6.2. High
+Priority Recommendations</h2>
+<ul>
+<li><p><strong>R2 - Implement MFA for Sensitive Data
+Systems:</strong></p>
+<ul>
+<li><p>Mandate and enforce Multi-Factor Authentication for all systems
+and applications that handle or store sensitive organizational data.
+This significantly reduces the risk of unauthorized access even if
+primary credentials are compromised.</p></li>
+<li><p>Conduct an inventory of all sensitive data systems to ensure
+comprehensive MFA coverage.</p></li>
+</ul></li>
+<li><p><strong>R3 - Develop and Implement an Acceptable Use Policy
+(AUP):</strong></p>
+<ul>
+<li><p>Create a comprehensive AUP that clearly outlines employee
+responsibilities and permissible use of company IT resources, including
+hardware, software, internet, and email.</p></li>
+<li><p>Ensure all employees read, understand, and formally acknowledge
+the AUP upon hiring and periodically thereafter.</p></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered" id="medium-priority-recommendations">6.3. Medium
+Priority Recommendations</h2>
+<ul>
+<li><p><strong>R4 - Establish New Employee Security Awareness
+Training:</strong></p>
+<ul>
+<li><p>Implement mandatory security awareness training as part of the
+onboarding process for all new employees. This training should cover
+topics such as phishing, social engineering, password best practices,
+and data handling procedures.</p></li>
+<li><p>Supplement with regular, ongoing training for all employees (as
+already partially in place) to reinforce best practices and address
+emerging threats.</p></li>
+</ul></li>
+<li><p><strong>R5 - Upgrade Outdated Operating Systems:</strong></p>
+<ul>
+<li><p>Prioritize the upgrade of all workstations running Windows 7 to a
+currently supported operating system (e.g., Windows 10 or 11).</p></li>
+<li><p>Develop a phased migration plan, addressing any hardware or
+software compatibility issues.</p></li>
+<li><p>For systems that cannot be immediately upgraded, implement
+compensating controls such as network segmentation, strict access
+controls, and enhanced monitoring.</p></li>
+</ul></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

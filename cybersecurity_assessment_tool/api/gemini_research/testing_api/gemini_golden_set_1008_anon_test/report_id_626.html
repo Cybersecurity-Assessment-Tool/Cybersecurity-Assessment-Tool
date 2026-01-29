@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="executive-summary">Executive Summary</h1>
+<p>This report details the cybersecurity posture of
+<strong>[Organization Name]</strong>, identifying critical
+vulnerabilities and significant control gaps based on a network scan,
+organizational security questionnaire responses, and pre-existing risk
+data. The assessment reveals several high-priority issues requiring
+immediate attention. Key findings include the presence of an extremely
+outdated FTP server allowing anonymous access, a severe misconfiguration
+that poses an immediate data breach risk. Furthermore, critical
+multi-factor authentication (MFA) controls are missing for email and
+sensitive data systems, significantly increasing the risk of
+unauthorized access and account compromise. The continued use of
+unsupported operating systems also contributes to a heightened attack
+surface. Immediate action is imperative to remediate these critical
+findings and enhance the overall security posture.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>This section provides general information about the organization
+under assessment.</p>
+<ul>
+<li><p><strong>Organization Name</strong>: <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Email Domain</strong>: <code>[Domain]</code></p></li>
+<li><p><strong>External IP Address</strong>:
+<code>[Client IP]</code></p></li>
+<li><p><strong>Assessment Date</strong>: 2026-01-26</p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>The following table summarizes the organization’s responses to key
+security control questions. A indicates a ’Yes’ response, while an
+indicates a ’No’ response, highlighting potential gaps.</p>
+<table>
+<caption>Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was conducted on the specified target to identify open
+ports, running services, and potential vulnerabilities.</p>
+<h2 id="scan-details">Scan Details</h2>
+<ul>
+<li><p><strong>Scan Target</strong>:</p></li>
+<li><p><strong>Scan Date</strong>: N/A (Scan date was not provided in
+the input data)</p></li>
+<li><p><strong>Scanner Used</strong>: Nmap</p></li>
+</ul>
+<h2 id="key-findings">Key Findings</h2>
+<p>The scan identified one host as ’up’ with the following significant
+finding:</p>
+<h3 class="unnumbered" id="port-21---ftp-service">Port 21 - FTP
+Service</h3>
+<ul>
+<li><p><strong>Port Status</strong>: Open</p></li>
+<li><p><strong>Service Name</strong>: <code>ftp</code></p></li>
+<li><p><strong>Product</strong>: <code>vsftpd</code></p></li>
+<li><p><strong>Version</strong>: <code>2.3.4</code></p></li>
+<li><p><strong>Script Findings</strong>: Anonymous FTP login
+allowed</p></li>
+</ul>
+<h3 class="unnumbered" id="analysis-of-ftp-service">Analysis of FTP
+Service</h3>
+<p>The discovery of an open FTP service running <code>vsftpd</code>
+version 2.3.4 is a critical concern. <code>vsftpd 2.3.4</code> was
+released in 2011 and is extremely outdated. This particular version is
+infamously known to contain a backdoor (CVE-2011-2523) that allows an
+attacker to execute arbitrary commands if a specific smiley face ‘:)‘ is
+present in the username.</p>
+<p>Furthermore, the scan explicitly identified that "Anonymous FTP login
+allowed." This configuration is a severe security misstep, as it permits
+any user to connect to the FTP server without providing credentials.
+Depending on the server’s configuration, this could allow unauthorized
+access to sensitive files, data exfiltration, or even the upload of
+malicious content, leading to further compromise of the network. This
+combination of an outdated, vulnerable service and a misconfiguration
+for anonymous access represents an immediate and critical risk.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section correlates findings from the questionnaire, technical
+scan, and existing risk data into a comprehensive risk assessment. Risks
+are prioritized by their potential impact and likelihood.</p>
+<table>
+<caption>Identified Risks and Severities</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Anonymous FTP Access</strong></td>
+<td style="text-align: left;">The FTP server (:21) allows anonymous
+login, enabling unauthorized access to potentially sensitive files or
+facilitating malicious uploads.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Outdated vsftpd
+Service</strong></td>
+<td style="text-align: left;">Running <code>vsftpd</code> version 2.3.4,
+an extremely outdated version with known critical vulnerabilities (e.g.,
+CVE-2011-2523 backdoor), posing a remote code execution risk.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lack of MFA for
+Email</strong></td>
+<td style="text-align: left;">Multi-Factor Authentication (MFA) is not
+required for email access, significantly increasing the risk of account
+compromise through phishing, credential stuffing, or brute-force
+attacks.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lack of MFA for Sensitive Data
+Systems</strong></td>
+<td style="text-align: left;">Multi-Factor Authentication (MFA) is not
+required for access to sensitive data systems, increasing the risk of
+unauthorized data access or breach by compromised credentials.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Outdated Windows
+Policy</strong></td>
+<td style="text-align: left;">Computers are running Windows 7, an
+End-of-Life (EOL) operating system that no longer receives security
+updates, leaving systems vulnerable to known exploits and emerging
+threats.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+</tbody>
+</table>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the assessment, the following recommendations are provided
+to mitigate identified risks and improve the overall cybersecurity
+posture of <strong>[Organization Name]</strong>.</p>
+<ol>
+<li><p><strong>Immediate Remediation for FTP Service
+(Critical)</strong>:</p>
+<ul>
+<li><p><strong>Disable Anonymous FTP Access</strong>: Immediately
+reconfigure the FTP server to disable anonymous login. Ensure that only
+authenticated users with strong credentials can access the
+service.</p></li>
+<li><p><strong>Upgrade or Replace FTP Service</strong>: Urgently upgrade
+<code>vsftpd</code> to a current, patched, and supported version.
+Alternatively, if FTP is not strictly required, disable and remove the
+service. If file transfer is necessary, consider more secure protocols
+like SFTP or SCP.</p></li>
+<li><p><strong>Review FTP Contents and Access Logs</strong>: Investigate
+the contents of the FTP server for any sensitive data that may have been
+exposed due to anonymous access. Review server logs for any suspicious
+activity.</p></li>
+</ul></li>
+<li><p><strong>Implement Multi-Factor Authentication (MFA)
+(High)</strong>:</p>
+<ul>
+<li><p><strong>MFA for Email Systems</strong>: Implement mandatory MFA
+for all organizational email accounts. This is a fundamental control
+against credential theft and phishing attacks.</p></li>
+<li><p><strong>MFA for Sensitive Data Systems</strong>: Mandate MFA for
+all systems that handle or store sensitive organizational data. This
+adds an essential layer of security, even if user credentials are
+compromised.</p></li>
+</ul></li>
+<li><p><strong>Operating System Upgrade (Medium)</strong>:</p>
+<ul>
+<li><p><strong>Upgrade Windows 7 Systems</strong>: Develop and execute a
+plan to upgrade all computers running Windows 7 to a currently supported
+operating system (e.g., Windows 10/11) to ensure they receive critical
+security updates and patches.</p></li>
+</ul></li>
+<li><p><strong>Regular Security Audits and Monitoring</strong>:</p>
+<ul>
+<li><p>Conduct regular vulnerability scans and penetration tests to
+proactively identify and address security weaknesses.</p></li>
+<li><p>Implement robust logging and monitoring solutions to detect and
+respond to suspicious activities promptly.</p></li>
+</ul></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

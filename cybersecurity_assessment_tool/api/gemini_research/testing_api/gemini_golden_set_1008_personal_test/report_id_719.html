@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="table-of-contents">Table of Contents</h1>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report presents a cybersecurity posture assessment for
+<strong>""" + org_name + r"""</strong>, based on provided network scan
+data, organizational security questionnaire responses, and pre-existing
+risk information. The assessment reveals several key areas requiring
+immediate attention to strengthen the organization’s security
+stance.</p>
+<p>A critical finding from the security questionnaire is the
+<strong>lack of Multi-Factor Authentication (MFA) for email
+access</strong>, posing a significant risk of account compromise.
+Additionally, there are <strong>gaps in security awareness training for
+both new and existing employees</strong>, which could lead to increased
+susceptibility to social engineering and other human-factor attacks.</p>
+<p>Technically, a scan of <code>""" + target_ip + r"""</code> identified
+<strong>Port 22 (SSH) as open</strong> on the localhost interface
+(<code>127.0.0.1</code>). This aligns with an existing ’Critical’ risk
+named ’Localhost Exposed’, indicating a potential internal
+misconfiguration or unnecessary exposure that needs further
+investigation. The absence of detailed service and version information
+in the scan data limits deeper technical vulnerability analysis.</p>
+<p>The recommendations outlined in this report provide actionable steps
+to mitigate these identified risks and enhance the overall security
+posture of <strong>""" + org_name + r"""</strong>.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name</strong>: """ + org_name +
+r"""</p></li>
+<li><p><strong>Email Domain</strong>:
+<code>""" + email_domain + r"""</code></p></li>
+<li><p><strong>Website Domain</strong>: <a
+href="&quot;&quot;&quot; + website_domain + r&quot;&quot;&quot;"
+class="uri">""" + website_domain + r"""</a></p></li>
+<li><p><strong>External IP</strong>:
+<code>""" + external_ip + r"""</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>This section summarizes the organization’s responses to key security
+control questions. A indicates ’Yes’ (control in place), and a indicates
+’No’ (control not in place or not applicable).</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><p>""")</p>
+<p>for entry in security_controls_review:
+latex_output.append(f"<span>entry[’question’]</span></p></td>
+<td style="text-align: center;"><span>entry[’check’]</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><p>")</p>
+<p>latex_output.append(r"""</p></td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was conducted on <code>""" + target_ip + r"""</code>
+(scan data generated on """ + report_generation_date + r"""). """)</p>
+<p>if not open_ports_details: latex_output.append("No open ports were
+identified during the scan of <code>""" + target_ip + r"""</code>.")
+else: latex_output.append(r"The following open ports and services were
+identified:") latex_output.append(r"</p>
+<div class="center">
+<p>") latex_output.append(r"</p>
+<table>
+<tbody>
+<tr>
+<td style="text-align: left;">") latex_output.append(r"")
+latex_output.append(r"<strong>Port</strong></td>
+<td style="text-align: left;"><strong>State</strong></td>
+<td style="text-align: left;"><strong>Service</strong></td>
+<td style="text-align: left;"><strong>Product/Version</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">") latex_output.append(r"") for port_info
+in open_ports_details: portid = port_info[’portid’] state =
+port_info[’state’] service = port_info[’service’] product_version =
+f"<span>port_info[’product’]</span>/<span>port_info[’version’]</span>"
+if port_info[’product’] != ’N/A’ else ’N/A’ latex_output.append(f"</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">texttt<span>portid</span></td>
+<td style="text-align: left;"><span>state</span></td>
+<td style="text-align: left;"><span>service</span></td>
+<td style="text-align: left;"><span>product_version</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">") latex_output.append(r"""</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span><em>Note: Detailed service and version information was not
+available in the provided scan data for deeper analysis of potential
+software vulnerabilities.</em></span></p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section consolidates identified risks from the network scan,
+organizational questionnaire, and pre-existing vulnerability data.
+Severity is indicated where available (CVSS score for technical
+vulnerabilities, descriptive for control gaps).</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: center;"><strong>Severity/CVSS</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><p>""")</p>
+<p>for risk in correlated_risks: risk_name_latex =
+risk[’risk_name’].replace("_", "</p></td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">_") # Escape underscores overview_latex =
+risk[’overview’].replace("_", "</td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><p>_")</p>
+<p>severity_val = risk[’severity’] severity_category = "info" # Default
+category for coloring severity_display_text = severity_val</p>
+<p>if severity_val == "N/A": severity_category = "info"
+severity_display_text = "N/A" else: try: cvss_score =
+float(severity_val) if cvss_score &gt;= 9.0: severity_category =
+"Critical" severity_display_text = f"Critical (CVSS
+<span>cvss_score</span>)" elif cvss_score &gt;= 7.0: severity_category =
+"High" severity_display_text = f"High (CVSS <span>cvss_score</span>)"
+elif cvss_score &gt;= 4.0: severity_category = "Medium"
+severity_display_text = f"Medium (CVSS <span>cvss_score</span>)" else:
+severity_category = "Low" severity_display_text = f"Low (CVSS
+<span>cvss_score</span>)" except ValueError: # Handle descriptive
+severities from questionnaire analysis if "Critical" in severity_val:
+severity_category = "Critical" severity_display_text = severity_val elif
+"High" in severity_val: severity_category = "High" severity_display_text
+= severity_val elif "Medium" in severity_val: severity_category =
+"Medium" severity_display_text = severity_val elif "Low" in
+severity_val: severity_category = "Low" severity_display_text =
+severity_val else: severity_category = "info" # Fallback for unknown
+descriptive severities severity_display_text = severity_val</p>
+<p>latex_output.append(f"</p></td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">seqsplit<span>risk_name_latex</span></td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">seqsplit<span>overview_latex</span></td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td
+style="text-align: left;">severitycolor<span>severity_category</span><span>severity_display_text</span></td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><p>")</p>
+<p>latex_output.append(r"""</p></td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following recommendations are provided to address the identified
+risks and improve the overall cybersecurity posture of <strong>""" +
+org_name + r"""</strong>.</p>
+<div class="itemize">
+<p>""")</p>
+<p>for rec in all_recommendations: latex_output.append(rec)</p>
+<p>latex_output.append(r"""</p>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

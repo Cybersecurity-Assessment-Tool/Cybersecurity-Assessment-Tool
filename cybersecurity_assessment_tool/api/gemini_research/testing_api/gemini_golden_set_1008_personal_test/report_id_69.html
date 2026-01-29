@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive cybersecurity posture assessment
+for <strong>Sterling Silver</strong>. The analysis synthesizes data from
+a network scan, organizational security questionnaire responses, and a
+review of existing risk data. Key findings include critical gaps in
+multi-factor authentication (MFA) implementation and new employee
+security awareness training. A significant technical finding reveals
+sensitive information disclosure via an open port on an internal system,
+which contradicts an existing risk assessment. While the organization
+has some foundational controls in place, several high-priority
+recommendations are provided to enhance overall security.</p>
+<h1 class="unnumbered" id="organizational-information">Organizational
+Information</h1>
+<ul>
+<li><p><strong>Organization Name:</strong> Sterling Silver</p></li>
+<li><p><strong>Email Domain:</strong>
+<code>SterlingSilver.net</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.SterlingSilver.net</code></p></li>
+<li><p><strong>External IP Address:</strong></p></li>
+</ul>
+<h1 class="unnumbered" id="security-control-review">Security Control
+Review</h1>
+<p>A review of the organization’s self-reported security controls
+reveals several areas for improvement. Controls marked with represent
+potential critical gaps in the security posture.</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: left;"><strong>Compliance</strong></th>
+<th style="text-align: left;"><strong>Finding</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Critical Gap</td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Critical Gap</td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">High Risk</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 class="unnumbered" id="technical-scan-results">Technical Scan
+Results</h1>
+<p>A network scan was conducted on the target <code>10.5.5.5</code>. The
+scan identified an open port with critical information disclosure.</p>
+<ul>
+<li><p><strong>Target IP:</strong></p></li>
+<li><p><strong>Scan Date:</strong> N/A (Scan metadata did not include a
+specific date.)</p></li>
+<li><p><strong>Open Ports Found:</strong></p>
+<ul>
+<li><p><strong>Port 8080 (HTTP Proxy/Application Server):</strong></p>
+<ul>
+<li><p><strong>State:</strong> Open</p></li>
+<li><p><strong>Service Details:</strong> HTTP-like service, often used
+for web applications.</p></li>
+<li><p><strong>Script Output (http-title):</strong></p></li>
+<li><p><strong>Analysis:</strong> An existing risk assessment (from
+Input 3) previously indicated that "Port 8080 is confirmed secure and
+false positive" with a severity of 0.0. However, the current network
+scan’s ‘http-title‘ script output of "TOP SECRET DB" is a significant
+information disclosure. This title explicitly reveals the highly
+sensitive nature of the system running on port 8080 to anyone who can
+access the port. Even if the system itself is internally secured (e.g.,
+requires authentication), disclosing its function as a "TOP SECRET DB"
+via a public-facing title is a serious misconfiguration and constitutes
+a high-priority finding. This finding necessitates a re-evaluation of
+the system’s configuration and the previous risk assessment.</p></li>
+</ul></li>
+</ul></li>
+</ul>
+<h1 class="unnumbered" id="risk-assessment">Risk Assessment</h1>
+<p>This section synthesizes the findings from the security control
+review, technical scan, and existing risk data to provide a
+comprehensive view of the organization’s risk profile.</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Risks and Findings</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name/Finding</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Lack of MFA for
+Email</strong></td>
+<td style="text-align: left;">Users can access email without a second
+factor, increasing the risk of account compromise via phishing or
+credential stuffing attacks.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lack of MFA for Computer
+Login</strong></td>
+<td style="text-align: left;">Compromised user credentials could lead to
+unauthorized access to internal systems and networks, potentially
+leading to data breaches or ransomware.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>No Security Awareness Training for
+New Employees</strong></td>
+<td style="text-align: left;">New employees are a common target for
+social engineering. The lack of initial training leaves them vulnerable
+and increases human-factor risks from day one.</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Information Disclosure on Port
+8080</strong></td>
+<td style="text-align: left;">An open port reveals the presence of a
+"TOP SECRET DB" via its HTTP title, publicly disclosing the sensitive
+nature of an internal system. This provides critical intelligence to
+potential attackers.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Port 8080 Secured (Existing
+Risk)</strong></td>
+<td style="text-align: left;"><em>As per previous assessment</em>: Port
+8080 was confirmed secure and considered a false positive. <em>(Note:
+This assessment is contradicted by the current scan’s finding of
+information disclosure.)</em></td>
+<td style="text-align: left;">Informational (0.0 CVSS)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 class="unnumbered" id="recommendations">Recommendations</h1>
+<p>Based on the assessment, the following actionable recommendations are
+provided to improve Sterling Silver’s cybersecurity posture:</p>
+<ol>
+<li><p><strong>Implement Multi-Factor Authentication (MFA) for Email
+Access:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Enable and strictly enforce MFA for all
+user accounts accessing organizational email.</p></li>
+<li><p><strong>Benefit:</strong> This foundational control significantly
+reduces the risk of email account compromise, a primary vector for
+phishing, business email compromise (BEC), and credential theft
+attacks.</p></li>
+<li><p><strong>Priority:</strong> High</p></li>
+</ul></li>
+<li><p><strong>Implement Multi-Factor Authentication (MFA) for Computer
+Login:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Deploy and require MFA for all user
+logins to company computers, laptops, and virtual desktops.</p></li>
+<li><p><strong>Benefit:</strong> Adds a critical layer of security
+against credential theft and unauthorized system access, preventing
+lateral movement within the network.</p></li>
+<li><p><strong>Priority:</strong> High</p></li>
+</ul></li>
+<li><p><strong>Establish Security Awareness Training for New
+Employees:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Develop and implement a mandatory,
+comprehensive security awareness training program for all new hires
+during their onboarding process.</p></li>
+<li><p><strong>Benefit:</strong> Educates new employees on common
+threats (e.g., phishing, social engineering), company security policies,
+and best practices from their first day, thereby significantly reducing
+human-factor risks.</p></li>
+<li><p><strong>Priority:</strong> Medium</p></li>
+</ul></li>
+<li><p><strong>Remediate Information Disclosure on Port 8080 and
+Re-evaluate System Security:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Immediately investigate the system
+hosting port 8080. If it truly contains "TOP SECRET DB" information,
+ensure it is not accessible from external networks. At a minimum,
+sanitize or remove any publicly visible banners or HTTP titles that
+disclose its sensitive nature. Thoroughly re-evaluate the system’s
+purpose, configuration, and network accessibility.</p></li>
+<li><p><strong>Benefit:</strong> Prevents adversaries from gaining
+critical intelligence about internal systems, reducing the likelihood of
+targeted attacks. This also corrects the erroneous prior assessment,
+ensuring a more accurate risk profile.</p></li>
+<li><p><strong>Priority:</strong> High</p></li>
+</ul></li>
+</ol>
+<h1 class="unnumbered" id="conclusion">Conclusion</h1>
+<p>Sterling Silver demonstrates a foundational commitment to some
+security controls, such as MFA for sensitive data systems and annual
+security training. However, critical vulnerabilities exist in the lack
+of widespread MFA adoption and initial security training for new hires.
+The technical scan further highlighted a concerning information
+disclosure, indicating potential gaps in internal system configuration
+and risk assessment processes. Addressing these identified risks with
+the provided recommendations will significantly strengthen the
+organization’s overall cybersecurity posture and resilience against
+modern threats.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

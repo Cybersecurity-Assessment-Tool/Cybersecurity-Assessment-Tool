@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive cybersecurity posture assessment
+for <strong>Willow Creek Health</strong> based on an analysis of network
+scan data, organizational security questionnaire responses, and
+pre-existing risk information. The assessment identifies several
+critical gaps and high-severity risks, primarily related to Remote
+Desktop Protocol (RDP) exposure, insufficient Multi-Factor
+Authentication (MFA coverage, and deficiencies in foundational security
+policies and training. Immediate action is recommended to mitigate these
+vulnerabilities and enhance the overall security posture.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>Based on the provided data, the following organizational details were
+used for this assessment.</p>
+<ul>
+<li><p><strong>Organization Name</strong>: Willow Creek Health</p></li>
+<li><p><strong>Email Domain</strong>:
+<code>WillowCreekHealth.com</code></p></li>
+<li><p><strong>Website Domain</strong>:
+<code>www.WillowCreekHealth.com</code></p></li>
+<li><p><strong>External IP Address</strong>:</p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of the organization’s security controls, based on
+self-reported questionnaire responses, highlights areas of strength and
+significant gaps.</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<p><span id="tab:security_controls"
+data-label="tab:security_controls"></span></p>
+</div>
+<h2 class="unnumbered" id="analysis-of-questionnaire-gaps">Analysis of
+Questionnaire Gaps</h2>
+<p>The "No" responses indicate critical vulnerabilities in the
+organization’s security posture:</p>
+<ul>
+<li><p><strong>MFA for Email Access (Critical Gap)</strong>: Lack of MFA
+on email access significantly increases the risk of account compromise
+via phishing or brute-force attacks, potentially leading to business
+email compromise (BEC) or broader network intrusion.</p></li>
+<li><p><strong>MFA for Sensitive Data Systems (Critical Gap)</strong>:
+Without MFA, access to sensitive data systems is vulnerable to
+compromised credentials, posing a high risk of data breach and
+regulatory non-compliance.</p></li>
+<li><p><strong>Employee Acceptable Use Policy (High Risk)</strong>: The
+absence of an AUP leaves the organization exposed to risks from employee
+misuse of company assets, intellectual property theft, and legal
+liabilities.</p></li>
+<li><p><strong>Security Awareness Training for New Employees (High
+Risk)</strong>: New employees are often prime targets for social
+engineering attacks due to lack of familiarity with organizational
+security practices. Skipping initial training leaves a significant entry
+point for attackers.</p></li>
+</ul>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed targeting internal host . The scan
+revealed the following open ports and services:</p>
+<h2 class="unnumbered" id="nmap-scan-findings-2026-01-27">Nmap Scan
+Findings (2026-01-27)</h2>
+<ul>
+<li><p><strong>Target Host</strong>:</p></li>
+<li><p><strong>Status</strong>: Up</p></li>
+<li><p><strong>Open Ports</strong>:</p>
+<ul>
+<li><p><strong>Port 3389</strong>: Open</p></li>
+<li><p><strong>Service</strong>: <code>ms-wbt-server</code> (Microsoft
+Windows Based Terminal Server / Remote Desktop Protocol)</p></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered" id="technical-analysis">Technical Analysis</h2>
+<p>The presence of an open RDP port (3389) on represents a significant
+security concern. RDP is a frequent target for attackers attempting to
+gain initial access to networks through brute-force attacks, credential
+stuffing, or exploiting vulnerabilities in the RDP service itself. While
+version information was not available from this scan, any publicly or
+internally accessible RDP service should be secured with strong, complex
+passwords, network-level authentication (NLA), and ideally, be placed
+behind a VPN or bastion host to limit exposure. The discovery of an open
+RDP port on complements the pre-existing risk of RDP exposure on
+(detailed in the Risk Assessment), indicating a systemic issue within
+the network.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section correlates findings from the questionnaire, technical
+scans, and existing vulnerability data to provide a comprehensive view
+of the organization’s risks.</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">RDP Exposure (Existing)</td>
+<td style="text-align: left;">RDP exposed on</td>
+<td style="text-align: left;">Critical (CVSS 9.0)</td>
+</tr>
+<tr>
+<td style="text-align: left;">RDP Exposure (New Finding)</td>
+<td style="text-align: left;">RDP port 3389 open on</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of MFA for Email</td>
+<td style="text-align: left;">No MFA required to access organizational
+email</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of MFA for Sensitive Data</td>
+<td style="text-align: left;">No MFA required to access sensitive data
+systems</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Missing Acceptable Use Policy</td>
+<td style="text-align: left;">Absence of formal employee acceptable use
+policy</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Missing New Employee SAT</td>
+<td style="text-align: left;">No security awareness training for new
+employees</td>
+<td style="text-align: left;">High</td>
+</tr>
+</tbody>
+</table>
+<p><span id="tab:risks" data-label="tab:risks"></span></p>
+</div>
+<h2 class="unnumbered" id="severity-definitions">Severity
+Definitions</h2>
+<ul>
+<li><p><strong>Critical (CVSS 9.0-10.0)</strong>: Requires immediate
+attention. Exploitation likely to result in severe business impact
+(e.g., full system compromise, major data breach).</p></li>
+<li><p><strong>High (CVSS 7.0-8.9)</strong>: Requires urgent attention.
+Exploitation could lead to significant impact (e.g., unauthorized
+access, data loss, service disruption).</p></li>
+<li><p><strong>Medium (CVSS 4.0-6.9)</strong>: Requires attention.
+Exploitation could lead to moderate impact (e.g., information
+disclosure, minor disruption).</p></li>
+<li><p><strong>Low (CVSS 0.1-3.9)</strong>: Minor impact or requires
+specific conditions for exploitation.</p></li>
+</ul>
+<h1 id="recommendations">Recommendations</h1>
+<p>To significantly improve its cybersecurity posture, Willow Creek
+Health should prioritize the implementation of the following
+recommendations:</p>
+<h2 class="unnumbered" id="immediate-actions">Immediate Actions</h2>
+<ul>
+<li><p><strong>Mitigate RDP Exposure</strong>:</p>
+<ul>
+<li><p>For and , restrict RDP access to only trusted, internal IP
+addresses or specific management hosts.</p></li>
+<li><p>Implement a VPN requirement for all remote RDP
+connections.</p></li>
+<li><p>Enable Network Level Authentication (NLA) for RDP
+connections.</p></li>
+<li><p>Ensure all RDP accounts use strong, unique passwords and are not
+default administrator accounts.</p></li>
+</ul></li>
+<li><p><strong>Implement MFA for Email Access</strong>: Deploy and
+enforce Multi-Factor Authentication for all user accounts accessing
+organizational email. This is a critical defense against phishing and
+credential stuffing attacks.</p></li>
+<li><p><strong>Implement MFA for Sensitive Data Systems</strong>:
+Mandate MFA for all access to systems containing sensitive
+organizational or patient data to prevent unauthorized access even if
+primary credentials are compromised.</p></li>
+</ul>
+<h2 class="unnumbered" id="mid-term-actions">Mid-Term Actions</h2>
+<ul>
+<li><p><strong>Develop and Implement an Acceptable Use Policy
+(AUP)</strong>: Create a clear and comprehensive AUP outlining the
+proper use of company assets, data, and networks. Ensure all employees
+acknowledge and understand this policy.</p></li>
+<li><p><strong>Introduce Security Awareness Training for New
+Employees</strong>: Establish mandatory security awareness training as
+part of the onboarding process for all new hires to instill fundamental
+security best practices from day one.</p></li>
+<li><p><strong>Review and Enhance Existing Security Awareness
+Training</strong>: While annual training is performed, consider
+enhancing content to cover current threat landscapes, including social
+engineering, phishing, and safe browsing habits.</p></li>
+</ul>
+<h2 class="unnumbered" id="long-term-strategy">Long-Term Strategy</h2>
+<ul>
+<li><p>Conduct regular vulnerability assessments and penetration tests
+to proactively identify and address security weaknesses.</p></li>
+<li><p>Implement a robust patch management program for all operating
+systems and applications, especially those publicly exposed.</p></li>
+<li><p>Develop and regularly test an Incident Response Plan (IRP) to
+ensure the organization can effectively respond to and recover from
+cybersecurity incidents.</p></li>
+<li><p>Consider adopting a ’Zero Trust’ architecture to minimize
+implicit trust and enforce strict access controls.</p></li>
+</ul>
+<h1 id="conclusion">Conclusion</h1>
+<p>Willow Creek Health faces several significant cybersecurity
+challenges, particularly concerning RDP exposure, MFA adoption, and
+foundational security policies and training. Addressing these issues
+with the recommended actions will substantially strengthen the
+organization’s defense against common attack vectors and improve its
+overall security posture. Proactive and continuous security management
+is essential in today’s evolving threat landscape.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

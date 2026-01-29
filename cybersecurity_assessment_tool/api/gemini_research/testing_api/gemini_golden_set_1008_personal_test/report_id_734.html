@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive assessment of the cybersecurity
+posture for Iron Oak Furniture, based on a network scan, a security
+questionnaire, and existing risk data. The analysis identifies several
+significant vulnerabilities and critical control gaps that require
+immediate attention. Key findings include an extremely outdated FTP
+server (<code>vsftpd 2.3.4</code>) with anonymous access enabled on the
+internal network (<code>10.0.0.15</code>), and a critical lack of
+Multi-Factor Authentication (MFA) for computer logins. Additionally, an
+existing risk of outdated Windows 7 operating systems was noted.
+Addressing these issues is paramount to mitigate significant risks of
+unauthorized access, data compromise, and potential system
+exploitation.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name</strong>: Iron Oak Furniture</p></li>
+<li><p><strong>Email Domain</strong>:
+<code>IronOakFurniture.net</code></p></li>
+<li><p><strong>Website Domain</strong>:
+<code>www.IronOakFurniture.net</code></p></li>
+<li><p><strong>External IP Address</strong>:
+<code>19.15.255.99</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>The following table summarizes the responses to the security
+questionnaire, indicating the current status of key security
+controls.</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis-of-security-controls">Analysis of
+Security Controls</h2>
+<p>While many foundational controls are in place (MFA for email and
+sensitive data, AUP, regular security training), a significant gap was
+identified: the lack of Multi-Factor Authentication for computer logins.
+This omission dramatically increases the risk of successful phishing or
+credential stuffing attacks leading to internal network compromise.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan targeting the internal IP address
+<code>10.0.0.15</code> revealed the following:</p>
+<ul>
+<li><p><strong>Target Host</strong>: <code>10.0.0.15</code></p></li>
+<li><p><strong>Host Status</strong>: Up</p></li>
+<li><p><strong>Open Ports</strong>:</p>
+<ul>
+<li><p><strong>Port 21/tcp (FTP)</strong>:</p>
+<ul>
+<li><p><strong>Service Name</strong>: <code>ftp</code></p></li>
+<li><p><strong>Product</strong>: <code>vsftpd</code></p></li>
+<li><p><strong>Version</strong>: <code>2.3.4</code></p></li>
+<li><p><strong>Scripts Output</strong>:</p></li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered" id="technical-analysis">Technical Analysis</h2>
+<p>The discovery of an FTP server running <code>vsftpd 2.3.4</code> on
+<code>10.0.0.15</code> represents a critical vulnerability.
+<code>vsftpd</code> version 2.3.4 was released in 2011 and is long
+End-of-Life (EOL). This specific version is notoriously known for a
+critical backdoor vulnerability (CVE-2011-2523), which allows remote
+attackers to execute arbitrary commands. Furthermore, the scan revealed
+that anonymous FTP login is allowed, a severe misconfiguration that
+grants unauthorized access to the server’s file system, potentially
+leading to data exposure, unauthorized file modification, or further
+system compromise.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>Based on the analysis of organizational data, security controls, and
+technical scan results, the following risks have been identified:</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Cybersecurity Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+<th style="text-align: left;"><strong>Source</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Outdated Windows Policy</td>
+<td style="text-align: left;">Computers are running Windows 7, which is
+End-of-Life and no longer receives security updates.</td>
+<td style="text-align: left;">Medium</td>
+<td style="text-align: left;">Pre-existing</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of Multi-Factor Authentication for
+Computer Login</td>
+<td style="text-align: left;">The organization does not require MFA for
+users to log into computers, significantly increasing the risk of
+unauthorized access through compromised credentials.</td>
+<td style="text-align: left;">High</td>
+<td style="text-align: left;">Questionnaire Gap</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated FTP Server with Critical
+Vulnerabilities</td>
+<td style="text-align: left;">An FTP server running
+<code>vsftpd 2.3.4</code> was detected on <code>10.0.0.15</code>. This
+version is EOL and contains a critical backdoor vulnerability
+(CVE-2011-2523).</td>
+<td style="text-align: left;">Critical</td>
+<td style="text-align: left;">Technical Scan</td>
+</tr>
+<tr>
+<td style="text-align: left;">Anonymous FTP Access Enabled</td>
+<td style="text-align: left;">The FTP server on <code>10.0.0.15</code>
+allows anonymous login, granting unauthorized access to the FTP file
+system and potentially exposing sensitive data.</td>
+<td style="text-align: left;">Critical</td>
+<td style="text-align: left;">Technical Scan</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>To address the identified risks and improve the overall cybersecurity
+posture, the following recommendations are provided:</p>
+<ol>
+<li><p><strong>Implement Multi-Factor Authentication (MFA) for Computer
+Logins (High Priority):</strong></p>
+<ul>
+<li><p>Deploy and enforce MFA for all user logins to company computers,
+especially those accessing the internal network or sensitive resources.
+This significantly reduces the risk of successful credential-based
+attacks.</p></li>
+</ul></li>
+<li><p><strong>Address Outdated FTP Server and Anonymous Access
+(Immediate Critical Action):</strong></p>
+<ul>
+<li><p><strong>Disable Anonymous Access Immediately:</strong>
+Reconfigure the FTP server on <code>10.0.0.15</code> to disallow
+anonymous logins. Ensure that only authenticated users with strong
+credentials can access the service.</p></li>
+<li><p><strong>Upgrade/Replace FTP Server:</strong>
+<code>vsftpd 2.3.4</code> is critically outdated.</p>
+<ul>
+<li><p><em>Short-term:</em> Upgrade <code>vsftpd</code> to the latest
+stable and supported version, ensuring all known vulnerabilities are
+patched.</p></li>
+<li><p><em>Long-term:</em> Consider replacing FTP with more secure file
+transfer protocols like SFTP (SSH File Transfer Protocol) or FTPS (FTP
+Secure), which provide encryption and better authentication
+mechanisms.</p></li>
+</ul></li>
+<li><p><strong>Evaluate Necessity:</strong> Determine if the FTP server
+is still essential for business operations. If not, it should be
+decommissioned and removed from the network to eliminate this attack
+surface.</p></li>
+</ul></li>
+<li><p><strong>Upgrade Outdated Windows Operating Systems (High
+Priority):</strong></p>
+<ul>
+<li><p>Plan and execute an upgrade path for all workstations running
+Windows 7 to a currently supported operating system (e.g., Windows 10 or
+Windows 11).</p></li>
+<li><p>Develop a hardware refresh strategy to ensure compatibility with
+newer operating systems and to support future security
+features.</p></li>
+</ul></li>
+<li><p><strong>Regular Vulnerability Management:</strong></p>
+<ul>
+<li><p>Establish a continuous vulnerability scanning and patch
+management program to identify and remediate outdated software and
+misconfigurations across all systems.</p></li>
+<li><p>Conduct regular penetration testing to validate security controls
+and uncover potential exploitation paths.</p></li>
+</ul></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

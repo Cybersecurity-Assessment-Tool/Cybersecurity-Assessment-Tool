@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="titlepage">
+<p><span><strong>Cybersecurity Assessment Report</strong></span><br />
+<span><strong>[Organization Name]</strong></span><br />
+<span>2026-01-26</span><br />
+<span><strong>Prepared by:</strong></span><br />
+<span>Cybersecurity Analyst Team</span><br />
+</p>
+</div>
+<h1 class="unnumbered" id="executive-summary">Executive Summary</h1>
+<p>This report details a comprehensive cybersecurity assessment for
+<strong>[Organization Name]</strong>, drawing insights from a network
+scan, a security control questionnaire, and existing risk data. The
+analysis highlights several critical vulnerabilities that demand
+immediate attention, primarily revolving around Multi-Factor
+Authentication (MFA) implementation and the direct exposure of a
+database service. Specifically, an open MySQL port (<code>3306</code>)
+to the network poses a significant direct threat, compounded by
+identified gaps in mandating MFA for computer logins and access to
+sensitive data systems. These unaddressed security deficiencies elevate
+the risk of unauthorized access, data exfiltration, and potential
+disruption of critical operations. This report provides a clear
+assessment of these risks and actionable recommendations designed to
+strengthen the organization’s overall security posture.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Email Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>External IP Address:</strong>
+<code>[Client IP]</code></p></li>
+<li><p><strong>Report Date:</strong> 2026-01-26</p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A security questionnaire was administered to gauge the organization’s
+adherence to best practices in critical security controls. While the
+responses indicate a commendable commitment to security awareness
+training and policy documentation, significant weaknesses were
+identified in the deployment of foundational security mechanisms,
+particularly Multi-Factor Authentication.</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="key-gaps-identified-from-questionnaire">Key
+Gaps Identified from Questionnaire:</h2>
+<ul>
+<li><p><strong>Lack of MFA for Computer Logins:</strong> The absence of
+MFA for accessing computers represents a critical vulnerability. In the
+event of compromised user credentials, attackers could gain unfettered
+access to internal workstations and potentially pivot to other
+systems.</p></li>
+<li><p><strong>Lack of MFA for Sensitive Data Systems:</strong> Failure
+to enforce MFA for sensitive data systems significantly heightens the
+risk of data breaches. A single factor (e.g., a password) is
+insufficient protection for high-value assets.</p></li>
+</ul>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was conducted using Nmap to identify active hosts,
+open ports, and associated services on the specified target.</p>
+<ul>
+<li><p><strong>Scan Target:</strong> <code>[Target IP]</code></p></li>
+<li><p><strong>Scan Date:</strong> N/A (Scan date information was not
+provided in the input data.)</p></li>
+<li><p><strong>Scanner Used:</strong> Nmap</p></li>
+</ul>
+<h2 class="unnumbered" id="open-ports-and-services">Open Ports and
+Services:</h2>
+<p>The network scan revealed the following open ports and their
+identified services:</p>
+<div id="tab:open_ports">
+<table>
+<caption>Identified Open Ports and Services</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3306</td>
+<td style="text-align: left;">mysql</td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">5.7.33</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="technical-findings-analysis">Technical
+Findings Analysis:</h2>
+<p>The most critical technical finding is the exposure of MySQL port
+<code>3306</code> to the network. Although MySQL version
+<code>5.7.33</code> is not inherently outdated to the point of severe
+known vulnerabilities, directly exposing a database service to the
+network without stringent access controls or segmentation is a
+significant security misconfiguration. This allows any entity with
+network access to attempt connections to the database, creating an entry
+point for potential unauthorized access, brute-force attacks, data
+exfiltration, or even denial of service if not properly protected.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>Based on the synthesis of questionnaire responses, technical scan
+results, and pre-existing risk data, the following cybersecurity risks
+have been identified and assessed:</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Cybersecurity Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk ID</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">R01</td>
+<td style="text-align: left;">MySQL port <code>3306</code> is open to
+the network, allowing direct access attempts to the database
+service.</td>
+<td style="text-align: left;">High (CVSS 7.5)</td>
+</tr>
+<tr>
+<td style="text-align: left;">R02</td>
+<td style="text-align: left;">Without MFA, compromised user credentials
+can lead to unauthorized access to internal systems and computers.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">R03</td>
+<td style="text-align: left;">Absence of MFA on sensitive data systems
+greatly increases the risk of data breaches stemming from credential
+theft.</td>
+<td style="text-align: left;">High</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>To effectively mitigate the identified risks and substantially
+enhance the cybersecurity posture of <strong>[Organization
+Name]</strong>, the following actionable recommendations are
+provided:</p>
+<h2 id="multi-factor-authentication-mfa-enhancements">Multi-Factor
+Authentication (MFA) Enhancements</h2>
+<ul>
+<li><p><strong>Implement MFA for Computer Logins (R02):</strong></p>
+<ul>
+<li><p>Deploy a robust, organization-wide MFA solution for all user
+logins to computers and workstations. This is a foundational step to
+protect against credential theft and unauthorized access.</p></li>
+<li><p>Prioritize solutions that integrate seamlessly with existing
+identity providers (e.g., Active Directory, cloud-based directory
+services) for ease of management and deployment.</p></li>
+</ul></li>
+<li><p><strong>Implement MFA for Sensitive Data Systems
+(R03):</strong></p>
+<ul>
+<li><p>Mandate MFA for all access points to systems containing sensitive
+organizational or client data. This includes databases, critical
+applications, cloud storage, and network shares.</p></li>
+<li><p>Conduct a comprehensive inventory of all systems that process or
+store sensitive data to ensure complete MFA coverage.</p></li>
+</ul></li>
+</ul>
+<h2 id="network-and-database-security">Network and Database
+Security</h2>
+<ul>
+<li><p><strong>Restrict Access to MySQL Port 3306 (R01):</strong></p>
+<ul>
+<li><p>Implement strict firewall rules to limit access to port
+<code>3306</code> (MySQL) exclusively from trusted internal IP addresses
+or specific application servers that require connectivity.</p></li>
+<li><p>For any legitimate remote access requirements, enforce the use of
+secure tunneling mechanisms, such as a Virtual Private Network (VPN), to
+ensure encrypted and authenticated communication.</p></li>
+<li><p>Avoid direct exposure of database services to the internet or
+broad internal networks. If external access is unavoidable, place the
+database behind an application proxy or Web Application Firewall (WAF)
+with robust security policies.</p></li>
+</ul></li>
+<li><p><strong>Review Database Configuration (R01):</strong></p>
+<ul>
+<li><p>Enforce the use of strong, unique, and complex passwords for all
+database user accounts.</p></li>
+<li><p>Apply the principle of least privilege rigorously for database
+users, granting only the minimum necessary permissions required for
+their roles.</p></li>
+<li><p>Establish a regular patching and update schedule for MySQL to
+ensure the database software is running the latest stable and secure
+version, while carefully assessing compatibility with dependent
+applications.</p></li>
+</ul></li>
+</ul>
+<h2 id="general-security-practices">General Security Practices</h2>
+<ul>
+<li><p><strong>Regular Security Audits:</strong> Implement a program of
+periodic security audits and penetration tests. These proactive measures
+help to identify and rectify vulnerabilities before they can be
+exploited by malicious actors.</p></li>
+<li><p><strong>Incident Response Plan:</strong> Develop, document, and
+regularly test a comprehensive incident response plan. A well-defined
+plan is crucial for efficiently detecting, responding to, and recovering
+from cybersecurity incidents.</p></li>
+</ul>
+<h1 class="unnumbered" id="conclusion">Conclusion</h1>
+<p>This cybersecurity assessment reveals that while
+<strong>[Organization Name]</strong> demonstrates a foundational
+understanding of security policies and employee awareness, significant
+vulnerabilities persist within critical access controls and network
+configurations. Prioritizing the immediate implementation of
+Multi-Factor Authentication across all access vectors and securing
+exposed database services are paramount steps. Addressing these
+identified high-risk areas will dramatically improve the organization’s
+cybersecurity posture, significantly reducing the likelihood and
+potential impact of a successful security breach.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

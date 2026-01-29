@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive assessment of the cybersecurity
+posture for <strong>[Organization Name]</strong>, based on an analysis
+of network scan data, organizational security questionnaire responses,
+and pre-existing risk information. The assessment reveals several
+critical areas requiring immediate attention, particularly regarding
+security awareness training and the configuration of network
+services.</p>
+<p>Specifically, the organization lacks regular security awareness
+training for both new and existing employees, significantly increasing
+susceptibility to social engineering attacks. Furthermore, a network
+scan identified an outdated FTP service (<code>vsftpd 2.3.4</code>)
+running on port 21 with anonymous login enabled, presenting a critical
+vulnerability for unauthorized access and data exposure. Coupled with a
+reported existing risk of outdated Windows operating systems (Windows 7)
+on workstations, the overall security posture indicates a need for
+urgent remediation and foundational security improvements.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Email Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>External IP Address(es) Monitored:</strong>
+<code>[Client IP]</code></p></li>
+<li><p><strong>Scan Date:</strong> Not provided in scan
+metadata.</p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>The following table summarizes the organization’s responses to key
+security control questions. A indicates "Yes" and an indicates "No."</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>ID</strong></th>
+<th style="text-align: left;"><strong>Security Question</strong></th>
+<th style="text-align: center;"><strong>Answer</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">SC-01</td>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">SC-02</td>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">SC-03</td>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">SC-04</td>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">SC-05</td>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">SC-06</td>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis-of-security-control-review">Analysis
+of Security Control Review</h2>
+<p>While the organization demonstrates good foundational controls by
+implementing Multi-Factor Authentication (MFA) across critical systems
+and having an acceptable use policy, significant gaps exist in security
+awareness training. The absence of training for both new and existing
+employees (SC-05, SC-06) leaves the organization vulnerable to
+human-centric attacks such as phishing, social engineering, and the
+exploitation of common user errors.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A recent network scan targeting <code>[Target IP]</code> identified
+one active host with an open port, detailed below.</p>
+<h2 class="unnumbered" id="target">Target: </h2>
+<ul>
+<li><p><strong>Status:</strong> Up</p></li>
+<li><p><strong>Open Ports:</strong></p>
+<ul>
+<li><p><strong>Port:</strong> 21/tcp</p></li>
+<li><p><strong>Service:</strong> FTP
+(<code>vsftpd 2.3.4</code>)</p></li>
+<li><p><strong>Details:</strong></p>
+<ul>
+<li><p><strong>Product:</strong> <code>vsftpd</code></p></li>
+<li><p><strong>Version:</strong> <code>2.3.4</code></p></li>
+<li><p><strong>Script Output (ftp-anon):</strong>
+<code>Anonymous FTP login allowed</code></p></li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered" id="analysis-of-technical-scan-results">Analysis
+of Technical Scan Results</h2>
+<p>The detection of <code>vsftpd 2.3.4</code> on port 21 is a critical
+finding. <code>vsftpd 2.3.4</code> is an extremely outdated version of
+the VSFTPD server, released over a decade ago. This version is
+notoriously known for a backdoor vulnerability (CVE-2011-2523), although
+this specific backdoor requires a malicious compilation. Nevertheless,
+running such an old, unsupported software version poses significant
+security risks due to unpatched vulnerabilities that have been
+discovered since its release.</p>
+<p>Even more critically, the scan identified that "Anonymous FTP login
+allowed." This configuration permits anyone to connect to the FTP server
+without credentials, potentially allowing unauthorized access to files,
+data leakage, or the upload of malicious content, depending on the
+server’s directory permissions. This is a severe misconfiguration that
+requires immediate attention.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>Based on the analysis of the questionnaire, technical scan, and
+existing risk data, the following key risks have been identified:</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Cybersecurity Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Anonymous FTP Access</td>
+<td style="text-align: left;">An outdated FTP service
+(<code>vsftpd 2.3.4</code>) is configured to allow anonymous logins,
+potentially leading to unauthorized data access, modification, or
+malware injection.</td>
+<td style="text-align: left;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated/Vulnerable FTP Service</td>
+<td style="text-align: left;">Running an end-of-life <code>vsftpd</code>
+version (<code>2.3.4</code>) exposes the organization to numerous known
+and unknown vulnerabilities, even without the specific backdoor.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of New Employee Security Awareness
+Training</td>
+<td style="text-align: left;">New employees are not receiving essential
+security training, increasing the likelihood of succumbing to social
+engineering attacks or making security-related errors from the
+outset.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of Annual Security Awareness
+Training</td>
+<td style="text-align: left;">The absence of regular security awareness
+training for all employees leads to a decay in security knowledge and
+vigilance, leaving the organization susceptible to evolving
+threats.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated Windows Policy</td>
+<td style="text-align: left;">Computers are running Windows 7, an
+End-of-Life (EOL) operating system, which no longer receives security
+updates, leaving systems highly vulnerable to exploitation.</td>
+<td style="text-align: left;">High</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following recommendations are provided to address the identified
+risks and improve the overall cybersecurity posture of
+<strong>[Organization Name]</strong>. These actions are prioritized
+based on their potential impact and urgency.</p>
+<h2 class="unnumbered"
+id="criticalhigh-priority-recommendations">Critical/High Priority
+Recommendations</h2>
+<ol>
+<li><p><strong>Disable Anonymous FTP Access Immediately:</strong></p>
+<ul>
+<li><p>Review and reconfigure the <code>vsftpd</code> server to disable
+anonymous login. Ensure that only authenticated users with specific
+authorization can access the FTP service.</p></li>
+<li><p>Review directory permissions on the FTP server to ensure no
+sensitive data is publicly accessible and no unauthorized write access
+is allowed.</p></li>
+</ul></li>
+<li><p><strong>Upgrade or Replace FTP Service:</strong></p>
+<ul>
+<li><p>Migrate away from <code>vsftpd 2.3.4</code> to a current,
+supported version of an FTP/SFTP server, or ideally, transition to a
+more secure file transfer protocol like SFTP or SCP over SSH, or a
+secure file sharing solution.</p></li>
+<li><p>If FTP is absolutely necessary, ensure it is properly secured
+with strong authentication, encryption (FTPS), and minimal necessary
+permissions.</p></li>
+</ul></li>
+<li><p><strong>Implement Mandatory Security Awareness Training for New
+Employees:</strong></p>
+<ul>
+<li><p>Develop and implement a comprehensive security awareness training
+program that all new employees must complete during their onboarding
+process. This should cover topics such as phishing, password hygiene,
+data handling, and acceptable use policies.</p></li>
+</ul></li>
+<li><p><strong>Establish Annual Security Awareness Training for All
+Employees:</strong></p>
+<ul>
+<li><p>Institute a mandatory annual security awareness training program
+for all existing employees. This training should be regularly updated to
+reflect current threats and organizational policies. Consider phishing
+simulation exercises.</p></li>
+</ul></li>
+<li><p><strong>Upgrade All Workstations Running Outdated Operating
+Systems:</strong></p>
+<ul>
+<li><p>Prioritize the upgrade of all computers running Windows 7 (or any
+other EOL operating system) to a currently supported and patched
+operating system, such as Windows 10 or Windows 11.</p></li>
+<li><p>If immediate upgrades are not feasible, isolate these machines
+from the main network and implement compensating controls (e.g., strict
+firewall rules, application whitelisting) to minimize exposure.</p></li>
+</ul></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

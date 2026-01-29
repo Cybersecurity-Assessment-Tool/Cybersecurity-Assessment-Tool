@@ -1,0 +1,269 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report details the cybersecurity posture of
+<strong>[Organization Name]</strong>, based on a review of
+organizational security controls, an external network scan, and existing
+risk data. The assessment identified several critical gaps, particularly
+concerning Multi-Factor Authentication (MFA) implementation and
+foundational security policies and training. A public-facing MySQL
+database instance was also identified, which represents a significant
+exposure. While some security awareness training is conducted annually,
+a more comprehensive approach to security controls and risk mitigation
+is strongly recommended to enhance the organization’s overall resilience
+against cyber threats.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Email Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>External IP Address Assessed (if applicable):</strong>
+<code>[Client IP]</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of the organization’s self-reported security controls
+revealed several areas requiring immediate attention. The findings,
+based on a questionnaire, are summarized below:</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: left;"><strong>Response</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="analysis-of-questionnaire-findings">Analysis of Questionnaire
+Findings</h2>
+<p>The review highlights significant deficiencies in critical security
+areas:</p>
+<ul>
+<li><p><strong>MFA Gaps:</strong> The lack of Multi-Factor
+Authentication for computer logins and sensitive data systems
+drastically increases the risk of credential compromise leading to
+unauthorized access. This is a critical vulnerability.</p></li>
+<li><p><strong>Policy &amp; Training Deficiencies:</strong> The absence
+of an acceptable use policy and security awareness training for new
+employees means there are no clear guidelines for secure behavior from
+day one, potentially exposing the organization to human-factor risks
+such as phishing, malware, or data leakage.</p></li>
+</ul>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was conducted on the target IP address,
+<code>[Target IP]</code>. The scan date was not explicitly provided in
+the metadata. The following open ports and services were identified:</p>
+<div id="tab:open_ports">
+<table>
+<caption>Open Ports and Services</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3306</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">mysql</td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">5.7.33</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="analysis-of-technical-findings">Analysis of Technical
+Findings</h2>
+<p>The presence of an open MySQL database (version 5.7.33) on port 3306
+to the public network represents a significant security vulnerability.
+While MySQL 5.7 is still supported, 5.7.33 is not the latest patch for
+the 5.7 branch, and MySQL 8.0 is the current major stable version.
+Exposing a database service directly to the internet is generally
+discouraged without stringent access controls (e.g., VPN, IP
+whitelisting) and robust authentication. This finding correlates
+directly with an existing vulnerability, "Database Exposure," indicating
+a known and unaddressed risk.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>Based on the analysis of security controls, technical scans, and
+existing vulnerability data, the following risks have been
+identified:</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Affected Elements</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Database Exposure</td>
+<td style="text-align: left;">High (7.5 CVSS)</td>
+<td style="text-align: left;">MySQL port 3306 is open to the network,
+potentially allowing unauthorized access, data exfiltration, or
+exploitation of database vulnerabilities.</td>
+<td style="text-align: left;">Port 3306 (MySQL)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Insufficient Multi-Factor Authentication
+(MFA)</td>
+<td style="text-align: left;">High</td>
+<td style="text-align: left;">Lack of MFA on computer logins and
+sensitive data systems significantly increases the risk of credential
+compromise and unauthorized access, even if passwords are stolen.</td>
+<td style="text-align: left;">Computer logins, Sensitive data
+systems</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of Security Policies and Initial
+Training</td>
+<td style="text-align: left;">Medium</td>
+<td style="text-align: left;">Absence of an Acceptable Use Policy and
+initial security awareness training for new employees can lead to
+insecure practices, non-compliance, and increased human-factor risks
+from the start of employment.</td>
+<td style="text-align: left;">Employee conduct, New employee
+onboarding</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>To address the identified risks and enhance the overall cybersecurity
+posture, the following recommendations are provided:</p>
+<ol>
+<li><p><strong>Implement Comprehensive Multi-Factor Authentication
+(MFA):</strong></p>
+<ul>
+<li><p>Mandate MFA for all computer logins across the organization to
+prevent unauthorized access even if primary credentials are
+compromised.</p></li>
+<li><p>Mandate MFA for access to all sensitive data systems and
+applications.</p></li>
+</ul></li>
+<li><p><strong>Enhance Database Security for MySQL (Port
+3306):</strong></p>
+<ul>
+<li><p>Immediately restrict external access to MySQL port 3306 using
+firewall rules, allowing connections only from trusted internal IP
+addresses or via a secured VPN.</p></li>
+<li><p>If remote access is absolutely required, implement a strong VPN
+solution or highly granular IP whitelisting.</p></li>
+<li><p>Ensure the MySQL instance is updated to the latest patch version
+of 5.7 or consider upgrading to MySQL 8.0 for enhanced features,
+security, and longer support.</p></li>
+<li><p>Review and enforce strong authentication practices for database
+users, including complex passwords and least privilege
+principles.</p></li>
+</ul></li>
+<li><p><strong>Develop and Implement Foundational Security
+Policies:</strong></p>
+<ul>
+<li><p>Create and enforce a comprehensive Employee Acceptable Use Policy
+(AUP) that clearly outlines acceptable conduct, security
+responsibilities, and appropriate use of organizational IT
+resources.</p></li>
+</ul></li>
+<li><p><strong>Establish Robust Security Awareness Training
+Program:</strong></p>
+<ul>
+<li><p>Implement mandatory security awareness training for all new
+employees during their onboarding process. This training should cover
+the AUP, common cyber threats (e.g., phishing, social engineering), and
+best practices for data protection.</p></li>
+<li><p>Continue regular, at least annual, security awareness training
+for all employees, ensuring content is updated to reflect current threat
+landscapes and organizational policies.</p></li>
+</ul></li>
+</ol>
+<h1 id="conclusion">Conclusion</h1>
+<p><strong>[Organization Name]</strong> faces significant cybersecurity
+challenges primarily stemming from inadequate foundational controls,
+specifically in MFA deployment, policy development, and initial employee
+training. The exposed MySQL database further exacerbates the risk
+profile, making the organization a more attractive target for
+adversaries. By diligently implementing the recommended actions,
+particularly those related to MFA and database access control, the
+organization can significantly reduce its attack surface and improve its
+overall security posture, moving towards a more secure and resilient
+operational environment.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

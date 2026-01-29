@@ -1,0 +1,260 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="executive-summary">Executive Summary</h1>
+<p>This report details a cybersecurity posture assessment for Nexus
+Dynamics, leveraging network scan data, organizational security
+questionnaire responses, and pre-existing risk information. The
+assessment reveals a mixed security posture, with some critical controls
+in place (e.g., MFA for email) but significant gaps in foundational
+security practices. Key findings include a lack of multi-factor
+authentication for internal computer logins and sensitive data systems,
+the absence of crucial security policies and training, and the exposure
+of Remote Desktop Protocol (RDP) services on internal hosts. These
+issues present considerable risk, necessitating immediate attention and
+remediation efforts to enhance the organization’s overall security
+resilience.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>Nexus
+Dynamics</strong></p></li>
+<li><p><strong>Email Domain:</strong></p></li>
+<li><p><strong>Website Domain:</strong></p></li>
+<li><p><strong>External IP Address:</strong></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>This section presents the responses from the organizational security
+questionnaire, evaluated against cybersecurity best practices. Each "No"
+response indicates a potential security gap or weakness.</p>
+<div id="tab:security_controls">
+<table>
+<caption>Security Control Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+<th style="text-align: left;"><strong>Assessment</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">Good practice.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>Critical Gap</strong>: Exposes
+internal systems to credential theft.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>Critical Gap</strong>: Increases
+risk of unauthorized access to critical data.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>High Risk</strong>: Lack of clear
+guidelines for employee conduct.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>High Risk</strong>: New employees
+are a common phishing target.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>High Risk</strong>: Employees are
+the first line of defense; training is crucial.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed to identify open ports and services on
+specified hosts.</p>
+<h2 id="nmap-scan-findings">Nmap Scan Findings</h2>
+<ul>
+<li><p><strong>Target IP:</strong></p></li>
+<li><p><strong>Status:</strong> Host is <code>up</code>.</p></li>
+<li><p><strong>Open Ports and Services:</strong></p>
+<ul>
+<li><p><strong>Port:</strong> <code>3389</code></p></li>
+<li><p><strong>Service:</strong> <code>ms-wbt-server</code> (Microsoft
+Windows-based Terminal Server / Remote Desktop Protocol)</p></li>
+<li><p><strong>Product/Version:</strong> No version information was
+available for this service from the scan.</p></li>
+</ul></li>
+<li><p><strong>Analysis:</strong> The presence of an open RDP port
+(<code>3389</code>) directly exposed on an internal network host is a
+significant security concern. RDP is a frequent target for brute-force
+attacks and exploitation, especially if not protected by strong
+authentication (e.g., MFA), IP whitelisting, or a VPN gateway. The lack
+of version information prevents specific CVE analysis but does not
+mitigate the inherent risk of RDP exposure.</p></li>
+</ul>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section correlates findings from the security control review,
+technical scans, and pre-existing risk information to provide a
+comprehensive view of the organization’s risk landscape.</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Risks and Severities</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: center;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Lack of MFA for Computers</td>
+<td style="text-align: left;">Employees can log into computers without
+multi-factor authentication, making systems vulnerable to credential
+theft.</td>
+<td style="text-align: center;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of MFA for Sensitive Data
+Systems</td>
+<td style="text-align: left;">Access to sensitive data systems is not
+protected by multi-factor authentication, increasing the risk of
+unauthorized data access.</td>
+<td style="text-align: center;">Critical</td>
+</tr>
+<tr>
+<td style="text-align: left;">Absence of Employee Acceptable Use Policy
+(AUP)</td>
+<td style="text-align: left;">Without an AUP, employees lack clear
+guidelines for appropriate technology use, potentially leading to
+security incidents.</td>
+<td style="text-align: center;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Insufficient Security Awareness
+Training</td>
+<td style="text-align: left;">Employees are not regularly trained on
+security best practices, increasing susceptibility to phishing, social
+engineering, and other attacks.</td>
+<td style="text-align: center;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">RDP Service Exposure on
+<code>10.10.10.51</code></td>
+<td style="text-align: left;">Remote Desktop Protocol is open on an
+internal host, posing a significant risk for unauthorized access
+attempts and potential exploitation.</td>
+<td style="text-align: center;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">Existing RDP Exposure</td>
+<td style="text-align: left;">Pre-existing vulnerability: RDP exposed on
+. This indicates a systemic issue with RDP management.</td>
+<td style="text-align: center;">Critical (CVSS 9.0)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the comprehensive assessment, the following recommendations
+are provided to mitigate identified risks and enhance the overall
+cybersecurity posture of Nexus Dynamics.</p>
+<ol>
+<li><p><strong>Implement Multi-Factor Authentication (MFA)
+Universally:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Deploy and enforce MFA for all employee
+computer logins and access to sensitive data systems.</p></li>
+<li><p><strong>Benefit:</strong> Significantly reduces the risk of
+unauthorized access due to compromised credentials.</p></li>
+</ul></li>
+<li><p><strong>Develop and Implement an Acceptable Use Policy
+(AUP):</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Create and formally disseminate an AUP
+that clearly outlines expectations for employee behavior regarding
+organizational IT assets and data.</p></li>
+<li><p><strong>Benefit:</strong> Establishes a framework for responsible
+technology use, reducing insider threats and accidental security
+breaches.</p></li>
+</ul></li>
+<li><p><strong>Establish and Maintain a Robust Security Awareness
+Training Program:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Implement mandatory security awareness
+training for all new hires and conduct annual refresher training for all
+employees.</p></li>
+<li><p><strong>Benefit:</strong> Equips employees with the knowledge to
+identify and report threats, turning them into a strong line of
+defense.</p></li>
+</ul></li>
+<li><p><strong>Secure Remote Desktop Protocol (RDP) Access:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> For and (and any other exposed RDP
+instances), restrict RDP access to only trusted source IPs via a
+firewall, implement a VPN for all external RDP access, and ensure
+strong, complex passwords are used, ideally with MFA. Consider disabling
+RDP if not strictly necessary.</p></li>
+<li><p><strong>Benefit:</strong> Closes a common attack vector,
+preventing brute-force attacks and unauthorized access.</p></li>
+</ul></li>
+<li><p><strong>Regular Vulnerability Management:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Conduct regular vulnerability scans and
+penetration tests on both internal and external networks to proactively
+identify and address security weaknesses.</p></li>
+<li><p><strong>Benefit:</strong> Ensures ongoing visibility into the
+security posture and helps maintain a robust defense against evolving
+threats.</p></li>
+</ul></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

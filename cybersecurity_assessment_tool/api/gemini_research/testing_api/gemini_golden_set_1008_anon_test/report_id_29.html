@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="introduction">Introduction</h1>
+<p>This document presents a cybersecurity assessment for
+<strong>[Organization Name]</strong>. The evaluation is based on three
+primary data inputs: a network scan (Input_1), organizational security
+questionnaire responses (Input_2), and a list of current risks
+(Input_3). The objective is to analyze and correlate this data to
+identify vulnerabilities, assess risks, and provide actionable
+recommendations to strengthen the organization’s security posture.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>While specific organizational identity details were not provided in
+the inputs, the following placeholders are used for clarity:</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Email Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>External Client IP (Placeholder):</strong></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>The following table summarizes the responses from the organizational
+security questionnaire, highlighting existing controls and identifying
+potential gaps against cybersecurity best practices. ( = Yes, = No)</p>
+<div id="tab:questionnaire">
+<table>
+<caption>Organizational Security Questionnaire Responses</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Question</strong></th>
+<th style="text-align: center;"><strong>Answer</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="analysis-of-questionnaire-responses">Analysis of Questionnaire
+Responses</h2>
+<p>Two significant gaps were identified:</p>
+<ul>
+<li><p><strong>Lack of MFA for Computer Logins:</strong> The absence of
+multi-factor authentication for computer logins significantly increases
+the risk of unauthorized access if credentials are compromised. This is
+a critical control gap.</p></li>
+<li><p><strong>Missing Employee Acceptable Use Policy (AUP):</strong>
+Without a formal AUP, employees may not have clear guidelines on
+acceptable technology use, increasing risks related to data handling,
+internet usage, and overall security compliance.</p></li>
+</ul>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was conducted on the target, providing insights into
+publicly exposed services.</p>
+<ul>
+<li><p><strong>Target Scanned:</strong></p></li>
+<li><p><strong>Scan Date:</strong> <strong>[Scan Date
+Unavailable]</strong></p></li>
+<li><p><strong>Scanner Used:</strong> nmap</p></li>
+</ul>
+<h2 id="open-ports-and-services">Open Ports and Services</h2>
+<p>The scan identified the following open ports and services:</p>
+<div id="tab:openports">
+<table>
+<caption>Open Ports and Services</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service Name</strong></th>
+<th style="text-align: left;"><strong>Product/Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3389/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">ms-wbt-server</td>
+<td style="text-align: left;">N/A</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="technical-analysis">Technical Analysis</h2>
+<p>The most critical finding from the network scan is the exposure of
+port <code>3389/tcp</code>, which corresponds to Microsoft Windows
+Remote Desktop Protocol (RDP). Direct RDP exposure to the internet is a
+highly dangerous practice due to:</p>
+<ul>
+<li><p><strong>Brute-Force Attacks:</strong> RDP is a frequent target
+for automated brute-force attacks by malicious actors attempting to
+guess login credentials.</p></li>
+<li><p><strong>Vulnerability Exploitation:</strong> Any unpatched
+vulnerabilities in the RDP service could lead to remote code execution
+or other severe compromises.</p></li>
+<li><p><strong>Lack of Segmentation:</strong> Without a VPN or other
+protective gateway, RDP traffic is exposed, making it difficult to
+monitor or control access effectively.</p></li>
+</ul>
+<p>This finding directly correlates with the pre-existing risk of "RDP
+Exposure" identified in Input 3.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section synthesizes the findings from the questionnaire,
+technical scan, and pre-existing risks to provide a comprehensive view
+of the organization’s risk landscape. Severity levels are categorized
+as: <span style="color: critical">Critical</span> (9.0-10.0), <span
+style="color: high">High</span> (7.0-8.9), <span
+style="color: medium">Medium</span> (4.0-6.9), <span
+style="color: low">Low</span> (0.1-3.9), <span
+style="color: none">None</span> (0.0).</p>
+<div id="tab:risks">
+<table>
+<caption>Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">RDP Exposure</td>
+<td style="text-align: left;">Remote Desktop Protocol (port 3389) is
+directly exposed to the internet. This service is a frequent target for
+attackers and can lead to unauthorized access and system
+compromise.</td>
+<td style="text-align: left;"><span
+style="color: critical">Critical</span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Lack of MFA for Computer Logins</td>
+<td style="text-align: left;">Employees can log into computers without
+multi-factor authentication, significantly increasing the risk of
+account compromise through stolen or weak passwords.</td>
+<td style="text-align: left;"><span style="color: high">High</span></td>
+</tr>
+<tr>
+<td style="text-align: left;">No Employee Acceptable Use Policy</td>
+<td style="text-align: left;">Absence of a formal policy outlining
+acceptable use of organizational IT resources leaves employees without
+clear guidelines, potentially leading to misuse or security
+incidents.</td>
+<td style="text-align: left;"><span style="color: high">High</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the analysis, the following actionable recommendations are
+provided to mitigate the identified risks and strengthen the
+organization’s cybersecurity posture.</p>
+<h2 id="immediate-actions-critical-risks">Immediate Actions (Critical
+Risks)</h2>
+<ul>
+<li><p><strong>Mitigate RDP Exposure:</strong></p>
+<ul>
+<li><p><strong>Close Port 3389:</strong> Immediately close or block port
+3389 on any internet-facing firewalls.</p></li>
+<li><p><strong>Implement VPN for RDP Access:</strong> Require all RDP
+connections to originate from a secure Virtual Private Network (VPN)
+connection. This ensures that RDP traffic is encrypted and authenticated
+before reaching internal systems.</p></li>
+<li><p><strong>Strong Authentication:</strong> If RDP access is
+absolutely necessary without a VPN (not recommended), enforce strong,
+complex passwords and implement network-level authentication
+(NLA).</p></li>
+</ul></li>
+</ul>
+<h2 id="high-priority-actions-high-risks">High Priority Actions (High
+Risks)</h2>
+<ul>
+<li><p><strong>Enforce MFA for Computer Logins:</strong></p>
+<ul>
+<li><p>Implement and enforce multi-factor authentication for all user
+logins to company computers and servers. This dramatically reduces the
+risk of credential theft leading to system compromise.</p></li>
+<li><p>Provide clear instructions and support for employees to adopt
+MFA.</p></li>
+</ul></li>
+<li><p><strong>Develop and Implement an Acceptable Use Policy
+(AUP):</strong></p>
+<ul>
+<li><p>Create a comprehensive AUP that outlines clear guidelines for the
+appropriate use of company IT resources, internet, email, and data
+handling.</p></li>
+<li><p>Ensure all employees review and acknowledge the AUP, ideally as
+part of their onboarding and annual security awareness
+training.</p></li>
+</ul></li>
+</ul>
+<h2 id="general-security-best-practices">General Security Best
+Practices</h2>
+<ul>
+<li><p><strong>Regular Patch Management:</strong> Ensure all operating
+systems, applications, and network devices are kept up-to-date with the
+latest security patches.</p></li>
+<li><p><strong>Security Awareness Training Review:</strong> While
+training is conducted, continuously review and update content to ensure
+it covers current threats and organizational policies (e.g., AUP
+awareness, MFA importance).</p></li>
+<li><p><strong>Regular Security Audits:</strong> Conduct periodic
+external and internal vulnerability scans and penetration tests to
+identify new weaknesses.</p></li>
+</ul>
+<h1 id="conclusion">Conclusion</h1>
+<p>The current cybersecurity posture of <strong>[Organization
+Name]</strong> exhibits critical vulnerabilities, primarily the direct
+internet exposure of RDP, and significant control gaps related to
+multi-factor authentication for computer logins and the absence of a
+formal Acceptable Use Policy. Addressing these issues with urgency
+through the provided recommendations will substantially reduce the
+organization’s attack surface and improve its overall resilience against
+cyber threats. Continuous monitoring and adherence to security best
+practices are essential for maintaining a strong security posture.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

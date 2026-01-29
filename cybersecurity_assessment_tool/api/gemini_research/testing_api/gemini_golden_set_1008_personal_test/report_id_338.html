@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="titlepage">
+<p><strong></strong></p>
+<p>For: <strong>Ironclad Logistics</strong></p>
+<p>Date:</p>
+<p>Prepared By: Cybersecurity Analyst</p>
+</div>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report details the findings from a recent cybersecurity posture
+assessment conducted for Ironclad Logistics. The assessment involved a
+review of organizational security controls via a questionnaire, a
+targeted network scan of an internal asset, and an evaluation of
+pre-existing risk information.</p>
+<p>Key findings indicate several critical vulnerabilities and
+significant gaps. Most notably, an internal system running an outdated
+FTP service (<code>vsftpd 2.3.4</code>) was found allowing
+<strong>anonymous login</strong>. This represents an immediate and
+severe risk. Furthermore, the organization lacks Multi-Factor
+Authentication (MFA) for email access and does not conduct security
+awareness training for new employees, leaving critical attack vectors
+open. Existing risks include an outdated Windows policy with computers
+running Windows 7. Comprehensive recommendations are provided to address
+these issues and strengthen the overall security posture.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following information was provided by Ironclad Logistics to
+establish the context for this assessment.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> Ironclad Logistics</p></li>
+<li><p><strong>Email Domain:</strong>
+<code>IroncladLogistics.net</code></p></li>
+<li><p><strong>Website Domain:</strong>
+<code>www.IroncladLogistics.net</code></p></li>
+<li><p><strong>External IP Address:</strong></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A questionnaire was used to assess the current state of key security
+controls within Ironclad Logistics. The responses are summarized
+below:</p>
+<div class="longtable">
+<p><span>p<span>0.7</span> c</span> <strong>Security Control
+Question</strong> &amp; <strong>Status</strong><br />
+<br />
+Do you require MFA to access email? &amp;<br />
+Do you require MFA to log into computers? &amp;<br />
+Do you require MFA to access sensitive data systems? &amp;<br />
+Does your organization have an employee acceptable use policy?
+&amp;<br />
+Does your organization do security awareness training for new employees?
+&amp;<br />
+Does your organization do security awareness training for all employees
+at least once per year? &amp;<br />
+</p>
+</div>
+<h2 id="analysis-of-security-control-gaps">Analysis of Security Control
+Gaps</h2>
+<p>The review highlights two significant control gaps:</p>
+<ul>
+<li><p><strong>No MFA for Email Access:</strong> Email is a primary
+vector for phishing and account compromise. Without MFA, a simple
+password compromise can lead to full access to an employee’s email,
+potentially enabling further attacks like business email compromise
+(BEC).</p></li>
+<li><p><strong>No Security Awareness Training for New
+Employees:</strong> New employees are particularly vulnerable to social
+engineering and phishing attacks as they may not be familiar with
+organizational security policies and common threats. Lack of initial
+training increases the risk of successful attacks.</p></li>
+</ul>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed against the specified target IP address.
+The scan revealed critical findings.</p>
+<ul>
+<li><p><strong>Target IP Address:</strong></p></li>
+</ul>
+<h2 id="open-port-findings">Open Port Findings</h2>
+<div class="longtable">
+<p><span>p<span>0.1</span> p<span>0.1</span> p<span>0.2</span>
+p<span>0.2</span> p<span>0.2</span></span> <strong>Port</strong> &amp;
+<strong>State</strong> &amp; <strong>Service</strong> &amp;
+<strong>Product</strong> &amp; <strong>Version</strong><br />
+<br />
+&amp; open &amp; ftp &amp; vsftpd &amp; 2.3.4<br />
+</p>
+</div>
+<h2 id="detailed-technical-analysis">Detailed Technical Analysis</h2>
+<p>The scan identified an FTP service running on port 21.</p>
+<ul>
+<li><p><strong>Service Name:</strong> FTP (File Transfer
+Protocol)</p></li>
+<li><p><strong>Product:</strong> <code>vsftpd</code></p></li>
+<li><p><strong>Version:</strong> <code>2.3.4</code></p></li>
+<li><p><strong>Critical Finding:</strong> The service allows
+<strong>Anonymous FTP login</strong>. This means anyone can connect to
+the FTP server without credentials and potentially upload, download, or
+modify files, leading to data breaches, data corruption, or even system
+compromise via malware upload.</p></li>
+</ul>
+<p><code>vsftpd 2.3.4</code> is an extremely outdated version released
+in 2011 and is known to have critical vulnerabilities, including a
+backdoor (CVE-2011-2523) that allows an attacker to execute arbitrary
+commands. This, combined with anonymous access, poses a severe and
+immediate threat to the system and potentially the wider network.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section consolidates risks identified from the security control
+review, technical scans, and pre-existing vulnerability data.</p>
+<div class="longtable">
+<p><span>p<span>0.25</span> p<span>0.55</span> p<span>0.1</span></span>
+<strong>Risk Name</strong> &amp; <strong>Overview</strong> &amp;
+<strong>Severity</strong><br />
+<br />
+<strong><span style="color: critical">Anonymous FTP
+Access</span></strong> &amp; An internal system is running FTP (vsftpd
+2.3.4) and allows anonymous login. This permits unauthorized access to
+the FTP server, potentially leading to data exfiltration, unauthorized
+uploads (e.g., malware), or system compromise. &amp; <span
+style="color: critical">Critical</span><br />
+<strong><span style="color: critical">Outdated vsftpd
+Version</span></strong> &amp; The vsftpd 2.3.4 service is severely
+outdated (released 2011) and contains critical known vulnerabilities,
+including a backdoor (CVE-2011-2523) that allows arbitrary command
+execution. This significantly increases the risk of system compromise.
+&amp; <span style="color: critical">Critical</span><br />
+<strong><span style="color: high">No MFA for Email
+Access</span></strong> &amp; User email accounts are not protected by
+Multi-Factor Authentication. This makes them highly susceptible to
+phishing and password-guessing attacks, potentially leading to account
+takeover and Business Email Compromise (BEC). &amp; <span
+style="color: high">High</span><br />
+<strong><span style="color: high">No Security Awareness Training for New
+Employees</span></strong> &amp; New hires are not receiving initial
+security awareness training. This increases their susceptibility to
+social engineering, phishing, and other cyber threats, making them
+potential weak links in the organization’s defenses. &amp; <span
+style="color: high">High</span><br />
+<strong><span style="color: high">Outdated Windows Policy (Windows
+7)</span></strong> &amp; Some workstations within the organization are
+running Windows 7, an operating system that has reached its end-of-life.
+These systems no longer receive security updates, making them highly
+vulnerable to new exploits and malware. &amp; <span
+style="color: high">High</span><br />
+</p>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actionable recommendations are provided to mitigate the
+identified risks and improve Ironclad Logistics’ cybersecurity
+posture.</p>
+<h2 id="critical-and-high-priority-recommendations">Critical and High
+Priority Recommendations</h2>
+<ul>
+<li><p><strong>Immediate FTP Service Remediation
+(<em>Critical</em>)</strong>:</p>
+<ol>
+<li><p><strong>Disable Anonymous FTP:</strong> Immediately configure the
+<code>vsftpd</code> service to disallow anonymous logins.</p></li>
+<li><p><strong>Evaluate Necessity:</strong> Determine if FTP is
+absolutely necessary. If not, disable the service entirely. FTP is an
+insecure protocol that transmits credentials and data in plaintext.
+Consider secure alternatives like SFTP or SCP.</p></li>
+<li><p><strong>Upgrade/Replace vsftpd:</strong> If FTP is critical,
+upgrade to the latest stable and supported version of
+<code>vsftpd</code> or replace it with a more modern and secure file
+transfer solution.</p></li>
+</ol></li>
+<li><p><strong>Implement MFA for Email Access
+(<em>High</em>)</strong>:</p>
+<ol>
+<li><p><strong>Mandate MFA:</strong> Implement and enforce Multi-Factor
+Authentication for all email accounts across the organization. This
+significantly reduces the risk of email account compromise.</p></li>
+<li><p><strong>User Training:</strong> Provide clear instructions and
+support to employees on how to enable and use MFA.</p></li>
+</ol></li>
+<li><p><strong>Establish Security Awareness Training for New Employees
+(<em>High</em>)</strong>:</p>
+<ol>
+<li><p><strong>Onboarding Training:</strong> Integrate mandatory
+security awareness training into the onboarding process for all new
+employees. This training should cover phishing, social engineering,
+password best practices, and organizational security policies.</p></li>
+<li><p><strong>Regular Refresher:</strong> Ensure this initial training
+is reinforced by the annual security awareness training for all
+employees.</p></li>
+</ol></li>
+<li><p><strong>Address Outdated Windows Operating Systems
+(<em>High</em>)</strong>:</p>
+<ol>
+<li><p><strong>Upgrade Windows 7 Systems:</strong> Plan and execute an
+immediate upgrade path for all workstations running Windows 7 to a
+supported operating system (e.g., Windows 10 or 11).</p></li>
+<li><p><strong>Isolate Legacy Systems:</strong> If immediate upgrades
+are not feasible for critical operational reasons, isolate Windows 7
+systems on a segmented network with strict access controls and enhanced
+monitoring to minimize their exposure to threats.</p></li>
+<li><p><strong>Hardware Refresh:</strong> Consider a hardware refresh
+cycle for systems that cannot support newer Windows versions.</p></li>
+</ol></li>
+</ul>
+<h1 id="conclusion">Conclusion</h1>
+<p>Ironclad Logistics faces significant cybersecurity challenges,
+primarily stemming from a critically vulnerable FTP service and key
+deficiencies in its security awareness and identity management
+practices. Addressing the anonymous FTP vulnerability and outdated
+<code>vsftpd</code> version should be the top priority due to the
+immediate and severe risk of compromise. Simultaneously, implementing
+MFA for email and comprehensive security awareness training for new
+employees will significantly bolster the organization’s defenses against
+common attack vectors. Proactive remediation of these issues will
+substantially improve Ironclad Logistics’ overall security posture.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>
