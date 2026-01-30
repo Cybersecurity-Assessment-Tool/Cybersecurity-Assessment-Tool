@@ -1,0 +1,186 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and TOC
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Header & Footer ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{\textbf{Cybersecurity Assessment Report}}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}} % Checkmark
+\newcommand{\no}{\ding{55}}  % Cross
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Cybersecurity Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for:
+    
+    \vspace{0.5cm}
+    
+    \Huge
+    \textbf{[Organization Name]}
+    
+    \vspace{2cm}
+    
+    \Large
+    \textbf{Date of Report:} \today \\
+    \textbf{Scan Date:} November 22, 2025
+    
+    \vfill
+    
+    \Large
+    \textit{This report contains sensitive information and should be handled with care.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The evaluation combined a review of organizational security controls via a questionnaire, an external network vulnerability scan, and an analysis of pre-existing risks.
+
+The overall security posture of the organization shows a strong foundation in administrative controls. The security questionnaire indicates that critical policies such as Multi-Factor Authentication (MFA) and security awareness training are fully implemented. This demonstrates a commendable commitment to security governance.
+
+However, the technical network scan identified a significant vulnerability. The public-facing web server at \texttt{[Client IP]} is running an outdated version of Nginx (1.18.0). This software is several years old and is no longer supported with security patches, exposing the organization to a wide range of publicly known exploits. This finding represents a high-risk exposure that could potentially lead to system compromise or a data breach.
+
+This report provides a detailed breakdown of all findings and concludes with prioritized, actionable recommendations to mitigate the identified risk and enhance the organization's overall defensive capabilities. Immediate attention should be given to upgrading the outdated web server software.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational and Scope Information}
+
+The following details were used to define the scope of this assessment. As per the provided data, placeholder values are used where specific information was not available.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+    \item \textbf{Target of Network Scan:} \texttt{[Target IP]}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review (Questionnaire)}
+
+The following table summarizes the organization's responses to a security controls questionnaire. The results indicate a strong adherence to fundamental security best practices.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.75\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \yes \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \yes \\
+Does your organization do security awareness training for new employees? & \yes \\
+Does your organization do security awareness training for all employees at least once per year? & \yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+All responses were affirmative (\yes), indicating that the organization has successfully implemented essential security controls regarding access management and employee awareness. This significantly reduces risks related to phishing, credential theft, and insider threats. No policy-based gaps were identified from this review.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed on \textbf{November 22, 2025}, against the target IP address \texttt{[Target IP]}. The scan identified the following open ports and services.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services Detected}
+\begin{tabular}{l l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & open & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan revealed one open port, 443 (HTTPS), which is standard for a secure web server. The server is running \textbf{Nginx version 1.18.0}. This version was released in April 2020 and is considered outdated and end-of-life. It is no longer receiving security updates from the developer, making it vulnerable to numerous publicly disclosed exploits that have been discovered since its release. Running unsupported software on a public-facing server constitutes a high-severity risk.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+
+This section correlates findings from all data sources. The primary risk identified during this assessment is technical in nature. No pre-existing vulnerabilities were reported in the input data.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.1\linewidth} p{0.3\linewidth} p{0.15\linewidth} p{0.35\linewidth}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+VULN-001 & Outdated Web Server Software (Nginx 1.18.0) & \textcolor{red}{\textbf{High}} & The public-facing web server is running Nginx 1.18.0, an unsupported version with multiple known vulnerabilities (CVEs). Attackers can exploit these flaws to achieve remote code execution, denial of service, or unauthorized access to the server and potentially the internal network. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following prioritized recommendations are provided to address the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection*{Priority 1: Critical}
+\begin{itemize}
+    \item \textbf{Upgrade Nginx Server (VULN-001):} The Nginx 1.18.0 instance must be upgraded to the latest stable version immediately.
+    \begin{itemize}
+        \item \textbf{Action:} Plan and execute an upgrade to a supported Nginx version (e.g., 1.26.x or newer).
+        \item \textbf{Guidance:} Before deploying to production, the upgrade should be thoroughly tested in a staging environment to ensure compatibility with the existing web application.
+        \item \textbf{Impact:} Mitigates the risk of exploitation via known vulnerabilities.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Priority 2: High}
+\begin{itemize}
+    \item \textbf{Implement a Vulnerability and Patch Management Program:} The presence of outdated software indicates a potential gap in the patch management lifecycle.
+    \begin{itemize}
+        \item \textbf{Action:} Establish a formal policy and process for regularly scanning all external and internal assets for vulnerabilities.
+        \item \textbf{Guidance:} Implement a patch management schedule that defines timelines for applying security updates based on severity (e.g., critical patches within 72 hours, high within 14 days).
+        \item \textbf{Impact:} Proactively identifies and remediates vulnerabilities, preventing future occurrences of outdated software and reducing the organization's attack surface.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```
