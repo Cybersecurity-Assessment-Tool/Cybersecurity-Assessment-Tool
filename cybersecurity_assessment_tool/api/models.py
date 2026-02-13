@@ -75,9 +75,15 @@ class User(AbstractUser):
     )
     auto_frequency = models.CharField(max_length=1, choices=Frequency.choices)
     profile_img = models.ImageField()
-    font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
+    font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
 
+    class Meta:
+        permissions = [
+            ("can_invite", "Can invite users to the organization."),
+            ("can_edit_permissions", "Can edit users' permissions in the organization."),
+        ]
+    
     def __str__(self):
         return self.username
 
@@ -90,22 +96,44 @@ class Report(models.Model):
     user_created = models.ForeignKey(User, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     report_name = models.CharField(max_length=300)
-    date_created = models.DateTimeField(auto_now_add=True)
     started = models.DateTimeField(auto_now_add=True)
     completed = models.DateTimeField(blank=True, null=True)
-    report_text = models.JSONField()
+    report_text = models.TextField(blank=True, null=True)
+    is_checked = models.BooleanField(default=False)
+
+    class Meta:
+        permissions = [
+            ("can_check_report", "Can check a report before publishing."),
+            ("can_view_any_report", "Can review any report, regardless of organization."),
+            ("can_generate_report", "Can generate a new report."),
+            ("can_export_report", "Can export report data."),
+        ]
 
     def __str__(self):
         return self.report_name
 
 class Risk(models.Model):
+    risk_id = models.UUIDField(
+        primary_key = True,
+        default=uuid.uuid4,
+        editable=False
+    )
     risk_name = models.CharField(max_length=300)
     report = models.ForeignKey(Report, on_delete=models.CASCADE)
-    overview_text = models.TextField()
-    recommendation_text = models.TextField()
-    severity = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
-    affected = models.IntegerField(default=0)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    overview = models.TextField()
+    recommendations = models.JSONField()
+    severity = models.SmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
+    affected = models.TextField()
     is_archived = models.BooleanField(default=False)
+
+    class Meta:
+        permissions = [
+            ("can_view_risk", "Can view the risk."),
+            ("can_view_all_risk", "Can view any risk, regardless of organization."),
+            ("can_resolve_risk", "Can resolve the risk and set as archived."),
+            ("can_generate_risk", "Can generate new risks."),
+        ]
 
     def __str__(self):
         return self.risk_name

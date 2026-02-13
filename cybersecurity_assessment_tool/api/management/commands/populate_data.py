@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Permission
-from api.models import Organization, User, Report, Risk, Color, Frequency
+from api.models import FontSize, Organization, User, Report, Risk, Color, Frequency
 from faker import Faker
 
 fake = Faker()
@@ -36,11 +36,10 @@ def create_users(organizations, num_users_per_org=5):
 
     for org in organizations:
         for i in range(num_users_per_org):
-            is_auto = fake.boolean(chance_of_getting_true=20) # 20% chance
             first_name = fake.first_name()
             last_name = fake.last_name()
             username = f"{first_name.lower()}_{last_name.lower()}_{i}{org.organization_id.hex[:4]}"
-            
+
             user = User.objects.create(
                 organization=org,
                 username=username[:150],
@@ -49,10 +48,10 @@ def create_users(organizations, num_users_per_org=5):
                 email=f"{first_name.lower()}.{last_name.lower()}@{org.email_domain}",
                 is_staff=fake.boolean(chance_of_getting_true=10),
                 is_superuser=fake.boolean(chance_of_getting_true=5),
-                is_automated=is_auto,
-                auto_frequency=random.choice(Frequency.values) if is_auto else Frequency.MONTH,
-                font_size=random.randint(10, 16),
+                auto_frequency=random.choice(Frequency.values),
+                font_size=random.choice(FontSize.values),
                 color=random.choice(Color.values),
+                # profile_img is an ImageField and can't be set to a fake value easily, will be empty.
             )
             user.set_password('password123') # set a default password for easy testing
             user.save()
@@ -79,29 +78,18 @@ def create_reports(organizations, users, num_reports_per_org=3):
 
         for _ in range(num_reports_per_org):
             user = random.choice(org_users)
-            date_created = fake.date_time_between(start_date="-2y", end_date="now")
-            started = date_created + timedelta(minutes=random.randint(1, 60))
-            completed = started + timedelta(minutes=random.randint(30, 180)) if fake.boolean() else None
-
-            fake_report_content = {
-                "Overview": fake.sentence(),
-                "Organizational Information": fake.sentence(),
-                "Security Questionnaire Review & Summary": fake.sentence(),
-                "DNS & Email Security Analysis": fake.sentence(),
-                "Port Scanning Results & Network Exposure": fake.sentence(),
-                "Risk Assessment & Readiness Summary": fake.sentence(),
-                "Recommendations": fake.sentence(),
-                "Conclusion": fake.sentence()
-            }
+            started_date = fake.date_time_between(start_date="-2y", end_date="now")
+            completed_delta = timedelta(minutes=random.randint(30, 180)) 
+            report_text_content = fake.paragraph(nb_sentences=10) 
 
             report = Report.objects.create(
                 user_created=user,
                 organization=org,
                 report_name=fake.catch_phrase() + " Cybersecurity Report",
-                date_created=date_created,
-                started=started,
-                completed=completed,
-                report_text=fake_report_content
+                # 'started' will be set automatically on creation
+                completed=(datetime.now() - completed_delta) if fake.boolean() else None,
+                report_text=report_text_content,
+                is_checked=fake.boolean(chance_of_getting_true=50)
             )
             reports.append(report)
     print("Reports created successfully.")
@@ -116,10 +104,14 @@ def create_risks(reports, num_risks_per_report=4):
             Risk.objects.create(
                 risk_name=fake.word().capitalize() + " Risk",
                 report=report,
-                overview_text=fake.paragraph(nb_sentences=5),
-                recommendation_text=fake.paragraph(nb_sentences=5),
+                organization=report.organization,
+                overview=fake.paragraph(nb_sentences=5),
+                recommendations=[
+                    f"Recommendation 1: {fake.sentence()}",
+                    f"Recommendation 2: {fake.sentence()}"
+                ],
                 severity=random.randint(1, 10),
-                affected=random.randint(1, 500),
+                affected=fake.text(max_nb_chars=100),
                 is_archived=fake.boolean(chance_of_getting_true=10),
             )
     print("Risks created successfully.")
@@ -129,6 +121,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.NOTICE('Starting fake data population...'))
+
+        # 1. Clear existing data to re-populate cleanly
+        self.stdout.write(self.style.NOTICE('Clearing existing data...'))
+        Risk.objects.all().delete()
+        Report.objects.all().delete()
+        User.objects.all().delete()
+        Organization.objects.all().delete()
+        self.stdout.write(self.style.NOTICE('Data cleared.'))
 
         # 1. Create Organizations
         organizations = create_organizations(num_orgs=5)
@@ -141,16 +141,16 @@ class Command(BaseCommand):
 
         # 4. Create Risks
         create_risks(reports, num_risks_per_report=4)
-        
+
         # Superuser for easy login
         if not User.objects.filter(username='superuser').exists():
-             User.objects.create_superuser(
+            User.objects.create_superuser(
                 username='superuser',
                 email='admin@example.com',
                 password='password123',
                 organization=organizations[0] # Link to the first organization
             )
-             self.stdout.write(self.style.SUCCESS('Created superuser: superuser/password123'))
+            self.stdout.write(self.style.SUCCESS('Created superuser: superuser/password123'))
 
 
         self.stdout.write(self.style.SUCCESS('\nFake data population complete!'))
