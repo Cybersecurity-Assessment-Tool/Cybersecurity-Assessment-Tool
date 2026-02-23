@@ -1,0 +1,157 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages and Document Setup
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings without spaces
+\usepackage[T1]{fontenc}
+
+% Document Metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment},
+    bookmarks=true
+}
+
+\begin{document}
+
+% --- Title Section ---
+\begin{center}
+    \huge{\textbf{Cybersecurity Posture Report}} \\
+    \vspace{1em}
+    \large{\textbf{Prepared for:}} \\
+    \Large{Summit Peak Partners} \\
+    \vspace{2em}
+    \large{\textbf{Date of Report:}} \\
+    \Large{\today}
+\end{center}
+
+\hrule
+\vspace{2em}
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for Summit Peak Partners, based on a combination of technical network scanning, a review of organizational security controls, and an assessment of pre-existing risks.
+
+The technical scan of the target host \texttt{192.168.1.100} revealed a strong security configuration, with no open ports detected. This indicates effective network-level filtering or a lack of exposed services on the scanned asset, which is a positive finding.
+
+However, the organizational security control review identified several \textbf{critical gaps} in fundamental security practices. The absence of Multi-Factor Authentication (MFA) across all key systems (email, computer logins, and sensitive data access) represents a severe risk. A single compromised password could lead to a significant data breach. Furthermore, the lack of an employee acceptable use policy and security training for new hires weakens the organization's "human firewall," making it more susceptible to social engineering and phishing attacks.
+
+Immediate and decisive action is required to address these procedural and identity management deficiencies to mitigate the high probability of a security incident.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Summit Peak Partners \\
+    Email Domain & \texttt{SummitPeakPartners.com} \\
+    Website Domain & \url{www.SummitPeakPartners.com} \\
+    External IP Address & \texttt{32.147.207.191} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of administrative and procedural security controls was conducted via a questionnaire. The responses indicate significant areas for improvement, particularly concerning identity and access management. A "No" answer (\ding{55}) highlights a deviation from security best practices and introduces risk.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Status}
+\begin{tabular}{@{}p{0.6\textwidth}p{0.2\textwidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Best Practice} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & Yes & \ding{55} \\
+    Do you require MFA to log into computers? & Yes & \ding{55} \\
+    Do you require MFA to access sensitive data systems? & Yes & \ding{55} \\
+    Does your organization have an employee acceptable use policy? & Yes & \ding{55} \\
+    Does your organization do security awareness training for new employees? & Yes & \ding{55} \\
+    Does your organization do security awareness training for all employees at least once per year? & Yes & \ding{51} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify potentially vulnerable services exposed on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.1.100}
+    \item \textbf{Scan Tool:} Nmap
+    \item \textbf{Finding:} The scan concluded that the host was online, but reported that all 1000 scanned ports were in a \texttt{closed} state. No open ports or active services were detected.
+    \item \textbf{Analysis:} This is a positive security finding. It suggests the host is well-protected by a firewall that properly denies external connections, or that the host intentionally exposes no network services. This significantly reduces the external attack surface of this specific asset.
+\end{itemize}
+
+% --- 5. Risk Assessment ---
+\section{Risk Assessment}
+Based on the synthesis of the security control review and technical scan, the following risks have been identified. The primary threats are currently not from externally exposed technical vulnerabilities but from internal policy and identity management weaknesses. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.25\textwidth}p{0.55\textwidth}l@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+    \midrule
+    \textbf{No Multi-Factor Authentication (MFA)} & The lack of MFA for email, computer, and sensitive data access means that a single compromised password could grant an attacker full access to critical systems and data. & \textbf{Critical} \\
+    \addlinespace
+    \textbf{Lack of Foundational Policies} & Without a formal Acceptable Use Policy, employees lack clear guidelines on the secure use of company assets, increasing the risk of insider threat and unintentional data exposure. & \textbf{High} \\
+    \addlinespace
+    \textbf{Inadequate Employee Onboarding} & New employees are not receiving security awareness training upon being hired. This initial period is critical for establishing a security-conscious mindset and preventing early mistakes. & \textbf{High} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall cybersecurity posture of Summit Peak Partners. Recommendations are prioritized based on severity.
+
+\subsection{Immediate Priority (Critical)}
+\begin{enumerate}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):} This is the single most effective control to mitigate the risk of account compromise.
+    \begin{itemize}
+        \item \textbf{Phase 1 (Email):} Immediately enforce MFA on the \texttt{SummitPeakPartners.com} email system for all users.
+        \item \textbf{Phase 2 (Remote Access \& Sensitive Data):} Enforce MFA for any remote access solutions (e.g., VPN) and all systems housing sensitive client or financial data.
+        \item \textbf{Phase 3 (Workstations):} Plan and execute a rollout of MFA for all employee computer logins.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP that all employees must read and sign. This policy should clearly define the rules for using company networks, devices, and data.
+    \item \textbf{Institute Onboarding Security Training:} Integrate a mandatory security awareness training module into the new employee onboarding process. This should cover key topics such as phishing, password security, and the new AUP.
+\end{enumerate}
+
+\subsection{Medium Priority}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{Enhance Annual Security Training:} Continue the existing annual security training program. Consider incorporating phishing simulation exercises to measure and improve employee resilience against real-world attacks.
+\end{enumerate}
+
+% --- 7. Conclusion ---
+\section{Conclusion}
+Summit Peak Partners currently exhibits a mixed security posture. While the scanned network asset demonstrates good technical hardening, the organization's foundational security controls are critically underdeveloped. The absence of MFA, security policies, and new-hire training creates an environment where a simple attack, such as a successful phish, could have severe consequences.
+
+By implementing the prioritized recommendations in this report, Summit Peak Partners can significantly reduce its risk exposure and build a more resilient and mature cybersecurity program.
+
+\end{document}
+```

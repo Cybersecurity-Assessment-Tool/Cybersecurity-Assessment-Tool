@@ -1,0 +1,194 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks and PDF metadata
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For potential logos or images
+\usepackage{fancyhdr} % For headers and footers
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Cybersecurity, Risk, Assessment},
+    bookmarks=true
+}
+
+% Define colors for severity
+\definecolor{sev_critical}{HTML}{990000}
+\definecolor{sev_high}{HTML}{D14302}
+\definecolor{sev_medium}{HTML}{E5A50A}
+\definecolor{sev_low}{HTML}{3A854F}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Assessment Report}}
+    \vspace{1.5cm}
+    \large
+    \begin{tabular}{ll}
+        \textbf{Prepared For:} & \textbf{[Organization Name]} \\
+        \textbf{Primary Domain:} & \texttt{[Domain]} \\
+        \textbf{Assessed IP:} & \texttt{[Client IP]} \\
+    \end{tabular}
+    \vspace{2cm}
+    
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder for a logo
+    
+    \vfill
+    
+    \large
+    \textbf{Date of Report:} \today \\
+    \textbf{Author:} Cybersecurity Analyst
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The analysis correlates data from an external network scan, a security controls questionnaire, and a review of pre-existing documented risks.
+
+The assessment identified a \textbf{critical risk}: the direct exposure of a Remote Desktop Protocol (RDP) service on port 3389 to the public internet. This finding, observed on the target IP \texttt{[Target IP]}, is a common vector for ransomware attacks and unauthorized access.
+
+This technical vulnerability is severely compounded by significant gaps in the organization's access control policies. Specifically, Multi-Factor Authentication (MFA) is not enforced for computer logins or for access to sensitive data systems. The combination of an exposed remote access service and insufficient authentication controls creates a high-likelihood path for a malicious actor to compromise the network.
+
+Immediate remediation is required to address the exposed RDP service. Strategic initiatives must be undertaken to implement comprehensive MFA across the organization to mitigate the risk of credential-based attacks.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This section provides the baseline information used for this assessment. The data may be anonymized.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Address Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate significant gaps in the security posture and are highlighted as areas of concern.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{0.6\linewidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{51} & Best Practice Met \\
+\addlinespace
+Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} & \textbf{High Risk Gap} \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \textbf{\color{red}\ding{55}} & \textbf{Critical Risk Gap} \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \ding{51} & Best Practice Met \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \ding{51} & Best Practice Met \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Best Practice Met \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The failure to enforce MFA on computer and sensitive data system logins is a critical weakness. A single compromised password could grant an attacker significant access to internal resources.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Data Not Provided in Scan
+\end{itemize}
+
+The scan revealed the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{l l l p{0.4\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Analyst Notes} \\
+\midrule
+3389/tcp & Open & \texttt{ms-wbt-server} & This is the standard port for Microsoft Remote Desktop Protocol (RDP). Exposing RDP directly to the internet is extremely dangerous and a primary target for ransomware gangs. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes the findings from all data sources into a prioritized list of risks. The technical scan directly validates the pre-existing documented risk concerning RDP exposure.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Key Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.5\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Publicly Exposed RDP} & The network scan confirms that RDP is open on \texttt{[Target IP]}. This allows attackers to attempt brute-force password attacks or exploit RDP vulnerabilities. This risk is amplified by the lack of MFA on computer logins. & \textbf{\color{sev_critical}Critical (9.0)} \\
+\addlinespace
+\textbf{Insufficient MFA Coverage} & The organization does not require MFA for computer logins or access to sensitive data systems. This significantly increases the risk of a successful breach via stolen or weak credentials. & \textbf{\color{sev_high}High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity and impact.
+
+\subsection{Immediate Priority (Critical)}
+\begin{enumerate}
+    \item \textbf{Disable Public RDP Access Immediately:} The most critical action is to block all inbound traffic to TCP port 3389 on the external firewall for IP address \texttt{[Target IP]}.
+    \begin{itemize}
+        \item \textbf{Short-Term Fix:} Implement a firewall rule to deny all incoming connections to this port from the internet.
+        \item \textbf{Long-Term Solution:} If remote access is required, implement a Virtual Private Network (VPN) with mandatory MFA. All RDP access should occur exclusively through the secure VPN tunnel.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Continue numbering
+    \item \textbf{Deploy Comprehensive MFA:}
+    \begin{itemize}
+        \item Enforce MFA for all user logins to company computers (desktops and laptops).
+        \item Enforce MFA for all access to applications and repositories containing sensitive company or customer data.
+    \end{itemize}
+    \item \textbf{Conduct a Credential Audit:} Review all user accounts, especially those with administrative privileges, to ensure they are using strong, unique passwords. Enforce a password policy that aligns with NIST guidelines.
+\end{enumerate}
+
+\subsection{Medium Priority}
+\begin{enumerate}
+    \setcounter{enumi}{3} % Continue numbering
+    \item \textbf{Review Network Segmentation:} Ensure that critical servers and systems are isolated on separate network segments from general user workstations to limit lateral movement in the event of a compromise.
+    \item \textbf{Enhance Logging and Monitoring:} Implement robust logging for all remote access attempts (both successful and failed) and ensure logs are monitored for suspicious activity.
+\end{enumerate}
+
+\end{document}
+```

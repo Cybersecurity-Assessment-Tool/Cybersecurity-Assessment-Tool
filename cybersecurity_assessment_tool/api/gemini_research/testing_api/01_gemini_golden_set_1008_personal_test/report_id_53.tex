@@ -1,0 +1,172 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For check and cross marks
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+
+% ===================================================================
+% 1. EXECUTIVE SUMMARY
+% ===================================================================
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Deep Root Ecology}. The assessment is based on a correlation of network scan data, a review of organizational security controls, and an analysis of pre-existing risk information.
+
+The overall security posture is considered weak due to several critical and high-risk findings. The technical scan identified an open Remote Desktop Protocol (RDP) port on a new host (\texttt{10.10.10.51}), which, when correlated with existing risk data, indicates a systemic issue with RDP exposure across the network.
+
+Furthermore, the organizational security control review revealed significant gaps, including the absence of Multi-Factor Authentication (MFA) for email and sensitive data access, the lack of an employee acceptable use policy, and no requirement for annual security awareness training. These deficiencies substantially increase the risk of account compromise, data breaches, and successful social engineering attacks.
+
+Immediate remediation is required to address the exposed services and implement foundational security controls.
+
+% ===================================================================
+% 2. ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+The following details were provided for the assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} Deep Root Ecology
+    \item \textbf{Email Domain:} \texttt{DeepRootEcology.org}
+    \item \textbf{Website Domain:} \url{www.DeepRootEcology.org}
+    \item \textbf{External IP Address:} \texttt{181.215.104.232}
+\end{itemize}
+
+% ===================================================================
+% 3. SECURITY CONTROL REVIEW
+% ===================================================================
+\section{Security Control Review}
+A review of administrative and technical security controls was conducted based on a standardized questionnaire. The results are summarized below. Answers marked with \ding{55} represent significant gaps in the organization's security framework.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.7\textwidth} c c}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & No & \ding{55} \\
+Do you require MFA to log into computers? & Yes & \ding{51} \\
+Do you require MFA to access sensitive data systems? & No & \ding{55} \\
+Does your organization have an employee acceptable use policy? & No & \ding{55} \\
+Does your organization do security awareness training for new employees? & Yes & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & No & \ding{55} \\
+\bottomrule
+\end{tabular}
+\caption{Organizational Security Control Status}
+\label{tab:controls}
+\end{table}
+
+% ===================================================================
+% 4. TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+A network scan was performed on the specified target to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.10.10.51}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+The following open ports were discovered:
+\begin{table}[h!]
+\centering
+\begin{tabular}{c c l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Analyst Notes} \\
+\midrule
+3389 & Open & \texttt{ms-wbt-server} & Remote Desktop Protocol (RDP). High risk of compromise \\
+& & & if not properly secured or restricted. \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports on \texttt{10.10.10.51}}
+\label{tab:scanresults}
+\end{table}
+
+% ===================================================================
+% 5. RISK ASSESSMENT
+% ===================================================================
+\section{Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of security risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.15\textwidth} p{0.5\textwidth} p{0.2\textwidth} c}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Affected Assets} & \textbf{Severity} \\
+\midrule
+\textbf{Systemic RDP Exposure} & RDP is exposed on multiple internal hosts (\texttt{10.10.10.50}, \texttt{10.10.10.51}). This indicates a lack of network hardening policies and creates a significant vector for lateral movement and ransomware. & Internal Servers & Critical \\
+\addlinespace
+\textbf{Lack of MFA on Critical Systems} & MFA is not enforced for email or sensitive data systems. This exposes the organization to account takeover attacks, business email compromise, and data exfiltration. & User Accounts, Sensitive Data & Critical \\
+\addlinespace
+\textbf{Missing Administrative Controls} & The absence of an Acceptable Use Policy and mandatory annual security training for all employees increases insider threat risk and susceptibility to social engineering. & Entire Organization & High \\
+\bottomrule
+\end{tabular}
+\caption{Synthesized Risk Summary}
+\label{tab:risks}
+\end{table}
+
+% ===================================================================
+% 6. RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+Based on the identified risks, the following actions are recommended to improve the organization's security posture. Recommendations are prioritized by severity.
+
+\subsection{Immediate Priority (Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Remediate RDP Exposure:}
+    \begin{itemize}
+        \item Immediately close or firewall port 3389 on \texttt{10.10.10.51} and any other systems where it is not strictly required.
+        \item For necessary RDP access, implement a bastion host or require users to connect via a Virtual Private Network (VPN) that enforces MFA.
+    \end{itemize}
+    
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item Enable MFA for all user accounts on the email platform (\texttt{DeepRootEcology.org}).
+        \item Enforce MFA for access to all systems identified as containing sensitive data.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Develop and Implement Policies:}
+    \begin{itemize}
+        \item Draft and ratify an official Employee Acceptable Use Policy (AUP) that governs the use of company assets, data handling, and security responsibilities.
+        \item Require all employees to read and acknowledge the policy.
+    \end{itemize}
+    
+    \item \textbf{Establish Annual Security Training:}
+    \begin{itemize}
+        \item Implement a mandatory security awareness training program for all employees to be completed annually.
+        \item Training should cover topics such as phishing, password security, and social engineering.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{General Recommendations}
+\begin{enumerate}
+    \setcounter{enumi}{4} % Continue numbering
+    \item \textbf{Conduct Comprehensive Scans:} Perform a comprehensive, authenticated vulnerability scan across the internal network to identify other instances of misconfigurations or outdated software.
+\end{enumerate}
+
+\end{document}
+```

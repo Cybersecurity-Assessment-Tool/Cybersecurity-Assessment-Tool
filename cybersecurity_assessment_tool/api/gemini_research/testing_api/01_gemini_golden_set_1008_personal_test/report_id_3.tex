@@ -1,0 +1,183 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long text sequences like versions
+\usepackage{xcolor} % For colored text
+\usepackage{graphicx} % For potential logos or diagrams
+\usepackage{fancyhdr} % For headers and footers
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define severity colors
+\definecolor{critical}{HTML}{990000}
+\definecolor{high}{HTML}{D14302}
+\definecolor{medium}{HTML}{EFAF00}
+\definecolor{low}{HTML}{3B73B1}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Posture Assessment}
+\rhead{Sovereign Trust}
+\cfoot{\thepage}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:}\\
+    \vspace{0.5cm}
+    Sovereign Trust
+    \vfill
+    \large
+    \textbf{Date of Report:}\\
+    \today
+    \vspace{1.5cm}
+    \textit{This report contains sensitive information and should be handled with care.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for Sovereign Trust, based on an analysis of network scan data, organizational security controls, and pre-existing risk documentation. The assessment synthesizes these data points to provide a holistic view of the organization's current security posture.
+
+The analysis revealed several critical and high-severity risks that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Database Exposure:} An externally accessible MySQL database was identified running on an End-of-Life (EOL) version (5.7.33). EOL software no longer receives security patches, exposing the system to a wide range of known vulnerabilities. This finding validates and elevates the pre-existing "Database Exposure" risk.
+    \item \textbf{Critical Access Control Gap:} Multi-Factor Authentication (MFA) is not enforced for accessing email. As email is a primary target for phishing and account takeover attacks, this represents a significant vulnerability in the organization's security perimeter.
+    \item \textbf{High-Risk Onboarding Process:} New employees do not receive mandatory security awareness training. This oversight makes the organization more susceptible to social engineering attacks, as new hires are often targeted by malicious actors.
+\end{itemize}
+
+These findings indicate a security posture with significant weaknesses that could be exploited by attackers to compromise sensitive data, disrupt operations, or gain unauthorized access to internal systems. This report outlines specific, actionable recommendations to mitigate these risks and strengthen the overall security framework.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} Sovereign Trust
+    \item \textbf{Primary Email Domain:} \texttt{SovereignTrust.com}
+    \item \textbf{Monitored External IP:} \texttt{52.104.202.114}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The responses are summarized below. Gaps in security best practices are marked with \textcolor{red}{\ding{55}} and represent areas of increased risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{0.6\textwidth} c c}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & No & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & No & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & Yes & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{No MFA for Email:} This is a critical security gap. Email accounts are high-value targets for attackers seeking to conduct phishing campaigns, impersonate employees, or gain a foothold within the network. The absence of MFA significantly lowers the barrier for an account compromise.
+    \item \textbf{No Security Training for New Employees:} Failing to train new hires on security policies and threat awareness leaves a critical window of vulnerability. New employees are less likely to recognize sophisticated phishing attempts or understand data handling policies, making them prime targets for social engineering.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the target system to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.50.20}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services Identified}
+\begin{tabular}{c c l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product \& Version} \\
+\midrule
+3306/tcp & open & mysql & \seqsplit{\texttt{MySQL 5.7.33}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified an open MySQL port (3306), which is consistent with the pre-existing risk documentation. The most critical finding is the software version in use:
+\begin{itemize}
+    \item \textbf{End-of-Life (EOL) Software:} MySQL version 5.7 reached its official End-of-Life in October 2023. This means it no longer receives security updates, bug fixes, or patches from the developer. Running EOL software on an internet-facing system presents a severe and unjustifiable risk, as any vulnerabilities discovered after this date will remain unpatched and exploitable.
+\end{itemize}
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+By correlating the security control gaps, technical findings, and existing risk data, we have compiled a summary of the most pressing risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.3\textwidth} p{0.15\textwidth} p{0.45\textwidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Overview} \\
+\midrule
+\textbf{Exposed End-of-Life Database} & \textcolor{critical}{\textbf{Critical}} & A MySQL 5.7 database is publicly accessible and no longer receives security patches, making it a prime target for exploitation of known vulnerabilities. \\
+\addlinespace
+\textbf{Inadequate Access Control} & \textcolor{critical}{\textbf{Critical}} & The lack of MFA on email accounts exposes the organization to a high risk of account takeover, which can lead to data breaches and further internal compromise. \\
+\addlinespace
+\textbf{Database Exposure} & \textcolor{high}{\textbf{High (7.5)}} & The MySQL port (3306) is open to the network, allowing direct connection attempts from untrusted sources. This was validated by the technical scan. \\
+\addlinespace
+\textbf{Insufficient Employee Onboarding} & \textcolor{high}{\textbf{High}} & New employees are not provided with security awareness training, creating a weak link in the human firewall and increasing susceptibility to social engineering. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following recommendations are prioritized to address the identified risks in a structured manner.
+
+\subsection{Immediate Actions (Priority: Critical)}
+\begin{enumerate}
+    \item \textbf{Restrict Database Access:} Immediately implement firewall rules to block all public access to port 3306 on IP \texttt{172.16.50.20}. Access should be restricted to a whitelist of trusted IP addresses or be accessible only via a secure Virtual Private Network (VPN).
+    \item \textbf{Enforce MFA for Email:} Immediately enable and enforce MFA for all email accounts. This is the single most effective control to prevent unauthorized account access.
+    \item \textbf{Plan Database Migration:} Begin planning the migration from MySQL 5.7 to a currently supported version (e.g., MySQL 8.x or a managed cloud equivalent). This is essential to mitigate the risks associated with EOL software.
+\end{enumerate}
+
+\subsection{Short-Term Actions (Priority: High)}
+\begin{enumerate}
+    \item \textbf{Implement New Hire Training:} Develop and integrate a mandatory security awareness training module into the new employee onboarding process. This should be completed within the first week of employment.
+    \item \textbf{Conduct Vulnerability Scan:} Perform an authenticated vulnerability scan on the server hosting the MySQL database to identify specific Common Vulnerabilities and Exposures (CVEs) affecting version 5.7.33. This will provide a clear picture of the exploitable flaws while the migration is being planned.
+\end{enumerate}
+
+\subsection{Long-Term Strategic Improvements}
+\begin{enumerate}
+    \item \textbf{Establish a Software Lifecycle Policy:} Create and enforce a formal policy for managing software lifecycles. This policy should include tracking EOL dates for all critical software and planning for upgrades or replacements well in advance.
+    \item \textbf{Regular Security Audits:} Schedule regular, independent security audits and penetration tests to proactively identify and remediate vulnerabilities in the future.
+\end{enumerate}
+
+\end{document}
+```

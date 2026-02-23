@@ -1,0 +1,162 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking words
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- TITLE ---
+\title{Cybersecurity Assessment Report \\ \large For \textbf{[Organization Name]}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, organizational security controls, and pre-existing risk information. The assessment reveals a critical and immediate risk to the organization's network integrity.
+
+The primary finding is a publicly exposed Remote Desktop Protocol (RDP) service on port 3389 at the external IP address \seqsplit{\texttt{[Client IP]}}. This configuration is a common target for ransomware gangs and other malicious actors who use it for initial network access. This technical vulnerability is severely compounded by critical gaps in organizational security controls, specifically the lack of Multi-Factor Authentication (MFA) for computer logins and the absence of mandatory annual security awareness training for all staff.
+
+This combination of an exposed entry point and weakened internal defenses creates a high-likelihood path for a successful cyberattack. Immediate remediation of the exposed RDP service is paramount. Further recommendations are provided to address the identified policy and training gaps to build a more resilient security posture.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+
+This section details the organizational information used as the basis for this assessment. The data has been anonymized as per the engagement protocol.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \seqsplit{\texttt{[Domain]}}
+    \item \textbf{Assessed External IP:} \seqsplit{\texttt{[Client IP]}}
+\end{itemize}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. The assessment highlights significant gaps where the answer was "No," indicating a deviation from security best practices.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{0.6\linewidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \yes & Implemented \\
+Do you require MFA to log into computers? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to access sensitive data systems? & \yes & Implemented \\
+Does your organization have an employee acceptable use policy? & \yes & Implemented \\
+Does your organization do security awareness training for new employees? & \yes & Implemented \\
+Does your organization do security awareness training for all employees at least once per year? & \no & \textcolor{orange}{\textbf{High Risk}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+\begin{itemize}
+    \item \textbf{Lack of Endpoint MFA:} The absence of MFA for computer logins is a critical weakness. Should an attacker compromise a user's credentials, they could gain direct access to an endpoint and move laterally within the network without being challenged by a second authentication factor.
+    \item \textbf{Insufficient Security Training:} Without mandatory annual security awareness training, employees are more likely to fall victim to phishing and social engineering attacks, which are the primary methods for initial credential compromise.
+\end{itemize}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+
+An external network scan was performed on the target IP address. The scan identified the following open ports and services accessible from the public internet.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{[Target IP]}}
+    \item \textbf{Scan Status:} Host is Up
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Scan Findings}
+\begin{tabular}{l l l p{0.4\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Description} \\
+\midrule
+3389/tcp & open & ms-wbt-server & Microsoft Remote Desktop Protocol (RDP). This service allows for direct remote control of a Windows system. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Findings}
+The presence of an open RDP port (3389) is a \textbf{critical security risk}. This service is a well-known target for attackers who perform brute-force password attacks, credential stuffing, and exploit vulnerabilities (such as BlueKeep) to gain unauthorized access to internal networks. This finding directly confirms the pre-existing risk identified in the organization's risk register.
+
+% --- CORRELATED RISK ASSESSMENT ---
+\section{Correlated Risk Assessment}
+
+This section synthesizes the findings from the security control review, technical scan, and existing risk data to provide a holistic view of the organization's current risk posture.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.2\linewidth} p{0.45\linewidth} p{0.15\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Affected Asset(s)} & \textbf{Severity} \\
+\midrule
+\textbf{Critical RDP Exposure} & Port 3389 (RDP) is open to the public internet, creating a direct vector for brute-force attacks and exploitation. This is exacerbated by the lack of endpoint MFA. & \seqsplit{\texttt{[Target IP]}} & \textcolor{red}{\textbf{Critical (9.0)}} \\
+\addlinespace
+\textbf{Lack of Endpoint MFA} & The absence of MFA for computer logins allows for trivial lateral movement and system compromise if an attacker obtains a valid password. & All Workstations & \textcolor{orange}{\textbf{High}} \\
+\addlinespace
+\textbf{Insufficient Security Training} & Lack of mandatory annual security awareness training increases the organization's susceptibility to phishing and social engineering attacks, which could lead to credential compromise. & All Employees & \textcolor{yellow!80!black}{\textbf{Medium}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+
+Based on the correlated risk assessment, the following prioritized actions are recommended to mitigate the identified vulnerabilities and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{Priority 1: Immediate Actions (Remediate within 24-48 hours)}
+\begin{enumerate}
+    \item \textbf{Remediate RDP Exposure:} Immediately close port 3389 on the external firewall for the IP address \seqsplit{\texttt{[Target IP]}}. Public-facing RDP is not a secure practice.
+    \item \textbf{Implement Secure Remote Access:} If remote access to this system is required, it must be placed behind a secure Virtual Private Network (VPN) that requires Multi-Factor Authentication (MFA) for access.
+\end{enumerate}
+
+\subsection{Priority 2: High-Priority Actions (Remediate within 30 days)}
+\begin{enumerate}
+    \item \textbf{Deploy Endpoint MFA:} Implement and enforce a mandatory MFA policy for all computer and server logins across the organization. This is a critical compensating control that significantly reduces the risk of compromised credentials.
+\end{enumerate}
+
+\subsection{Priority 3: Medium-Priority Actions (Remediate within 90 days)}
+\begin{enumerate}
+    \item \textbf{Establish Annual Security Training:} Develop and deploy a mandatory annual security awareness training program for all employees. The training should cover, at a minimum:
+    \begin{itemize}
+        \item Phishing and social engineering awareness.
+        \item Strong password and credential hygiene.
+        \item The organization's acceptable use policy.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

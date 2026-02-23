@@ -1,0 +1,166 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, organizational security controls, and pre-existing risk information. The assessment reveals several critical and high-risk vulnerabilities that require immediate attention.
+
+The organization's current security posture is considered weak due to significant gaps in fundamental security controls. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical External Vulnerability:} A publicly accessible FTP server is running a dangerously outdated and vulnerable version of vsftpd (2.3.4), which is known to contain a backdoor (CVE-2011-2523). Furthermore, it is misconfigured to allow anonymous logins, posing an immediate and severe threat of unauthorized access and data compromise.
+    \item \textbf{Critical Identity and Access Management Gaps:} Multi-Factor Authentication (MFA) is not enforced for accessing email or for logging into computers. This significantly increases the risk of account takeover via credential theft or phishing attacks.
+    \item \textbf{High-Risk Gaps in Security Culture:} The lack of security awareness training for new employees creates a persistent vulnerability to social engineering and human error.
+    \item \textbf{Pre-existing Internal Risk:} The continued use of an outdated operating system (Windows 7) remains a medium-level risk, contributing to an insecure internal environment.
+\end{itemize}
+
+Immediate remediation of the external FTP server and implementation of MFA are the highest priorities. A detailed breakdown of findings and actionable recommendations are provided in the subsequent sections of this report.
+
+\section{Organizational Information}
+
+This section details the organizational information used for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{Scanned External IP:} \texttt{[Client IP]}
+\end{itemize}
+
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate significant gaps in the security framework and are flagged as risks.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\begin{tabular}{p{0.6\linewidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to log into computers? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to access sensitive data systems? & \ding{51} & Best Practice Met \\
+Does your organization have an employee acceptable use policy? & \ding{51} & Best Practice Met \\
+Does your organization do security awareness training for new employees? & \ding{55} & \textcolor{orange}{\textbf{High Risk}} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Best Practice Met \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services.
+
+\subsection{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\subsection{Open Ports and Services}
+The scan identified one open port, which presents a critical risk due to its version and configuration.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\label{tab:nmap}
+\begin{tabular}{l l l l p{0.3\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Notes} \\
+\midrule
+21/tcp & Open & ftp & vsftpd 2.3.4 & \textcolor{red}{\textbf{CRITICAL:}} This version is vulnerable to a backdoor (CVE-2011-2523). Anonymous FTP login is also allowed. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of security risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{0.25\linewidth} p{0.5\linewidth} l}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Vulnerable FTP Server} & An outdated version of vsftpd (2.3.4) is exposed to the internet. This version contains a well-known critical backdoor vulnerability (CVE-2011-2523). & \textcolor{red}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Lack of MFA} & Multi-Factor Authentication is not required for email or computer logins, making user accounts highly susceptible to compromise from phishing or credential stuffing. & \textcolor{red}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Anonymous FTP Access} & The FTP server is configured to allow anonymous logins, which can lead to unauthorized data access, exfiltration, or the upload of malicious files. & \textcolor{orange}{\textbf{High}} \\
+\addlinespace
+\textbf{Inadequate Security Onboarding} & New employees do not receive security awareness training, leaving them unprepared to identify and respond to threats like phishing and social engineering. & \textcolor{orange}{\textbf{High}} \\
+\addlinespace
+\textbf{Outdated Windows Policy} & Workstations are running Windows 7, an end-of-life operating system that no longer receives security updates, making it vulnerable to exploitation. & \textcolor{yellow!80!black}{\textbf{Medium}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Recommendations}
+
+The following prioritized recommendations are provided to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\begin{enumerate}
+    \item \textbf{Remediate FTP Server (Immediate Priority):}
+    \begin{itemize}
+        \item Take the FTP server offline immediately if it is not business-critical.
+        \item If the service is required, upgrade vsftpd to the latest stable version and place it behind a firewall with strict access control lists.
+        \item Disable anonymous FTP access immediately. All access should require a unique, strong password.
+    \end{itemize}
+    
+    \item \textbf{Implement Multi-Factor Authentication (High Priority):}
+    \begin{itemize}
+        \item Procure and deploy an MFA solution for all employees.
+        \item Enforce MFA for all remote access, email access (e.g., Office 365, G Suite), and privileged system access.
+        \item Develop a plan to enforce MFA for all workstation logins.
+    \end{itemize}
+    
+    \item \textbf{Enhance Security Awareness Program (Medium Priority):}
+    \begin{itemize}
+        \item Develop and implement a mandatory security awareness training module for all new employee onboarding.
+        \item This training should cover acceptable use, phishing identification, password hygiene, and incident reporting procedures.
+    \end{itemize}
+    
+    \item \textbf{Execute Operating System Upgrades (Ongoing Priority):}
+    \begin{itemize}
+        \item Continue with the existing plan to upgrade all Windows 7 workstations to a modern, supported operating system (e.g., Windows 10/11).
+        \item Prioritize the upgrade of systems used by employees with access to sensitive data.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="titlepage">
+<p><strong>Cybersecurity Posture Assessment Report</strong></p>
+<p>Prepared for:<br />
+<strong>[Organization Name]</strong></p>
+<p><strong>Date of Report:</strong> 2026-01-31</p>
+<p><em>This report contains sensitive information and should be handled
+with care. Distribution is restricted to authorized personnel
+only.</em></p>
+</div>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive assessment of the cybersecurity
+posture for <strong>[Organization Name]</strong>, based on a synthesis
+of network scan data, a security controls questionnaire, and a review of
+pre-existing risks.</p>
+<p>The analysis has uncovered several <strong>critical-risk</strong>
+findings that require immediate attention. A public-facing FTP server
+was identified running a dangerously outdated version of
+<code>vsftpd</code> (2.3.4), which is known to contain a critical
+backdoor vulnerability (CVE-2011-2523). This server also permits
+anonymous logins, exposing the organization to significant risk of data
+breach and system compromise.</p>
+<p>Furthermore, critical gaps were identified in the organization’s
+access control policies. The lack of Multi-Factor Authentication (MFA)
+for computer logins and access to sensitive data systems dramatically
+increases the risk of unauthorized access should an employee’s
+credentials be compromised.</p>
+<p>These technical vulnerabilities are compounded by procedural
+weaknesses, including the absence of an employee Acceptable Use Policy
+and a lack of recurring annual security awareness training. The
+combination of these issues creates a high-risk environment. We strongly
+urge the immediate remediation of the critical vulnerabilities outlined
+in the Recommendations section to mitigate the imminent threats to the
+organization’s data and operations.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>This section details the information provided for the assessment.
+Placeholders are used where data was not available.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Primary Email Domain:</strong>
+<code>[Domain]</code></p></li>
+<li><p><strong>External IP Scanned:</strong>
+<code>[Client IP]</code></p></li>
+<li><p><strong>Target IP from Scan:</strong>
+<code>[Target IP]</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>The following table summarizes the organization’s responses to a
+security controls questionnaire. "No" answers indicate significant gaps
+in the security framework and are flagged as risks.</p>
+<div class="tabular">
+<p><span>L<span>7.5cm</span> C<span>1.5cm</span>
+L<span>5cm</span></span> <strong>Control Question</strong> &amp;
+<strong>Response</strong> &amp; <strong>Analyst Notes</strong><br />
+Do you require MFA to access email? &amp; &amp; Good practice. Reduces
+risk of email account takeover.<br />
+Do you require MFA to log into computers? &amp; &amp; <strong>Critical
+Gap.</strong> Lack of MFA on endpoints allows for easy lateral movement
+if credentials are stolen.<br />
+Do you require MFA to access sensitive data systems? &amp; &amp;
+<strong>Critical Gap.</strong> This exposes the organization’s most
+valuable data to unauthorized access.<br />
+Does your organization have an employee acceptable use policy? &amp;
+&amp; <strong>High Risk.</strong> Without an AUP, employees lack clear
+guidance on safe technology use, increasing insider threat risk.<br />
+Does your organization do security awareness training for new employees?
+&amp; &amp; Good baseline for onboarding new staff.<br />
+Does your organization do security awareness training for all employees
+at least once per year? &amp; &amp; <strong>High Risk.</strong> Security
+knowledge degrades over time. Lack of annual training leaves the
+organization vulnerable to evolving threats like phishing.<br />
+</p>
+</div>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed on the target IP address
+<code>[Target IP]</code>. The scan identified one host with a critical
+vulnerability.</p>
+<table>
+<caption>Open Ports and Services on <code>[Target IP]</code></caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product / Version</strong></th>
+<th style="text-align: left;"><strong>Finding</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">21/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">ftp</td>
+<td style="text-align: left;">vsftpd 2.3.4</td>
+<td style="text-align: left;"><strong>CRITICAL:</strong> Anonymous FTP
+login is allowed. The software version is vulnerable to a known backdoor
+(CVE-2011-2523), allowing remote command execution.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="analysis-of-findings">Analysis of Findings</h2>
+<p>The presence of an FTP server running <code>vsftpd 2.3.4</code> is a
+severe and immediate threat. This version, released in 2011, contains a
+well-documented backdoor that was inserted into the source code. An
+attacker can gain a command shell on the server by sending a specific
+string as the username. Combined with the allowance of anonymous logins,
+this server is trivial to compromise and poses a direct threat to the
+integrity and confidentiality of the host system and the internal
+network.</p>
+<h1 id="correlated-risk-assessment">Correlated Risk Assessment</h1>
+<p>This section synthesizes all findings from the questionnaire,
+technical scan, and pre-existing risk data into a unified risk
+register.</p>
+<div class="tabular">
+<p><span>@lL<span>5.5cm</span>l@</span> <strong>Risk ID</strong> &amp;
+<strong>Risk Name &amp; Description</strong> &amp;
+<strong>Severity</strong><br />
+R-01 &amp; <strong>Vulnerable Public FTP Server:</strong> A server
+running vsftpd 2.3.4 with a known backdoor (CVE-2011-2523) is exposed to
+the internet with anonymous login enabled. &amp; <span
+style="color: critical"><strong>Critical</strong></span><br />
+R-02 &amp; <strong>Lack of MFA on Critical Systems:</strong> No MFA is
+required for workstation logins or access to sensitive data systems,
+exposing the organization to credential theft and unauthorized access.
+&amp; <span
+style="color: critical"><strong>Critical</strong></span><br />
+R-03 &amp; <strong>Insufficient Security Training:</strong> Security
+awareness training is not performed annually, leading to a decline in
+employee vigilance against evolving threats like phishing. &amp; <span
+style="color: high"><strong>High</strong></span><br />
+R-04 &amp; <strong>No Acceptable Use Policy (AUP):</strong> Lack of a
+formal AUP creates ambiguity and increases the risk of unintentional or
+malicious insider actions. &amp; <span
+style="color: high"><strong>High</strong></span><br />
+R-05 &amp; <strong>Outdated Windows Policy:</strong> Workstations are
+running Windows 7, which is an end-of-life OS that no longer receives
+security updates, making them easy targets for exploitation. &amp; <span
+style="color: medium"><strong>Medium</strong></span><br />
+</p>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actions are recommended to mitigate the identified
+risks. They are prioritized based on severity and potential impact.</p>
+<h2 id="immediate-priority-remediate-within-72-hours">Immediate Priority
+(Remediate within 72 hours)</h2>
+<ul>
+<li><p><strong>Remediate Vulnerable FTP Server (R-01):</strong></p>
+<ul>
+<li><p>Immediately take the FTP server offline.</p></li>
+<li><p>Investigate the server for signs of compromise.</p></li>
+<li><p>If a file transfer service is required, deploy a secure
+alternative such as SFTP or FTPS, configured with strong authentication
+(no anonymous access) and running on up-to-date software.</p></li>
+</ul></li>
+<li><p><strong>Implement Multi-Factor Authentication
+(R-02):</strong></p>
+<ul>
+<li><p>Enforce MFA for all user accounts for logging into company
+workstations and laptops.</p></li>
+<li><p>Enforce MFA for access to all systems classified as containing
+sensitive or critical data.</p></li>
+</ul></li>
+</ul>
+<h2 id="high-priority-remediate-within-30-days">High Priority (Remediate
+within 30 days)</h2>
+<ul>
+<li><p><strong>Establish Annual Security Training (R-03):</strong></p>
+<ul>
+<li><p>Procure and implement a security awareness training program for
+all employees.</p></li>
+<li><p>Ensure the training is completed by all staff annually and
+tracked for compliance.</p></li>
+</ul></li>
+<li><p><strong>Develop and Implement an AUP (R-04):</strong></p>
+<ul>
+<li><p>Draft a formal Acceptable Use Policy that clearly defines rules
+for using company assets, data handling, and internet usage.</p></li>
+<li><p>Require all employees to read and acknowledge the
+policy.</p></li>
+</ul></li>
+</ul>
+<h2 id="medium-priority-plan-for-remediation-within-90-days">Medium
+Priority (Plan for remediation within 90 days)</h2>
+<ul>
+<li><p><strong>Upgrade Outdated Operating Systems (R-05):</strong></p>
+<ul>
+<li><p>Develop a project plan to upgrade or replace all workstations
+running Windows 7.</p></li>
+<li><p>Prioritize systems used by employees with access to sensitive
+information.</p></li>
+</ul></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

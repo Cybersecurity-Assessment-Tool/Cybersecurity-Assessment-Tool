@@ -1,0 +1,184 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx} % For logo (optional)
+\usepackage{fancyhdr} % For headers/footers
+\usepackage[T1]{fontenc}
+
+% Document Metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define checkmark and cross symbols for clarity
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Assessment Report}
+    \vspace{1.5cm}
+    \
+    \large\textbf{Prepared for:} \\
+    \vspace{0.5cm}
+    \Large Blue Marble
+    \
+    \vfill
+    \
+    \large\textbf{Date of Report:} \today \\
+    \large\textbf{Scan Date:} 2025-11-22
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for Blue Marble, based on an analysis of network scan data, organizational security controls, and known risks. The assessment was conducted on \textbf{2025-11-22}.
+
+The overall security posture requires immediate attention. Key findings include a \textbf{Critical} gap in access controls for sensitive data systems and a \textbf{High} risk exposure from outdated public-facing web server software. Specifically, Multi-Factor Authentication (MFA) is not enforced for sensitive systems, leaving critical assets vulnerable to unauthorized access. Furthermore, the external web server is running an outdated version of Nginx (1.18.0), which is susceptible to multiple known vulnerabilities.
+
+A foundational policy gap was also identified: the absence of an Employee Acceptable Use Policy (AUP). This increases the risk of insider threats and inconsistent security practices.
+
+Immediate remediation of these issues is strongly recommended to mitigate the risk of a significant security breach. Detailed findings and actionable recommendations are provided in the subsequent sections of this report.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Blue Marble \\
+Email Domain & \texttt{BlueMarble.net} \\
+Website Domain & \url{www.BlueMarble.net} \\
+External IP Address & \texttt{89.239.183.236} \\
+\bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_info}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+A review of administrative and organizational security controls was conducted based on a supplied questionnaire. The results highlight critical gaps in the current security framework. "No" answers indicate a deviation from security best practices and represent areas of increased risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\textwidth}c@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \cmark \\
+Do you require MFA to log into computers? & \cmark \\
+\textbf{Do you require MFA to access sensitive data systems?} & \xmark \\
+\textbf{Does your organization have an employee acceptable use policy?} & \xmark \\
+Does your organization do security awareness training for new employees? & \cmark \\
+Does your organization do security awareness training for all employees at least once per year? & \cmark \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services. The scan provides insight into the organization's external attack surface.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.10.5}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+\subsection{Open Ports and Services}
+The following table details the open ports and services discovered on the target system.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & open & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\caption{Discovered Open Ports and Services}
+\label{tab:nmap_results}
+\end{table}
+
+\subsection{Technical Analysis}
+The scan identified a single open port (443/tcp) running an Nginx web server, version \textbf{1.18.0}. This version was released in April 2020 and is now significantly outdated. The current stable version of Nginx is much newer.
+
+Running outdated software, especially on public-facing systems, poses a high security risk. Nginx 1.18.0 is known to be vulnerable to several security issues, including but not limited to \textbf{CVE-2021-23017}, which can lead to DNS resolver issues and potential request smuggling attacks. This finding requires immediate remediation.
+
+% --- Section 5: Risk Assessment Summary ---
+\section{Risk Assessment Summary}
+
+The following table synthesizes findings from the security control review and the technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.25\textwidth}p{0.5\textwidth}@{}}
+\toprule
+\textbf{Severity} & \textbf{Risk Name} & \textbf{Description} \\
+\midrule
+\textbf{Critical} & Critical MFA Gap for Sensitive Systems & The absence of MFA on systems containing sensitive data creates a single point of failure for authentication, making these high-value assets highly susceptible to compromise from stolen credentials. \\
+\addlinespace
+\textbf{High} & Outdated Web Server Software & The public-facing web server runs Nginx 1.18.0, an outdated version with known vulnerabilities. This exposes the organization to remote attacks that could lead to system compromise or data breach. \\
+\addlinespace
+\textbf{High} & Lack of Acceptable Use Policy & Without a formal AUP, there are no defined rules for employee use of corporate assets. This increases the risk of misuse, data leakage, and non-compliance with regulations. \\
+\bottomrule
+\end{tabular}
+\caption{Synthesized Risk Register}
+\label{tab:risk_register}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+Based on the identified risks, the following prioritized actions are recommended to improve the security posture of Blue Marble.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement MFA for Sensitive Systems:}
+    Immediately enforce Multi-Factor Authentication (MFA) across all systems identified as containing sensitive or critical data. This includes databases, file servers, and administrative portals. This action is the highest priority to prevent unauthorized access to core business assets.
+
+    \item \textbf{[High] Upgrade Nginx Web Server:}
+    Upgrade the Nginx server running on \texttt{192.168.10.5} from version 1.18.0 to the latest stable version recommended by the vendor. This will patch known vulnerabilities (e.g., CVE-2021-23017) and reduce the external attack surface. A regular patch management schedule should be implemented for all public-facing systems.
+
+    \item \textbf{[High] Develop and Implement an Acceptable Use Policy (AUP):}
+    Create a formal Acceptable Use Policy that clearly defines the rules and responsibilities for all employees when using company networks, systems, and data. This policy should be integrated into the new employee onboarding process and reviewed annually by all staff.
+\end{enumerate}
+
+% --- Section 7: Conclusion ---
+\section{Conclusion}
+
+This assessment has identified several significant security risks facing Blue Marble, including a critical gap in access controls, a high-risk vulnerability on a public-facing server, and a foundational policy weakness. While the organization has implemented some positive security controls, such as MFA for email and regular security training, the identified weaknesses require urgent action.
+
+By implementing the recommendations outlined in this report, Blue Marble can significantly reduce its risk exposure and strengthen its overall cybersecurity posture against modern threats.
+
+\end{document}
+```

@@ -1,0 +1,199 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages and Document Setup
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For potential logos/images
+\usepackage{lastpage} % For page numbering
+\usepackage{fancyhdr} % For headers and footers
+
+% --- Document Metadata ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Security, Assessment, Report},
+}
+
+% --- Header and Footer Configuration ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{\textbf{Cybersecurity Posture Assessment}}
+\fancyhead[R]{\textbf{Common Ground}}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\newcommand{\riskHigh}{\textcolor{orange}{\textbf{High}}}
+\newcommand{\riskCritical}{\textcolor{red}{\textbf{Critical}}}
+\newcommand{\riskInfo}{\textcolor{blue}{\textbf{Informational}}}
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{Common Ground}
+    
+    \vfill
+    
+    \Large
+    \today
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a cybersecurity posture assessment for \textbf{Common Ground}, based on a review of organizational security controls, an external network scan, and an analysis of pre-existing risks.
+
+The assessment reveals a mixed security posture. The organization has implemented foundational controls, such as requiring Multi-Factor Authentication (MFA) for email and computer access, and providing security training for new hires. These are commendable baseline practices.
+
+However, two significant gaps were identified that present a high level of risk to the organization:
+\begin{itemize}
+    \item \textbf{Lack of MFA for Sensitive Systems:} The absence of mandatory MFA for accessing sensitive data systems is a critical vulnerability. This exposes the organization's most valuable data to compromise, should an attacker gain access to employee credentials.
+    \item \textbf{No Annual Security Training:} Security awareness is not reinforced annually for all employees. This increases the organization's susceptibility to social engineering attacks like phishing, as employee knowledge degrades over time.
+\end{itemize}
+
+The external network scan of the designated target IP address did not identify any open ports or exposed services. This is a positive finding, suggesting a well-configured perimeter firewall or that the host was not responsive at the time of the scan. No pre-existing vulnerabilities were provided for review.
+
+Recommendations focus on immediately addressing the identified critical and high-risk gaps to significantly improve the organization's defense against common cyber threats.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided by the client and used as the basis for this assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Common Ground} \\
+    Email Domain & \texttt{CommonGround.com} \\
+    Website Domain & \url{www.CommonGround.com} \\
+    External IP Scanned & \seqsplit{\texttt{84.161.237.91}} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+A review of the organization's self-reported security controls was conducted via a questionnaire. The results below highlight current practices and identify key areas for improvement. Answers marked with \no\ indicate a deviation from security best practices and represent a potential risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.6\linewidth} c l}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \yes & Strong control. Protects primary communication channel. \\
+    \addlinespace
+    Do you require MFA to log into computers? & \yes & Good practice. Secures endpoint access. \\
+    \addlinespace
+    Do you require MFA to access sensitive data systems? & \no & \riskCritical\ Gap. Exposes critical assets to credential theft. \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \yes & Foundational policy is in place. \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & \yes & Positive. Establishes baseline awareness. \\
+    \addlinespace
+    Does your organization do security awareness training for all employees at least once per year? & \no & \riskHigh\ Risk. Lack of reinforcement increases human-factor risk. \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network vulnerability scan was performed to identify exposed services and potential vulnerabilities on the organization's perimeter.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\subsection{Findings}
+The scan completed successfully but did not discover any open TCP or UDP ports on the target host.
+
+\subsection{Analysis}
+This result indicates that the target system is not exposing any common network services to the internet. This is a positive security finding and typically suggests one of the following:
+\begin{itemize}
+    \item The perimeter firewall is correctly configured to block all unsolicited inbound traffic (``default deny'').
+    \item The target host was offline or otherwise unresponsive during the scan window.
+\end{itemize}
+No vulnerabilities were identified from this external scan.
+
+% --- Section 5: Risk Assessment Summary ---
+\section{Risk Assessment Summary}
+
+This section consolidates risks identified from the security control review, technical scan, and any pre-existing data. The primary risks stem from policy and procedural gaps identified in the questionnaire.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.1\linewidth} p{0.55\linewidth} p{0.2\linewidth}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & \textbf{No MFA on Sensitive Systems:} Lack of Multi-Factor Authentication on systems containing sensitive or critical data. A threat actor with stolen credentials can gain direct access to high-value assets. & \riskCritical \\
+    \addlinespace
+    RISK-002 & \textbf{Lack of Annual Security Training:} The absence of a recurring, mandatory security awareness training program for all employees. This elevates the risk of successful phishing, social engineering, and malware incidents. & \riskHigh \\
+    \addlinespace
+    RISK-003 & \textbf{No Pre-existing Risks Provided:} The list of known vulnerabilities was empty. While not a risk itself, it may indicate a lack of a formal risk tracking process. & \riskInfo \\
+    \bottomrule
+\end{tabular}
+\caption{Consolidated Risk Register}
+\label{tab:risks}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and strengthen the overall security posture of \textbf{Common Ground}. Recommendations are prioritized based on severity.
+
+\subsection{Priority 1: Implement MFA for Sensitive Systems (RISK-001)}
+\begin{itemize}
+    \item \textbf{Action:} Enforce mandatory Multi-Factor Authentication (MFA) across all applications, databases, and administrative interfaces that store, process, or transmit sensitive data. This includes financial systems, customer databases, and core infrastructure management consoles.
+    \item \textbf{Justification:} MFA is one of the most effective controls for preventing unauthorized access. It ensures that even if an attacker steals a password, they cannot access the protected system without the second factor (e.g., a code from a mobile app or a hardware key). This directly mitigates the risk of a data breach resulting from credential compromise.
+\end{itemize}
+
+\subsection{Priority 2: Establish Annual Security Awareness Training (RISK-002)}
+\begin{itemize}
+    \item \textbf{Action:} Develop and implement a mandatory security awareness training program for all employees, to be completed annually. The training should cover current threats such as phishing, ransomware, proper data handling, and password security. Consider including periodic phishing simulations to test and reinforce the training.
+    \item \textbf{Justification:} Humans are a critical part of an organization's defense. Regular training ensures that security remains a top-of-mind concern and equips employees to recognize and report threats effectively, significantly reducing the likelihood of a security incident caused by human error.
+\end{itemize}
+
+\subsection{Priority 3: Implement a Risk Management Program (RISK-003)}
+\begin{itemize}
+    \item \textbf{Action:} Establish a formal process for identifying, assessing, and tracking security risks. This includes maintaining a risk register that documents known vulnerabilities, their potential impact, and the status of mitigation efforts.
+    \item \textbf{Justification:} A structured risk management program provides leadership with the visibility needed to make informed decisions about security investments and priorities. It ensures that vulnerabilities are not overlooked and are addressed in a timely manner.
+\end{itemize}
+
+\end{document}
+```

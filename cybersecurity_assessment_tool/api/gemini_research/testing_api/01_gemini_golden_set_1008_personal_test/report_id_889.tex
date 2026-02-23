@@ -1,0 +1,188 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tocloft} % For table of contents customization
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define colors for severity
+\definecolor{critical}{HTML}{990000}
+\definecolor{high}{HTML}{D13F3F}
+\definecolor{medium}{HTML}{E89829}
+\definecolor{low}{HTML}{3C7A3C}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:}\\
+    Firebrand Media
+    \vspace{2cm}
+    \rule{\linewidth}{0.5mm}
+    \vspace{0.5cm}
+    \large
+    \textbf{Date of Report:} \today \\
+    \textbf{Scan Date:} 2025-11-22
+    \rule{\linewidth}{0.5mm}
+    \vfill
+    \large
+    \textit{This report contains sensitive information and should be handled with care.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Firebrand Media}, based on a technical network scan, a review of organizational security controls, and an assessment of existing risks. The assessment was conducted on \textbf{2025-11-22}.
+
+The analysis revealed several critical and high-risk findings that require immediate attention. Key areas of concern include significant gaps in access control, the use of outdated software on public-facing systems, and deficiencies in the employee security training program.
+
+\begin{itemize}
+    \item \textbf{Critical Access Control Gaps:} The lack of Multi-Factor Authentication (MFA) on email and sensitive data systems exposes the organization to significant risks, including Business Email Compromise (BEC), data breaches, and unauthorized access.
+    \item \textbf{Vulnerable External Services:} The external-facing web server at \texttt{192.168.10.5} is running a severely outdated version of Nginx (1.18.0), which has numerous known vulnerabilities. Additionally, a mismatch was identified between the SSL certificate's common name and the organization's domain, which can erode user trust and may indicate a misconfiguration.
+    \item \textbf{Onboarding Process Weakness:} The absence of security awareness training for new employees creates a window of vulnerability where new hires are more susceptible to social engineering attacks.
+\end{itemize}
+
+Immediate remediation of these issues is crucial to mitigate the risk of a significant security incident. Detailed findings and actionable recommendations are provided in the subsequent sections of this report.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & Firebrand Media \\
+Email Domain & \texttt{FirebrandMedia.org} \\
+Website Domain & \url{www.FirebrandMedia.org} \\
+External IP Address & \seqsplit{\texttt{141.180.214.177}} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Data.}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of organizational security controls was conducted via a questionnaire. The results highlight critical gaps in the current security framework. A "No" response indicates a deviation from security best practices and represents a potential risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\linewidth}p{0.2\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Best Practice} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & Yes & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & Yes & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & Yes & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & Yes & \textcolor{green}{\ding{51}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results.}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{MFA Gaps:} The absence of MFA for email and sensitive data systems is a critical weakness. Email is a primary target for phishing and account takeover attacks, which can lead to widespread compromise. Protecting sensitive data systems with MFA is fundamental to a defense-in-depth strategy.
+    \item \textbf{New Employee Training:} Failing to provide security training during onboarding leaves new personnel vulnerable. New employees are often targeted by attackers as they are less familiar with company policies and procedures.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed on the specified target to identify open ports and exposed services.
+
+\subsection*{Scan Metadata}
+\begin{itemize}
+    \item \textbf{Target IP:} \seqsplit{\texttt{192.168.10.5}}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+\subsection*{Open Ports and Services}
+The following services were found to be accessible on the target system.
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+443/tcp & open & https & nginx & 1.18.0 \\ \bottomrule
+\end{tabular}
+\caption{Discovered Open Ports.}
+\end{table}
+
+\subsection*{Key Technical Findings}
+\begin{enumerate}
+    \item \textbf{Outdated Nginx Version:} The web server is running Nginx version \textbf{1.18.0}, which was released in April 2020. This version is significantly outdated and is affected by multiple documented vulnerabilities, including high-severity issues such as request smuggling and potential information disclosure. Running unsupported software on internet-facing systems poses a high risk of compromise.
+    \item \textbf{SSL Certificate Mismatch:} The SSL certificate presented by the server has a Common Name of \texttt{www.acme-corp.com}. This does not match the organization's domain (\texttt{www.FirebrandMedia.org}). This misconfiguration will cause browser trust errors for visitors, damages brand reputation, and could potentially be exploited in man-in-the-middle scenarios.
+\end{enumerate}
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table summarizes the risks identified through the analysis of organizational controls and technical scanning. These risks are prioritized by severity to guide remediation efforts.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.5\linewidth}ll@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Description} & \textbf{Severity} & \textbf{Source} \\ \midrule
+RISK-001 & Lack of MFA on email accounts allows for account takeover via credential theft. & \textcolor{critical}{\textbf{Critical}} & Questionnaire \\
+RISK-002 & Outdated Nginx web server with known public vulnerabilities is exposed. & \textcolor{high}{\textbf{High}} & Network Scan \\
+RISK-003 & Lack of MFA on sensitive data systems weakens access controls to critical assets. & \textcolor{high}{\textbf{High}} & Questionnaire \\
+RISK-004 & No security training for new employees increases susceptibility to social engineering. & \textcolor{high}{\textbf{High}} & Questionnaire \\
+RISK-005 & SSL certificate mismatch on the web server erodes user trust and indicates misconfiguration. & \textcolor{medium}{\textbf{Medium}} & Network Scan \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to address the identified risks and improve the overall security posture of \textbf{Firebrand Media}.
+
+\begin{enumerate}
+    \item \textbf{Implement Mandatory MFA (RISK-001, RISK-003):}
+    \begin{itemize}
+        \item \textbf{Action:} Enforce mandatory Multi-Factor Authentication (MFA) for all user accounts across all systems, prioritizing email and any systems containing sensitive data.
+        \item \textbf{Priority:} \textcolor{critical}{\textbf{Immediate}}
+    \end{itemize}
+    \item \textbf{Upgrade Web Server Software (RISK-002):}
+    \begin{itemize}
+        \item \textbf{Action:} Plan and execute an upgrade of the Nginx server at \seqsplit{\texttt{192.168.10.5}} from version 1.18.0 to the latest stable version. Establish a patch management policy for all internet-facing systems.
+        \item \textbf{Priority:} \textcolor{high}{\textbf{High}}
+    \end{itemize}
+    \item \textbf{Integrate Security into Onboarding (RISK-004):}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and integrate a mandatory security awareness training module into the new employee onboarding process. This should cover key topics like phishing, password hygiene, and acceptable use policies.
+        \item \textbf{Priority:} \textcolor{high}{\textbf{High}}
+    \end{itemize}
+    \item \textbf{Correct SSL Certificate Configuration (RISK-005):}
+    \begin{itemize}
+        \item \textbf{Action:} Investigate the SSL certificate mismatch on the web server. Procure and install a valid certificate that matches the organization's domain (\texttt{www.FirebrandMedia.org}).
+        \item \textbf{Priority:} \textcolor{medium}{\textbf{Medium}}
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

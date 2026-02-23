@@ -1,0 +1,168 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % Required for \ding
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{seqsplit} % For breaking long, unbreakable strings
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{titling}
+
+% --- Customization ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+}
+
+% Define colors for severity
+\definecolor{criticalred}{HTML}{D10000}
+\definecolor{highorange}{HTML}{E25F00}
+
+% --- Document Metadata ---
+\title{\textbf{Cybersecurity Posture Assessment Report}}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% ----------------------------------------------------------------------
+% DOCUMENT START
+% ----------------------------------------------------------------------
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% 1. EXECUTIVE SUMMARY
+% ----------------------------------------------------------------------
+\section{Executive Summary}
+
+This report provides a cybersecurity assessment for \textbf{Orchid Isle}, synthesizing data from technical network scans, a security controls questionnaire, and a review of pre-existing risks. The analysis reveals several critical and high-severity risks that require immediate attention to mitigate potential threats to the organization's data and operations.
+
+Key findings indicate a pattern of insecure Remote Desktop Protocol (RDP) exposure across multiple systems, a critical gap in enforcing Multi-Factor Authentication (MFA) for email access, and a lack of foundational security awareness training for new employees. These vulnerabilities significantly increase the risk of unauthorized access, business email compromise (BEC), and ransomware attacks.
+
+This document details each finding and provides actionable, prioritized recommendations to strengthen the organization's overall security posture.
+
+% ----------------------------------------------------------------------
+% 2. ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{center}
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Orchid Isle} \\
+Email Domain & \texttt{OrchidIsle.net} \\
+External IP Address & \texttt{138.84.195.205} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ----------------------------------------------------------------------
+% 3. SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+This section evaluates the organization's implemented security controls based on a self-assessment questionnaire. Gaps in these controls often represent significant organizational risk. A green checkmark (\ding{51}) indicates a positive control is in place, while a red cross (\ding{55}) indicates a control gap.
+
+\begin{center}
+\begin{tabular}{p{0.8\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{criticalred}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{criticalred}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{No MFA for Email:} This is a critical vulnerability. Email accounts are primary targets for phishing and account takeover attacks, which can lead to data breaches and financial fraud.
+    \item \textbf{No Security Training for New Employees:} New hires are often more susceptible to social engineering attacks. Failing to provide immediate security training leaves a recurring window of vulnerability as the organization grows.
+\end{itemize}
+
+
+% ----------------------------------------------------------------------
+% 4. TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+A network scan was performed to identify externally accessible services and potential vulnerabilities on the target host.
+
+\subsection*{Host: \texttt{10.10.10.51}}
+The scan identified the following open port, which indicates a service directly exposed to the network.
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Analysis} \\
+\midrule
+3389/tcp & open & \texttt{ms-wbt-server} & Remote Desktop Protocol (RDP) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis of Technical Findings}
+The presence of an open RDP port is a significant security risk. RDP is a common vector for ransomware and other malware. Exposing this service without mitigating controls like a VPN or IP address whitelisting is strongly discouraged. This finding, correlated with pre-existing risk data, suggests a systemic issue with RDP exposure within the organization.
+
+% ----------------------------------------------------------------------
+% 5. CORRELATED RISK ASSESSMENT
+% ----------------------------------------------------------------------
+\section{Correlated Risk Assessment}
+This section synthesizes findings from all data sources to provide a holistic view of the most pressing security risks.
+
+\begin{center}
+\begin{tabular}{p{0.25\linewidth}p{0.55\linewidth}l}
+\toprule
+\textbf{Risk Title} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Widespread RDP Exposure} & The technical scan identified RDP exposed on host \texttt{10.10.10.51}. This correlates with a pre-existing risk identifying the same issue on host \texttt{10.10.10.50}. This pattern indicates a lack of network hardening standards. & \textcolor{criticalred}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Lack of MFA for Email Access} & The security questionnaire confirmed that MFA is not enforced for email access. This exposes the organization to severe risks of business email compromise (BEC), phishing, and subsequent data breaches. & \textcolor{criticalred}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Inadequate New-Hire Security Training} & The questionnaire revealed that new employees do not receive security awareness training upon joining. This creates a persistent vulnerability, as untrained staff are prime targets for social engineering attacks. & \textcolor{highorange}{\textbf{High}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ----------------------------------------------------------------------
+% 6. RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized by severity.
+
+\subsection*{6.1 Critical Risk: Widespread RDP Exposure}
+\begin{itemize}
+    \item \textbf{Immediate Action:} For all systems exposing RDP (\texttt{10.10.10.51}, \texttt{10.10.10.50}, and any others), immediately implement firewall rules to restrict access to only trusted IP addresses. If no immediate business need exists, the port should be closed entirely.
+    \item \textbf{Long-Term Strategy:} Implement a Virtual Private Network (VPN) or a remote desktop gateway solution for all remote administrative access. This provides a secure, encrypted tunnel and removes the need to expose RDP directly to the network. Enforce strong, unique passwords and MFA for all remote access accounts.
+\end{itemize}
+
+\subsection*{6.2 Critical Risk: Lack of MFA for Email Access}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Enable and enforce MFA for all user accounts on the \texttt{OrchidIsle.net} email domain. Prioritize enforcement for administrative and executive accounts.
+    \item \textbf{Long-Term Strategy:} Develop a policy that mandates MFA for all cloud services and critical systems. Conduct a user awareness campaign to educate employees on the importance of MFA and how to use it.
+\end{itemize}
+
+\subsection*{6.3 High Risk: Inadequate New-Hire Security Training}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Develop a baseline security awareness training module and integrate it into the mandatory onboarding process for all new employees, to be completed within their first week of employment.
+    \item \textbf{Long-Term Strategy:} Formalize the security training program. Ensure the new-hire training covers key topics such as phishing, password hygiene, and the acceptable use policy. Supplement this with the existing annual refresher training for all staff.
+\end{itemize}
+
+\end{document}
+```

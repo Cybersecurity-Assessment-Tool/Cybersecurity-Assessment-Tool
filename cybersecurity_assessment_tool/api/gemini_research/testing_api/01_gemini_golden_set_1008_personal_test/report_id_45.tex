@@ -1,0 +1,190 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Custom Commands
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ------------------------------------------------------------------
+% Section 1: Executive Summary
+% ------------------------------------------------------------------
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Nexus Dynamics}, based on network scans, organizational data, and a review of existing risk documentation. The analysis was conducted on \today.
+
+While the organization demonstrates a strong commitment to identity security through the consistent implementation of Multi-Factor Authentication (MFA) across key systems, several critical risks were identified that require immediate attention.
+
+The most severe finding is a direct contradiction between the technical scan results and the current risk register. A network scan identified a service on an internal host (\texttt{10.5.5.5:8080}) with the title \textbf{``TOP SECRET DB''}. This indicates a potential high-value data asset is exposed. However, the existing risk documentation incorrectly classifies this port as a secure false positive. This discrepancy points to a significant failure in the risk management and validation process.
+
+Furthermore, critical gaps exist in foundational security governance. The absence of an employee acceptable use policy and the lack of security awareness training for new hires create a permissive environment for insider threats, whether malicious or accidental.
+
+This report outlines these findings in detail and provides a prioritized set of actionable recommendations to mitigate the identified risks and strengthen the overall security posture of \textbf{Nexus Dynamics}.
+
+% ------------------------------------------------------------------
+% Section 2: Organizational Information
+% ------------------------------------------------------------------
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Nexus Dynamics} \\
+Email Domain & \texttt{NexusDynamics.org} \\
+Website Domain & \url{www.NexusDynamics.org} \\
+External IP Address & \texttt{86.123.134.238} \\
+\bottomrule
+\end{tabular}
+
+% ------------------------------------------------------------------
+% Section 3: Security Control Review
+% ------------------------------------------------------------------
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted based on a standardized questionnaire. The results highlight a mix of mature controls and significant policy gaps.
+
+\subsection{Questionnaire Results}
+
+\begin{tabular}{@{}p{0.6\linewidth}p{0.2\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Best Practice} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & Yes & \yes \\
+Do you require MFA to log into computers? & Yes & \yes \\
+Do you require MFA to access sensitive data systems? & Yes & \yes \\
+Does your organization have an employee acceptable use policy? & Yes & \textcolor{red}{\no} \\
+Does your organization do security awareness training for new employees? & Yes & \textcolor{red}{\no} \\
+Does your organization do security awareness training for all employees at least once per year? & Yes & \yes \\
+\bottomrule
+\end{tabular}
+
+\subsection{Analysis of Gaps}
+\begin{itemize}
+    \item \textbf{Critical Gap - No Acceptable Use Policy:} The absence of a formal Acceptable Use Policy (AUP) is a foundational governance failure. An AUP is essential for setting clear expectations for employees regarding the use of company assets, data handling, and online behavior. Without it, the organization has limited recourse in cases of misuse and leaves security standards open to interpretation.
+    \item \textbf{High Risk - No New Hire Security Training:} While annual training is in place, the lack of mandatory security training during employee onboarding presents a significant window of vulnerability. New hires are often prime targets for phishing and social engineering attacks and may be unaware of organizational security protocols.
+\end{itemize}
+
+% ------------------------------------------------------------------
+% Section 4: Technical Scan Results
+% ------------------------------------------------------------------
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\subsection{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{10.5.5.5}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Scanner:} Nmap
+\end{itemize}
+
+\subsection{Findings}
+The scan revealed one open port with a highly concerning service banner.
+
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Details / Banner} \\
+\midrule
+8080/tcp & open & http & \textbf{http-title: TOP SECRET DB} \\
+\bottomrule
+\end{tabular}
+
+\subsection{Technical Analysis}
+The discovery of an open port (8080) hosting a service with the title ``TOP SECRET DB'' is a critical information disclosure vulnerability. 
+\begin{itemize}
+    \item \textbf{Information Leakage:} The title explicitly advertises the potential sensitivity of the underlying data, making it an attractive target for unauthorized actors.
+    \item \textbf{Exposure:} Port 8080 is a common alternative port for web applications, APIs, and administrative interfaces. The presence of this service suggests that a database, or an interface to it, is directly accessible over the network.
+    \item \textbf{Contradiction with Existing Data:} This finding directly contradicts the information provided in the existing risk register (\textit{Input\_3\_Current\_Risks\_JSON}), which incorrectly states that Port 8080 is secure and a false positive. This points to a flawed or outdated risk assessment process.
+\end{itemize}
+
+% ------------------------------------------------------------------
+% Section 5: Consolidated Risk Assessment
+% ------------------------------------------------------------------
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security control review, technical scan, and analysis of existing documentation into a prioritized list of risks.
+
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Exposed Sensitive Database Interface} & An open port (\texttt{10.5.5.5:8080}) is broadcasting the title ``TOP SECRET DB'', indicating a critical data asset is exposed. This contradicts the existing risk register. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Acceptable Use Policy} & The absence of a foundational AUP creates significant legal and operational risk, as employees lack formal guidance on data protection and system usage. & \textbf{High} \\
+\addlinespace
+\textbf{Inadequate New Hire Onboarding} & New employees do not receive security awareness training, making them highly susceptible to social engineering and accidental policy violations. & \textbf{High} \\
+\addlinespace
+\textbf{Flawed Risk Management Process} & The existing risk register is dangerously inaccurate, as proven by the technical scan. This indicates the current risk management lifecycle (identification, validation, and remediation) cannot be trusted. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+
+% ------------------------------------------------------------------
+% Section 6: Recommendations
+% ------------------------------------------------------------------
+\section{Recommendations}
+
+Based on the consolidated risk assessment, the following actions are recommended in order of priority.
+
+\subsection{Priority 1: Immediate Actions (Within 72 Hours)}
+\begin{enumerate}
+    \item \textbf{Investigate and Remediate Exposed Service:} Immediately investigate the service running on \texttt{10.5.5.5:8080}. 
+    \begin{itemize}
+        \item Determine the nature of the database and the sensitivity of its data.
+        \item Restrict access to the port using host-based or network firewalls, allowing connections only from authorized systems.
+        \item If the service must remain, remove or obfuscate the revealing HTTP title.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Priority 2: High-Impact Actions (Within 30 Days)}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Draft a comprehensive AUP that covers data handling, internet usage, password security, and incident reporting. This policy must be formally communicated to all employees and included in the new hire onboarding process.
+    \item \textbf{Integrate Security Training into Onboarding:} Develop a mandatory security awareness training module for all new employees. This training should be completed within their first week of employment and cover key topics like phishing, social engineering, and the new AUP.
+\end{enumerate}
+
+\subsection{Priority 3: Foundational Improvements (Within 90 Days)}
+\begin{enumerate}
+    \item \textbf{Overhaul the Risk Management Process:} Conduct a full review of the organization's risk register. 
+    \begin{itemize}
+        \item Implement a process for regular, automated validation of technical risks (e.g., quarterly vulnerability scans).
+        \item Ensure that all identified risks have a documented owner, remediation plan, and review date.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

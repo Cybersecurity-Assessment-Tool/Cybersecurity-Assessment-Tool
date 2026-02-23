@@ -1,0 +1,167 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For check and cross marks
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Information
+\title{
+    \includegraphics[width=0.3\textwidth]{cyber_logo.png} \\ % Placeholder for a logo
+    \vspace{1cm}
+    \textbf{Cybersecurity Posture Assessment Report} \\
+    \large Prepared for: \textbf{Digital Drift}
+}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment for Digital Drift},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Executive Overview}
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{Digital Drift}. The analysis is based on a combination of technical network scanning, a review of organizational security controls via questionnaire, and an evaluation of pre-existing risks.
+
+The assessment identified several critical and high-risk vulnerabilities that require immediate attention. Key findings include:
+
+\begin{itemize}
+    \item \textbf{Critical Gaps in Access Control:} Multi-Factor Authentication (MFA) is not enforced for accessing email or other sensitive data systems. This significantly increases the risk of account compromise and subsequent data breaches through credential theft or phishing attacks.
+    \item \textbf{Vulnerable External-Facing Services:} The external web server was found to be running Nginx version \texttt{1.18.0}, an outdated version with multiple publicly disclosed vulnerabilities. This exposes the organization to potential remote code execution, denial of service, and other web-based attacks.
+    \item \textbf{Deficiencies in Security Governance:} The organization lacks a formal employee Acceptable Use Policy (AUP) and does not conduct regular security awareness training. This elevates the risk of insider threats and successful social engineering attacks, as employees are not equipped with the necessary knowledge to identify and report threats.
+\end{itemize}
+
+These findings indicate a reactive security posture that exposes \textbf{Digital Drift} to significant operational and reputational risk. The recommendations provided in this report are designed to address these gaps and establish a more resilient and proactive security foundation.
+
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information helps establish the context and scope of the reviewed environment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Digital Drift
+    \item \textbf{Email Domain:} \texttt{DigitalDrift.org}
+    \item \textbf{Website Domain:} \url{www.DigitalDrift.org}
+    \item \textbf{External IP Address:} \texttt{218.52.121.192}
+\end{itemize}
+
+\section{Security Control Review (Questionnaire)}
+
+A review of foundational security controls was conducted via a questionnaire. The responses highlight significant gaps in administrative and technical controls. A "No" response indicates a missing control that typically represents a high or critical risk.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Status}
+\begin{tabular}{p{0.75\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{55} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\
+\bottomrule
+\end{tabular}
+\\
+\vspace{0.2cm}
+\small{\textit{Key: \ding{51} = Yes (Control in place), \ding{55} = No (Control gap identified)}}
+\end{table}
+
+The lack of MFA for email and sensitive data systems are critical weaknesses. Email is a primary target for attackers seeking to launch phishing campaigns, commit financial fraud via Business Email Compromise (BEC), or gain a foothold within the network. The absence of security policies and training programs further exacerbates this risk by failing to establish a security-conscious culture.
+
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services on the organization's infrastructure.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{192.168.10.5}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{l l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & open & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Findings}
+The scan identified one open port, 443 (HTTPS), which is hosting a web server running \textbf{Nginx version 1.18.0}. This version was released in April 2020 and is now considered outdated and unsupported. It is known to be vulnerable to several security issues, including CVE-2021-23017, which can lead to request smuggling and security bypass. Running outdated software on internet-facing systems presents a high risk of exploitation by automated attack tools.
+
+Additionally, the SSL certificate presented by the server has a Common Name (\texttt{www.acme-corp.com}) that does not match the organization's domain (\texttt{www.DigitalDrift.org}), which may indicate a misconfiguration.
+
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security control review and the technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Cybersecurity Risks}
+\begin{tabular}{p{0.1\linewidth} p{0.3\linewidth} p{0.4\linewidth} p{0.1\linewidth}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & Lack of MFA for Email and Sensitive Data & The absence of MFA allows unauthorized access with only a single factor (password), making the organization highly vulnerable to phishing and credential stuffing attacks. & \textbf{Critical} \\
+\addlinespace
+RISK-002 & Vulnerable Web Server Software & The public-facing Nginx server (v1.18.0) is outdated and contains known vulnerabilities that can be exploited by attackers to compromise the server. & \textbf{High} \\
+\addlinespace
+RISK-003 & Absence of Security Policies and Training & Without an Acceptable Use Policy or security awareness training, employees are more likely to engage in risky behavior, fall for social engineering, or mishandle data. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Recommendations}
+
+To mitigate the identified risks and improve the overall security posture of \textbf{Digital Drift}, the following actions are recommended with priority.
+
+\begin{enumerate}
+    \item \textbf{Implement Multi-Factor Authentication (RISK-001):}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Enforce mandatory MFA for all user accounts across all systems, prioritizing email, VPN, and any systems containing sensitive or financial data.
+        \item \textbf{Technology:} Utilize a reputable MFA solution that supports multiple methods (e.g., authenticator app, hardware token).
+    \end{itemize}
+
+    \item \textbf{Remediate Web Server Vulnerabilities (RISK-002):}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Develop a plan to upgrade the Nginx server from version \texttt{1.18.0} to the latest stable version. Test the upgrade in a non-production environment before deploying to production.
+        \item \textbf{Ongoing Action:} Implement a patch management policy to ensure all internet-facing systems are updated in a timely manner.
+        \item \textbf{Configuration Review:} Replace the mismatched SSL certificate with one that is valid for the \texttt{www.DigitalDrift.org} domain.
+    \end{itemize}
+    
+    \item \textbf{Establish Security Governance and Training (RISK-003):}
+    \begin{itemize}
+        \item \textbf{Short-Term Action:} Develop and formally adopt an employee Acceptable Use Policy (AUP) that clearly defines rules for using company assets and data.
+        \item \textbf{Short-Term Action:} Enroll all employees in a foundational security awareness training program. This program should be mandatory for new hires and conducted annually for all staff.
+        \item \textbf{Ongoing Action:} Conduct periodic phishing simulations to test employee awareness and reinforce training concepts.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

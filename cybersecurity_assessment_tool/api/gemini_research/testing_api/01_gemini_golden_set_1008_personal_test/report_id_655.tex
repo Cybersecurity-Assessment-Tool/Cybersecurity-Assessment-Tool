@@ -1,0 +1,169 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmark and X symbols
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{xcolor} % For colors in tables
+
+% Document Metadata
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+
+\newpage
+\section{Executive Overview}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Stone Arch Masonry}. The analysis is based on a correlation of technical network scan data, a review of organizational security controls via a questionnaire, and an evaluation of pre-existing risks.
+
+The assessment reveals a mixed security posture. While the organization has implemented Multi-Factor Authentication (MFA) for critical systems like email and sensitive data access, there are significant and high-risk gaps in foundational administrative and procedural controls. 
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Policy Gaps:} The complete absence of an employee Acceptable Use Policy (AUP) and a security awareness training program presents a critical risk. These gaps leave the organization highly vulnerable to social engineering, phishing attacks, and insider threats.
+    \item \textbf{Endpoint Security Weakness:} The lack of MFA for computer logins is a high-risk vulnerability that could allow an attacker with compromised credentials to gain direct access to internal network resources.
+    \item \textbf{External Service Exposure:} A technical scan identified an open Secure Shell (SSH) port on an external IPv6 address. While necessary for remote administration, this service must be rigorously secured to prevent unauthorized access.
+\end{itemize}
+
+Immediate and decisive action is required to address the identified policy and training deficiencies. Strengthening these foundational controls will significantly improve the organization's resilience against common cyber threats.
+
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Stone Arch Masonry} \\
+    Email Domain & \texttt{StoneArchMasonry.org} \\
+    Website Domain & \url{www.StoneArchMasonry.org} \\
+    External IP Address & \texttt{209.64.17.216} \\
+    \bottomrule
+\end{tabular}
+
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. Items marked with \ding{55} represent significant gaps in the security framework and are considered high-risk findings.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{8cm}cc@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} (Yes) & Meets Best Practice \\
+    Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} (No) & \textcolor{red}{High Risk} \\
+    Do you require MFA to access sensitive data systems? & \ding{51} (Yes) & Meets Best Practice \\
+    Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} (No) & \textcolor{red}{Critical Control Gap} \\
+    Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} (No) & \textcolor{red}{Critical Control Gap} \\
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} (No) & \textcolor{red}{Critical Control Gap} \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+\section{Technical Scan Results}
+
+A network scan was performed on the specified target to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+The following table details the open ports discovered during the scan.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+    \midrule
+    22/tcp & Open & SSH & Service version not enumerated. Exposed SSH \\
+    & & (Secure Shell) & requires strong credentials, key-based \\
+    & & & authentication, and access control lists. \\
+    \bottomrule
+\end{tabular}
+\caption{Open Port Analysis}
+\end{table}
+
+\section{Risk Assessment Summary}
+
+The following table consolidates findings from the security control review and technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{5.5cm}l@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    Absence of Security Awareness Training & The lack of any employee training program leaves the organization highly susceptible to phishing, malware, and social engineering attacks. & \textbf{Critical} \\
+    \addlinespace
+    Lack of Acceptable Use Policy & Without a formal AUP, there are no established rules for employee use of company assets, creating legal and security risks. & \textbf{High} \\
+    \addlinespace
+    No Endpoint Multi-Factor Authentication & The absence of MFA on computer logins means a single compromised password could grant an attacker full access to an endpoint. & \textbf{High} \\
+    \addlinespace
+    Exposed SSH Service & Port 22 is open to the internet, creating a direct vector for brute-force attacks and unauthorized access if not properly secured. & \textbf{Medium} \\
+    \bottomrule
+\end{tabular}
+\caption{Consolidated Risk Register}
+\end{table}
+
+\section{Recommendations}
+
+Based on the analysis, the following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Stone Arch Masonry}.
+
+\begin{itemize}
+    \item \textbf{[Critical Priority] Implement a Security Awareness Program:}
+    \begin{itemize}
+        \item Immediately establish a mandatory security awareness training program for all employees.
+        \item Training should be conducted for all new hires during onboarding and annually for all staff.
+        \item Key topics must include phishing identification, password security, safe browsing, and data handling procedures.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{[High Priority] Develop and Enforce an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item Create a formal AUP that clearly defines the rules for using company networks, devices, and data.
+        \item Require all current and new employees to read and sign the policy to acknowledge their understanding and agreement.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{[High Priority] Enforce MFA on All Endpoints:}
+    \begin{itemize}
+        \item Deploy a solution to require MFA for all computer and laptop logins. This significantly reduces the risk of unauthorized access from compromised credentials.
+        \item Solutions can include Windows Hello for Business, Duo Security, or other third-party MFA providers.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{[Medium Priority] Secure the Exposed SSH Service:}
+    \begin{itemize}
+        \item Review the business justification for exposing SSH on \seqsplit{\texttt{2001:db8::1}}.
+        \item If required, implement firewall rules to restrict access to only trusted source IP addresses.
+        \item Enforce public key authentication and disable password-based logins to prevent brute-force attacks.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

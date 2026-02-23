@@ -1,0 +1,193 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings like IPs
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage[T1]{fontenc}
+
+% Document Metadata and Hyperlink Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment, Nmap, Controls}
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{\textbf{Cybersecurity Posture Assessment}}
+\fancyhead[R]{\textbf{Hidden Gem}}
+\fancyfoot[C]{\thepage}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% Title Page
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    \Huge{\textbf{Cybersecurity Posture Assessment Report}}
+    \vspace{1.5cm}
+    \Large{\textbf{Prepared for:}}
+    \vspace{0.5cm}
+    \Large{Hidden Gem}
+    \vspace{2cm}
+    \large{\textbf{Date of Report:}}
+    \vspace{0.5cm}
+    \large{\today}
+    \vfill
+    \large{
+        \textbf{CONFIDENTIAL} \\
+        This document contains sensitive information. Distribution is restricted to authorized personnel only.
+    }
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity posture assessment for \textbf{Hidden Gem}. The analysis is based on a correlation of network scan data, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals several critical and high-risk gaps in the organization's security controls. The most significant findings include the absence of Multi-Factor Authentication (MFA) for email and computer access, and a lack of a formal security awareness training program for employees. These deficiencies create a substantial risk of unauthorized access, data breaches, and successful phishing attacks.
+
+Technically, an external scan identified an open Secure Shell (SSH) port on the network perimeter. While necessary for remote administration, this service becomes a significant attack vector when foundational controls like MFA are missing.
+
+Immediate and decisive action is required to address these findings. Recommendations are prioritized to guide remediation efforts, focusing first on implementing MFA and establishing a robust security training program.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following information was provided by the client and used as a baseline for this assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Client Profile}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & Hidden Gem \\
+Email Domain & \texttt{HiddenGem.org} \\
+Website Domain & \url{www.HiddenGem.org} \\
+External IP Address & \texttt{18.22.50.94} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A security questionnaire was completed to evaluate the implementation of essential administrative and technical controls. The results highlight significant gaps in identity management and employee security awareness. A "No" answer indicates a missing control and a potential high-risk gap.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{@{}p{0.7\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\ \bottomrule
+\end{tabular}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+\begin{itemize}
+    \item \textbf{Multi-Factor Authentication (MFA):} The lack of MFA for email and computer logins is a critical vulnerability. These are primary targets for credential theft attacks (e.g., phishing), and without MFA, a compromised password directly leads to unauthorized access.
+    \item \textbf{Security Awareness Training:} The absence of a training program for both new and existing employees leaves the organization highly susceptible to social engineering attacks. Employees are the first line of defense, and without training, they are unable to recognize and appropriately respond to threats.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify exposed services on the organization's public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+    \item \textbf{Scan Date:} \textit{Not Specified}
+\end{itemize}
+
+The scan identified the following open port, indicating a service accessible from the public internet.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Inferred Service} & \textbf{Analysis} \\ \midrule
+22/TCP & Open & SSH (Secure Shell) & Exposed remote admin service. \\ \bottomrule
+\end{tabular}
+\label{tab:nmap}
+\end{table}
+
+\subsection*{Analysis of Findings}
+The presence of an open SSH port is common for remote system administration. However, its security is paramount. In the context of the missing MFA controls identified in Section 3, this exposed service poses a medium risk. It is a prime target for automated brute-force attacks that attempt to guess user credentials.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review and the technical scan. No pre-existing vulnerabilities were reported. The following risks have been identified and prioritized based on their potential impact on the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks}
+\begin{tabular}{@{}p{0.1\textwidth}p{0.3\textwidth}p{0.15\textwidth}p{0.35\textwidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\ \midrule
+\textbf{RISK-001} & Lack of MFA on Critical Systems & \textbf{Critical} & The absence of MFA for email and endpoints allows an attacker with a single stolen password to gain full access, leading to data breach or ransomware. \\
+\addlinespace
+\textbf{RISK-002} & Inadequate Security Awareness Program & \textbf{High} & Without training, employees are likely to fall victim to phishing and other social engineering attacks, providing an initial entry point for attackers. \\
+\addlinespace
+\textbf{RISK-003} & Exposed SSH Service without Compensating Controls & \textbf{Medium} & The publicly accessible SSH port is vulnerable to brute-force attacks. This risk is amplified by the lack of MFA across the organization. \\ \bottomrule
+\end{tabular}
+\label{tab:risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following prioritized recommendations are provided to mitigate the identified risks and improve the overall security posture of \textbf{Hidden Gem}.
+
+\subsection*{Priority 1: Critical}
+\begin{enumerate}
+    \item \textbf{Implement MFA Across All Systems (RISK-001):}
+    \begin{itemize}
+        \item Immediately enforce MFA for all users accessing email (e.g., via Office 365 or Google Workspace security settings).
+        \item Deploy an MFA solution for all computer (Windows, macOS) and server logins.
+        \item Use strong MFA methods such as authenticator apps or hardware tokens over less secure SMS-based methods.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 2: High}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Establish a Security Awareness Training Program (RISK-002):}
+    \begin{itemize}
+        \item Procure and deploy a training solution that covers key topics like phishing, password security, and acceptable use.
+        \item Integrate security training into the onboarding process for all new employees.
+        \item Mandate annual refresher training for all staff and conduct regular phishing simulations to measure effectiveness.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 3: Medium}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Secure the Exposed SSH Service (RISK-003):}
+    \begin{itemize}
+        \item \textbf{Restrict Access:} If possible, restrict SSH access to a whitelist of known trusted IP addresses (e.g., office or administrator home IPs).
+        \item \textbf{Disable Password Authentication:} Configure the SSH server to disallow password-based logins and require public key authentication only. This provides a much stronger defense against brute-force attacks.
+        \item \textbf{Implement Fail2Ban:} Deploy a tool like Fail2Ban to automatically block IP addresses that exhibit malicious behavior, such as repeated failed login attempts.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,217 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{fancyhdr}
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Analysis},
+}
+
+% Define colors for table headers
+\definecolor{tableheader}{rgb}{0.1, 0.3, 0.5}
+\definecolor{rowcolor}{gray}{0.95}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Cybersecurity Posture Report}
+\fancyhead[R]{\textbf{Modern Myth}}
+\fancyfoot[C]{\thepage}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.3\textwidth]{example-image-a} % Placeholder for company logo
+    
+    \vspace{1.5cm}
+    
+    \huge
+    \textbf{Cybersecurity Posture Report}
+    
+    \vspace{1cm}
+    
+    \Large
+    Prepared for: \textbf{Modern Myth}
+    
+    \vspace{2cm}
+    
+    \normalsize
+    \textbf{Date of Report:} \today \\
+    \textbf{Author:} Cybersecurity Analyst
+    
+    \vfill
+    
+    \small
+    \textit{This report contains sensitive information and is intended for the exclusive use of the recipient organization. Unauthorized distribution is prohibited.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Modern Myth}. The assessment is based on a correlation of network scan data, a review of administrative security controls via a questionnaire, and an analysis of pre-existing documented risks.
+
+The analysis reveals a mixed security posture. While foundational controls like Multi-Factor Authentication (MFA) are in place for email and computer access, significant and critical gaps exist. Key findings include:
+\begin{itemize}
+    \item \textbf{Systemic Service Exposure:} A network scan identified an open Remote Desktop Protocol (RDP) port on a new host (\texttt{10.10.10.51}). When correlated with existing risk data, this indicates a pattern of insecure RDP exposure across multiple systems, presenting a critical vector for ransomware and unauthorized access.
+    \item \textbf{Critical Administrative Gaps:} The organization lacks mandatory MFA for sensitive data systems. This, combined with the RDP exposure, creates a high-impact risk scenario.
+    \item \textbf{Policy Deficiencies:} The absence of an employee acceptable use policy and a formal security training program for new hires creates a significant risk from insider threats, whether malicious or unintentional.
+\end{itemize}
+
+Immediate remediation is required to address the exposed RDP services and enforce MFA on critical systems. Strategic initiatives should focus on developing and implementing foundational security policies and training programs to build a more resilient security culture.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} Modern Myth
+    \item \textbf{Email Domain:} \texttt{ModernMyth.org}
+    \item \textbf{Website Domain:} \url{www.ModernMyth.org}
+    \item \textbf{External IP Address:} \seqsplit{\texttt{220.18.232.164}}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+An administrative review was conducted based on a security questionnaire. The results below highlight the current state of key security controls. Answers marked with \ding{55} represent significant gaps that increase organizational risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\begin{tabular}{p{0.75\linewidth} c}
+\toprule
+\rowcolor{tableheader}
+\textcolor{white}{\textbf{Control Question}} & \textcolor{white}{\textbf{Status}} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+\rowcolor{rowcolor}
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \textbf{\color{red}\ding{55}} \\
+\rowcolor{rowcolor}
+Does your organization have an employee acceptable use policy? & \textbf{\color{red}\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textbf{\color{red}\ding{55}} \\
+\rowcolor{rowcolor}
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{Lack of MFA for Sensitive Systems:} This is a critical deficiency. Without MFA, a compromised password is all an attacker needs to gain access to the organization's most valuable data.
+    \item \textbf{No Acceptable Use Policy (AUP):} An AUP is a foundational document that sets clear expectations for employee behavior when using company resources. Its absence can lead to inconsistent security practices and difficulty in enforcing security rules.
+    \item \textbf{No Onboarding Security Training:} New employees are often prime targets for social engineering attacks. Failing to provide immediate security training leaves the organization vulnerable during an employee's initial, high-risk period.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\subsection{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.10.10.51}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+\subsection{Open Ports Discovered}
+The following table details the open ports discovered on the target host.
+\begin{table}[h!]
+\centering
+\caption{Open Ports on \texttt{10.10.10.51}}
+\label{tab:nmap}
+\begin{tabular}{c c l l}
+\toprule
+\rowcolor{tableheader}
+\textcolor{white}{\textbf{Port}} & \textcolor{white}{\textbf{State}} & \textcolor{white}{\textbf{Service Name}} & \textcolor{white}{\textbf{Risk Analysis}} \\
+\midrule
+3389/tcp & Open & \texttt{ms-wbt-server} & \textbf{Critical}. This is the port for Remote Desktop Protocol (RDP). \\
+& & & Exposed RDP is a primary target for brute-force attacks and \\
+& & & is a common entry point for ransomware deployment. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk documentation into a unified list of current risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{0.2\linewidth} p{0.55\linewidth} p{0.15\linewidth}}
+\toprule
+\rowcolor{tableheader}
+\textcolor{white}{\textbf{Risk Name}} & \textcolor{white}{\textbf{Description}} & \textcolor{white}{\textbf{Severity}} \\
+\midrule
+\textbf{Systemic RDP Exposure} & RDP is exposed on host \texttt{10.10.10.51} (new finding) and \texttt{10.10.10.50} (existing risk). This pattern suggests a systemic configuration issue. & \textbf{Critical} \\
+\rowcolor{rowcolor}
+\textbf{No MFA on Sensitive Systems} & Lack of a second authentication factor on critical data systems allows for single-point-of-failure via password compromise. & \textbf{Critical} \\
+\textbf{No Acceptable Use Policy} & Absence of a formal AUP leads to inconsistent security practices and a lack of enforceable rules for employees. & \textbf{High} \\
+\rowcolor{rowcolor}
+\textbf{No New Hire Security Training} & New employees are not trained on security best practices upon joining, creating a window of high vulnerability. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks and improve the overall security posture of \textbf{Modern Myth}.
+
+\subsection{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Remediate RDP Exposure on \texttt{10.10.10.51} and \texttt{10.10.10.50}:}
+    \begin{itemize}
+        \item \textbf{Primary Fix:} If RDP access is required, place the systems behind a Virtual Private Network (VPN) that requires Multi-Factor Authentication. This removes the direct exposure from the network.
+        \item \textbf{Alternative Fix:} If a VPN is not immediately feasible, configure firewall rules to restrict RDP access (port 3389) to only known, trusted IP addresses. Do not leave it open.
+    \end{itemize}
+    \item \textbf{Enforce MFA on All Sensitive Data Systems:} Immediately deploy and mandate the use of MFA for all accounts (especially administrative) that can access sensitive or critical business data.
+\end{enumerate}
+
+\subsection{High Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item Draft a formal AUP that clearly defines rules for using company technology, data handling, password requirements, and consequences for violation.
+        \item Require all current and new employees to read and formally acknowledge the policy.
+    \end{itemize}
+    \item \textbf{Integrate Security Training into Employee Onboarding:}
+    \begin{itemize}
+        \item Create a mandatory security awareness training module for all new hires to be completed within their first week.
+        \item This training should cover topics such as phishing, password security, data handling, and the new AUP.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Strategic Recommendations}
+\begin{enumerate}
+    \setcounter{enumi}{4} % Continue numbering
+    \item \textbf{Conduct a Comprehensive Internal Vulnerability Scan:} The discovery of a second exposed RDP host suggests there may be other undiscovered vulnerabilities. A full internal network scan should be conducted to create a complete picture of the internal attack surface.
+    \item \textbf{Establish a Formal Risk Management Program:} Move from ad-hoc risk tracking to a structured program for identifying, assessing, and mitigating risks on an ongoing basis.
+\end{enumerate}
+
+\end{document}
+```

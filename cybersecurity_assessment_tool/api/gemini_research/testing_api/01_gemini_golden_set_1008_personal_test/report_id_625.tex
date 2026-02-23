@@ -1,0 +1,151 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Custom Commands
+\newcommand{\yes}{\ding{51}} % Checkmark
+\newcommand{\no}{\ding{55}}  % Cross
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Overview ---
+\section{Executive Overview}
+This report details the findings of a cybersecurity posture assessment for \textbf{Nebula Creative}, conducted on November 22, 2025. The assessment combined a review of organizational security controls, an external network scan, and an analysis of pre-existing risks.
+
+The organization demonstrates a strong commitment to identity and access management, with multi-factor authentication (MFA) consistently enforced across email, workstations, and sensitive systems. However, significant gaps were identified in administrative controls and technical security posture.
+
+Key findings include critical deficiencies in security governance, specifically the absence of an employee Acceptable Use Policy and a lack of annual security awareness training for all staff. Furthermore, the external network scan revealed a public-facing web server running an outdated and vulnerable version of Nginx (1.18.0), posing a direct threat to the organization's data and reputation.
+
+This report outlines these risks in detail and provides actionable recommendations to mitigate them, thereby strengthening the overall security posture of \textbf{Nebula Creative}.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Nebula Creative} \\
+Email Domain & \texttt{NebulaCreative.com} \\
+Website Domain & \url{www.NebulaCreative.com} \\
+External IP Address & \texttt{85.154.66.41} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of administrative and procedural security controls was conducted based on a standardized questionnaire. The results highlight a mix of mature controls and significant gaps.
+
+\begin{tabular}{@{}p{0.75\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \yes \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \no \\
+Does your organization do security awareness training for new employees? & \yes \\
+Does your organization do security awareness training for all employees at least once per year? & \no \\
+\bottomrule
+\end{tabular}
+
+\subsection*{Analysis}
+\textbf{Strengths:} The consistent implementation of Multi-Factor Authentication (MFA) across critical assets is a commendable security practice that significantly reduces the risk of unauthorized access via compromised credentials.
+
+\textbf{Weaknesses:} The absence of a formal Acceptable Use Policy (AUP) and the lack of recurring, annual security awareness training are critical administrative gaps. An AUP is essential for setting clear expectations for employee behavior on corporate networks, while ongoing training is vital for defending against evolving threats like phishing and social engineering.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An Nmap scan was performed against the target host \texttt{192.168.10.5} to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+    \item \textbf{Target IP:} \texttt{192.168.10.5}
+\end{itemize}
+
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & open & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+
+\subsection*{Analysis}
+The scan identified a single open port, 443 (HTTPS), which is standard for a web server. The server is running \textbf{Nginx version 1.18.0}. This version was released in April 2020 and is now considered outdated. It is known to be affected by multiple publicly disclosed vulnerabilities, including but not limited to CVE-2021-23017. Running outdated software on an internet-facing server presents a high risk of compromise.
+
+% --- 5. Risk Assessment ---
+\section{Risk Assessment}
+The following table synthesizes findings from the security control review and the technical scan. No pre-existing risks were provided for this assessment.
+
+\begin{tabular}{@{}lp{0.3\textwidth}p{0.4\textwidth}l@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+RISK-001 & Lack of Acceptable Use Policy & Without a formal policy, employees may unintentionally misuse company assets or introduce security risks. This creates legal and operational ambiguity. & \textbf{High} \\
+\addlinespace
+RISK-002 & Insufficient Security Awareness Training & The lack of mandatory annual training leaves employees ill-equipped to recognize and respond to modern cyber threats, increasing susceptibility to phishing and malware. & \textbf{High} \\
+\addlinespace
+RISK-003 & Outdated Web Server Software & The Nginx server (v1.18.0) on host \texttt{192.168.10.5} is outdated and has known vulnerabilities, making it a prime target for automated attacks and potential compromise. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the organization's overall security posture.
+
+\subsection*{Recommendation for RISK-001: Lack of Acceptable Use Policy}
+\begin{itemize}
+    \item \textbf{Action:} Develop, approve, and implement a formal Acceptable Use Policy (AUP) for all employees and contractors.
+    \item \textbf{Details:} The policy should clearly define the rules for using company networks, devices, and data. It must be communicated to all staff and acknowledged via signature.
+    \item \textbf{Priority:} High
+\end{itemize}
+
+\subsection*{Recommendation for RISK-002: Insufficient Security Training}
+\begin{itemize}
+    \item \textbf{Action:} Establish a mandatory, annual security awareness training program for all employees.
+    \item \textbf{Details:} The program should cover current threats such as phishing, ransomware, password hygiene, and social engineering. Consider incorporating periodic phishing simulations to test and reinforce the training.
+    \item \textbf{Priority:} High
+\end{itemize}
+
+\subsection*{Recommendation for RISK-003: Outdated Web Server Software}
+\begin{itemize}
+    \item \textbf{Action:} Upgrade the Nginx software on the public-facing server at \texttt{192.168.10.5}.
+    \item \textbf{Details:} Plan and execute an upgrade of Nginx from version 1.18.0 to the latest stable version. Prior to the upgrade, perform a full backup and test the new version in a staging environment to ensure compatibility with the web application.
+    \item \textbf{Priority:} High
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,192 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmarks and crosses (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For clickable links and table of contents
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % To split long strings in texttt
+\usepackage{graphicx}             % For logos, etc.
+\usepackage[table]{xcolor}        % For coloring table cells
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define colors for risk levels
+\definecolor{criticalred}{HTML}{D10000}
+\definecolor{highorange}{HTML}{E57300}
+\definecolor{mediumyellow}{HTML}{FFBF00}
+\definecolor{lowgreen}{HTML}{008000}
+
+% Custom command for severity text color
+\newcommand{\severity}[2]{\colorbox{#1}{\textcolor{white}{\textbf{\strut\ #2\ }}}}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Posture Assessment Report}}
+    \vspace{1.5cm}
+    \large{\textbf{Prepared for:}}
+    \vspace{0.5cm}
+    \Large{Blackwood Industries}
+    \vspace{2cm}
+    \rule{\linewidth}{0.5mm}
+    \vspace{0.5cm}
+    \begin{center}
+        \large{This report contains a summary of findings from a security review conducted on the date specified below. It includes an analysis of organizational security controls, technical network scans, and a correlated risk assessment with actionable recommendations.}
+    \end{center}
+    \vspace{0.5cm}
+    \rule{\linewidth}{0.5mm}
+    \vfill
+    \large{\textbf{Date of Report:}}
+    \vspace{0.2cm}
+    \large{\today}
+\end{titlepage}
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity assessment for Blackwood Industries. The assessment combined a review of organizational security controls via a questionnaire, an external network scan, and an analysis of known risks.
+
+The overall security posture is considered \textbf{critically weak} and requires immediate attention. The most severe findings relate to a complete lack of Multi-Factor Authentication (MFA) across all critical systems, including email, endpoints, and sensitive data repositories. This gap significantly increases the risk of unauthorized access and account compromise.
+
+Furthermore, foundational security practices are missing, such as an employee Acceptable Use Policy (AUP) and security awareness training for new hires. These policy and training gaps create an environment where employees may unknowingly introduce risk to the organization.
+
+A technical scan identified an externally exposed Secure Shell (SSH) service. While not inherently a vulnerability, its exposure, combined with the lack of MFA, presents a tangible pathway for attackers.
+
+Immediate remediation should focus on implementing MFA, developing core security policies, and hardening the externally-facing network perimeter.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & Blackwood Industries \\
+Email Domain & \texttt{BlackwoodIndustries.com} \\
+Website Domain & \url{www.BlackwoodIndustries.com} \\
+Known External IP & \texttt{182.192.189.16} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\label{tab:org_info}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the responses to the security controls questionnaire. A checkmark (\ding{51}) indicates a positive control is in place, while a cross (\ding{55}) indicates a control gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{55} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The questionnaire reveals critical deficiencies in fundamental security controls. The absence of MFA for email, computer logins, and sensitive data access is the most urgent issue. This exposes the organization to significant risk from credential theft and phishing attacks. Additionally, the lack of an Acceptable Use Policy and security training for new hires indicates a reactive rather than proactive approach to cybersecurity culture.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the specified target to identify open ports and exposed services.
+
+\subsection*{Scan Target: \texttt{2001:db8::1}}
+The scan revealed the following open port on the target IPv6 address.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Likely)} & \textbf{Notes} \\ \midrule
+22/tcp & open & SSH & Secure Shell remote administration protocol. \\
+& & & No version information was obtained. \\ \bottomrule
+\end{tabular}
+\caption{Open Ports on \texttt{2001:db8::1}}
+\label{tab:nmap_results}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The presence of an open SSH port (22) indicates that a system is configured for remote administration from the internet. If this service is not properly hardened (e.g., using weak passwords instead of cryptographic keys, running an outdated version), it can serve as a primary entry point for an attacker. This finding's risk is elevated due to the organization-wide lack of MFA.
+
+% --- Section 5: Risk Assessment Summary ---
+\section{Risk Assessment Summary}
+The following table synthesizes findings from the security control review and technical scans into a prioritized list of identified risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{@{}p{0.1\linewidth} p{0.25\linewidth} p{0.15\linewidth} p{0.4\linewidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\ \midrule
+RISK-001 & Widespread Lack of Multi-Factor Authentication (MFA) & \severity{criticalred}{Critical} & The absence of MFA on all critical systems (email, endpoints, data) allows an attacker with valid credentials to gain unauthorized access without any additional challenge. \\
+\addlinespace
+RISK-002 & Missing Foundational Security Policies & \severity{highorange}{High} & The lack of an Acceptable Use Policy (AUP) creates ambiguity for employees regarding secure behavior and exposes the organization to insider threats and legal liabilities. \\
+\addlinespace
+RISK-003 & Inadequate Employee Onboarding Security Training & \severity{highorange}{High} & New employees are not receiving security awareness training, making them highly susceptible to phishing and social engineering attacks from their first day. \\
+\addlinespace
+RISK-004 & Exposed SSH Management Interface & \severity{mediumyellow}{Medium} & An SSH service is exposed to the public internet. This increases the attack surface and could lead to a system compromise if not securely configured and monitored. \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risk_summary}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of Blackwood Industries.
+
+\subsection*{Immediate Priority}
+\begin{itemize}
+    \item \textbf{RISK-001 - Implement MFA:} Immediately begin a phased rollout of MFA across the organization.
+    \begin{itemize}
+        \item \textbf{Phase 1:} Enforce MFA for all email accounts and for all administrative/privileged user accounts on all systems.
+        \item \textbf{Phase 2:} Enforce MFA for access to all systems containing sensitive data.
+        \item \textbf{Phase 3:} Enforce MFA for all standard user computer logins.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{High Priority}
+\begin{itemize}
+    \item \textbf{RISK-002 - Develop and Implement an AUP:} Draft, approve, and communicate an official Acceptable Use Policy for all employees. This policy should clearly define rules for using company assets, data handling, and internet usage.
+    \item \textbf{RISK-003 - Integrate Security into Onboarding:} Develop a mandatory security awareness training module and integrate it into the new employee onboarding process. This training should cover phishing, password security, and the new AUP.
+\end{itemize}
+
+\subsection*{Medium Priority}
+\begin{itemize}
+    \item \textbf{RISK-004 - Harden Exposed SSH Service:}
+    \begin{itemize}
+        \item If remote access is not required, disable the service or block port 22 at the firewall.
+        \item If required, restrict access to a whitelist of trusted IP addresses.
+        \item Disable password-based authentication and enforce the use of strong SSH cryptographic keys only.
+        \item Ensure the SSH server software is fully patched and running the latest stable version.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

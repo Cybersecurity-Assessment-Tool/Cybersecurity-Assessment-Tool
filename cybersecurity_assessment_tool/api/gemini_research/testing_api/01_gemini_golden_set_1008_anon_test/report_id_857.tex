@@ -1,0 +1,153 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For check and cross marks
+\usepackage{booktabs} % For professional tables
+\usepackage{xcolor} % For colors
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Document Metadata
+\title{Cybersecurity Assessment Report \\ \large for \textbf{[Organization Name]}}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+
+\tableofcontents
+
+\newpage
+
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The analysis synthesized data from a network scan, a security controls questionnaire, and a list of pre-existing risks.
+
+A \textbf{critical risk} was identified: the direct exposure of a Remote Desktop Protocol (RDP) service on the public internet at \texttt{[Client IP]}. This vulnerability is a primary vector for ransomware attacks and unauthorized access.
+
+This technical flaw is significantly amplified by critical gaps in organizational security controls. The lack of mandatory Multi-Factor Authentication (MFA) for accessing email and sensitive data systems means that a single compromised password could lead to a full system breach. Furthermore, the absence of a formal Acceptable Use Policy indicates a gap in security governance.
+
+Immediate action is required to remediate the exposed RDP service and implement foundational security controls to protect the organization's assets and data.
+
+\section{Organizational Information}
+
+The following details were used as the basis for this assessment. Anonymized placeholders are used where data was not provided.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \texttt{[Domain]} \\
+External IP Address Assessed & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\end{table}
+
+\section{Security Control Review}
+
+An assessment of organizational security controls was performed based on a supplied questionnaire. The following table summarizes the responses and provides an analyst's assessment of each control's status. Gaps in these controls often increase the likelihood and impact of technical vulnerabilities.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} & \textbf{Assessment} \\ \midrule
+Do you require MFA to access email? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to log into computers? & \ding{51} & Control in Place \\
+Do you require MFA to access sensitive data systems? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+Does your organization have an employee AUP? & \ding{55} & \textcolor{orange}{High Risk Policy Gap} \\
+Security awareness training for new employees? & \ding{51} & Control in Place \\
+Annual security awareness training for all employees? & \ding{51} & Control in Place \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\end{table}
+
+\section{Technical Scan Results}
+
+An external network scan was performed against the target IP address. The scan identified the following open ports and services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Assumed to be current as of this report.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port/Proto} & \textbf{State} & \textbf{Service} & \textbf{Analysis} \\ \midrule
+3389/tcp & open & ms-wbt-server & Microsoft Remote Desktop Protocol \\ \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\label{tab:nmap}
+\end{table}
+
+\subsection{Analysis of Findings}
+The scan confirms that port 3389/TCP, used for Remote Desktop Protocol (RDP), is open to the public internet. RDP is a common target for brute-force password attacks and exploitation of vulnerabilities. Exposing this service directly to the internet is a critical security risk and is strongly discouraged by cybersecurity best practices. This finding corroborates the pre-existing "RDP Exposure" risk identified in Input 3.
+
+\section{Consolidated Risk Assessment}
+
+The following table correlates findings from the security control review, the technical scan, and pre-existing risk data to provide a consolidated view of the primary risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.15\linewidth}p{0.5\linewidth}p{0.15\linewidth}@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Description} & \textbf{Severity} \\ \midrule
+\textbf{RISK-001} & \textbf{Publicly Exposed RDP Service:} The RDP service on \texttt{[Client IP]} is accessible from the internet, creating a high risk of unauthorized access and ransomware. & \textbf{Critical (9.0)} \\
+\addlinespace
+\textbf{RISK-002} & \textbf{No MFA on Email:} Lack of MFA on email makes business email compromise (BEC) and account takeovers trivial if user credentials are stolen. & \textbf{Critical} \\
+\addlinespace
+\textbf{RISK-003} & \textbf{No MFA on Sensitive Data Systems:} The absence of MFA on critical systems means that a single compromised password could lead to a major data breach. & \textbf{Critical} \\
+\addlinespace
+\textbf{RISK-004} & \textbf{No Employee Acceptable Use Policy (AUP):} Without a formal AUP, there is no enforceable standard for user behavior, increasing the risk of insider threat and accidental data loss. & \textbf{High} \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+\section{Recommendations}
+
+The following prioritized recommendations are provided to mitigate the identified risks.
+
+\subsection{Priority 1: Immediate Remediation (Now)}
+\begin{enumerate}
+    \item \textbf{Remediate RDP Exposure (RISK-001):} Immediately block all inbound traffic to port 3389/TCP on the external firewall for \texttt{[Client IP]}. If remote access is essential, restrict access to a whitelist of known, trusted source IP addresses as a temporary measure.
+\end{enumerate}
+
+\subsection{Priority 2: Short-Term Remediation (Next 30 Days)}
+\begin{enumerate}
+    \item \textbf{Implement MFA on Critical Systems (RISK-002, RISK-003):} Enforce MFA for all users on all external-facing services, especially email. Develop a plan to roll out MFA to all sensitive internal data systems.
+\end{enumerate}
+
+\subsection{Priority 3: Mid-Term Remediation (Next 90 Days)}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an AUP (RISK-004):} Create a formal Acceptable Use Policy that defines the rules and responsibilities for all employees when using company IT assets. Ensure all employees read and acknowledge the policy.
+\end{enumerate}
+
+\subsection{Priority 4: Long-Term Strategy (Next 6 Months)}
+\begin{enumerate}
+    \item \textbf{Deploy a Secure Remote Access Solution (RISK-001):} Replace direct RDP access with a modern, secure remote access solution, such as a Virtual Private Network (VPN) or a Zero Trust Network Access (ZTNA) gateway. This provides an encrypted, authenticated, and audited channel for all remote administration.
+\end{enumerate}
+
+\end{document}
+```

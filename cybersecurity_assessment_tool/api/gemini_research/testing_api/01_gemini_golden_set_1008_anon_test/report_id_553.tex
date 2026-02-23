@@ -1,0 +1,157 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{xcolor} % For colors
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{[Organization Name]}, conducted on November 22, 2025. The analysis is based on a synthesis of network scan data, a review of organizational security controls, and an evaluation of known risks.
+
+The assessment reveals a mixed security posture. The organization demonstrates strong foundational controls in Multi-Factor Authentication (MFA) across key systems, which significantly reduces the risk of unauthorized access. However, two high-risk areas of concern were identified that require immediate attention:
+
+\begin{enumerate}
+    \item \textbf{Procedural Gap:} A critical gap exists in the employee onboarding process, as new hires do not receive mandatory security awareness training. This oversight exposes the organization to a heightened risk of social engineering, phishing attacks, and unintentional policy violations.
+    \item \textbf{Technical Vulnerability:} The external-facing web server at \texttt{[Target IP]} is running Nginx version 1.18.0. This software version is outdated and no longer receives security support, leaving it exposed to numerous publicly known vulnerabilities that could be exploited by attackers to compromise the system.
+\end{enumerate}
+
+While the organization has no previously documented vulnerabilities, these new findings present a tangible threat. The overall risk level is assessed as \textbf{High}. This report provides detailed findings and actionable recommendations to mitigate these risks and enhance the organization's overall security resilience.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+This section details the organizational information used as the basis for this assessment. The data has been anonymized as per the engagement protocol.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+Known External IP & \texttt{[Client IP]} \\
+Target IP Scanned & \texttt{[Target IP]} \\
+Assessment Date & November 22, 2025 \\ \bottomrule
+\end{tabular}
+\caption{Organizational and Assessment Details.}
+\end{label{tab:org_info}
+\end{table}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of administrative and procedural security controls was conducted via a standardized questionnaire. The responses indicate the current state of implemented policies. Findings are summarized in Table \ref{tab:controls}. A checkmark (\ding{51}) indicates a positive control is in place, while a cross (\ding{55}) highlights a control gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.7\textwidth}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & Yes & \textcolor{green}{\ding{51}} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textbf{No} & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & Yes & \textcolor{green}{\ding{51}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results.}
+\label{tab:controls}
+\end{table}
+
+\paragraph{Analysis:} The lack of security awareness training for new employees is a critical gap. New staff are often prime targets for phishing and social engineering attacks. Without initial training on company security policies and threat identification, they represent a significant weak point in the organization's human firewall.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services on the public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+The scan identified the following open port:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product \& Version} \\ \midrule
+443/tcp & Open & HTTPS & Nginx 1.18.0 \\ \bottomrule
+\end{tabular}
+\caption{Open Ports and Services Detected on \texttt{[Target IP]}.}
+\label{tab:scan_results}
+\end{table}
+
+\paragraph{Analysis:} The scan confirms that a web server is publicly accessible on port 443 (HTTPS). The server identifies itself as \textbf{Nginx version 1.18.0}, which was released in April 2020. This version is significantly outdated and has reached its end-of-life for security patches. Running unsupported software on an internet-facing server exposes the organization to a wide range of publicly disclosed vulnerabilities (CVEs) that could lead to remote code execution, denial of service, or information disclosure.
+
+% --- 5. Risk Assessment ---
+\section{Risk Assessment}
+
+This section consolidates all identified risks from the procedural and technical analyses. Each risk is assigned a severity level based on its potential impact and likelihood of exploitation.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.3\textwidth}p{0.4\textwidth}l@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\ \midrule
+RISK-001 & Lack of New Employee Security Training & New hires do not receive security awareness training, making them susceptible to social engineering and policy violations. This increases the likelihood of a security incident originating from human error. & High \\
+\addlinespace
+RISK-002 & Outdated Web Server Software & The external-facing web server is running Nginx 1.18.0, an outdated version with multiple known, unpatched vulnerabilities. This poses a direct risk of system compromise. & High \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\label{tab:risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\begin{enumerate}
+    \item \textbf{Implement Onboarding Security Training (Addresses RISK-001):}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and integrate a mandatory security awareness training module into the new employee onboarding process.
+        \item \textbf{Details:} The training should cover, at a minimum: acceptable use of company assets, phishing and social engineering awareness, password and MFA policies, and procedures for reporting security incidents. This will ensure all new personnel understand their security responsibilities from day one.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Upgrade Nginx Web Server (Addresses RISK-002):}
+    \begin{itemize}
+        \item \textbf{Action:} Plan and execute an upgrade of the Nginx server from version 1.18.0 to the latest stable version.
+        \item \textbf{Details:} A patch management and upgrade plan should be developed immediately. The upgrade must first be tested in a non-production (staging) environment to verify application compatibility and prevent service disruption. Continuous monitoring for future security updates should be implemented.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

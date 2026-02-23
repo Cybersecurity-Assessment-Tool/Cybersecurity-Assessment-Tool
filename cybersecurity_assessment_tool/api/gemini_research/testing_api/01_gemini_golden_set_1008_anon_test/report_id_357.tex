@@ -1,0 +1,160 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[hidelinks]{hyperref} % For clickable links without boxes
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- DOCUMENT DEFINITIONS ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\definecolor{darkorange}{rgb}{0.8, 0.33, 0.0}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \large
+    \begin{tabular}{ll}
+        \textbf{Client:} & \textbf{[Organization Name]} \\
+        \textbf{Date of Report:} & \today \\
+        \textbf{Author:} & Cybersecurity Analyst \\
+    \end{tabular}
+    \vfill
+    \small
+    \textbf{CONFIDENTIAL} \\
+    \textit{This document contains sensitive information intended only for the designated recipient. Unauthorized distribution is prohibited.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section*{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on a synthesis of network scan data, a security controls questionnaire, and a review of pre-existing risk documentation.
+
+The assessment has identified several critical and high-risk vulnerabilities that require immediate attention. The most severe finding is an exposed network service on port 8080 with a title indicating it is a \textbf{"TOP SECRET DB"}. This finding directly contradicts previous risk assessments which incorrectly labeled this port as secure. This discrepancy points to a significant gap in the risk validation process.
+
+Furthermore, the organization lacks mandatory Multi-Factor Authentication (MFA) for email and computer logins. This exposes the organization to a high risk of account compromise and unauthorized access, which is severely compounded by the presence of the exposed database service.
+
+Immediate remediation of the exposed service and the rapid implementation of MFA are paramount to mitigating the significant risk of a data breach.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section*{Organizational Information}
+
+The following details were used as the basis for this assessment. Placeholder values are used where data was not provided.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \texttt{[Domain]} \\
+    External IP Address Scanned & \texttt{[Client IP]} \\
+    Target IP Address Analyzed & \texttt{[Target IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section*{Security Control Review (Questionnaire Analysis)}
+
+The following table summarizes the organization's self-reported security controls. "No" answers indicate significant gaps in the security framework and are highlighted as key risk areas.
+
+\begin{tabular}{p{0.6\linewidth} c p{0.25\linewidth}}
+    \toprule
+    \textbf{Control Question} & \textbf{Status} & \textbf{Analyst Note} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{darkred}{\no} & \textbf{High Risk.} Email is a primary vector for phishing and account takeover. \\
+    Do you require MFA to log into computers? & \textcolor{darkred}{\no} & \textbf{High Risk.} Lack of endpoint MFA allows for easier lateral movement after a credential compromise. \\
+    Do you require MFA to access sensitive data systems? & \yes & Good. However, its effectiveness is reduced by the lack of MFA on email/endpoints. \\
+    Does your organization have an employee acceptable use policy? & \yes & Foundational policy is in place. \\
+    Does your organization do security awareness training for new employees? & \yes & Good practice for onboarding. \\
+    Does your organization do security awareness training for all employees at least once per year? & \yes & Good practice for maintaining awareness. \\
+    \bottomrule
+\end{tabular}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section*{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services. The results reveal a critical exposure.
+
+\begin{tabular}{@{}llll}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service/Script} & \textbf{Finding / Note} \\
+    \midrule
+    8080/tcp & OPEN & http-title & The service returned a title: \textbf{"TOP SECRET DB"}. \\
+    & & & \textit{This is a critical information disclosure vulnerability.} \\
+    & & & \textit{It suggests a database or management interface is} \\
+    & & & \textit{publicly exposed and improperly configured.} \\
+    \bottomrule
+\end{tabular}
+
+\subsection*{Contradiction with Existing Risk Data}
+The pre-existing risk documentation (\texttt{Input\_3\_Current\_Risks\_JSON}) states that port 8080 is "confirmed secure and false positive" with a CVSS score of 0.0. Our active scan proves this assessment is \textbf{incorrect and outdated}. The service is live, exposed, and reveals sensitive information. This indicates a failure in the risk management and validation lifecycle.
+
+% --- RISK ASSESSMENT SUMMARY ---
+\section*{Risk Assessment Summary}
+
+The following table synthesizes findings from the questionnaire, technical scan, and existing risk data into a prioritized list of current risks.
+
+\begin{tabular}{p{0.25\linewidth} p{0.15\linewidth} p{0.5\linewidth}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Severity} & \textbf{Overview} \\
+    \midrule
+    \textbf{Exposed Sensitive Service on Port 8080} & \textcolor{darkred}{\textbf{CRITICAL}} & An active service on port 8080 identifies itself as "TOP SECRET DB". This presents an immediate and severe risk of a data breach. \\
+    \addlinespace
+    \textbf{Lack of MFA for Email and Endpoints} & \textcolor{darkorange}{\textbf{HIGH}} & The absence of MFA on core systems like email and workstations makes the organization highly susceptible to credential theft, phishing, and subsequent unauthorized access. \\
+    \addlinespace
+    \textbf{Inaccurate Risk Assessment Process} & \textbf{MEDIUM} & The previous assessment incorrectly closed a critical risk on port 8080. This indicates a flawed validation process that could be hiding other unidentified threats. \\
+    \bottomrule
+\end{tabular}
+
+% --- RECOMMENDATIONS ---
+\section*{Recommendations}
+
+Based on the analysis, the following actions are recommended to mitigate the identified risks. Recommendations are prioritized by severity.
+
+\subsection*{Immediate Actions (To be completed within 72 hours)}
+\begin{itemize}
+    \item \textbf{Investigate and Remediate Port 8080:}
+    \begin{itemize}
+        \item Immediately identify the system and application running on port 8080 on host \texttt{[Target IP]}.
+        \item If the service is not intended for public access, block it at the firewall immediately.
+        \item If the service is required, restrict access to authorized IP addresses only (e.g., via a VPN).
+        \item Remove or change the "TOP SECRET DB" title to prevent information disclosure.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{High-Priority Actions (To be completed within 30 days)}
+\begin{itemize}
+    \item \textbf{Deploy Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item Enable and enforce MFA for all users on the primary email system (\texttt{[Domain]}).
+        \item Implement an MFA solution for all computer/workstation logins (e.g., Windows Hello for Business, Duo, etc.).
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Process Improvement Recommendations}
+\begin{itemize}
+    \item \textbf{Review Risk Management Procedures:}
+    \begin{itemize}
+        \item Conduct a full review of the process for validating and closing security risks.
+        \item Ensure that all risk closures, especially those marked as "false positive," are independently verified with technical evidence.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

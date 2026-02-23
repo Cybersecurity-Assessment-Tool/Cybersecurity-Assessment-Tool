@@ -1,0 +1,144 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % Required for \ding{51} (checkmark) and \ding{55} (cross)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For creating hyperlinks within the document
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long, unbreakable strings like hashes or IPs
+\usepackage[T1]{fontenc}
+\usepackage{array} % For custom table column types
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report \\ \large For: \textbf{Infinity Loop}}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{Infinity Loop}, conducted on \today. The analysis is based on a synthesis of external network scanning, a review of organizational security controls, and an evaluation of pre-existing risk data.
+
+The assessment has identified several critical and high-risk vulnerabilities that require immediate attention. The most severe findings include:
+\begin{itemize}
+    \item \textbf{Critical FTP Vulnerability:} An externally accessible FTP server was discovered on the network at \texttt{10.0.0.15}. This server is running a dangerously outdated version of \texttt{vsftpd (2.3.4)}, which is known to contain a critical backdoor vulnerability (CVE-2011-2523). Furthermore, the server is configured to allow anonymous logins, posing a significant and immediate threat of unauthorized access and data breach.
+    \item \textbf{Critical Control Gap - MFA:} Multi-Factor Authentication (MFA) is not enforced for accessing sensitive data systems. This gap significantly increases the risk of unauthorized access to the organization's most critical assets should user credentials be compromised.
+    \item \textbf{High-Risk Control Gap - Training:} The organization does not conduct mandatory annual security awareness training for all employees. This oversight leaves the organization vulnerable to social engineering, phishing, and other human-centric attacks.
+\end{itemize}
+
+This report details these findings and provides prioritized, actionable recommendations to mitigate the identified risks and strengthen the overall security posture of \textbf{Infinity Loop}.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Infinity Loop} \\
+    Primary Email Domain & \texttt{InfinityLoop.com} \\
+    Primary Website Domain & \texttt{www.InfinityLoop.com} \\
+    External IP Address & \texttt{200.51.209.5} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight key areas of strength and weakness in the current security policy framework. "No" answers indicate significant gaps that increase organizational risk.
+
+\begin{tabular}{@{}p{0.6\textwidth} c p{0.25\textwidth}@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Analyst Notes} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} & Good practice. Protects primary communication channel. \\
+    \addlinespace
+    Do you require MFA to log into computers? & \ding{51} & Strong endpoint security control. \\
+    \addlinespace
+    Do you require MFA to access sensitive data systems? & \textbf{\color{red}\ding{55}} & \textbf{Critical Risk.} Lack of MFA on critical systems is a major security gap. \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \ding{51} & Foundational policy is in place. \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & \ding{51} & Good onboarding practice. \\
+    \addlinespace
+    Does your organization do security awareness training for all employees at least once per year? & \textbf{\color{red}\ding{55}} & \textbf{High Risk.} Security skills decay; ongoing training is essential to defend against evolving threats. \\
+    \bottomrule
+\end{tabular}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.0.0.15}
+\end{itemize}
+
+\subsection{Open Ports and Services}
+The following table details the services discovered during the scan.
+
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} & \textbf{Analyst Notes} \\
+    \midrule
+    21/tcp & Open & ftp & vsftpd 2.3.4 & \parbox[t]{0.4\textwidth}{\textbf{Critical Finding.} Anonymous FTP login is allowed. This version is extremely outdated (2011) and contains a known backdoor vulnerability (CVE-2011-2523).} \\
+    \bottomrule
+\end{tabular}
+
+% --- 5. Synthesized Risk Assessment ---
+\section{Synthesized Risk Assessment}
+
+The following table correlates findings from the technical scan, control review, and pre-existing risk data into a unified risk register. Risks are prioritized by severity.
+
+\begin{tabular}{@{}p{0.05\textwidth} p{0.4\textwidth} p{0.15\textwidth} p{0.3\textwidth}@{}}
+    \toprule
+    \textbf{ID} & \textbf{Risk Description} & \textbf{Severity} & \textbf{Affected Elements} \\
+    \midrule
+    \textbf{R-01} & A publicly accessible FTP server (\texttt{vsftpd 2.3.4}) allows anonymous login and is vulnerable to a known remote code execution backdoor (CVE-2011-2523). & \textbf{Critical} & Network Infrastructure, Data Integrity, Server at \texttt{10.0.0.15} \\
+    \addlinespace
+    \textbf{R-02} & Sensitive data systems are not protected by Multi-Factor Authentication (MFA), relying solely on username/password credentials. & \textbf{Critical} & Sensitive Data, Core Business Systems, User Accounts \\
+    \addlinespace
+    \textbf{R-03} & The lack of a mandatory annual security awareness training program increases susceptibility to phishing, social engineering, and malware. & \textbf{High} & All Employees, Organizational Data \\
+    \addlinespace
+    \textbf{R-04} & (Pre-existing) Workstations are running Windows 7, an unsupported operating system that no longer receives security updates. & \textbf{Medium} & Employee Workstations, Endpoint Security \\
+    \bottomrule
+\end{tabular}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+Based on the synthesized risk assessment, the following actions are recommended to mitigate the identified vulnerabilities. Recommendations are prioritized to address the most critical issues first.
+
+\subsection{Immediate Actions (Within 72 Hours)}
+\begin{enumerate}
+    \item \textbf{Remediate FTP Server (R-01):} Immediately take the FTP server at \texttt{10.0.0.15} offline. If the service is business-critical, it must be upgraded to a modern, secure file transfer solution (e.g., SFTP) and placed behind a firewall with strict access controls. Anonymous access must be disabled permanently.
+\end{enumerate}
+
+\subsection{Short-Term Actions (Within 30 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Continue numbering
+    \item \textbf{Implement MFA for Sensitive Systems (R-02):} Enforce MFA across all systems identified as containing or providing access to sensitive data. This is the single most effective control to prevent credential-based attacks.
+    \item \textbf{Launch Annual Security Training (R-03):} Procure and schedule a mandatory security awareness training program for all current employees. Ensure this program is integrated into the annual calendar moving forward.
+\end{enumerate}
+
+\subsection{Ongoing and Long-Term Actions}
+\begin{enumerate}
+    \setcounter{enumi}{3} % Continue numbering
+    \item \textbf{Execute Windows Upgrade Plan (R-04):} Continue with the planned migration from Windows 7 to a modern, supported operating system (e.g., Windows 10/11) to eliminate risks associated with unsupported software.
+    \item \textbf{Establish Vulnerability Management Program:} Implement a formal process for regular network scanning, patch management, and security control reviews to proactively identify and remediate new vulnerabilities.
+\end{enumerate}
+
+\end{document}
+```

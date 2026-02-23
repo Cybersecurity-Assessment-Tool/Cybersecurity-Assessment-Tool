@@ -1,0 +1,154 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmark and X symbols (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For clickable links
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % For splitting long strings in texttt
+\usepackage[T1]{fontenc}          % Font encoding
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Cybersecurity, Risk Assessment, Network Scan}
+}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE OVERVIEW
+% ==============================================================================
+\section*{Executive Overview}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Silent Spring}, based on a technical network scan, a review of organizational security controls, and an analysis of pre-existing risks.
+
+The assessment reveals a mixed security posture. On a positive note, the external network scan of the target host indicates a strong perimeter defense, with no open ports detected. This suggests that the external-facing firewall is well-configured and effectively limits the attack surface.
+
+However, significant and critical gaps were identified in the organization's internal security controls. The absence of Multi-Factor Authentication (MFA) for email and computer logins represents a critical vulnerability. A single compromised password could grant an attacker widespread access, leading to potential data breaches, financial loss, and operational disruption. Furthermore, the lack of mandatory security awareness training for new employees creates a high-risk environment where individuals are more susceptible to social engineering and phishing attacks.
+
+Immediate remediation of these policy and procedural gaps is strongly recommended to reduce the overall risk profile of the organization.
+
+\vspace{1em}
+\hrule
+\vspace{2em}
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Silent Spring} \\
+Email Domain & \texttt{SilentSpring.com} \\
+Website Domain & \url{www.SilentSpring.com} \\
+External IP Address & \texttt{98.226.196.29} \\
+\bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_data}
+\end{table}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A review of internal security controls was conducted via a questionnaire. The findings below highlight critical areas requiring attention. A green checkmark (\ding{51}) indicates a positive control, while a red 'X' (\ding{55}) indicates a security gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\textwidth} c p{0.2\textwidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} & \textbf{Analyst Note} \\
+\midrule
+Do you require MFA to access email? & \ding{55} & \textbf{Critical Risk} \\
+Do you require MFA to log into computers? & \ding{55} & \textbf{High Risk} \\
+Do you require MFA to access sensitive data systems? & \ding{51} & Good Practice \\
+Does your organization have an employee acceptable use policy? & \ding{51} & Good Practice \\
+Does your organization do security awareness training for new employees? & \ding{55} & \textbf{High Risk} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Good Practice \\
+\bottomrule
+\end{tabular}
+\caption{Security Control Questionnaire Results}
+\label{tab:controls}
+\end{table}
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the specified target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.1.100}
+    \item \textbf{Host Status:} UP
+    \item \textbf{Scan Summary:} The scan confirmed that the host is online and responsive. However, \textbf{no open ports were detected}. All 1000 scanned ports were reported as 'closed'.
+    \item \textbf{Analysis:} This is a positive security finding. It indicates that the host is likely protected by a well-configured firewall that denies unsolicited incoming traffic, significantly reducing its exposure to network-based attacks. No vulnerabilities related to exposed services could be identified.
+\end{itemize}
+
+% ==============================================================================
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review and technical scan. While the technical scan was positive, the control gaps represent the most significant threats to the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\textwidth} p{0.5\textwidth} l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Email} & The absence of MFA on email accounts allows an attacker with stolen credentials to gain full access, leading to data exfiltration, business email compromise (BEC), and phishing of internal staff. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of MFA on Workstations} & Without MFA on computer logins, a compromised password can be used to access the corporate network, enabling lateral movement, ransomware deployment, and internal data theft. & \textbf{High} \\
+\addlinespace
+\textbf{No Security Training for New Hires} & New employees are a prime target for social engineering. Without initial training, they are more likely to fall victim to phishing attacks, inadvertently install malware, or mishandle sensitive data. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+Based on the consolidated risk assessment, the following actions are recommended to improve the organization's security posture. Recommendations are prioritized by severity.
+
+\begin{enumerate}
+    \item \textbf{Implement MFA for Email (Critical):} Immediately enforce MFA for all user accounts on the \texttt{SilentSpring.com} email domain. This is the single most effective control to prevent unauthorized account access and business email compromise.
+    \item \textbf{Enforce MFA for Endpoint Login (High):} Deploy and require MFA for all employee logins to company-issued computers and laptops. This adds a crucial layer of defense against credential theft and unauthorized network access.
+    \item \textbf{Establish New Hire Security Training (High):} Develop a mandatory security awareness training module to be completed by all new employees during their onboarding process. This training should cover key topics such as phishing identification, password hygiene, and the acceptable use policy.
+\end{enumerate}
+
+\end{document}
+```

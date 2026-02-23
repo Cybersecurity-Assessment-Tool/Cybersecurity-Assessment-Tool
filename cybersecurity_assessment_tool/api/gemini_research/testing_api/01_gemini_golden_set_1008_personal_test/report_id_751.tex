@@ -1,0 +1,172 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}                 % For checkmarks and crosses (\ding)
+\usepackage{booktabs}               % For professional-looking tables
+\usepackage{hyperref}               % For clickable links and metadata
+\usepackage{url}                    % For formatting URLs
+\usepackage{seqsplit}               % For splitting long strings without spaces
+
+% Document Metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment},
+    bookmarks=true
+}
+
+% --- Document Start ---
+\begin{document}
+
+% Title Block
+\title{
+    \textbf{Cybersecurity Posture Report} \\
+    \large For: True North Travel
+}
+\author{Cybersecurity Analyst}
+\date{\today}
+\maketitle
+
+\hrule
+\vspace{1em}
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+This report provides a comprehensive analysis of the cybersecurity posture for True North Travel, based on a combination of organizational data, a security controls questionnaire, and an external network scan.
+
+The assessment reveals several critical and high-risk security gaps that require immediate attention. The most significant concerns are the absence of Multi-Factor Authentication (MFA) for email and computer access, and a complete lack of a formal security awareness training program. These deficiencies create a high probability of successful phishing attacks, credential compromise, and subsequent unauthorized access to corporate systems.
+
+Furthermore, an external network scan identified an open Secure Shell (SSH) port. When combined with the lack of MFA and potentially weak user credentials, this exposed service presents a direct and significant vector for a network breach.
+
+This report outlines these findings in detail and provides actionable recommendations to mitigate the identified risks and strengthen the organization's overall security posture.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{True North Travel} \\
+    Email Domain & \texttt{TrueNorthTravel.com} \\
+    Website Domain & \texttt{www.TrueNorthTravel.com} \\
+    External IP Address & \texttt{72.123.154.230} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The results below highlight significant gaps in foundational security practices. A checkmark (\ding{51}) indicates a positive control is in place, while a cross (\ding{55}) indicates a control gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{label{tab:controls}
+\end{table}
+
+\paragraph{Analysis:}
+The lack of MFA for email and computer logins represents a \textbf{critical risk}. Email is the primary target for phishing attacks, and compromised credentials can lead to widespread system access. The absence of a security awareness training program for both new and existing employees is a \textbf{high risk}, as it leaves the organization vulnerable to social engineering and other human-targeted attacks.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify exposed services. The scan was conducted against the target IP address provided.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+    \item \textbf{Scan Date:} Not Specified
+\end{itemize}
+
+The following open port was identified:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/tcp & open & ssh & Secure Shell (SSH) access is enabled. \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports Detected on Target IP}
+\label{tab:scanresults}
+\end{table}
+
+\paragraph{Analysis:}
+The SSH service on port 22 is commonly used for remote administration. While necessary for system management, its exposure to the public internet makes it a prime target for brute-force and credential-stuffing attacks. This finding is especially concerning given the identified gaps in MFA and security training, which increase the likelihood of weak or compromised user credentials.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes the findings from the security control review and the technical scan to provide a consolidated view of the primary risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\textwidth}p{0.55\textwidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Critical Systems} & The absence of MFA on email and endpoints allows an attacker with valid credentials (e.g., from a phishing attack) to gain immediate and unfettered access. & \textbf{Critical} \\
+\addlinespace
+\textbf{Inadequate Security Awareness Program} & Employees are not trained to recognize or respond to phishing, social engineering, or other common cyber threats, making them the weakest link in the organization's defense. & \textbf{High} \\
+\addlinespace
+\textbf{Exposed SSH Management Service} & The publicly accessible SSH port, combined with the lack of MFA and poor security awareness, creates a high-risk entry point for attackers to compromise the network. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of True North Travel. Recommendations are prioritized based on severity.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately enforce MFA for all user accounts across all systems, prioritizing email (e.g., Office 365, Google Workspace) and endpoint logins (e.g., Windows, macOS).
+        \item \textbf{Impact:} Drastically reduces the risk of account compromise from stolen credentials.
+    \end{itemize}
+
+    \item \textbf{[High] Establish a Security Awareness Training Program:}
+    \begin{itemize}
+        \item \textbf{Action:} Procure and implement a security awareness training solution. Mandate foundational training for all new hires and annual refresher training for all staff. Conduct regular phishing simulations to reinforce learning.
+        \item \textbf{Impact:} Creates a human firewall, reducing susceptibility to phishing and social engineering attacks.
+    \end{itemize}
+    
+    \item \textbf{[High] Secure the Exposed SSH Service:}
+    \begin{itemize}
+        \item \textbf{Action:} Review the business need for the public-facing SSH port.
+        \begin{itemize}
+            \item If not needed, disable the firewall rule allowing access.
+            \item If required, restrict access to known, trusted IP addresses (IP whitelisting). Enforce the use of key-based authentication instead of passwords and disable root login over SSH.
+        \end{itemize}
+        \item \textbf{Impact:} Minimizes the external attack surface and hardens a critical administrative entry point against brute-force attacks.
+    \end{itemize}
+\end{enumerate}
+
+% --- Document End ---
+\end{document}
+```

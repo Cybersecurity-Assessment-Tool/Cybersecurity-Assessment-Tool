@@ -1,0 +1,207 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and ToC
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{xcolor} % For coloring text
+\usepackage{graphicx} % For potential logos
+\usepackage{fancyhdr} % For headers/footers
+
+% --- Document Setup ---
+
+% Hyperref settings
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define colors for risk levels
+\definecolor{critical}{HTML}{D10000}
+\definecolor{high}{HTML}{E57300}
+\definecolor{medium}{HTML}{FFBF00}
+\definecolor{low}{HTML}{007BFF}
+\definecolor{info}{HTML}{6C757D}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{New Era}
+\fancyfoot[C]{\thepage}
+
+% --- Document Start ---
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Assessment Report}}
+    \vspace{1.5cm}
+    \Large{\textbf{Prepared for:}} \\
+    \vspace{0.5cm}
+    \huge{New Era}
+    \vspace{2cm}
+    \large{\textbf{Date of Report:}} \\
+    \vspace{0.5cm}
+    \today
+    \vfill
+    \large{\textit{This report contains sensitive and confidential information. Distribution should be limited to authorized personnel only.}}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a cybersecurity assessment for \textbf{New Era}, based on an analysis of organizational security controls, an external network scan, and a review of pre-existing risks.
+
+The assessment reveals a mixed security posture. The organization has implemented foundational controls such as mandatory Multi-Factor Authentication (MFA) for computer logins and a security awareness training program for its employees. The external network scan of the target IP address (\texttt{[Target IP]}) did not identify any open ports, which suggests a properly configured perimeter firewall or that the host was not responsive at the time of the scan.
+
+However, several critical and high-risk gaps were identified that require immediate attention. The most significant weaknesses are the absence of MFA for accessing email and sensitive data systems. This exposes the organization to a high risk of account compromise and subsequent data breaches. Furthermore, the lack of a formal Employee Acceptable Use Policy creates ambiguity and increases insider and legal risks.
+
+Immediate remediation should focus on deploying MFA across all critical systems and establishing a formal policy framework to govern the use of company assets. Addressing these findings will substantially improve the organization's resilience against common cyber threats.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & New Era \\
+    Email Domain & \seqsplit{\texttt{NewEra.com}} \\
+    Website Domain & \seqsplit{\url{www.NewEra.com}} \\
+    External IP Address & \seqsplit{\texttt{19.235.230.157}} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+A review of administrative and technical security controls was conducted via a questionnaire. The responses are summarized below. Items marked with \textcolor{red}{\ding{55}} indicate a deviation from security best practices and represent a potential risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+    Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+    Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+    Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+    Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+    Does your organization do security awareness training for all employees annually? & \textcolor{green}{\ding{51}} \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The questionnaire identified three significant control gaps:
+\begin{itemize}
+    \item \textbf{No MFA for Email:} This is a critical vulnerability. Email accounts are a primary target for attackers seeking to conduct phishing, business email compromise (BEC), and gain a foothold in the network.
+    \item \textbf{No MFA for Sensitive Data Systems:} Lack of MFA on systems storing sensitive data drastically increases the risk of a data breach if an employee's credentials are stolen.
+    \item \textbf{No Acceptable Use Policy (AUP):} Without a formal AUP, there are no clear guidelines for employees on the proper use of company technology and data, increasing the likelihood of unintentional insider threats and creating legal liability for the organization.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network reconnaissance scan was performed to identify potentially exposed services.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Scan Parameter} & \textbf{Value} \\
+    \midrule
+    Target IP Address & \texttt{[Target IP]} \\
+    Scan Date & [Scan Date] \\
+    \bottomrule
+\end{tabular}
+
+\subsection*{Findings}
+The network scan did not identify any open TCP or UDP ports on the target host \texttt{[Target IP]}.
+
+\subsubsection*{Interpretation}
+This result is generally positive from an external security perspective. It indicates that the target host is likely protected by a well-configured perimeter firewall that is correctly dropping or rejecting unsolicited incoming network traffic. This significantly reduces the external attack surface. It is also possible the host was offline or the scan was blocked by an upstream security device.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+
+The following table summarizes the key risks identified during this assessment, combining findings from the security control review and technical scan. The risks are prioritized based on their potential impact on the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{4.5cm}p{6cm}l@{}}
+    \toprule
+    \textbf{ID} & \textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+    \midrule
+    R-01 & Lack of MFA on Critical Systems & Email and sensitive data systems are not protected by MFA, creating a high risk of unauthorized access via compromised credentials. This could lead to data breaches or financial loss. & \textcolor{critical}{\textbf{Critical}} \\
+    \addlinespace
+    R-02 & Absence of Acceptable Use Policy & The lack of a formal policy creates ambiguity regarding the proper use of company assets and data, increasing insider risk, misconfigurations, and potential legal liability. & \textcolor{high}{\textbf{High}} \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following prioritized recommendations are provided to address the identified risks and strengthen the overall security posture of \textbf{New Era}.
+
+\subsection*{Priority 1: Critical Risks}
+
+\begin{enumerate}
+    \item \textbf{Implement MFA for Email Access:}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately enable and enforce MFA for all user accounts accessing the corporate email system (e.g., Microsoft 365, Google Workspace).
+        \item \textbf{Justification:} This is the single most effective control to mitigate the risk of business email compromise (BEC) and phishing-related account takeovers.
+    \end{itemize}
+    
+    \item \textbf{Enforce MFA on Sensitive Data Systems:}
+    \begin{itemize}
+        \item \textbf{Action:} Identify all applications and systems that store or process sensitive data (e.g., financial, customer, HR). Procure and deploy an MFA solution to protect access to these systems.
+        \item \textbf{Justification:} Protects the organization's most valuable data from unauthorized access, even if user credentials are stolen.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 2: High Risks}
+
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item \textbf{Action:} Draft a formal AUP that clearly defines the rules for using company networks, devices, software, and data. Require all employees to read and formally acknowledge the policy as a condition of employment.
+        \item \textbf{Justification:} An AUP establishes a baseline for secure behavior, reduces insider risk, and provides a legal framework for enforcing security rules.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 3: Informational / Proactive Measures}
+
+\begin{enumerate}
+    \setcounter{enumi}{3} % Continue numbering
+    \item \textbf{Conduct Regular Vulnerability Scanning:}
+    \begin{itemize}
+        \item \textbf{Action:} Implement a program for regular, authenticated vulnerability scanning of both external and internal assets.
+        \item \textbf{Justification:} While the external scan was clean, continuous scanning is necessary to proactively identify and remediate new vulnerabilities as they emerge.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

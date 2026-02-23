@@ -1,0 +1,147 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[hidelinks]{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Define colors for severity
+\definecolor{criticalred}{HTML}{D12B2B}
+\definecolor{highorange}{HTML}{E67E22}
+\definecolor{mediumyellow}{HTML}{F1C40F}
+\definecolor{lowblue}{HTML}{3498DB}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report \\ \large Prepared for \textbf{[Organization Name]}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Executive Summary}
+
+This report provides a comprehensive assessment of the cybersecurity posture for \textbf{[Organization Name]}, based on an analysis of network scan data, organizational security controls, and known risks. The assessment was conducted on \today.
+
+The analysis revealed several critical and high-risk findings that require immediate attention. A key technical vulnerability, the direct exposure of the Remote Desktop Protocol (RDP) on a public-facing IP address, was confirmed. This finding is significantly compounded by critical gaps in organizational security controls, most notably the lack of Multi-Factor Authentication (MFA) for computer and sensitive data system access.
+
+Furthermore, the absence of mandatory annual security awareness training for all employees constitutes a high risk, increasing the organization's susceptibility to phishing and social engineering attacks, which are common precursors to credential theft and ransomware events.
+
+In summary, the organization's current security posture is considered high-risk due to the combination of a critical external vulnerability and internal control weaknesses. This report outlines actionable recommendations to mitigate these risks and strengthen the overall security framework.
+
+\section{Organizational Information}
+
+The following details were used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+External IP Address Scanned & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\caption{Organizational Details}
+\end{table}
+
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses indicate several significant gaps in the current security framework. "No" answers represent deviations from security best practices and are flagged as risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\linewidth} c l@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\ \midrule
+Do you require MFA to access email? & \ding{51} & Control Met \\
+Do you require MFA to log into computers? & \ding{55} & \textbf{Critical Gap} \\
+Do you require MFA to access sensitive data systems? & \ding{55} & \textbf{Critical Gap} \\
+Does your organization have an employee acceptable use policy? & \ding{51} & Control Met \\
+Does your organization do security awareness training for new employees? & \ding{51} & Control Met \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} & \textbf{High Risk} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services on the organization's public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Data not provided in scan results.
+\end{itemize}
+
+The scan identified the following open port:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\ \midrule
+3389/tcp & Open & ms-wbt-server & Microsoft Remote Desktop Protocol (RDP). \\
+& & & Direct exposure is a critical security risk. \\
+& & & No version information was detected. \\
+\bottomrule
+\end{tabular}
+\caption{Open Port Findings}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The discovery of an open RDP port (3389) is a critical finding. This service is a primary target for attackers, including ransomware groups, who exploit it for initial access to corporate networks. The lack of version information prevents targeted vulnerability assessment but does not diminish the inherent risk of exposing this protocol to the public internet. This technical finding corroborates the pre-existing risk identified in the risk register.
+
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security control review, the technical scan, and pre-existing risk data into a consolidated list of key risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth} p{0.4\linewidth} l p{0.15\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} & \textbf{Affected Systems} \\ \midrule
+\textbf{Critical RDP Exposure} & Port 3389 (RDP) is open to the internet, allowing attackers to attempt brute-force or credential-stuffing attacks to gain remote access. & \textcolor{criticalred}{\textbf{Critical (9.0)}} & \texttt{[Target IP]} \\
+\addlinespace
+\textbf{Lack of Multi-Factor Authentication} & MFA is not enforced on computer logins or for access to sensitive data systems. This drastically increases the risk of unauthorized access from compromised credentials. & \textcolor{criticalred}{\textbf{Critical}} & All workstations \& sensitive systems \\
+\addlinespace
+\textbf{Insufficient Security Awareness Training} & The absence of annual security training for all staff increases the likelihood of successful phishing and social engineering attacks, which are primary credential theft vectors. & \textcolor{highorange}{\textbf{High}} & All Employees \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+\section{Recommendations}
+
+To address the identified risks, the following actions are recommended, prioritized by urgency and impact.
+
+\subsection{Priority 1: Immediate Actions (Next 24-48 Hours)}
+\begin{enumerate}
+    \item \textbf{Close Port 3389:} Immediately block all inbound traffic to port 3389 on the external firewall for the affected system at \texttt{[Target IP]}. There is no valid business reason to expose RDP directly to the internet.
+    \item \textbf{Implement a Secure Remote Access Solution:} If remote access is required for this system, deploy a Virtual Private Network (VPN) solution. Access to the VPN must be protected with Multi-Factor Authentication.
+\end{enumerate}
+
+\subsection{Priority 2: High-Priority Actions (Next 30-60 Days)}
+\begin{enumerate}
+    \item \textbf{Enforce MFA on All Endpoints:} Deploy and mandate the use of MFA for all user logins to company computers (desktops and laptops). This is a critical defense against the use of stolen credentials.
+    \item \textbf{Enforce MFA on Sensitive Systems:} Identify all systems containing sensitive data and enforce MFA for all user access. This provides a vital layer of security for the organization's most critical assets.
+\end{enumerate}
+
+\subsection{Priority 3: Medium-Priority Actions (Next 90 Days)}
+\begin{enumerate}
+    \item \textbf{Establish Annual Security Training:} Develop and implement a mandatory security awareness training program for all employees, to be completed annually. The training should cover topics such as phishing, password hygiene, and acceptable use policies.
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,205 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings without breaking
+\usepackage{xcolor} % For custom colors
+\usepackage{graphicx} % For potential logos/images
+\usepackage{fancyhdr} % For headers and footers
+
+% --- Document Setup ---
+
+% Color definitions for severity levels
+\definecolor{criticalred}{HTML}{D7263D}
+\definecolor{highorange}{HTML}{F49D42}
+\definecolor{mediumyellow}{HTML}{F4E409}
+\definecolor{lowblue}{HTML}{4583D0}
+\definecolor{infogray}{HTML}{808080}
+\definecolor{darkgreen}{HTML}{006400}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{Foresight Strategies}
+\fancyfoot[C]{\thepage}
+
+% --- Document Start ---
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge
+    \textbf{Cybersecurity Assessment Report}
+    
+    \vspace{1.5cm}
+    \Large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{Foresight Strategies}
+    
+    \vspace{2cm}
+    \large
+    Report Date: \today
+    
+    \vfill
+    
+    \normalsize
+    This document is confidential and intended solely for the use of the individual or entity to whom it is addressed.
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture of \textbf{Foresight Strategies}, based on network scans, a security controls questionnaire, and a review of pre-existing risks. The assessment identified both commendable security practices and critical vulnerabilities that require immediate attention.
+
+\paragraph{Positive Findings:} The organization has successfully implemented a robust Multi-Factor Authentication (MFA) policy across email, computer logins, and sensitive data systems. This significantly strengthens access controls and reduces the risk of unauthorized access via compromised credentials.
+
+\paragraph{Critical Risks:} The assessment revealed two primary areas of high risk:
+\begin{enumerate}
+    \item \textbf{Direct Network Exposure of Critical Infrastructure:} A MySQL database server was found to be directly accessible from the scanned network segment. Exposing database services in this manner presents a severe risk of data breach, denial-of-service attacks, and unauthorized system modification.
+    \item \textbf{Deficient Administrative Controls:} There is a significant gap in foundational security policies and training. The absence of an employee acceptable use policy and a formal security awareness training program for new and existing employees leaves the organization highly susceptible to human error, social engineering, and phishing attacks.
+\end{enumerate}
+
+\paragraph{Conclusion:} While strong authentication controls are in place, the combination of a publicly exposed database and a lack of employee security awareness creates a high-impact threat vector. An attacker could exploit human fallibility to gain a foothold and then directly target the exposed database. Immediate remediation of the identified technical and administrative vulnerabilities is strongly recommended.
+
+\newpage
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment scope.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Foresight Strategies} \\
+    Email Domain & \texttt{ForesightStrategies.net} \\
+    External IP Address & \texttt{121.197.244.101} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. The status indicates alignment with cybersecurity best practices. A green checkmark (\textcolor{darkgreen}{\ding{51}}) indicates an implemented control, while a red cross (\textcolor{criticalred}{\ding{55}}) highlights a critical gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.7\textwidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{darkgreen}{\ding{51}} \\
+    Do you require MFA to log into computers? & \textcolor{darkgreen}{\ding{51}} \\
+    Do you require MFA to access sensitive data systems? & \textcolor{darkgreen}{\ding{51}} \\
+    \midrule
+    \textbf{Does your organization have an employee acceptable use policy?} & \textcolor{criticalred}{\ding{55}} \\
+    \textbf{Does your organization do security awareness training for new employees?} & \textcolor{criticalred}{\ding{55}} \\
+    \textbf{Does your organization do security awareness training for all employees at least once per year?} & \textcolor{criticalred}{\ding{55}} \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\paragraph{Analysis:} The consistent implementation of MFA is an excellent security measure. However, the complete absence of an acceptable use policy and security awareness training represents a fundamental failure in administrative controls. These gaps significantly increase the "human factor" risk, making the organization more vulnerable to phishing and social engineering attacks.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.50.20}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    3306/tcp & Open & mysql & MySQL & 5.7.33 \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{172.16.50.20}}
+\end{table}
+
+\paragraph{Analysis:} The scan confirms that port \textbf{3306}, the default port for the MySQL database service, is open. Direct exposure of a database to the network is a critical security risk. It allows attackers to perform reconnaissance, attempt brute-force password attacks, and exploit potential vulnerabilities in the database software itself. The identified version, \textbf{MySQL 5.7.33}, is an older release and is likely missing critical security patches, further elevating the risk.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the questionnaire, technical scans, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}p{0.2\textwidth}p{0.1\textwidth}p{0.4\textwidth}p{0.3\textwidth}@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} & \textbf{Affected Elements} \\
+    \midrule
+    \textbf{Database Exposure} & \textcolor{highorange}{\textbf{High (7.5)}} & The MySQL database service is directly exposed to the network. This allows attackers to directly target a critical data store, bypassing other security layers. This finding was confirmed by the network scan. & \texttt{172.16.50.20:3306} \\
+    \addlinespace
+    \textbf{Lack of Security Awareness Training} & \textcolor{highorange}{\textbf{High}} & The absence of a formal training program for new and existing employees results in a workforce that is unprepared to identify and respond to social engineering and phishing attacks, which are primary initial access vectors for breaches. & All Employees \\
+    \addlinespace
+    \textbf{Outdated Database Software} & \textcolor{mediumyellow}{\textbf{Medium}} & The running version of MySQL (5.7.33) is not the latest in its series and is superseded by major version 8.x. It is likely missing security patches for known vulnerabilities that could be exploited by an attacker. & MySQL Service on \texttt{172.16.50.20} \\
+    \addlinespace
+    \textbf{Missing Acceptable Use Policy} & \textcolor{mediumyellow}{\textbf{Medium}} & Without a formal policy, employees lack clear guidance on the proper use of company assets and data. This ambiguity can lead to unintentional data exposure, misuse of systems, and a weakened overall security culture. & Organizational Policy \\
+    \bottomrule
+\end{tabular}%
+}
+\caption{Summary of Identified Risks}
+\end{table}
+
+\newpage
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the consolidated risk assessment, the following actions are recommended to mitigate the identified vulnerabilities and improve the overall security posture of \textbf{Foresight Strategies}.
+
+\subsection{Immediate Priority (Critical)}
+\begin{itemize}
+    \item \textbf{Restrict Access to MySQL Port 3306:} Immediately implement strict firewall rules to block all access to port 3306 on \texttt{172.16.50.20} from any untrusted network. Access should be restricted to only the specific IP addresses of application servers that require it. For administrative access, a secure method such as a VPN or a bastion host should be required.
+\end{itemize}
+
+\subsection{High Priority}
+\begin{itemize}
+    \item \textbf{Implement Security Awareness Training:}
+        \begin{itemize}
+            \item Procure and deploy a security awareness training program for all employees.
+            \item Integrate mandatory training into the onboarding process for all new hires.
+            \item Conduct annual refresher training and regular phishing simulations to ensure knowledge is retained and current.
+        \end{itemize}
+    \item \textbf{Develop and Enforce an Acceptable Use Policy (AUP):}
+        \begin{itemize}
+            \item Create a formal AUP that clearly defines the rules for using company networks, devices, and data.
+            \item Require all employees to read and acknowledge the policy.
+            \item Integrate the AUP into the new hire onboarding process.
+        \end{itemize}
+\end{itemize}
+
+\subsection{Medium Priority}
+\begin{itemize}
+    \item \textbf{Plan Database Software Upgrade:} Develop a plan to upgrade the MySQL 5.7.33 instance to a currently supported and fully patched version (e.g., MySQL 8.x). This will mitigate risks from known, patchable vulnerabilities. This should be done after access has been restricted per the immediate priority recommendation.
+\end{itemize}
+
+\end{document}
+```

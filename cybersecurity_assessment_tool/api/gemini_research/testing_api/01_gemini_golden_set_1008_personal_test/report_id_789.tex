@@ -1,0 +1,174 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{seqsplit} % For breaking long strings
+\usepackage{xcolor}
+\usepackage{graphicx}
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Custom commands for Yes/No symbols
+\newcommand{\yes}{\textcolor{green}{\ding{51}}}
+\newcommand{\no}{\textcolor{red}{\ding{55}}}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture Assessment Report} \\
+    \large For: Fable \& Lore
+    \vspace{1cm}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Executive Summary ---
+\section*{Executive Summary}
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{Fable \& Lore}, synthesizing data from a technical network scan, a security controls questionnaire, and a review of pre-existing risk documentation.
+
+The assessment reveals a mixed security posture. The organization has implemented positive controls, including mandatory Multi-Factor Authentication (MFA) for computer logins and a consistent security awareness training program for employees. These measures provide a foundational layer of defense.
+
+However, several critical-to-high severity risks were identified that require immediate attention. A network scan of the internal asset at \texttt{10.5.5.5} discovered an openly accessible web service on port 8080 with an HTTP title of \textbf{``TOP SECRET DB''}. This finding constitutes a critical information disclosure vulnerability and directly contradicts a pre-existing risk assessment that incorrectly labeled this port as a secure false positive.
+
+This technical vulnerability is further compounded by significant gaps in access control policies. The organization does not enforce MFA for accessing email or other sensitive data systems. This combination of an exposed sensitive system and weak authentication controls creates a high-impact scenario for a potential data breach. Additionally, the absence of a formal employee acceptable use policy represents a notable governance gap.
+
+Immediate remediation is required to address the exposed database and to implement comprehensive MFA across all critical systems.
+
+% --- Organizational Information ---
+\section*{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name    & Fable \& Lore \\
+Primary Email Domain & \texttt{FableLore.com} \\
+Primary Website      & \url{www.FableLore.com} \\
+External IP Address  & \texttt{101.201.191.216} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\end{table}
+
+% --- Security Control Review ---
+\section*{Security Control Review}
+
+The following table summarizes the organization's responses to the security controls questionnaire. Items marked with \no\ represent significant gaps in the current security posture and are correlated with findings in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{8cm}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\ \midrule
+Do you require MFA to access email? & \no & \textbf{High Risk} \\
+Do you require MFA to log into computers? & \yes & Good Practice \\
+Do you require MFA to access sensitive data systems? & \no & \textbf{Critical Gap} \\
+Does your organization have an employee acceptable use policy? & \no & Governance Gap \\
+Does your organization do security awareness training for new employees? & \yes & Good Practice \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Good Practice \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+% --- Technical Scan Results ---
+\section*{Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the specified target.
+
+\subsection*{Scan Target: \texttt{10.5.5.5}}
+The scan identified the following open port and service.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Details / Banner} \\ \midrule
+8080/tcp & open & http & HTTP Title: \textbf{TOP SECRET DB} \\ \bottomrule
+\end{tabular}
+\caption{Open Ports on Target \texttt{10.5.5.5}}
+\end{table}
+
+\paragraph{Analysis of Technical Finding:} The HTTP title ``TOP SECRET DB'' is a \textbf{critical information disclosure finding}. It strongly suggests that a sensitive, possibly production, database is accessible via this port. This banner makes the system a high-value target for attackers. This finding directly invalidates the previous risk assessment (\textit{Input\_3\_Current\_Risks\_JSON}) which claimed this port was a secure false positive. The combination of this exposure with the lack of MFA on sensitive systems (identified in the Security Control Review) elevates this to our highest priority finding.
+
+% --- Risk Assessment & Correlation ---
+\section*{Risk Assessment \& Correlation}
+
+This section synthesizes the findings from the security control review and the technical scan into a prioritized list of identified risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{1.5cm}p{4cm}p{7cm}l@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\textbf{RISK-001} & Critical Information Disclosure on Internal System & An open service on port 8080 at \texttt{10.5.5.5} exposes a title suggesting a top-secret database, making it a prime target for attackers. & \textbf{Critical} \\
+\addlinespace
+\textbf{RISK-002} & Lack of MFA on Sensitive Data Systems & The absence of MFA for sensitive systems, correlated with the exposed database (RISK-001), dramatically increases the risk of unauthorized access and data exfiltration. & \textbf{High} \\
+\addlinespace
+\textbf{RISK-003} & Inadequate Email Account Protection & Email accounts lack MFA, making them vulnerable to phishing and credential stuffing attacks, which could lead to business email compromise (BEC) and further internal network access. & \textbf{High} \\
+\addlinespace
+\textbf{RISK-004} & Missing Acceptable Use Policy (AUP) & The lack of a formal AUP creates ambiguity for employees regarding the secure and acceptable use of company assets, increasing the risk of insider threat and non-compliance. & \textbf{Medium} \\ \bottomrule
+\end{tabular}
+\caption{Synthesized Risk Register}
+\end{table}
+
+% --- Prioritized Recommendations ---
+\section*{Prioritized Recommendations}
+
+The following actionable recommendations are provided to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Remediate Exposed Service (RISK-001):}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Apply firewall rules to restrict all access to port 8080 on \texttt{10.5.5.5} to only authorized personnel and systems.
+        \item \textbf{Short-Term:} Investigate the service to identify its purpose and the sensitivity of the data it contains. Change the revealing HTTP title to a generic one.
+        \item \textbf{Long-Term:} Ensure that proper authentication, authorization, and logging controls are implemented on the application before re-enabling broader access.
+    \end{itemize}
+    
+    \item \textbf{[High] Implement Comprehensive MFA (RISK-002 \& RISK-003):}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Prioritize and enforce MFA on all accounts with access to sensitive data systems, including the one identified in RISK-001.
+        \item \textbf{Short-Term:} Enable and enforce MFA for all user email accounts (\texttt{FableLore.com}).
+        \item \textbf{Long-Term:} Develop a policy that mandates MFA for all cloud services, remote access solutions (VPN), and critical internal applications.
+    \end{itemize}
+    
+    \item \textbf{[Medium] Develop and Implement Governance Policies (RISK-004):}
+    \begin{itemize}
+        \item \textbf{Short-Term:} Draft, approve, and publish an employee Acceptable Use Policy (AUP).
+        \item \textbf{Long-Term:} Require all current employees and new hires to read and formally acknowledge the AUP as part of the onboarding and annual training process.
+    \end{itemize}
+\end{enumerate}
+
+% --- Conclusion ---
+\section*{Conclusion}
+
+While \textbf{Fable \& Lore} has established a baseline of security through user training and endpoint authentication, this assessment has uncovered critical vulnerabilities that expose the organization to significant risk. The exposed database, coupled with weak access controls, requires immediate and decisive action.
+
+By implementing the prioritized recommendations outlined in this report, the organization can substantially improve its security posture, reduce its attack surface, and better protect its sensitive data and systems. We recommend a follow-up assessment after remediation efforts are complete to validate their effectiveness.
+
+\end{document}
+```

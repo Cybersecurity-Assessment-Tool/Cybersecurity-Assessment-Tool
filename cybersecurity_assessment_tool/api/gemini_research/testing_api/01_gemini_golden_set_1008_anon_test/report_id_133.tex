@@ -1,0 +1,160 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{xcolor} % For colors
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section*{1. Executive Overview}
+% ==============================================================================
+
+This report provides a cybersecurity assessment for \textbf{[Organization Name]}, conducted on November 22, 2025. The analysis is based on a combination of self-reported organizational security controls, an external network scan, and a review of known risks.
+
+The assessment reveals a mixed security posture. The organization has implemented several positive security controls, including Multi-Factor Authentication (MFA) for email and sensitive systems, and a consistent security awareness training program.
+
+However, two significant risks were identified that require immediate attention:
+\begin{itemize}
+    \item \textbf{Critical Control Gap:} The lack of mandatory MFA for computer logins presents a high risk of unauthorized access through compromised credentials.
+    \item \textbf{High-Severity Vulnerability:} The external-facing web server at \texttt{[Target IP]} is running an outdated version of Nginx (1.18.0), which is known to have multiple security vulnerabilities.
+\end{itemize}
+
+Addressing these findings is crucial to mitigate the risk of unauthorized access, data breaches, and system compromise. Detailed recommendations are provided in Section 6 of this report.
+
+% ==============================================================================
+\section*{2. Organizational Information}
+% ==============================================================================
+
+The following information was used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Address Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% ==============================================================================
+\section*{3. Security Control Review}
+% ==============================================================================
+
+This section details the organization's responses to a security controls questionnaire. A "No" response indicates a potential control gap that may increase security risk.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Controls Questionnaire}
+\begin{tabular}{p{0.7\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The organization has successfully implemented MFA for critical access points like email and sensitive data systems. However, the absence of MFA for workstation logins is a critical oversight. If an employee's password is compromised, an attacker could gain direct access to their computer and, subsequently, the internal network.
+
+% ==============================================================================
+\section*{4. Technical Scan Results}
+% ==============================================================================
+
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} November 22, 2025
+\end{itemize}
+
+\subsection*{Open Ports}
+The following table summarizes the services discovered on the target system.
+
+\begin{table}[h!]
+\centering
+\caption{Discovered Network Services}
+\begin{tabular}{l l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & open & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified a single open port, 443 (HTTPS), running an Nginx web server, version 1.18.0. This version was released in April 2020 and is now significantly outdated. Current stable versions of Nginx have received numerous security patches for vulnerabilities discovered since 2020. Running this outdated software exposes the organization to a range of known exploits that could lead to denial-of-service, information disclosure, or complete system compromise.
+
+% ==============================================================================
+\section*{5. Risk Assessment}
+% ==============================================================================
+
+This section synthesizes the findings from the security control review and the technical scan. No pre-existing risks were reported.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.55\linewidth} p{0.1\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Workstations} & The absence of MFA for computer logins allows an attacker with valid credentials (e.g., from a phishing attack) to gain direct access to an employee's workstation and the internal network. & \textbf{High} \\
+\addlinespace
+\textbf{Outdated Nginx Web Server} & The public-facing web server at \texttt{[Target IP]} is running Nginx 1.18.0, a version with multiple known vulnerabilities. This exposes the server to remote attacks and potential compromise. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+\section*{6. Recommendations}
+% ==============================================================================
+
+The following actions are recommended to address the identified risks and improve the organization's overall security posture.
+
+\subsection*{High Priority Recommendations}
+\begin{enumerate}
+    \item \textbf{Implement MFA for All Workstation Logins:}
+        \begin{itemize}
+            \item \textbf{Action:} Deploy a mandatory Multi-Factor Authentication (MFA) solution for all employee and privileged user logins to company workstations and laptops.
+            \item \textbf{Justification:} This will create a critical layer of defense against credential theft and prevent unauthorized access to endpoints, significantly reducing the risk of lateral movement within the network.
+        \end{itemize}
+    \item \textbf{Upgrade Public-Facing Web Server Software:}
+        \begin{itemize}
+            \item \textbf{Action:} Immediately develop a plan to upgrade the Nginx server running on \texttt{[Target IP]} from version 1.18.0 to the latest stable version. A patch management and vulnerability scanning program should be implemented to prevent such issues in the future.
+            \item \textbf{Justification:} Upgrading to a supported version will patch known vulnerabilities, protecting the server and its data from public exploits and potential compromise.
+        \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

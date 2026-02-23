@@ -1,0 +1,190 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\usepackage{seqsplit}
+\usepackage{graphicx}
+
+% --- Custom Commands & Colors ---
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\definecolor{darkgreen}{rgb}{0.0, 0.35, 0.0}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=magenta,      
+    urlcolor=darkblue,
+    citecolor=darkblue
+}
+
+\newcommand{\cmark}{\textcolor{darkgreen}{\ding{51}}} % Checkmark
+\newcommand{\xmark}{\textcolor{darkred}{\ding{55}}}   % X-mark
+
+% --- Document Title Setup ---
+\title{
+    \vspace{-1.5cm}
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder for company logo
+    \vspace{0.5cm}
+    \hrule
+    \vspace{0.5cm}
+    \textbf{Cybersecurity Posture Assessment Report}
+    \vspace{0.2cm}
+    \hrule
+    \vspace{0.5cm}
+}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+% ----------------------------------------------------------------------
+% BEGIN DOCUMENT
+% ----------------------------------------------------------------------
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% SECTION 1: EXECUTIVE SUMMARY
+% ----------------------------------------------------------------------
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{Titanium Core}. The analysis is based on a combination of technical network scanning, a review of organizational security controls, and an evaluation of pre-existing risks. The assessment identified several high-impact security gaps requiring immediate attention.
+
+Key findings indicate critical weaknesses in access control policies, specifically the lack of Multi-Factor Authentication (MFA) for email and sensitive data systems. Furthermore, the organization's web-facing infrastructure is running outdated software with known vulnerabilities. Finally, a procedural gap was identified in the employee onboarding process, which omits mandatory security awareness training for new hires.
+
+These issues collectively expose the organization to significant risks, including unauthorized access, data breaches, and reputational damage. This report provides a detailed breakdown of these risks and offers prioritized, actionable recommendations to mitigate them and strengthen the overall security posture.
+
+% ----------------------------------------------------------------------
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+
+The following information was provided for the assessment and serves as the basis for the organizational context of this report.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{Titanium Core} \\
+Email Domain & \texttt{TitaniumCore.net} \\
+Website Domain & \url{www.TitaniumCore.net} \\
+External IP Address & \seqsplit{\texttt{165.49.56.75}} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\label{tab:org_info}
+\end{table}
+
+% ----------------------------------------------------------------------
+% SECTION 3: SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+
+A review of foundational security controls was conducted via a questionnaire. The responses highlight critical gaps in the organization's access management and employee training programs. "No" answers indicate a failure to meet baseline security best practices and are flagged as significant risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \xmark \\
+Do you require MFA to log into computers? & \cmark \\
+Do you require MFA to access sensitive data systems? & \xmark \\
+Does your organization have an employee acceptable use policy? & \cmark \\
+Does your organization do security awareness training for new employees? & \xmark \\
+Does your organization do security awareness training for all employees at least once per year? & \cmark \\ \bottomrule
+\end{tabular}
+\caption{Organizational Security Control Status.}
+\label{tab:controls}
+\end{table}
+
+% ----------------------------------------------------------------------
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+
+An external network scan was performed on \textbf{November 22, 2025}, targeting the host at \seqsplit{\texttt{192.168.10.5}}. The scan identified one open port running a web server with an outdated software version.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+443/tcp & Open & https & nginx & 1.18.0 \\ \bottomrule
+\end{tabular}
+\caption{Open Ports and Services Detected on \seqsplit{\texttt{192.168.10.5}}.}
+\label{tab:scan_results}
+\end{table}
+
+\paragraph{Analyst Note:} The detected Nginx version 1.18.0, released in April 2020, is significantly outdated. Current stable versions are substantially newer. This version is no longer receiving security patches and is known to be vulnerable to multiple publicly disclosed exploits (e.g., CVE-2021-23017). Operating this version in a production environment presents a high risk of compromise.
+
+% ----------------------------------------------------------------------
+% SECTION 5: RISK ASSESSMENT SUMMARY
+% ----------------------------------------------------------------------
+\section{Risk Assessment Summary}
+
+The following table synthesizes findings from the security control review and technical scan. Each identified risk has been assigned a severity level based on its potential impact and likelihood of exploitation.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth}p{0.5\linewidth}p{0.15\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\ \midrule
+\textbf{Lack of MFA on Critical Systems} & Email and sensitive data systems are not protected by Multi-Factor Authentication. This allows for account takeover if credentials are stolen, a common attack vector. & \textbf{Critical} \\
+\addlinespace
+\textbf{Outdated Web Server Software} & The public-facing web server runs Nginx 1.18.0, an end-of-life version with multiple known critical vulnerabilities. This exposes the server to remote code execution and other attacks. & \textbf{High} \\
+\addlinespace
+\textbf{Inadequate Employee Security Training} & New employees do not receive security awareness training upon being hired. This creates a recurring risk where new staff are unaware of policies and common threats like phishing. & \textbf{High} \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\label{tab:risk_summary}
+\end{table}
+
+% ----------------------------------------------------------------------
+% SECTION 6: RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+
+Based on the identified risks, the following prioritized actions are recommended to improve the organization's security posture.
+
+\subsection{Immediate Actions (0-30 Days)}
+
+\begin{itemize}
+    \item \textbf{Enforce MFA on Critical Systems:}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately enable and enforce MFA for all user accounts with access to email (\texttt{TitaniumCore.net}) and any systems identified as containing sensitive data.
+        \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access and account takeovers, directly mitigating the \textbf{Critical} risk identified.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Upgrade Web Server Software:}
+    \begin{itemize}
+        \item \textbf{Action:} Plan and execute an upgrade of the Nginx server from version 1.18.0 to a current, stable, and patched version. This process should include testing to ensure application compatibility.
+        \item \textbf{Justification:} Patching this vulnerability eliminates a direct, high-risk avenue for external attackers to compromise the web server and potentially gain access to the internal network.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Mid-Term Actions (30-90 Days)}
+
+\begin{itemize}
+    \item \textbf{Implement Onboarding Security Training:}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and integrate a mandatory security awareness training module into the new employee onboarding process. This should cover acceptable use, phishing identification, password hygiene, and incident reporting.
+        \item \textbf{Justification:} This closes a significant procedural gap and ensures that all employees, from their first day, have a baseline understanding of their security responsibilities, reducing the likelihood of human error leading to a breach.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

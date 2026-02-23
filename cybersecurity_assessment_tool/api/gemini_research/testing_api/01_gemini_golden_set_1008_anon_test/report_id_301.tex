@@ -1,0 +1,191 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- Document Setup ---
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.5}
+\definecolor{darkred}{rgb}{0.8, 0.0, 0.0}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=magenta,      
+    urlcolor=darkblue,
+    citecolor=darkblue,
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Assessment Report}
+\rhead{\textbf{[Organization Name]}}
+\cfoot{\thepage}
+
+% --- Document Body ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder for a logo
+    
+    \vspace{1.5cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+    
+    \vspace{2cm}
+    
+    \large
+    \textbf{Date of Report:} \today \\
+    \textbf{Scan Date:} November 22, 2025
+    
+    \vfill
+    
+    \large
+    \textit{This report contains sensitive information and should be handled with care.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on data collected on November 22, 2025. The assessment combines a review of organizational security controls, an external network scan, and an analysis of pre-existing risks.
+
+Overall, the organization demonstrates a strong commitment to identity and access management, with commendable enforcement of Multi-Factor Authentication (MFA) across email, computers, and sensitive data systems. This significantly reduces the risk of unauthorized access through compromised credentials.
+
+However, critical gaps were identified in foundational security governance and employee training. The absence of an Employee Acceptable Use Policy and the lack of mandatory annual security awareness training for all staff represent significant risks. These policy and training deficiencies create an environment where employees may be unaware of their security responsibilities, making the organization more susceptible to social engineering and insider threats.
+
+From a technical perspective, the external scan identified an outdated version of the Nginx web server software. Running unsupported or outdated software exposes the organization to publicly known vulnerabilities that could be exploited by attackers.
+
+This report outlines these findings in detail and provides actionable, prioritized recommendations to mitigate the identified risks and strengthen the organization's overall security posture.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following details were used as the basis for this assessment. Based on the provided data, placeholders have been used where specific information was not available.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+Monitored External IP & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a standardized questionnaire. The responses highlight both strengths and areas for immediate improvement. A "No" response indicates a potential control gap that increases risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results (\ding{51}=Yes, \ding{55}=No).}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{Acceptable Use Policy (AUP):} The absence of a formal AUP is a critical governance gap. An AUP is essential for setting clear expectations for employees regarding the use of company assets, data handling, and internet usage. Without it, there is no formal basis for enforcing security standards or taking corrective action against policy violations.
+    \item \textbf{Annual Security Awareness Training:} While training for new hires is in place, the lack of mandatory, annual refresher training for all employees is a high-risk gap. The threat landscape evolves continuously, and employees' awareness of phishing, social engineering, and other common attack vectors diminishes over time.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed against the target IP address to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+The scan revealed the following open port:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+443/tcp & open & https & nginx & 1.18.0 \\ \bottomrule
+\end{tabular}
+\caption{Open Ports and Services Detected.}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified an Nginx web server, version \textbf{1.18.0}, listening on port 443 (HTTPS). Nginx 1.18.0 was released in April 2020 and is no longer the most current stable version. While not immediately vulnerable to a specific high-profile exploit at the time of this report, running outdated software is a significant security risk. It falls out of the active support window, meaning security patches for newly discovered vulnerabilities are not applied. This creates a window of opportunity for attackers to exploit known flaws.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+
+This section synthesizes the findings from the security control review and technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported in the input data.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{4cm}p{1.5cm}p{6cm}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\ \midrule
+\textbf{R-01} & Lack of Acceptable Use Policy & \textbf{\textcolor{red}{Critical}} & Without a formal AUP, employees lack clear guidance on security responsibilities. This increases the risk of insider threat (both malicious and accidental) and weakens the organization's ability to enforce security standards. \\
+\addlinespace
+\textbf{R-02} & Inadequate Security Awareness Training & \textbf{\textcolor{orange}{High}} & The lack of annual refresher training for all staff leaves the organization vulnerable to phishing and social engineering attacks. Human error remains a primary vector for security breaches. \\
+\addlinespace
+\textbf{R-03} & Outdated Web Server Software & \textbf{\textcolor{yellow!80!black}{Medium}} & The Nginx server (v1.18.0) is outdated and likely missing critical security patches for vulnerabilities discovered since its release. This exposes a key public-facing service to potential exploitation. \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{2cm}p{9.5cm}@{}}
+\toprule
+\textbf{ID} & \textbf{Priority} & \textbf{Recommendation} \\ \midrule
+\textbf{R-01} & \textbf{\textcolor{red}{Critical}} & Develop and implement a comprehensive Employee Acceptable Use Policy (AUP). This policy should be formally acknowledged by all new and existing employees and reviewed annually. \\
+\addlinespace
+\textbf{R-02} & \textbf{\textcolor{orange}{High}} & Establish a mandatory annual security awareness training program for all employees. The training should cover current threats such as phishing, ransomware, and secure data handling. Track completion to ensure 100\% compliance. \\
+\addlinespace
+\textbf{R-03} & \textbf{\textcolor{yellow!80!black}{Medium}} & Plan and execute an upgrade of the Nginx web server from version 1.18.0 to a current, supported stable version. Follow a robust patch management policy to ensure all public-facing software remains up-to-date. \\ \bottomrule
+\end{tabular}
+\caption{Prioritized Recommendations.}
+\end{table}
+
+\end{document}
+```

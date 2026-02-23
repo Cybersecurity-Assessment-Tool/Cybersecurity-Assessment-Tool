@@ -1,0 +1,152 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section*{1. Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Great Lakes}. The assessment is based on a synthesis of network scan data, an organizational security questionnaire, and a review of pre-existing risk documentation.
+
+The analysis has identified a \textbf{CRITICAL} risk exposure. An external network scan of host \texttt{10.5.5.5} revealed an open port (\texttt{8080/tcp}) hosting a service with the title ``TOP SECRET DB''. This finding directly contradicts the current risk register, which incorrectly classifies this port as a secure false positive.
+
+This technical vulnerability is severely compounded by a critical gap in organizational policy: the lack of mandatory Multi-Factor Authentication (MFA) for accessing sensitive data systems. The combination of an exposed database, potentially containing highly sensitive information, and the absence of a fundamental access control like MFA creates a significant and immediate risk of a data breach.
+
+Immediate remediation is required to restrict access to the exposed service and to implement mandatory MFA for all sensitive systems. A thorough review of the risk management process is also strongly recommended.
+
+% --- 2. Organizational Information ---
+\section*{2. Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Great Lakes} \\
+Email Domain & \texttt{GreatLakes.com} \\
+Website Domain & \url{www.GreatLakes.com} \\
+External IP & \texttt{141.76.63.207} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section*{3. Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The results indicate a generally positive security culture regarding user access and training. However, a critical gap was identified in the protection of sensitive data systems.
+
+\begin{tabular}{@{}p{0.8\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+
+\vspace{1em}
+\noindent
+\textbf{Analysis:} The failure to enforce MFA on sensitive data systems is a significant weakness. MFA is a foundational security control that mitigates risks associated with compromised credentials. This policy gap, when correlated with technical findings, elevates the overall risk profile of the organization to a critical level.
+
+% --- 4. Technical Scan Results ---
+\section*{4. Technical Scan Results}
+
+A network scan was performed on the specified target to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{10.5.5.5}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+\subsection*{Open Ports and Services}
+A single open port was discovered. The details are highly concerning.
+
+\begin{tabular}{@{}lllll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Info} \\
+\midrule
+8080/tcp & open & \textbf{HTTP Title:} TOP SECRET DB \\
+\bottomrule
+\end{tabular}
+
+\vspace{1em}
+\noindent
+\textbf{Analysis:} The presence of an open port with a service title explicitly mentioning ``TOP SECRET DB'' is an alarming discovery. This strongly suggests that a sensitive, internal database is directly exposed. This finding directly contradicts the information in the current risk register (see Section 5), which lists this port as secure. This discrepancy indicates a failure in the vulnerability management and risk assessment lifecycle.
+
+% --- 5. Correlated Risk Assessment ---
+\section*{5. Correlated Risk Assessment}
+
+This section synthesizes the findings from the security control review, technical scans, and the provided risk documentation. The analysis reveals a critical disconnect between the documented risk posture and the operational reality. The pre-existing risk entry stating Port 8080 is secure is demonstrably false and has been superseded by the new findings.
+
+\begin{tabular}{@{}p{0.2\linewidth}p{0.5\linewidth}p{0.2\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Exposed Sensitive Database} & Port \texttt{8080} on host \texttt{10.5.5.5} is open and hosts a service titled ``TOP SECRET DB''. This creates a direct vector for unauthorized access to potentially classified or highly sensitive information. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of MFA on Sensitive Systems} & The organization does not enforce MFA for sensitive systems. This policy gap dramatically increases the risk of a successful breach, as a single compromised credential could grant an attacker full access to critical data. & \textbf{High} \\
+\addlinespace
+\textbf{Inaccurate Risk Register} & The current risk register incorrectly lists Port 8080 as a secure false positive. This indicates a flawed risk management process, preventing the organization from accurately understanding and mitigating its true threat landscape. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+
+% --- 6. Recommendations ---
+\section*{6. Recommendations}
+
+Based on the correlated findings, the following actions are recommended to mitigate the identified risks. Recommendations are prioritized by urgency.
+
+\subsection*{Immediate Actions (0-24 Hours)}
+\begin{enumerate}
+    \item \textbf{Isolate the Exposed System:} Immediately apply a firewall rule to block all external and non-essential internal access to port \texttt{8080} on host \texttt{10.5.5.5}.
+    \item \textbf{Investigate the Service:} Conduct an immediate investigation into the service running on port \texttt{8080}. Determine the nature of the data, check for signs of existing compromise, and identify why this service was exposed.
+\end{enumerate}
+
+\subsection*{High-Priority Actions (1-2 Weeks)}
+\begin{enumerate}
+    \item \textbf{Enforce MFA on All Sensitive Systems:} Develop and execute a plan to enforce MFA on all systems identified as containing sensitive data. This is the single most effective control to mitigate the identified policy gap.
+    \item \textbf{Conduct a Full Risk Register Review:} Initiate a comprehensive review of the entire risk register. The discrepancy found in this assessment suggests other critical risks may be inaccurately documented or overlooked. Verify all existing entries with fresh technical validation.
+\end{enumerate}
+
+\subsection*{Medium-Priority Actions (1-3 Months)}
+\begin{enumerate}
+    \item \textbf{Review Network Segmentation:} Perform a review of the network architecture to ensure that sensitive systems are properly segmented and isolated from less secure zones.
+    \item \textbf{Enhance Vulnerability Management Process:} Revise the vulnerability management and risk assessment process to ensure that technical scan data is accurately interpreted and that risk closure procedures require rigorous validation.
+\end{enumerate}
+
+\end{document}
+```

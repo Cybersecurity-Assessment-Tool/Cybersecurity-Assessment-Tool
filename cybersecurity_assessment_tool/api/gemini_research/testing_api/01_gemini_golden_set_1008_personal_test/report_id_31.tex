@@ -1,0 +1,227 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont}         % For checkmarks and crosses (\ding)
+\usepackage{booktabs}       % For professional-looking tables
+\usepackage{hyperref}       % For clickable links and references
+\usepackage{url}            % For formatting URLs
+\usepackage{seqsplit}       % For splitting long strings like IPs
+\usepackage{graphicx}       % For including images (e.g., logo)
+\usepackage[table]{xcolor}  % For coloring table rows and text
+\usepackage{datetime}       % For using \today
+
+% --- Custom Colors and Commands ---
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\definecolor{orange}{rgb}{1.0, 0.5, 0.0}
+\definecolor{lightgray}{gray}{0.9}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=darkblue,      
+    urlcolor=darkblue,
+    citecolor=darkblue,
+}
+
+% --- Checkmark/Cross Commands ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- Document Variables (from JSON inputs) ---
+\newcommand{\orgname}{Fable \& Lore}
+\newcommand{\orgdomain}{FableLore.com}
+\newcommand{\orgip}{187.14.137.42}
+\newcommand{\targetip}{2001:db8::1}
+\newcommand{\reportdate}{\today}
+
+% ----------------------------------------------------------------------
+% DOCUMENT START
+% ----------------------------------------------------------------------
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \Large\textbf{Prepared for:} \\
+    \vspace{0.5cm}
+    \huge{\orgname}
+    \vspace{2cm}
+    % Placeholder for client logo
+    \fbox{\parbox{0.4\textwidth}{\centering \vspace{2cm} Client Logo \vspace{2cm}}}
+    \vfill
+    \large
+    \textbf{Date of Report:} \reportdate \\
+    \textbf{Report ID:} CYBER-2024-481
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% 1. EXECUTIVE SUMMARY
+% ----------------------------------------------------------------------
+\section{Executive Summary}
+This report details the findings of a cybersecurity posture assessment for \orgname. The assessment combined a review of organizational security controls via questionnaire, an external network scan, and an analysis of known risks. The objective is to provide a clear overview of the current security posture and offer actionable recommendations for improvement.
+
+Overall, \orgname has implemented some positive security controls, such as requiring Multi-Factor Authentication (MFA) for email and conducting annual security training. However, the assessment identified several critical and high-risk gaps that significantly increase the organization's exposure to common cyber threats.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Risk - Lack of MFA:} MFA is not enforced for computer logins or access to sensitive data systems. This represents a major vulnerability, as a single compromised password could lead to widespread unauthorized access.
+    \item \textbf{High Risk - Inadequate Employee Onboarding:} New employees do not receive security awareness training upon hiring, leaving a critical window of vulnerability to phishing and social engineering attacks when they are most susceptible.
+    \item \textbf{Medium Risk - Exposed Network Service:} An external network scan identified an open Secure Shell (SSH) port. If not properly configured, hardened, and monitored, this service could serve as an entry point for attackers.
+\end{itemize}
+
+Immediate action is recommended to address these findings, focusing on the swift implementation of MFA across all critical systems and integrating security training into the new employee onboarding process. Detailed recommendations are provided in Section \ref{sec:recommendations}.
+
+% ----------------------------------------------------------------------
+% 2. ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+The following information was provided by the client for the scope of this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \orgname \\
+Email Domain & \texttt{\orgdomain} \\
+Website Domain & \url{www.FableLore.com} \\
+Known External IP & \seqsplit{\texttt{\orgip}} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\label{tab:org_info}
+\end{table}
+
+% ----------------------------------------------------------------------
+% 3. SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate potential gaps in the security posture and are highlighted for review.
+
+\begin{table}[h!]
+\centering
+\rowcolors{2}{lightgray!25}{white}
+\begin{tabular}{@{}p{0.5\textwidth}cp{0.3\textwidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Analyst Note} \\ \midrule
+Do you require MFA to access email? & \yes & Good practice. Protects the primary communication channel. \\
+Do you require MFA to log into computers? & \no & \textbf{Critical Gap.} Compromised credentials could lead to endpoint takeover. \\
+Do you require MFA to access sensitive data systems? & \no & \textbf{Critical Gap.} The organization's most valuable data is not adequately protected from unauthorized access. \\
+Does your organization have an employee acceptable use policy? & \yes & Good. Sets clear behavioral expectations for employees. \\
+Does your organization do security awareness training for new employees? & \no & \textbf{High Risk.} New hires are a common target for social engineering and are left vulnerable. \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Good practice for maintaining a culture of security awareness. \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\end{table}
+\newpage
+
+% ----------------------------------------------------------------------
+% 4. TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+An external network scan was performed to identify accessible services on the organization's public-facing infrastructure. The provided scan data was minimal; a more comprehensive, credentialed scan is recommended for deeper insights.
+
+\subsection{Scan Target}
+The scan was performed against the following target IP address:
+\begin{itemize}
+    \item \textbf{Target IP:} \seqsplit{\texttt{\targetip}}
+\end{itemize}
+
+\subsection{Open Ports and Services}
+The following table lists the ports found to be open and accessible from the internet.
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Inferred Service} & \textbf{Notes} \\ \midrule
+22/tcp & Open & SSH (Secure Shell) & Service/version details were not available in the scan data. \\ \bottomrule
+\end{tabular}
+\caption{Open Ports on \seqsplit{\texttt{\targetip}}}
+\label{tab:ports}
+\end{table}
+
+\noindent The presence of an open SSH port indicates a potential remote administration interface. While often necessary for system management, public exposure increases risk if the service is not hardened with strong authentication (e.g., key-based only), patched regularly, and monitored for unauthorized access attempts.
+
+% ----------------------------------------------------------------------
+% 5. RISK ASSESSMENT
+% ----------------------------------------------------------------------
+\section{Risk Assessment}
+This section synthesizes findings from the control review and technical scan into a prioritized list of risks. The `Current_Risks_JSON` input indicated no pre-existing vulnerabilities were tracked for this assessment.
+
+\begin{table}[h!]
+\centering
+\rowcolors{2}{lightgray!25}{white}
+\begin{tabular}{@{}p{0.25\textwidth}p{0.5\textwidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\ \midrule
+\textbf{Lack of MFA for Endpoints and Systems} & The absence of MFA on computer logins and sensitive data systems means a single compromised password could grant an attacker full access to critical assets and user endpoints. & \textcolor{darkred}{\textbf{Critical}} \\
+\textbf{Inadequate Security Onboarding} & New employees do not receive security awareness training. This makes them highly susceptible to phishing and social engineering attacks from their first day, creating a significant and immediate vulnerability. & \textcolor{red}{\textbf{High}} \\
+\textbf{Publicly Exposed SSH Service} & Port 22 (SSH) is open to the internet. Without proper hardening (e.g., strong passwords/keys, IP whitelisting, vulnerability patching), this service is a prime target for brute-force attacks and exploitation. & \textcolor{orange}{\textbf{Medium}} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% ----------------------------------------------------------------------
+% 6. RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+\label{sec:recommendations}
+The following actions are recommended to mitigate the risks identified in this report. Recommendations are prioritized based on risk severity.
+
+\subsection{Critical Priority}
+\begin{enumerate}
+    \item \textbf{Implement Comprehensive MFA:}
+    \begin{itemize}
+        \item Immediately deploy and enforce MFA for all user logins to company computers (endpoints).
+        \item Enforce MFA for access to all systems containing sensitive or critical business data, including databases, administrative panels, and cloud services.
+        \item Prioritize phishing-resistant MFA methods (e.g., FIDO2/WebAuthn) where possible.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Establish a Security Onboarding Program:}
+    \begin{itemize}
+        \item Develop a mandatory security awareness training module for all new employees.
+        \item This training must be completed within the first week of employment and should cover, at a minimum, phishing identification, password security, and the acceptable use policy.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Medium Priority}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Harden the Exposed SSH Service:}
+    \begin{itemize}
+        \item \textbf{Validate Need:} Confirm the business requirement for this SSH service to be publicly accessible. If not essential, it should be disabled.
+        \item \textbf{Restrict Access:} If required, use a firewall to restrict access to only trusted, known IP addresses (e.g., administrator locations, specific partner networks).
+        \item \textbf{Enforce Strong Authentication:} Disable password-based authentication entirely and require public key authentication for all SSH access.
+        \item \textbf{Conduct Vulnerability Scan:} Perform a detailed scan on the service to identify the specific SSH server version and patch any known vulnerabilities.
+    \end{itemize}
+\end{enumerate}
+
+% ----------------------------------------------------------------------
+% 7. CONCLUSION
+% ----------------------------------------------------------------------
+\section{Conclusion}
+The assessment reveals that while \orgname has some security measures in place, there are significant and addressable weaknesses in its current cybersecurity posture. The lack of MFA on critical systems and the gap in new-hire security training represent the most immediate threats that require urgent attention.
+
+By implementing the recommendations outlined in this report, \orgname can substantially reduce its attack surface, improve its resilience against common cyber threats, and build a stronger security foundation. We recommend a follow-up assessment in 6-12 months to validate the implementation of these controls and measure the improvement in the organization's security posture.
+
+% ----------------------------------------------------------------------
+% DOCUMENT END
+% ----------------------------------------------------------------------
+\end{document}
+```

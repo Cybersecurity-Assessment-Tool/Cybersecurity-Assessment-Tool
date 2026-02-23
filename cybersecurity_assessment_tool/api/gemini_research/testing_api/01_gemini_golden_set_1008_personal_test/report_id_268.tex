@@ -1,0 +1,200 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{graphicx} % For logos, etc.
+\usepackage{fancyhdr} % For custom headers/footers
+\usepackage{lastpage} % To get the total page count
+\usepackage{xcolor} % For custom colors
+\usepackage{datetime} % To format dates
+
+% --- Document Configuration ---
+
+% Define custom colors
+\definecolor{tablehead}{gray}{0.9}
+\definecolor{highrisk}{HTML}{D9534F}
+\definecolor{mediumrisk}{HTML}{F0AD4E}
+\definecolor{lowrisk}{HTML}{5CB85C}
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Report, Analysis},
+    bookmarks=true
+}
+
+% Header and Footer Configuration
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Report}
+\fancyhead[R]{Grizzly Peak}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Huge \textbf{Cybersecurity Posture Report}\par}
+    \vspace{1.5cm}
+    
+    {\Large \textbf{Prepared for:}\par}
+    \vspace{0.5cm}
+    {\Large Grizzly Peak\par}
+    
+    \vfill
+    
+    {\large \textbf{Date of Report:}\par}
+    {\large \today\par}
+    
+    \vspace{1cm}
+    
+    \textit{This document contains sensitive information and is intended for the exclusive use of the recipient organization.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture of Grizzly Peak, based on a review of organizational security controls, an external network scan, and pre-existing risk data. The assessment was conducted to identify security gaps, evaluate the current risk landscape, and provide actionable recommendations for improvement.
+
+\paragraph{Key Findings:} The organization demonstrates a strong technical security posture, with a well-configured network perimeter and excellent implementation of Multi-Factor Authentication (MFA) across critical systems. The external network scan of the target host revealed \textbf{no open ports}, indicating a minimal attack surface and effective firewall management.
+
+However, a \textbf{critical administrative control gap} was identified: the lack of mandatory security awareness training for new employees during their onboarding process. This oversight introduces a significant human-element risk, as new hires are often prime targets for social engineering and phishing attacks. While an annual training program is in place for all staff, the initial vulnerability period for new personnel remains unaddressed.
+
+\paragraph{Overall Assessment:} The overall security posture is assessed as \textbf{Moderate}. The robust technical controls significantly mitigate many common threats, but the identified gap in the onboarding process presents a high-impact risk that requires immediate attention. Recommendations in this report focus on closing this administrative gap to elevate the organization's security maturity.
+
+\newpage
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment. This information forms the basis of the analysis and scope.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Grizzly Peak \\
+    Email Domain & \texttt{GrizzlyPeak.com} \\
+    Website Domain & \url{www.GrizzlyPeak.com} \\
+    External IP Address & \seqsplit{\texttt{28.155.109.98}} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+An assessment of administrative and organizational security controls was performed based on a standardized questionnaire. The results are summarized below.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Controls Questionnaire}
+\begin{tabular}{p{0.6\linewidth} c p{0.2\linewidth}}
+    \toprule
+    \rowcolor{tablehead}
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} & Strong Control \\
+    Do you require MFA to log into computers? & \ding{51} & Strong Control \\
+    Do you require MFA to access sensitive data systems? & \ding{51} & Strong Control \\
+    Does your organization have an employee acceptable use policy? & \ding{51} & Good Practice \\
+    Does your organization do security awareness training for new employees? & \textcolor{highrisk}{\ding{55}} & \textbf{High Risk Gap} \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Good Practice \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The organization has successfully implemented MFA across key access points, which is a critical defense against credential theft and unauthorized access. However, the failure to provide security awareness training to new hires represents the most significant finding from this review. New employees are not equipped from day one to recognize and report security threats, creating a window of vulnerability for the entire organization.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify the external attack surface of the specified target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.1.100}
+    \item \textbf{Scan Date:} Scan data processed on \today
+    \item \textbf{Host Status:} UP
+\end{itemize}
+
+\subsection{Port Scan Findings}
+The scan results were conclusive and indicate a very strong security posture for the targeted host.
+
+\begin{table}[h!]
+\centering
+\caption{Network Port Scan Summary}
+\begin{tabular}{@{}ll}
+    \toprule
+    \rowcolor{tablehead}
+    \textbf{Finding} & \textbf{Result} \\
+    \midrule
+    \textbf{Open Ports Discovered} & \textbf{0} \\
+    Extra Ports State & All other scanned ports are `closed` \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} No open ports were detected on the target system \texttt{192.168.1.100}. A "closed" state indicates that the firewall is actively rejecting connection attempts, which is a secure configuration. This finding suggests that the host has a minimal network attack surface and is well-protected by network-level controls.
+
+\newpage
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review, technical scans, and pre-existing risk data. No pre-existing vulnerabilities were reported. The primary risk identified is detailed below.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks}
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.45\linewidth} c}
+    \toprule
+    \rowcolor{tablehead}
+    \textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & Lack of New Hire Security Training & New employees do not receive security awareness training as part of their onboarding. This exposes the organization to increased risk from phishing, social engineering, and unintentional policy violations, as new staff are often prime targets for attackers. & \colorbox{highrisk}{\color{white}\textbf{ High }} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are provided to address the identified risks and improve the overall security posture of Grizzly Peak.
+
+\subsection{Priority 1: Implement Onboarding Security Training (High)}
+\begin{itemize}
+    \item \textbf{Risk Addressed:} RISK-001
+    \item \textbf{Recommendation:} Develop and implement a mandatory security awareness training module for all new employees, to be completed during their first week of employment. This training should be a prerequisite for gaining full access to corporate systems.
+    \item \textbf{Justification:} This action directly mitigates the highest-priority risk identified in this assessment. By educating employees from day one, the organization can significantly reduce its susceptibility to human-targeted attacks like phishing and social engineering. The training should cover, at a minimum:
+    \begin{itemize}
+        \item Phishing and spear-phishing recognition.
+        \item Acceptable use of company assets.
+        \item Password and credential security policies.
+        \item Procedures for reporting security incidents.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Priority 2: Maintain Strong Network Controls (Informational)}
+\begin{itemize}
+    \item \textbf{Risk Addressed:} General Best Practice
+    \item \textbf{Recommendation:} Continue the excellent practice of maintaining a minimal external attack surface. Regularly review and audit firewall rules to ensure that only explicitly required ports and services are accessible.
+    \item \textbf{Justification:} The current technical posture is a significant strength. Proactive maintenance and periodic validation will ensure this strength is preserved against future changes in the IT environment or emerging threats.
+\end{itemize}
+
+\end{document}
+```

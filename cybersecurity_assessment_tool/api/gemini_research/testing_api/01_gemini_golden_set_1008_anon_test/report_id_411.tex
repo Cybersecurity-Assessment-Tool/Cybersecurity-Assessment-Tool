@@ -1,0 +1,156 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For check and cross marks
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{xcolor} % For colors
+
+% Custom Commands for Readability
+\newcommand{\yes}{\textcolor{green}{\ding{51}}}
+\newcommand{\no}{\textcolor{red}{\ding{55}}}
+
+% Hyperlink Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+}
+
+% -------------------------------------------------------------------
+% --- DOCUMENT START ------------------------------------------------
+% -------------------------------------------------------------------
+
+\begin{document}
+
+\title{Cybersecurity Posture Assessment Report \\ \large For: \textbf{[Organization Name]}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+This report provides a comprehensive assessment of the cybersecurity posture for \textbf{[Organization Name]}, based on an analysis of network scan data, organizational security controls, and known risks. The assessment reveals a \textbf{Critical} risk posture, driven by several significant and correlated vulnerabilities.
+
+Key findings indicate a direct, public-facing exposure of a database service (MySQL) running on an End-of-Life (EOL) version, which no longer receives security updates. This technical vulnerability is severely compounded by critical gaps in foundational security controls, including a lack of Multi-Factor Authentication (MFA) for computer and sensitive data access, the absence of an employee acceptable use policy, and a complete deficiency in security awareness training.
+
+Immediate and decisive action is required to remediate these issues. The highest priority is to remove the database from public exposure and to develop a plan for upgrading the underlying software. Concurrently, the organization must implement MFA and establish a baseline security policy and training program to mitigate human-factor risks.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Email Domain & \texttt{[Domain]} \\
+External IP Scanned & \texttt{[Client IP]} \\
+Target IP Assessed & \texttt{[Target IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight critical deficiencies in access control, policy, and user training, which significantly increase the organization's risk profile.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\linewidth}cp{0.2\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\ \midrule
+Do you require MFA to access email? & \yes & Good Practice \\
+Do you require MFA to log into computers? & \no & \textbf{High Risk} \\
+Do you require MFA to access sensitive data systems? & \no & \textbf{Critical Gap} \\
+Does your organization have an employee acceptable use policy? & \no & \textbf{High Risk} \\
+Does your organization do security awareness training for new employees? & \no & \textbf{Critical Gap} \\
+Does your organization do security awareness training for all employees at least once per year? & \no & \textbf{Critical Gap} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify exposed services and potential vulnerabilities.
+
+\subsection{Scan Summary}
+The scan identified one open port on the target system \texttt{[Target IP]}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+3306/tcp & open & mysql & MySQL & 5.7.33 \\ \bottomrule
+\end{tabular}
+\caption{Open Ports and Services Detected}
+\end{table}
+
+\subsection{Technical Analysis}
+The scan revealed two primary issues of critical concern:
+\begin{enumerate}
+    \item \textbf{Database Port Exposure:} Port 3306 is the default port for the MySQL database service. Exposing this port directly to the public internet is a severe security misconfiguration. It allows attackers to directly interact with the database, enabling brute-force attacks, credential stuffing, and exploitation of database vulnerabilities. This finding directly confirms the pre-existing risk titled "Database Exposure".
+
+    \item \textbf{End-of-Life (EOL) Software:} The detected version, MySQL 5.7.33, reached its official End-of-Life in \textbf{October 2023}. This means it no longer receives security patches from the vendor. Any new vulnerabilities discovered in this version will not be fixed, leaving the system permanently vulnerable to exploitation.
+\end{enumerate}
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of organizational risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.2\linewidth}p{0.4\linewidth}lp{0.2\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} & \textbf{Affected Systems} \\ \midrule
+\textbf{Exposed End-of-Life Database} & A MySQL 5.7.33 database is publicly accessible on port 3306. The software is EOL and unpatched. & \textbf{Critical (9.8)} & Database Server at \texttt{[Target IP]} \\
+\textbf{Lack of Multi-Factor Authentication} & MFA is not enforced for computer logins or access to sensitive data, allowing for account takeover with a single compromised password. & \textbf{High (8.5)} & All Workstations, Sensitive Data Systems \\
+\textbf{Deficient Security Policy and Training} & The absence of an acceptable use policy and any security training program leaves the organization highly susceptible to human-error incidents like phishing and malware. & \textbf{High (8.0)} & All Employees \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the consolidated risk assessment, the following actions are recommended to improve the organization's security posture. Recommendations are prioritized by severity.
+
+\subsection{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Restrict Access to Database Port:} Immediately implement firewall rules to block all public internet access to TCP port 3306 on \texttt{[Target IP]}. Access should only be permitted from trusted internal IP addresses or through a secure VPN connection.
+    \item \textbf{Plan Database Upgrade:} Initiate a project to migrate the database from the EOL MySQL 5.7 to a currently supported version (e.g., MySQL 8.0 or later). This is essential for receiving future security patches.
+\end{enumerate}
+
+\subsection{High Priority Actions}
+\begin{enumerate}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item Deploy MFA for all employee computer logins.
+        \item Enforce MFA for access to all systems containing sensitive or critical data, including the aforementioned database.
+    \end{itemize}
+    \item \textbf{Develop and Implement Security Policies:}
+    \begin{itemize}
+        \item Create and enforce an \textit{Employee Acceptable Use Policy} that clearly defines rules for using company assets, data handling, and internet usage.
+    \end{itemize}
+    \item \textbf{Establish Security Awareness Training:}
+    \begin{itemize}
+        \item Implement a mandatory security awareness training program for all new hires.
+        \item Conduct annual security awareness training for all current employees, with a focus on identifying phishing, social engineering, and proper data handling.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>This report pertains to the following organization and assets. The
+information provided has been anonymized as per the engagement
+parameters.</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Organization Name:</strong></td>
+<td style="text-align: left;"><strong>[Organization Name]</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Primary Domain:</strong></td>
+<td style="text-align: left;"><code>[Domain]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>External IP Scanned:</strong></td>
+<td style="text-align: left;"><code>[Client IP]</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>This section reviews the organization’s self-reported security
+controls based on the provided questionnaire. Identified gaps often
+represent significant policy or procedural risks that can be exploited
+by threat actors.</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis">Analysis</h2>
+<p>The review highlights critical gaps in identity and access
+management. The absence of Multi-Factor Authentication (MFA) for email
+and general computer logins drastically increases the risk of account
+compromise via credential theft or phishing. Furthermore, the lack of
+security awareness training for new employees creates an immediate
+vulnerability, as new staff are often prime targets for social
+engineering attacks before they are familiar with corporate
+policies.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was conducted against the client’s perimeter
+to identify open ports and services exposed to the internet.</p>
+<h2 class="unnumbered" id="target-information">Target Information</h2>
+<ul>
+<li><p><strong>Target IP:</strong> <code>[Target IP]</code></p></li>
+<li><p><strong>Scan Date:</strong> Date Not Provided (Report Generation:
+2026-01-31)</p></li>
+<li><p><strong>Host Status:</strong> Up</p></li>
+</ul>
+<h2 class="unnumbered" id="open-ports-and-services">Open Ports and
+Services</h2>
+<p>The following table details the services discovered on the target
+system.</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+<th style="text-align: left;"><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">21/tcp</td>
+<td style="text-align: left;">Open</td>
+<td style="text-align: left;">ftp</td>
+<td style="text-align: left;">vsftpd 2.3.4</td>
+<td style="text-align: left;">Anonymous FTP login allowed</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis-1">Analysis</h2>
+<p>The scan identified a critically vulnerable service. <strong>vsftpd
+version 2.3.4</strong> is known to contain a backdoor vulnerability
+(<strong>CVE-2011-2523</strong>). An attacker can gain a remote command
+shell on the server by sending a specific string as the username.
+Compounding this issue, the FTP server is configured to allow
+<strong>anonymous logins</strong>, making it trivial for an unauthorized
+user to access the system and exploit this vulnerability. This
+represents an immediate and severe threat to the organization’s network
+integrity and confidentiality.</p>
+<h1 id="consolidated-risk-assessment">Consolidated Risk Assessment</h1>
+<p>The following table summarizes the key identified risks, correlating
+findings from the security control review, technical scan, and
+pre-existing risk data.</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Vulnerable External FTP
+Server</strong></td>
+<td style="text-align: left;">The external server is running vsftpd
+2.3.4, which has a known remote code execution backdoor (CVE-2011-2523).
+Anonymous login is enabled, allowing unauthenticated access.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>No MFA for Critical
+Systems</strong></td>
+<td style="text-align: left;">Multi-Factor Authentication is not
+enforced for email access or computer logins, making credential theft or
+phishing a high-impact event that could lead to widespread
+compromise.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Inadequate Employee
+Onboarding</strong></td>
+<td style="text-align: left;">New employees do not receive security
+awareness training, making them highly susceptible to social engineering
+attacks from their first day.</td>
+<td style="text-align: left;"><strong>High</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Outdated Windows
+Policy</strong></td>
+<td style="text-align: left;">Computers are running Windows 7, an
+unsupported operating system that no longer receives security updates,
+leaving them vulnerable to known exploits. (CVSS 5.0)</td>
+<td style="text-align: left;">Medium</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the assessment, the following actions are recommended to
+mitigate the identified risks. Recommendations are prioritized by
+severity to address the most urgent threats first.</p>
+<h2 class="unnumbered" id="immediate-actions-critical-risks">Immediate
+Actions (Critical Risks)</h2>
+<ol>
+<li><p><strong>Remediate Vulnerable FTP Server:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Immediately take the FTP server at
+<code>[Target IP]</code> offline.</p></li>
+<li><p><strong>Investigation:</strong> Conduct a forensic analysis of
+the server to determine if it has already been compromised.</p></li>
+<li><p><strong>Remediation:</strong> If the FTP service is a business
+requirement, rebuild the server using a modern, patched operating system
+and the latest stable version of the FTP software. Disable anonymous
+access and configure strong authentication. If the service is not
+required, decommission it permanently.</p></li>
+</ul></li>
+<li><p><strong>Implement Multi-Factor Authentication (MFA):</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Begin the phased rollout of MFA across
+the organization immediately.</p></li>
+<li><p><strong>Prioritization:</strong> Enforce MFA for all email access
+(cloud and on-premise) and for all administrative/privileged accounts
+within the next 30 days.</p></li>
+<li><p><strong>Roadmap:</strong> Develop a project plan to enforce MFA
+for all general computer and system logins within the next
+quarter.</p></li>
+</ul></li>
+</ol>
+<h2 class="unnumbered"
+id="near-term-actions-high-medium-risks">Near-Term Actions (High &amp;
+Medium Risks)</h2>
+<ol start="3">
+<li><p><strong>Enhance Security Awareness Program:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Integrate mandatory security awareness
+training into the new employee onboarding process. This must be
+completed before a new hire is granted system access.</p></li>
+<li><p><strong>Content:</strong> The training should cover, at a
+minimum: phishing identification, password hygiene, and the
+organization’s acceptable use policy.</p></li>
+</ul></li>
+<li><p><strong>Upgrade End-of-Life Systems:</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Accelerate the project to upgrade all
+remaining Windows 7 workstations to a supported operating system (e.g.,
+Windows 10/11).</p></li>
+<li><p><strong>Mitigation:</strong> For any systems that cannot be
+immediately upgraded, isolate them in a segmented network with
+restricted access to and from the main corporate network.</p></li>
+</ul></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGE IMPORTS ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc}
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Assessment Report for \textbf{Aetheric Systems}}
+\author{Cybersecurity Analyst Group}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+\begin{center}
+    \textbf{CONFIDENTIAL} \\
+    This document contains sensitive information and is intended solely for the use of Aetheric Systems.
+\end{center}
+\vspace{1em}
+\hrule
+
+\newpage
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ==============================================================================
+\section{Executive Summary}
+
+This report presents the findings of a cybersecurity assessment conducted for \textbf{Aetheric Systems}. The analysis is based on a combination of network scanning, a review of organizational security controls, and an evaluation of pre-existing risk data.
+
+The assessment revealed several critical and high-risk vulnerabilities that require immediate attention. Most notably, there is a systemic lack of Multi-Factor Authentication (MFA) across all critical access points, including email, employee computers, and sensitive data systems. This represents a significant gap in access control and exposes the organization to a high risk of account compromise and unauthorized access.
+
+Furthermore, the absence of a formal Employee Acceptable Use Policy creates ambiguity in security expectations and enforcement. On the technical front, a network scan confirmed a pre-identified critical risk, "Localhost Exposed," related to an open port (22/SSH) on an internal-facing system.
+
+While these findings are serious, it is important to note that the organization has a solid foundation in security awareness training for both new and existing employees. This indicates a positive security culture that can be leveraged to implement the corrective actions outlined in this report. We strongly recommend prioritizing the implementation of MFA and the remediation of the exposed network service to significantly improve the organization's security posture.
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following information was provided by the client and serves as the baseline for this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{Aetheric Systems} \\
+Email Domain & \texttt{AethericSystems.org} \\
+Website Domain & \seqsplit{\url{www.AethericSystems.org}} \\
+External IP Address & \texttt{170.249.171.87} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\label{tab:org_info}
+\end{table}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A review of administrative and technical security controls was conducted via a questionnaire. The responses highlight significant gaps in access control policies. A checkmark (\ding{51}) indicates a positive control is in place, while a cross (\ding{55}) indicates a gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{8cm}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\ \midrule
+Do you require MFA to access email? & \ding{55} No & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to log into computers? & \ding{55} No & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to access sensitive data systems? & \ding{55} No & \textcolor{red}{\textbf{Critical Gap}} \\
+Does your organization have an employee acceptable use policy? & \ding{55} No & \textcolor{orange}{High Risk} \\
+\midrule
+Does your organization do security awareness training for new employees? & \ding{51} Yes & Good Practice \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} Yes & Good Practice \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis.}
+\label{tab:controls}
+\end{table}
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+A network scan was performed to identify exposed services and potential vulnerabilities on the specified target.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{127.0.0.1}
+    \item \textbf{Scan Status:} Host is up.
+\end{itemize}
+
+The scan identified the following open port. This finding directly corroborates the pre-existing risk titled "Localhost Exposed" (see Section 5).
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\ \midrule
+22/tcp & Open & ssh (inferred) & \textit{Not enumerated} \\ \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{127.0.0.1}.}
+\label{tab:scan_results}
+\end{table}
+
+\textbf{Analysis:} The presence of an open SSH port on the localhost interface is a significant finding. While typically used for local management, if misconfigured or accessible by other processes on the system, it can become a pivot point for an attacker who has gained initial, limited access. The scan did not retrieve version information, which prevents an assessment for known exploits against the specific SSH server software.
+
+% ==============================================================================
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of key risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}p{4cm}p{2cm}p{6cm}p{3.5cm}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Description} & \textbf{Affected Assets} \\ \midrule
+\textbf{Absence of Multi-Factor Authentication (MFA)} & \textcolor{red}{\textbf{Critical}} & The lack of MFA for email, endpoints, and sensitive data systems exposes the organization to account takeover, business email compromise, and unauthorized data access. & All user accounts, endpoints, email system, data repositories. \\
+\addlinespace
+\textbf{Localhost Exposed} & \textcolor{red}{\textbf{Critical}} & A service (SSH on port 22) on the internal loopback interface is exposed. This confirms a known risk and could serve as an internal pivot point for lateral movement. & Server/workstation at \texttt{127.0.0.1}. \\
+\addlinespace
+\textbf{No Employee Acceptable Use Policy (AUP)} & \textcolor{orange}{\textbf{High}} & The absence of a formal AUP creates ambiguity for employees regarding security responsibilities and limits the organization's ability to enforce secure behavior. & All employees, organizational data, IT systems. \\ \bottomrule
+\end{tabular}%
+}
+\caption{Summary of Identified Risks.}
+\label{tab:risk_summary}
+\end{table}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+Based on the risk assessment, we provide the following actionable recommendations, prioritized by severity.
+
+\subsection{Immediate Priority (Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item Immediately enable MFA for all user accounts across all critical systems.
+        \item Prioritize email (e.g., Office 365, Google Workspace), followed by access to sensitive data systems and remote access solutions (VPNs).
+        \item Mandate MFA for all privileged (administrator) accounts without exception.
+    \end{itemize}
+
+    \item \textbf{Remediate Exposed Localhost Service:}
+    \begin{itemize}
+        \item Investigate the system at \texttt{127.0.0.1} to determine the purpose of the open SSH service.
+        \item If the service is not required, disable it.
+        \item If it is required, ensure it is properly configured and firewalled to only allow connections from trusted local processes.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Near-Term Priority (High Risks)}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item Draft a clear AUP that defines rules for the use of company computers, networks, and data.
+        \item Communicate the policy to all employees and require them to formally acknowledge it.
+        \item Integrate AUP training into the existing security awareness program.
+    \end{itemize}
+    
+    \item \textbf{Conduct In-Depth Vulnerability Scanning:}
+    \begin{itemize}
+        \item Perform authenticated vulnerability scans on key internal assets to identify specific software versions and missing security patches. This will provide a more detailed view than the initial network discovery scan.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

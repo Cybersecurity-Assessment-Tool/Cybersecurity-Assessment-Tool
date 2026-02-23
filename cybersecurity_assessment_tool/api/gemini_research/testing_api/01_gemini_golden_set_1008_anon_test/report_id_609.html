@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-overview">Executive Overview</h1>
+<p>This report details the findings of a cybersecurity posture
+assessment conducted for <strong>[Organization Name]</strong>. The
+assessment combined an external network scan, a review of existing risk
+documentation, and an analysis of organizational security controls via a
+questionnaire.</p>
+<p>The analysis reveals a critical security vulnerability. While the
+organization demonstrates a foundational level of security maturity by
+implementing Multi-Factor Authentication (MFA) for email and computer
+access, and maintaining security awareness programs, a significant gap
+exists. A public-facing service was discovered on port 8080 with a title
+indicating it is a “TOP SECRET DB”. This service is exposed on the
+external IP address <code>[Client IP]</code>.</p>
+<p>Crucially, this finding directly contradicts previous risk assessment
+data which incorrectly classified this port as a secure false positive.
+Furthermore, the organization’s security questionnaire confirms that MFA
+is not required for accessing sensitive data systems. This combination
+of an exposed, highly sensitive database and a lack of mandatory MFA for
+such systems constitutes a <strong>Critical Risk</strong>.</p>
+<p>Immediate remediation is required to take the exposed service offline
+and implement compensating controls. This report provides detailed
+findings and actionable recommendations to mitigate this and other
+identified risks.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>This section contains the high-level, anonymized information used as
+the basis for this assessment.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;"><strong>[Organization Name]</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Primary Domain</td>
+<td style="text-align: left;"><code>[Domain]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Address Assessed</td>
+<td style="text-align: left;"><code>[Client IP]</code></td>
+</tr>
+</tbody>
+</table>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>The following table summarizes the organization’s self-reported
+security controls. A green checkmark (<span
+style="color: green"></span>) indicates a positive control is in place,
+while a red cross (<span style="color: red"></span>) indicates a
+potential security gap.</p>
+<table style="width:70%;">
+<caption>Organizational Security Controls Questionnaire</caption>
+<colgroup>
+<col style="width: 70%" />
+<col />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Do you require MFA to access
+sensitive data systems?</strong></td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+</tbody>
+</table>
+<h4 id="analysis">Analysis:</h4>
+<p>The primary finding from the questionnaire is the lack of mandatory
+MFA for sensitive data systems. This is a significant control gap. While
+MFA on email and workstations is a strong baseline, sensitive data
+repositories are high-value targets for attackers and require the same,
+if not stronger, level of protection. This gap is directly correlated
+with the technical findings in the next section.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed against the target IP address.
+The following table details the results for hosts found to be online and
+responsive.</p>
+<table>
+<caption>Nmap Scan Findings for Target:
+<code>[Target IP]</code></caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product/Version</strong></th>
+<th style="text-align: left;"><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">8080</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">http (inferred)</td>
+<td style="text-align: left;">Not Identified</td>
+<td style="text-align: left;">HTTP Title: <strong>TOP SECRET
+DB</strong></td>
+</tr>
+</tbody>
+</table>
+<h4 id="analysis-1">Analysis:</h4>
+<p>The scan identified a single open port, 8080, on the target system
+<code>[Target IP]</code>. The HTTP title script successfully retrieved
+the page title, which was “TOP SECRET DB”. This is an alarming
+finding.</p>
+<ul>
+<li><p><strong>Data Exposure:</strong> The title strongly suggests that
+a database, potentially containing highly sensitive or classified
+information, is accessible from the public internet.</p></li>
+<li><p><strong>Misconfiguration:</strong> Services like this are
+typically not intended for public exposure and should be firewalled from
+external access or placed behind a secure authentication
+gateway.</p></li>
+<li><p><strong>Contradiction of Existing Data:</strong> This finding
+directly contradicts the information provided in the
+<code>Current_Risks_JSON</code> input, which stated: “Port 8080 is
+confirmed secure and false positive.” This indicates a severe failure in
+the previous risk assessment or vulnerability management process. The
+risk is not a false positive; it is an active, critical
+exposure.</p></li>
+</ul>
+<h1 id="synthesized-risk-assessment">Synthesized Risk Assessment</h1>
+<p>This section correlates the findings from the security control review
+and the technical scan to provide a synthesized view of the primary
+risks facing the organization. The risk from the provided input data has
+been re-evaluated based on new evidence.</p>
+<table style="width:90%;">
+<caption>Summary of Identified Risks</caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 50%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Exposed Sensitive Database without
+MFA</strong></td>
+<td style="text-align: left;">A database service, identified as “TOP
+SECRET DB”, is publicly accessible on port 8080. This is compounded by
+the organizational policy gap of not requiring MFA for sensitive
+systems, creating a direct and easily exploitable path to critical
+data.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Flawed Risk Management
+Process</strong></td>
+<td style="text-align: left;">Previous risk assessments incorrectly
+identified the exposure on port 8080 as a “secure false positive”. This
+demonstrates a critical failure in the vulnerability validation and
+management process, suggesting other high-risk items may also be
+misclassified.</td>
+<td style="text-align: left;"><strong>High</strong></td>
+</tr>
+</tbody>
+</table>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actions are recommended to mitigate the identified
+risks. Recommendations are prioritized based on severity and
+urgency.</p>
+<h2 id="immediate-actions-to-be-completed-within-24-hours">Immediate
+Actions (To Be Completed within 24 Hours)</h2>
+<ol>
+<li><p><strong>Isolate the Exposed System:</strong> Immediately apply a
+firewall rule to block all inbound traffic to port 8080 on
+<code>[Client IP]</code> from the internet.</p></li>
+<li><p><strong>Launch an Incident Investigation:</strong> Investigate
+the service on port 8080 to determine the nature of the data, whether a
+breach has occurred, and the extent of the exposure. Preserve logs from
+the host and any upstream network devices.</p></li>
+</ol>
+<h2 id="short-term-actions-to-be-completed-within-30-days">Short-Term
+Actions (To Be Completed within 30 Days)</h2>
+<ol>
+<li><p><strong>Enforce MFA on Sensitive Systems:</strong> Update
+security policies and technical controls to mandate the use of MFA for
+all access to systems classified as containing sensitive data. This
+directly addresses the identified policy gap.</p></li>
+<li><p><strong>Conduct a Comprehensive External Scan:</strong> Perform
+an authenticated and unauthenticated vulnerability scan across the
+organization’s entire external IP address range to identify any other
+misconfigurations or exposures.</p></li>
+<li><p><strong>Review Firewall Rulesets:</strong> Conduct a full audit
+of all external-facing firewall rules to ensure they adhere to a
+principle of least privilege, denying all traffic by default and only
+allowing what is explicitly required for business operations.</p></li>
+</ol>
+<h2 id="long-term-actions-strategic-improvements">Long-Term Actions
+(Strategic Improvements)</h2>
+<ol>
+<li><p><strong>Revise the Risk Management Framework:</strong> Overhaul
+the process for vulnerability identification, validation, and
+remediation. Ensure that findings are never dismissed as “false
+positives” without thorough, evidence-based technical
+validation.</p></li>
+<li><p><strong>Implement Asset Management:</strong> Develop and maintain
+a comprehensive inventory of all internet-facing assets and the data
+they contain. This will enable more accurate risk assessments and
+prevent unauthorized or forgotten systems from being exposed.</p></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

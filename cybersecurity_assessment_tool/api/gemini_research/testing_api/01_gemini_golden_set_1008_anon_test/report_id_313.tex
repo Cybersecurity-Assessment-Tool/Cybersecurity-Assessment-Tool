@@ -1,0 +1,150 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings without spaces
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Document Metadata
+\title{Cybersecurity Assessment Report \\ \large For \textbf{[Organization Name]}}
+\author{Cybersecurity Analyst Group}
+\date{November 22, 2025}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]} on November 22, 2025. The assessment combined a review of organizational security controls via a questionnaire, an external network scan, and an analysis of pre-existing risks.
+
+The analysis revealed several critical and high-risk security gaps that require immediate attention. The most significant finding is a systemic lack of Multi-Factor Authentication (MFA) across all key systems, including email, computer logins, and access to sensitive data. This deficiency exposes the organization to a high risk of account compromise and subsequent data breaches.
+
+Furthermore, the external network scan identified an outdated version of the Nginx web server software, which could be vulnerable to known exploits. The security awareness training program is also incomplete, as it does not include mandatory annual refreshers for all employees, leaving the organization susceptible to evolving social engineering tactics.
+
+This report provides a detailed breakdown of these findings and offers actionable recommendations to mitigate the identified risks and strengthen the overall security posture of \textbf{[Organization Name]}.
+
+\section{Organizational Information}
+
+The following information was used as the basis for this assessment. Where data was not provided, placeholders have been used.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Item} & \textbf{Detail} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \seqsplit{\texttt{[Domain]}} \\
+Assessed External IP & \seqsplit{\texttt{[Client IP]}} \\
+Assessment Date & November 22, 2025 \\ \bottomrule
+\end{tabular}
+\caption{Organizational and Assessment Details}
+\end{table}
+
+\section{Security Control Review}
+
+A review of the organization's self-reported security controls was conducted. The following table summarizes the responses. A green checkmark (\ding{51}) indicates a positive control is in place, while a red cross (\ding{55}) indicates a control gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.75\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis of Controls}
+The questionnaire results highlight critical deficiencies in access control management. The absence of MFA for email, computer logins, and sensitive systems represents a severe risk. Additionally, the lack of mandatory annual security training for all staff members is a significant gap, as threat landscapes and attack techniques evolve continuously.
+
+\section{Technical Scan Results}
+
+An external network scan was performed against the target IP address \seqsplit{\texttt{[Target IP]}} on November 22, 2025. The scan identified the following open ports and services.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+443/tcp & open & https & nginx & 1.18.0 \\ \bottomrule
+\end{tabular}
+\caption{Open Ports and Services on \seqsplit{\texttt{[Target IP]}}}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan revealed a web server running \textbf{Nginx version 1.18.0}. This version was released in April 2020 and is now considered outdated. While it may receive security patches from the underlying OS distribution, it is no longer the mainline or stable version supported by the Nginx project. Using outdated software introduces unnecessary risk, as it may contain unpatched vulnerabilities that could be exploited by attackers to compromise the server.
+
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data. Each identified risk has been assigned a severity level based on its potential impact and likelihood of exploitation.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\linewidth}p{0.3\linewidth}p{0.15\linewidth}p{0.35\linewidth}@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\ \midrule
+RISK-001 & Widespread Lack of MFA & \textbf{Critical} & The absence of MFA for email, computers, and sensitive data systems makes user accounts highly susceptible to takeover via phishing or password spraying. \\
+\addlinespace
+RISK-002 & Incomplete Security Awareness Training & \textbf{High} & Failing to provide annual security training to all employees reduces their ability to recognize and report modern threats like sophisticated phishing attacks. \\
+\addlinespace
+RISK-003 & Outdated Web Server Software & \textbf{Medium} & The public-facing web server runs an outdated version of Nginx (1.18.0), which may harbor known, unpatched vulnerabilities. \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+\section{Recommendations}
+
+To address the identified risks and improve the organization's security posture, the following actions are recommended with priority.
+
+\begin{description}
+    \item[For RISK-001 (Critical):] \textbf{Implement Mandatory MFA.}
+    \begin{itemize}
+        \item Immediately develop and enforce a policy requiring MFA for all users across all critical systems.
+        \item Prioritize implementation for email (e.g., Office 365, Google Workspace), VPN access, and all systems containing sensitive or regulated data.
+        \item Provide clear instructions and support to employees during the rollout phase.
+    \end{itemize}
+    
+    \item[For RISK-002 (High):] \textbf{Establish Annual Security Training.}
+    \begin{itemize}
+        \item Procure or develop a security awareness training program that is mandatory for all employees on an annual basis.
+        \item The training should cover current threats, including phishing, social engineering, and proper data handling.
+        \item Track completion to ensure 100\% compliance across the organization.
+    \end{itemize}
+    
+    \item[For RISK-003 (Medium):] \textbf{Upgrade Web Server Software.}
+    \begin{itemize}
+        \item Create a patch management plan to upgrade the Nginx server from version 1.18.0 to a current, stable, and fully supported version.
+        \item Before deploying to production, test the new version in a staging environment to ensure compatibility with existing web applications.
+        \item Implement a regular scanning and patching schedule for all external-facing infrastructure.
+    \end{itemize}
+\end{description}
+
+\end{document}
+```

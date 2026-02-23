@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="titlepage">
+<p><span><strong>Cybersecurity Posture Assessment Report</strong></span>
+<span><strong>Prepared for:</strong></span><br />
+<span><strong>[Organization Name]</strong></span> <span><strong>Date of
+Report:</strong></span><br />
+<span>2026-01-31</span> <em>This report is confidential and intended
+solely for the use of the recipient.</em></p>
+</div>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive analysis of the cybersecurity
+posture for <strong>[Organization Name]</strong>, based on a review of
+organizational security controls, an external network scan, and an
+assessment of pre-existing risks.</p>
+<p>The assessment reveals a notable contrast in the organization’s
+security maturity. On one hand, the security questionnaire indicates a
+strong foundation of administrative controls. Policies such as mandatory
+Multi-Factor Authentication (MFA) for critical systems and consistent
+security awareness training are in place, demonstrating a commendable
+commitment to user-level security.</p>
+<p>However, the technical scan identified a critical-risk vulnerability
+that overshadows these positive aspects. A MySQL database service (port
+3306) was found to be publicly exposed on the target system
+<code>[Target IP]</code>. This direct exposure creates a significant
+attack surface for threat actors. Compounding this issue, the detected
+MySQL version (5.7.33) is now End-of-Life (EOL) as of October 2023 and
+no longer receives security updates from the vendor.</p>
+<p>The primary recommendation is to take immediate action to restrict
+all public access to the database service. Following this, a plan must
+be developed to migrate the database to a currently supported version to
+mitigate risks from unpatched vulnerabilities.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following details were used as the basis for this assessment.
+Where information was not provided, placeholders have been used.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Primary Email Domain:</strong>
+<code>[Domain]</code></p></li>
+<li><p><strong>Client External IP:</strong>
+<code>[Client IP]</code></p></li>
+<li><p><strong>Scan Target:</strong> <code>[Target IP]</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A security questionnaire was completed to evaluate the administrative
+and policy-based controls within the organization. The responses,
+summarized in Table <a href="#tab:controls" data-reference-type="ref"
+data-reference="tab:controls">1</a>, indicate a strong adherence to
+foundational security best practices.</p>
+<div id="tab:controls">
+<table style="width:80%;">
+<caption>Security Controls Questionnaire Results</caption>
+<colgroup>
+<col style="width: 80%" />
+<col />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>All provided answers were affirmative (<span
+style="color: green"></span>), indicating that the organization has
+successfully implemented key security controls related to access
+management and employee awareness. No policy-based gaps were identified
+from this review.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed against the target IP address
+to identify open ports and exposed services.</p>
+<h2 id="scan-results-for-target-ip">Scan Results for
+<code>[Target IP]</code></h2>
+<p>The scan revealed one open port, detailed in Table <a
+href="#tab:scanresults" data-reference-type="ref"
+data-reference="tab:scanresults">2</a>.</p>
+<div id="tab:scanresults">
+<table>
+<caption>Open Ports and Services Detected</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product &amp;
+Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3306/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">mysql</td>
+<td style="text-align: left;">MySQL 5.7.33</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="analysis-of-findings">Analysis of Findings</h3>
+<p>The discovery of port 3306 open to the public internet is a
+significant security concern. This port is the default for the MySQL
+database protocol. Exposing a database server directly to the internet
+is highly discouraged as it allows attackers to:</p>
+<ul>
+<li><p>Perform brute-force attacks to guess credentials.</p></li>
+<li><p>Exploit known vulnerabilities in the database software.</p></li>
+<li><p>Potentially exfiltrate, modify, or destroy sensitive
+data.</p></li>
+</ul>
+<p>Furthermore, the identified version, MySQL 5.7.33, belongs to the 5.7
+series which reached its official End-of-Life (EOL) in October 2023. EOL
+software no longer receives security patches, meaning any
+vulnerabilities discovered after this date will remain unpatched and
+exploitable.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>The following table synthesizes findings from the technical scan and
+pre-existing risk data. The correlation of these items provides a clear
+view of the most pressing threats.</p>
+<div id="tab:risks">
+<table style="width:90%;">
+<caption>Consolidated Risk Summary</caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 10%" />
+<col style="width: 35%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Affected Elements</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>End-of-Life (EOL) Database
+Software</strong></td>
+<td style="text-align: left;"><span
+style="color: severitycritical"><strong>Critical</strong></span></td>
+<td style="text-align: left;">The MySQL 5.7.33 software is EOL and no
+longer receives security updates, leaving it perpetually vulnerable to
+new exploits.</td>
+<td style="text-align: left;">MySQL 5.7.33 on
+<code>[Target IP]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Publicly Exposed Database
+Service</strong></td>
+<td style="text-align: left;"><span
+style="color: severityhigh"><strong>High</strong></span></td>
+<td style="text-align: left;">The MySQL database port (3306) is open to
+the internet, creating a direct attack vector for unauthorized access
+and exploitation. This finding validates a known risk.</td>
+<td style="text-align: left;">Port 3306 on <code>[Target IP]</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actionable recommendations are prioritized to address
+the identified risks effectively.</p>
+<h2 id="immediate-priority-urgent">Immediate Priority (Urgent)</h2>
+<ol>
+<li><p><strong>Restrict Access to Port 3306:</strong> Immediately
+implement firewall rules to block all public internet traffic to TCP
+port 3306 on <code>[Target IP]</code>. Access should be restricted to a
+whitelist of trusted IP addresses only. If no external access is
+required, the port should be closed to the internet entirely. This
+directly mitigates the <em>Publicly Exposed Database Service</em>
+risk.</p></li>
+</ol>
+<h2 id="high-priority-within-3-months">High Priority (Within 3
+Months)</h2>
+<ol>
+<li><p><strong>Plan and Execute Database Migration:</strong> Develop a
+migration plan to upgrade the MySQL 5.7 database to a fully supported
+version (e.g., MySQL 8.x or a managed cloud database service). This is
+the only effective long-term solution to the <em>End-of-Life
+Software</em> risk and is critical for maintaining a secure
+environment.</p></li>
+</ol>
+<h2 id="strategic-recommendations">Strategic Recommendations</h2>
+<ol>
+<li><p><strong>Implement a Secure Remote Access Solution:</strong> For
+any legitimate need for remote database administration, establish a
+Virtual Private Network (VPN) or a zero-trust network access (ZTNA)
+solution. This provides an encrypted and authenticated channel for
+administrators without exposing the database service directly to the
+internet.</p></li>
+<li><p><strong>Establish a Vulnerability Management Program:</strong>
+Proactively identify risks by implementing a regular schedule of
+internal and external vulnerability scanning. This practice helps detect
+outdated software, misconfigurations, and other security weaknesses
+before they can be exploited.</p></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

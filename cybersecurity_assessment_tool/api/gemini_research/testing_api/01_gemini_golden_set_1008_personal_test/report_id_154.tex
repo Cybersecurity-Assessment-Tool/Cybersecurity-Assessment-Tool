@@ -1,0 +1,155 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and ToC
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+\section{Executive Overview}
+
+This report details the findings of a cybersecurity assessment for \textbf{Aventine Research}. The analysis is based on a review of self-reported security controls, a network scan of the designated external asset, and a review of pre-existing risks.
+
+The assessment identified significant gaps in foundational security controls. The most critical findings are the complete absence of Multi-Factor Authentication (MFA) across all key systems (email, computers, and sensitive data) and the lack of a security awareness training program for employees. These deficiencies expose the organization to a high risk of account compromise, data breaches, and social engineering attacks such as phishing.
+
+The external network scan of the target IP address \texttt{[Target IP]} did not reveal any open ports. While this may indicate a strong firewall configuration, it does not preclude vulnerabilities on web applications or other services that may be proxied through a cloud-based provider.
+
+Immediate remediation should focus on implementing MFA and establishing a comprehensive security awareness training program to mitigate the most severe risks to the organization.
+
+\section{Organizational Information}
+
+The following information was provided for the assessment. This data forms the scope and context for the analysis.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Aventine Research
+    \item \textbf{Email Domain:} \texttt{AventineResearch.net}
+    \item \textbf{Website Domain:} \url{www.AventineResearch.net}
+    \item \textbf{Primary External IP:} \texttt{69.204.159.145}
+\end{itemize}
+
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. Responses marked with a red 'X' (\ding{55}) indicate a deviation from security best practices and represent a potential risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.7\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Controls}
+The review highlights a critical weakness in identity and access management due to the lack of MFA. Furthermore, the absence of a security training program indicates a significant vulnerability to human-centric threats. The presence of an acceptable use policy is a positive foundational step, but its effectiveness is diminished without corresponding employee training.
+
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services on the organization's perimeter.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Not provided in scan data.
+\end{itemize}
+
+\subsection*{Findings}
+The network scan did not identify any open TCP or UDP ports on the target system. All scanned ports were reported as `closed` or `filtered`.
+
+\subsection*{Interpretation}
+This result suggests that the target host is likely protected by a firewall that is configured to deny unsolicited inbound traffic, which is a security best practice. However, this does not eliminate all technical risks. It is possible that:
+\begin{itemize}
+    \item The host was offline or unreachable during the scan.
+    \item Services are hosted on non-standard ports not included in the scan profile.
+    \item Web applications and other services are hosted through a cloud provider or Content Delivery Network (CDN), whose IP was not the target of this scan.
+\end{itemize}
+Further authenticated and application-level testing is required for a comprehensive technical assessment.
+
+\section{Risk Assessment Summary}
+
+The following table correlates the findings from the security control review and technical scan to present a summary of the key risks facing the organization. No pre-existing vulnerabilities were provided for this assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.5\linewidth} p{0.15\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of Multi-Factor Authentication (MFA)} & The absence of MFA for email, computer logins, and sensitive systems dramatically increases the likelihood of unauthorized access from stolen or weak credentials. & \textbf{Critical} \\
+\addlinespace
+\textbf{No Security Awareness Training} & Employees are not trained to recognize or respond to phishing, social engineering, or other common cyber threats. This makes the organization highly susceptible to human-targeted attacks. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Recommendations}
+
+Based on the analysis, the following actions are recommended to reduce the identified risks and improve the overall security posture of \textbf{Aventine Research}.
+
+\subsection*{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item \textbf{Priority 1:} Immediately enforce MFA for all user accounts on the primary email system (e.g., Microsoft 365, Google Workspace). This is the single most effective control to prevent business email compromise.
+        \item \textbf{Priority 2:} Enforce MFA for all remote access solutions (e.g., VPN) and any external access to systems containing sensitive data.
+        \item \textbf{Priority 3:} Develop a roadmap to deploy MFA for all workstation and server logins.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Strategic Actions (High Priority)}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Establish a Security Awareness Training Program:}
+    \begin{itemize}
+        \item Procure and implement a security awareness training solution for all employees.
+        \item Integrate a training module into the new-hire onboarding process.
+        \item Conduct mandatory, annual training for all staff covering key topics such as phishing, password security, and the acceptable use policy.
+        \item Perform periodic phishing simulation campaigns to measure and improve employee resilience to social engineering.
+    \end{itemize}
+    \item \textbf{Validate Network Perimeter Security:}
+    \begin{itemize}
+        \item Internally confirm that the scan result for \texttt{[Target IP]} aligns with the intended firewall configuration.
+        \item Schedule regular, authenticated vulnerability scans for all external and internal systems to identify software vulnerabilities that a port scan would not reveal.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

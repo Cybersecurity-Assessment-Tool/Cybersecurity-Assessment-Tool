@@ -1,0 +1,168 @@
+```latex
+\documentclass[12pt]{article}
+
+% -----------------------------------------------------------------------------
+% REQUIRED PACKAGES
+% -----------------------------------------------------------------------------
+\usepackage[margin=1in]{geometry} % For setting page margins
+\usepackage{pifont}               % For dingbats symbols like checkmarks
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For creating hyperlinks within the document
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % For splitting long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% -----------------------------------------------------------------------------
+% DOCUMENT CONFIGURATION
+% -----------------------------------------------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+}
+
+% Custom commands for Yes/No symbols to improve readability
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\textcolor{red}{\ding{55}}}
+
+% -----------------------------------------------------------------------------
+% BEGIN DOCUMENT
+% -----------------------------------------------------------------------------
+\begin{document}
+
+% -----------------------------------------------------------------------------
+% TITLE PAGE
+% -----------------------------------------------------------------------------
+\title{Cybersecurity Posture Assessment Report\\
+\large Prepared for: Silver Leaf Collective}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+\hrule
+\vspace{1em}
+\begin{center}
+    \textbf{CONFIDENTIAL}
+\end{center}
+\vspace{1em}
+\hrule
+
+\newpage
+\tableofcontents
+\newpage
+
+% -----------------------------------------------------------------------------
+% SECTION 1: EXECUTIVE SUMMARY
+% -----------------------------------------------------------------------------
+\section{Executive Summary}
+This report details the findings of a cybersecurity posture assessment conducted for Silver Leaf Collective. The assessment combined a review of organizational security controls via a questionnaire with a technical network scan of a designated target system.
+
+Overall, the assessment identified a mixed security posture. The technical scan of the target host \texttt{192.168.1.100} revealed a strong network configuration, with no open ports detected. This suggests effective firewalling and a minimal attack surface for that specific asset.
+
+However, the security control review uncovered two significant policy and procedural gaps that present a high level of risk to the organization:
+\begin{itemize}
+    \item \textbf{Critical Risk:} The absence of Multi-Factor Authentication (MFA) on systems containing sensitive data.
+    \item \textbf{High Risk:} The lack of mandatory security awareness training for new employees during their onboarding process.
+\end{itemize}
+
+This report provides a detailed analysis of these findings and offers prioritized, actionable recommendations to mitigate the identified risks and enhance the overall security posture of Silver Leaf Collective.
+
+% -----------------------------------------------------------------------------
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% -----------------------------------------------------------------------------
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Silver Leaf Collective \\
+Email Domain & \texttt{SilverLeafCollective.net} \\
+Website Domain & \seqsplit{\url{www.SilverLeafCollective.net}} \\
+External IP Address & \texttt{103.5.10.131} \\
+\bottomrule
+\end{tabular}
+
+% -----------------------------------------------------------------------------
+% SECTION 3: SECURITY CONTROL REVIEW
+% -----------------------------------------------------------------------------
+\section{Security Control Review}
+A review of internal security controls was conducted based on a standardized questionnaire. The responses indicate areas of both strength and weakness in the organization's security policies and procedures. Gaps identified with a ``No'' response are addressed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \yes \\
+Do you require MFA to access sensitive data systems? & \no \\
+Does your organization have an employee acceptable use policy? & \yes \\
+Does your organization do security awareness training for new employees? & \no \\
+Does your organization do security awareness training for all employees at least once per year? & \yes \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results.}
+\end{table}
+
+% -----------------------------------------------------------------------------
+% SECTION 4: TECHNICAL SCAN RESULTS
+% -----------------------------------------------------------------------------
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and exposed services on the specified target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.1.100}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\subsection{Findings}
+The scan concluded that the host was online, but reported \textbf{zero open ports}. All 1000 scanned ports were in a ``closed'' state.
+
+\subsection{Analysis}
+This result indicates a very strong security posture for the scanned host from a network perspective. It suggests that the host is either protected by a well-configured firewall that denies all incoming traffic, or it is not running any network-facing services. This configuration significantly reduces the external attack surface of this specific asset.
+
+% -----------------------------------------------------------------------------
+% SECTION 5: RISK ASSESSMENT
+% -----------------------------------------------------------------------------
+\section{Risk Assessment}
+This section synthesizes the findings from the security control review and technical scan to identify and prioritize key risks to the organization. While the technical scan was clean, significant risks were identified through the questionnaire. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth}p{0.5\linewidth}p{0.15\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Sensitive Systems} & The absence of MFA on critical systems containing sensitive data exposes the organization to significant risk. A single compromised password could lead to unauthorized access and a major data breach. & \textbf{Critical} \\
+\addlinespace
+\textbf{No Security Training for New Hires} & New employees are not provided with security awareness training upon joining. This creates a window of vulnerability where new staff are more susceptible to social engineering and phishing attacks, potentially compromising credentials or systems. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Identified Risks and Severity.}
+\end{table}
+
+% -----------------------------------------------------------------------------
+% SECTION 6: RECOMMENDATIONS
+% -----------------------------------------------------------------------------
+\section{Recommendations}
+The following actionable recommendations are provided to address the identified risks. They are prioritized based on severity.
+
+\subsection{Priority 1: Implement MFA on Sensitive Systems (Critical)}
+\textbf{Action:} Immediately begin the process of identifying all systems that store, process, or transmit sensitive organizational or client data. Procure and implement a robust Multi-Factor Authentication (MFA) solution for access to these systems.
+\newline
+\textbf{Justification:} This is the single most effective control to prevent unauthorized access resulting from compromised credentials. It directly mitigates the risk of a data breach.
+
+\subsection{Priority 2: Establish New Hire Security Training (High)}
+\textbf{Action:} Develop and mandate a security awareness training module as a required part of the new employee onboarding process. This training should be completed within the first week of employment.
+\newline
+\textbf{Justification:} Educating employees from day one about security threats like phishing, malware, and proper data handling significantly reduces the organization's susceptibility to human-centric attacks. It closes a critical vulnerability window for new, and often targeted, staff members.
+
+\end{document}
+```

@@ -1,0 +1,222 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages and Document Setup
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (dingbats)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings like IPs
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- Document Metadata and Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Analysis},
+    bookmarks=true
+}
+
+% --- Custom Colors and Commands ---
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\newcommand{\yes}{\textcolor{darkgreen}{\ding{51}}} % Green checkmark
+\newcommand{\no}{\textcolor{darkred}{\ding{55}}}   % Red X
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{For: FutureNet}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \includegraphics[width=0.3\textwidth]{example-image-a} % Placeholder for company logo
+    
+    \vspace{1.5cm}
+    
+    {\Huge \bfseries Cybersecurity Posture Assessment Report\par}
+    
+    \vspace{1.5cm}
+    
+    {\Large \textbf{Prepared For:}\\ FutureNet\par}
+    
+    \vspace{2cm}
+    
+    {\large \today\par}
+    
+    \vfill
+    
+    {\large \textit{This report contains sensitive information and should be handled with care. Access is restricted to authorized personnel only.}\par}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ===================================================================
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity posture assessment conducted for FutureNet. The analysis is based on a combination of technical network scanning, a review of organizational security controls via a questionnaire, and an evaluation of pre-existing risks.
+
+The overall security posture of FutureNet is determined to be at a \textbf{CRITICAL} risk level. This assessment is primarily driven by fundamental and severe gaps in foundational security controls. The complete absence of Multi-Factor Authentication (MFA) across all critical systems, including email and remote access, represents a significant vulnerability. This is compounded by a lack of a formal security awareness training program, leaving the organization highly susceptible to social engineering and phishing attacks.
+
+Technical analysis identified an externally exposed Secure Shell (SSH) service. While a common administrative tool, its exposure to the public internet without the protection of MFA or IP-based access controls creates a direct and high-risk pathway for attackers to compromise internal systems, especially if credentials are stolen.
+
+Immediate and decisive action is required to address these deficiencies. The recommendations outlined in this report prioritize the implementation of MFA, the establishment of a security awareness program, and the securing of all internet-facing services.
+
+% ===================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information helps to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & FutureNet \\
+Email Domain & \texttt{future.net} \\
+Website Domain & \texttt{future.net} \\
+External IP Address & \seqsplit{\texttt{2001:db8::1}} \\
+\bottomrule
+\end{tabular}
+
+% ===================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ===================================================================
+\section{Security Control Review (Questionnaire Analysis)}
+
+A security questionnaire was completed to evaluate the implementation of key administrative and preventative controls. The responses indicate critical gaps in the organization's security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}p{0.75\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \no \\
+Do you require MFA to log into computers? & \no \\
+Do you require MFA to access sensitive data systems? & \no \\
+Does your organization have an employee acceptable use policy? & \no \\
+Does your organization do security awareness training for new employees? & \no \\
+Does your organization do security awareness training for all employees at least once per year? & \no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The consistent "No" responses across all questions highlight a lack of foundational security practices.
+\begin{itemize}
+    \item \textbf{Multi-Factor Authentication (MFA):} The absence of MFA for email, computer logins, and sensitive systems is the most severe finding. A single compromised password could lead to a full-scale breach of corporate data and systems.
+    \item \textbf{Security Policies \& Training:} The lack of an acceptable use policy and any form of security awareness training creates a high-risk environment. Employees are likely unaware of cyber threats and their role in protecting the organization, making them easy targets for phishing and other social engineering attacks.
+\end{itemize}
+
+% ===================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed against the provided IP address to identify accessible services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/tcp & open & ssh & Secure Shell (SSH) for remote administration. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified that port 22 (SSH) is open to the public internet. SSH is a powerful administrative protocol that provides command-line access to a server. Exposing this service externally is a common practice but carries significant risk if not properly secured. In the context of the control gaps identified in Section 3 (specifically, the lack of MFA), this open port becomes a \textbf{critical vulnerability}. An attacker who obtains valid credentials through phishing or other means could gain direct access to the organization's infrastructure without being challenged by a second authentication factor.
+
+% ===================================================================
+% SECTION 5: RISK ASSESSMENT SUMMARY
+% ===================================================================
+\section{Risk Assessment Summary}
+
+The following table synthesizes the findings from the control review and technical scan into a prioritized list of identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks and Severity}
+\begin{tabular}{@{}p{0.1\linewidth}p{0.25\linewidth}p{0.45\linewidth}l@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & No Multi-Factor Authentication (MFA) & The absence of MFA on all systems allows an attacker with a single stolen password to gain unauthorized access to email, servers, and sensitive data. & \textcolor{darkred}{Critical} \\
+\addlinespace
+RISK-002 & No Security Awareness Training & Employees are not trained to identify or report phishing and other cyber threats, making the organization highly vulnerable to initial compromise. & \textcolor{darkred}{Critical} \\
+\addlinespace
+RISK-003 & Exposed SSH Service without MFA & The SSH management port is open to the internet. This, combined with no MFA (RISK-001), creates a direct path for attackers to compromise a key server. & \textcolor{darkred}{High} \\
+\addlinespace
+RISK-004 & No Acceptable Use Policy (AUP) & The lack of a formal AUP creates ambiguity regarding security responsibilities and acceptable employee behavior, increasing the risk of insider threat and policy violations. & \textcolor{orange}{Medium} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+% SECTION 6: RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. These are prioritized based on severity and potential impact.
+
+\subsection*{RISK-001: Implement Multi-Factor Authentication (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Enable MFA on the email platform (e.g., Office 365, Google Workspace) for all users immediately. This is the single most effective control to prevent business email compromise.
+    \item \textbf{Short-Term Action:} Enforce MFA on all remote access systems, including VPNs and the exposed SSH service. For SSH, prioritize public key authentication and disable passwords.
+    \item \textbf{Long-Term Action:} Develop a roadmap to enforce MFA for all applications, especially those containing sensitive or financial data.
+\end{itemize}
+
+\subsection*{RISK-002: Establish a Security Awareness Program (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Enroll all employees in a foundational security awareness training course that covers phishing, password hygiene, and social engineering.
+    \item \textbf{Short-Term Action:} Conduct a baseline phishing simulation to gauge employee susceptibility. Use the results to tailor future training.
+    \item \textbf{Long-Term Action:} Implement a continuous training program where all employees receive training at least annually, and new hires are trained as part of their onboarding process.
+\end{itemize}
+
+\subsection*{RISK-003: Secure the Exposed SSH Service (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} If SSH access is not required from the public internet, block port 22 at the network firewall.
+    \item \textbf{Short-Term Action:} If external access is required, restrict access to a whitelist of trusted IP addresses. Concurrently, enforce the use of SSH keys for authentication and completely disable password-based authentication in the SSH server configuration.
+\end{itemize}
+
+\subsection*{RISK-004: Develop an Acceptable Use Policy (Medium)}
+\begin{itemize}
+    \item \textbf{Short-Term Action:} Draft a formal Acceptable Use Policy (AUP) that clearly defines the rules for using company technology, data, and internet access.
+    \item \textbf{Long-Term Action:} Require all current and new employees to read and formally acknowledge the AUP. Review and update the policy annually.
+\end{itemize}
+
+\end{document}
+```

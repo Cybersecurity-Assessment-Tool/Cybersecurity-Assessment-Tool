@@ -1,0 +1,171 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx} % For potential logos in the future
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+
+% ------------------------------------------------------------------
+% 1. Executive Summary
+% ------------------------------------------------------------------
+\section*{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Mainframe Managed}, based on an analysis of organizational security controls, an external network scan, and a review of pre-existing risks. The assessment reveals a mixed security posture with several critical and high-risk gaps that require immediate attention.
+
+Key findings indicate robust Multi-Factor Authentication (MFA) for email and computer access, which is commendable. However, two significant control gaps were identified: the absence of MFA for sensitive data systems and the lack of security awareness training for new employees. These gaps substantially increase the risk of unauthorized access and social engineering attacks.
+
+Furthermore, a technical network scan identified an externally exposed Secure Shell (SSH) service on port 22. While essential for remote administration, an improperly configured or unmonitored SSH service is a primary target for brute-force attacks. When correlated with the identified control gaps, these findings present a clear pathway for potential attackers.
+
+This report outlines the detailed findings and provides actionable recommendations to mitigate the identified risks and strengthen the overall security posture of the organization.
+
+% ------------------------------------------------------------------
+% 2. Organizational Information
+% ------------------------------------------------------------------
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Mainframe Managed} \\
+Email Domain & \texttt{MainframeManaged.net} \\
+Website Domain & \href{http://www.MainframeManaged.net}{\texttt{www.MainframeManaged.net}} \\
+Primary External IP & \texttt{100.140.43.173} \\
+\bottomrule
+\end{tabular}
+
+% ------------------------------------------------------------------
+% 3. Security Control Review
+% ------------------------------------------------------------------
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a standardized questionnaire. The responses highlight both strengths and weaknesses in the current security policies and their implementation. Gaps identified with a \ding{55} represent significant risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.6\textwidth} c c}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & Yes & \textcolor{green}{\ding{51}} \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textbf{No} & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & Yes & \textcolor{green}{\ding{51}} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textbf{No} & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & Yes & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\caption{Organizational Security Control Questionnaire Results.}
+\end{table}
+
+% ------------------------------------------------------------------
+% 4. Technical Network Scan Results
+% ------------------------------------------------------------------
+\section{Technical Network Scan Results}
+
+An external network scan was performed to identify exposed services and potential points of entry. The scan targeted the organization's known network assets.
+
+\subsection{Scan Target}
+The following host was identified as active and responsive during the scan:
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+\end{itemize}
+
+\subsection{Open Ports and Services}
+A single open port was discovered on the target host. Open ports indicate services that are accessible from the public internet and are potential targets for attackers.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{c c l p{0.5\textwidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Analysis} \\
+\midrule
+22/tcp & Open & SSH (Secure Shell) & The SSH service is commonly used for secure remote administration. However, an internet-exposed SSH port is a high-value target for brute-force and credential-stuffing attacks. No version information was available from this scan. \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \seqsplit{\texttt{2001:db8::1}}.}
+\end{table}
+
+% ------------------------------------------------------------------
+% 5. Risk Assessment
+% ------------------------------------------------------------------
+\section{Risk Assessment}
+
+This section synthesizes the findings from the security control review and the technical scan. The following risks have been identified and prioritized based on their potential impact and likelihood.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.15\textwidth} p{0.55\textwidth} c}
+\toprule
+\textbf{Risk ID} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & \textbf{Lack of MFA on Sensitive Systems:} Critical data and infrastructure are protected only by username and password. A single compromised credential could lead to a major data breach. & \textbf{\textcolor{red}{Critical}} \\
+\noalign{\vspace{2mm}}
+RISK-002 & \textbf{Exposed SSH Service:} The SSH service on \seqsplit{\texttt{2001:db8::1}} is exposed to the internet, making it a target for automated brute-force attacks. If this system is a gateway to sensitive data, this risk is compounded by RISK-001. & \textbf{\textcolor{orange}{High}} \\
+\noalign{\vspace{2mm}}
+RISK-003 & \textbf{Inadequate New Hire Training:} New employees do not receive security awareness training upon joining. This creates a window of vulnerability where they are more susceptible to phishing and social engineering attacks, which could lead to credential compromise. & \textbf{\textcolor{orange}{High}} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\end{table}
+
+% ------------------------------------------------------------------
+% 6. Recommendations
+% ------------------------------------------------------------------
+\section{Recommendations}
+
+To mitigate the identified risks and improve the overall security posture, the following actions are recommended with priority.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement MFA on Sensitive Systems (RISK-001):}
+    \begin{itemize}
+        \item Immediately enforce MFA for all accounts (including administrative and service accounts) that have access to sensitive data, databases, and critical infrastructure.
+        \item Prioritize systems that store customer data, financial information, or intellectual property.
+    \end{itemize}
+    
+    \item \textbf{[High] Secure the Exposed SSH Service (RISK-002):}
+    \begin{itemize}
+        \item \textbf{Review and Harden:} Audit the configuration of the SSH service on \seqsplit{\texttt{2001:db8::1}}. Ensure it is fully patched to the latest stable version.
+        \item \textbf{Disable Password Authentication:} Mandate the use of public key authentication and disable password-based logins entirely.
+        \item \textbf{Restrict Access:} If possible, restrict SSH access to a whitelist of trusted IP addresses (e.g., via a firewall or security group). If remote access from dynamic IPs is required, place the service behind a VPN.
+        \item \textbf{Implement Monitoring:} Deploy a tool like Fail2ban to automatically block IPs that exhibit brute-force behavior.
+    \end{itemize}
+    
+    \item \textbf{[High] Enhance Security Awareness Program (RISK-003):}
+    \begin{itemize}
+        \item \textbf{Onboarding Training:} Integrate a mandatory security awareness training module into the new employee onboarding process. This should be completed within the first week of employment.
+        \item \textbf{Content:} The training should cover phishing, password security, acceptable use, and how to report security incidents.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

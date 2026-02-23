@@ -1,0 +1,155 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and ToC
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{xcolor} % For colors
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{\stretch{1.0}}
+    \Huge{\textbf{Cybersecurity Assessment Report}}
+    \vspace{0.5cm}
+    \LARGE{\textbf{[Organization Name]}}
+    \vspace{1.5cm}
+    \large{Generated: \today}
+    \vspace{1.0cm}
+    \large{Author: Cybersecurity Analyst}
+    \vspace*{\stretch{2.0}}
+    \small{\textit{This report contains sensitive information and should be handled with care. Distribution is restricted to authorized personnel only.}}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the security posture of \textbf{[Organization Name]}, based on technical network scanning, a review of organizational security controls, and an assessment of pre-existing risks. The assessment identified several critical and high-risk findings that require immediate attention.
+
+The most critical finding is the direct exposure of a Remote Desktop Protocol (RDP) service on the public internet at \texttt{[Target IP]}. This configuration is a common target for ransomware gangs and other malicious actors. This technical vulnerability is compounded by significant gaps in administrative controls, most notably the lack of Multi-Factor Authentication (MFA) for accessing email and sensitive data systems. Furthermore, the absence of a formal Acceptable Use Policy (AUP) indicates a foundational weakness in security governance.
+
+Immediate remediation of the exposed RDP service is strongly advised, followed by the swift implementation of MFA across all critical systems. Addressing these issues will significantly reduce the organization's risk of a major security incident, such as a data breach or ransomware attack.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were used as the basis for this assessment. Due to the anonymized nature of the input data, placeholders are used where necessary.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \seqsplit{\texttt{[Domain]}} \\
+    Assessed External IP & \seqsplit{\texttt{[Client IP]}} \\
+    Scanned Target IP & \seqsplit{\texttt{[Target IP]}} \\
+    \bottomrule
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+An assessment of administrative and policy-based security controls was conducted via a questionnaire. The responses reveal critical gaps in access control and governance.
+
+\begin{tabular}{@{}p{0.7\textwidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{red}{\no} \\
+    Do you require MFA to log into computers? & \textcolor{green}{\yes} \\
+    Do you require MFA to access sensitive data systems? & \textcolor{red}{\no} \\
+    Does your organization have an employee acceptable use policy? & \textcolor{red}{\no} \\
+    Does your organization do security awareness training for new employees? & \textcolor{green}{\yes} \\
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\yes} \\
+    \bottomrule
+\end{tabular}
+
+\subsection*{Analysis}
+\begin{itemize}
+    \item \textbf{Critical Gaps:} The lack of MFA for email and sensitive data systems represents a significant security risk. Email is a primary target for account takeovers, which can lead to Business Email Compromise (BEC) and further internal compromise. The absence of an Acceptable Use Policy creates ambiguity for employees and limits the organization's ability to enforce security standards.
+    \item \textbf{Strengths:} The organization has a solid foundation in security awareness training and has implemented MFA for workstation logins, which is a commendable control.
+\end{itemize}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and exposed services on the organization's external infrastructure.
+
+\subsection*{External Network Scan Summary}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{[Target IP]}}
+    \item \textbf{Scan Date:} Not Specified
+\end{itemize}
+
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+    \midrule
+    3389/tcp & OPEN & \texttt{ms-wbt-server} & \textbf{Critical Finding.} This port is used for Remote \\
+     & & (RDP) & Desktop Protocol. Direct exposure to the internet \\
+     & & & is a primary vector for ransomware attacks. \\
+    \bottomrule
+\end{tabular}
+
+% --- CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the technical scan, control review, and pre-existing risk data into a prioritized list.
+
+\begin{tabular}{@{}p{0.25\textwidth}p{0.55\textwidth}p{0.1\textwidth}@{}}
+    \toprule
+    \textbf{Risk / Finding} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    \textbf{Exposed RDP Service} & Port 3389 (RDP) is open on \seqsplit{\texttt{[Target IP]}}, allowing direct access attempts from the internet. This confirms the pre-existing "RDP Exposure" risk and is a primary vector for brute-force, credential stuffing, and ransomware attacks. & \textbf{Critical} \\
+    \addlinespace
+    \textbf{Lack of MFA for Email} & Email accounts are protected only by passwords, making them highly vulnerable to phishing and credential compromise, which can lead to Business Email Compromise (BEC) and data loss. & High \\
+    \addlinespace
+    \textbf{Lack of MFA for Sensitive Data Systems} & Critical data systems lack a secondary authentication factor. If an attacker obtains credentials, they may gain direct access to sensitive information, leading to a major data breach. & High \\
+    \addlinespace
+    \textbf{Missing Acceptable Use Policy (AUP)} & The absence of a formal AUP creates ambiguity for employees regarding the secure use of company assets and limits the organization's ability to enforce security standards. & Medium \\
+    \bottomrule
+\end{tabular}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{Immediate Priority (Remediate within 72 hours)}
+\begin{enumerate}
+    \item \textbf{Restrict RDP Access:} Immediately close port 3389 on the firewall for traffic originating from the public internet at \seqsplit{\texttt{[Target IP]}}. If remote administrative access is required, it \textbf{must} be placed behind a Virtual Private Network (VPN) that requires Multi-Factor Authentication.
+\end{enumerate}
+
+\subsection*{High Priority (Remediate within 30 days)}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Continue numbering
+    \item \textbf{Enforce MFA for Email:} Implement and enforce MFA for all user access to the organization's email system (e.g., Office 365, Google Workspace). This is one of the most effective controls to prevent account takeovers.
+    \item \textbf{Deploy MFA for Sensitive Systems:} Identify all systems containing sensitive data and deploy MFA for all user access, especially for users with administrative privileges.
+    \item \textbf{Develop an Acceptable Use Policy:} Create and implement a formal AUP that clearly defines the rules and expectations for employees when using company technology and data. Require all employees to read and acknowledge the policy.
+\end{enumerate}
+
+\subsection*{Informational}
+\begin{enumerate}
+    \setcounter{enumi}{4} % Continue numbering
+    \item \textbf{Enhance Security Training:} Continue the excellent practice of security awareness training. Update the training modules to include specific information on the importance of MFA and the new AUP once it is implemented.
+\end{enumerate}
+
+\end{document}
+```

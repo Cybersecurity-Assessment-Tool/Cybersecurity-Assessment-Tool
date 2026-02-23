@@ -1,0 +1,186 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx} % For logo
+\usepackage{xcolor}   % For colors in tables
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Custom Commands for Severity
+\newcommand{\sevCRITICAL}[1]{\textcolor{red!80!black}{\textbf{#1}}}
+\newcommand{\sevHIGH}[1]{\textcolor{orange!90!black}{\textbf{#1}}}
+\newcommand{\sevMEDIUM}[1]{\textcolor{yellow!80!black}{\textbf{#1}}}
+\newcommand{\sevLOW}[1]{\textcolor{green!70!black}{\textbf{#1}}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Overview ---
+\section{Executive Overview}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Binary Star}, based on a synthesis of network scan data, organizational security controls, and pre-existing risk assessments. The assessment was conducted on \today.
+
+The overall security posture is determined to be at a \textbf{High Risk} level. This is primarily due to critical deficiencies in foundational security controls combined with a technically identified critical vulnerability.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Gaps in Security Policies:} The organization lacks fundamental security controls, including mandatory Multi-Factor Authentication (MFA) for computer access, an employee Acceptable Use Policy (AUP), and a structured security awareness training program. These gaps significantly increase the risk of compromise through social engineering and unauthorized access.
+    \item \textbf{Critical Technical Vulnerability:} A pre-existing risk, "Localhost Exposed," rated with a CVSS score of 10.0 (Critical), was correlated with network scan findings. An open SSH service (port 22) was identified on the loopback interface (\texttt{127.0.0.1}), indicating a potentially severe misconfiguration.
+    \item \textbf{Increased Human-Factor Risk:} The absence of security training for new and existing employees makes the organization highly susceptible to phishing, malware, and other human-targeted attacks. This weakness is compounded by the lack of MFA on endpoints, which would otherwise serve as a critical defense layer.
+\end{itemize}
+
+Immediate and decisive action is required to remediate these findings. Recommendations in Section \ref{sec:recommendations} are prioritized to address the most critical risks first.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Binary Star} \\
+Primary Email Domain & \texttt{BinaryStar.net} \\
+Primary Website & \url{www.BinaryStar.net} \\
+External IP Address & \texttt{217.139.184.139} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of organizational security controls was conducted via a questionnaire. The results highlight significant gaps in the current security framework. A "No" answer indicates a missing control and a potential area of high risk.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Questionnaire Results}
+\begin{tabular}{@{}p{0.8\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \sevHIGH{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \sevHIGH{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \sevHIGH{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \sevHIGH{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The responses indicate a concerning lack of foundational security practices:
+\begin{itemize}
+    \item \textbf{No MFA on Computers:} While MFA is enabled for email and sensitive systems, its absence on employee computers leaves a critical gap. A compromised password would be sufficient for an attacker to gain initial access to a workstation, from which they could attempt to escalate privileges and move laterally across the network.
+    \item \textbf{No Acceptable Use Policy (AUP):} An AUP is essential for setting clear expectations for employees regarding the use of company assets. Its absence can lead to inconsistent security practices and unintentional misuse of systems.
+    \item \textbf{No Security Awareness Training:} The complete lack of a training program for both new and existing employees represents a severe vulnerability. Employees are the first line of defense, and without training, they are ill-equipped to identify and report security threats like phishing emails, which are the leading cause of data breaches.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and services on the target system. The findings below are based on the provided scan data.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{127.0.0.1}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{127.0.0.1}}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/tcp & Open & ssh & Service version information was not available in the scan data. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified that port 22 (SSH - Secure Shell) is open on the localhost interface (\texttt{127.0.0.1}). While binding a service to localhost is a common practice to restrict access, its presence correlates directly with the pre-existing risk "Localhost Exposed" (see Section \ref{sec:risk_assessment}). This suggests a known, critical issue that requires immediate investigation to ensure it is not accessible or exploitable from unintended network segments.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+\label{sec:risk_assessment}
+This section synthesizes the findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.1\linewidth}p{0.25\linewidth}p{0.4\linewidth}p{0.15\linewidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+TECH-001 & Localhost Exposed & A critical service (SSH) is running on the loopback interface, correlating with a known CVSS 10.0 vulnerability. This could indicate a severe misconfiguration or an internal service at risk. & \sevCRITICAL{Critical} \\
+\addlinespace
+ORG-001 & Lack of Endpoint MFA & The absence of MFA on computers allows for single-factor authentication, making successful credential theft attacks (e.g., via phishing) much more likely to result in a system compromise. & \sevHIGH{High} \\
+\addlinespace
+ORG-002 & Insufficient Security Awareness Training & Without training, employees are highly susceptible to social engineering attacks, malware, and mishandling of sensitive data, creating a significant "human firewall" weakness. & \sevHIGH{High} \\
+\addlinespace
+ORG-003 & Absence of Acceptable Use Policy & The lack of a formal AUP creates ambiguity regarding secure practices for employees, increasing the likelihood of policy violations and insider threats (both malicious and accidental). & \sevHIGH{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+\label{sec:recommendations}
+The following prioritized recommendations are provided to mitigate the identified risks and improve the overall security posture of \textbf{Binary Star}.
+
+\subsection*{Priority 1: Critical}
+\begin{description}
+    \item[Remediate "Localhost Exposed" (TECH-001):] Immediately investigate the SSH service running on \texttt{127.0.0.1:22}. 
+    \begin{itemize}
+        \item Determine the purpose of this service and why it is running.
+        \item If the service is not essential, it should be disabled.
+        \item If the service is required, ensure firewall rules and service configurations are correctly implemented to prevent any unintended exposure.
+        \item Conduct a full vulnerability scan on the host to identify any related weaknesses.
+    \end{itemize}
+\end{description}
+
+\subsection*{Priority 2: High}
+\begin{description}
+    \item[Implement Endpoint MFA (ORG-001):] Deploy a robust Multi-Factor Authentication solution for all employee computer logins (Windows, macOS, Linux). This single control dramatically reduces the risk of unauthorized access from stolen credentials.
+    
+    \item[Establish Security Awareness Training (ORG-002):]
+    \begin{itemize}
+        \item Develop and implement a mandatory security training program for all new employees during their onboarding process.
+        \item Conduct mandatory, annual security awareness training for all staff.
+        \item Perform regular phishing simulations to test and reinforce employee knowledge.
+    \end{itemize}
+
+    \item[Develop and Enforce an AUP (ORG-003):]
+    \begin{itemize}
+        \item Create a formal Acceptable Use Policy that clearly defines rules for using company networks, devices, and data.
+        \item Communicate the policy to all employees and require them to formally acknowledge it.
+        \item Integrate the AUP into the new employee onboarding process.
+    \end{itemize}
+\end{description}
+
+\end{document}
+```

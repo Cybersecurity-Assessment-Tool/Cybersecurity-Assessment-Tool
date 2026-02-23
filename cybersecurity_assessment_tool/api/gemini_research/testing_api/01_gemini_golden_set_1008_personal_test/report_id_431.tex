@@ -1,0 +1,186 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ------------------------------------------------------------------
+% Section 1: Executive Summary
+% ------------------------------------------------------------------
+\section*{1. Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Foresight Strategies}, synthesizing data from a technical network scan, a security controls questionnaire, and a review of pre-existing risks. The analysis reveals a mixed security posture with several effective controls in place, but also identifies critical vulnerabilities that require immediate attention.
+
+Key findings indicate a significant misconfiguration where a service on the localhost interface (\texttt{127.0.0.1}) is exposed, confirming a known critical risk. Furthermore, administrative controls show critical gaps, most notably the lack of Multi-Factor Authentication (MFA) for email access and the absence of a formal Acceptable Use Policy (AUP).
+
+While the organization has implemented security awareness training and MFA for other systems, the identified weaknesses substantially elevate the risk of unauthorized access, data breaches, and successful phishing attacks. This report outlines these risks and provides prioritized, actionable recommendations to mitigate them and strengthen the overall security posture.
+
+% ------------------------------------------------------------------
+% Section 2: Organizational Information
+% ------------------------------------------------------------------
+\section*{2. Organizational Information}
+
+The following details were provided for the assessment:
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Foresight Strategies
+    \item \textbf{Email Domain:} \texttt{ForesightStrategies.org}
+    \item \textbf{Website Domain:} \url{www.ForesightStrategies.org}
+    \item \textbf{External IP Address:} \texttt{201.164.190.126}
+\end{itemize}
+
+% ------------------------------------------------------------------
+% Section 3: Security Control Review
+% ------------------------------------------------------------------
+\section*{3. Security Control Review}
+
+A security questionnaire was completed to evaluate the implementation of key administrative and technical controls. The responses are summarized below. Items marked with \ding{55} represent significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.8\textwidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+\begin{itemize}
+    \item \textbf{No MFA for Email:} This is a critical vulnerability. Email is a primary target for attackers. Without MFA, a compromised password is all that is needed for an attacker to gain access, read sensitive communications, and launch further attacks against the organization and its partners.
+    \item \textbf{No Acceptable Use Policy (AUP):} The absence of an AUP creates ambiguity regarding employee responsibilities for protecting company assets. A formal policy is a foundational governance tool for managing insider risk and setting clear security expectations.
+\end{itemize}
+
+% ------------------------------------------------------------------
+% Section 4: Technical Scan Results
+% ------------------------------------------------------------------
+\section*{4. Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{127.0.0.1}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+The scan revealed the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Product / Version} \\
+\midrule
+22 & open & ssh & Not Detected \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Findings}
+The scan identified that port 22, commonly used for the Secure Shell (SSH) protocol, is open on the localhost interface (\texttt{127.0.0.1}). This finding directly confirms and validates the pre-existing risk documented as "Localhost Exposed". Exposing any service, especially a remote administration protocol like SSH, on this interface can be indicative of a severe misconfiguration that could be exploited by local processes or in chained attacks. The scan was unable to determine the specific version of the SSH service, which prevents an analysis for known version-specific vulnerabilities.
+
+% ------------------------------------------------------------------
+% Section 5: Consolidated Risk Assessment
+% ------------------------------------------------------------------
+\section*{5. Consolidated Risk Assessment}
+
+The following table correlates findings from the security questionnaire, the technical scan, and pre-existing risk data to provide a unified view of the primary risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\textwidth} p{0.55\textwidth} p{0.15\textwidth}}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Exposed Localhost Service} & The technical scan confirmed that Port 22 (SSH) is open on the localhost interface, validating a known risk. This misconfiguration could allow for unauthorized local access or privilege escalation. & \textbf{Critical (10.0)} \\
+\addlinespace
+\textbf{Lack of MFA on Email} & The questionnaire revealed that MFA is not enforced for email access. This exposes the organization to a high risk of business email compromise, phishing, and account takeover. & \textbf{Critical} \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy (AUP)} & The organization lacks a formal AUP, which is a foundational policy for cybersecurity governance. This increases insider risk and liability. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------------
+% Section 6: Recommendations
+% ------------------------------------------------------------------
+\section*{6. Recommendations}
+
+Based on the consolidated risk assessment, the following actions are recommended, prioritized by severity.
+
+\subsection*{Immediate Priority (Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Remediate Exposed Localhost Service:}
+    \begin{itemize}
+        \item Immediately investigate why the SSH service is bound to the localhost interface on the scanned system.
+        \item If the service is not required, disable it.
+        \item If required, reconfigure the service and implement firewall rules to ensure it is not unnecessarily exposed and is only accessible by authorized users and systems.
+    \end{itemize}
+    \item \textbf{Implement MFA for Email:}
+    \begin{itemize}
+        \item Procure and deploy an MFA solution for the organization's email system.
+        \item Enforce MFA for all user accounts without exception.
+        \item Provide clear instructions and support to users during the rollout process.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{High Priority}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item Draft a comprehensive AUP that clearly defines rules for the use of company technology, data handling, and internet access.
+        \item Require all current and new employees to read and formally acknowledge the policy.
+        \item Integrate the AUP into the security awareness training program.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{General Recommendations}
+\begin{enumerate}
+    \setcounter{enumi}{3} % Continue numbering
+    \item \textbf{Enhance Technical Scanning:} Configure future network scans to perform service and version detection. Identifying outdated software is crucial for proactive vulnerability management.
+\end{enumerate}
+
+\end{document}
+```

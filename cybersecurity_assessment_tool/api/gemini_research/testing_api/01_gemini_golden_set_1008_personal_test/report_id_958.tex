@@ -1,0 +1,160 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define colors for severity levels
+\definecolor{sevhigh}{HTML}{D9534F}
+\definecolor{sevmedium}{HTML}{F0AD4E}
+\definecolor{sevlow}{HTML}{5CB85C}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textbf{Cybersecurity Posture Assessment}}
+\fancyhead[R]{\textbf{Borealis Tech}}
+\fancyfoot[C]{\thepage}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.3\textwidth]{example-image-a} % Placeholder logo
+    \vfill
+    \Huge{\textbf{Cybersecurity Posture Assessment Report}}\\[0.5cm]
+    \Large{\textbf{Prepared for: Borealis Tech}}\\[1.5cm]
+    \normalsize
+    \begin{tabular}{ll}
+        \textbf{Date of Report:} & \today \\
+        \textbf{Prepared by:} & Cybersecurity Analysis Division \\
+    \end{tabular}
+    \vfill
+    \textit{This document contains sensitive information and is intended for the exclusive use of Borealis Tech. Unauthorized distribution is prohibited.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+This report details the findings of a cybersecurity posture assessment conducted for Borealis Tech. The assessment combined an analysis of organizational security controls, an external network vulnerability scan, and a review of known risks.
+
+\paragraph{Key Findings:} The overall security posture of Borealis Tech presents a mixed profile. On one hand, the external network perimeter is exceptionally secure, with no open ports or services detected on the scanned target IP address. This indicates a strong firewall configuration and a minimal attack surface exposed to the public internet.
+
+\paragraph{} On the other hand, a critical gap was identified in the employee onboarding process. The lack of mandatory security awareness training for new hires constitutes a \textbf{High} risk. New employees are often prime targets for social engineering attacks, and this gap leaves the organization vulnerable to phishing, credential theft, and other human-centered threats during a critical window of time.
+
+\paragraph{Conclusion:} While technical controls at the network edge are robust, the organization must prioritize addressing the identified gap in its security awareness program to mitigate significant human-related risks. Recommendations are provided to strengthen this area and maintain the current high standard of network security.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment. This information helps establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Borealis Tech \\
+Primary Email Domain & \texttt{BorealisTech.org} \\
+Primary Website Domain & \url{www.BorealisTech.org} \\
+External IP Address & \texttt{162.83.231.200} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of organizational security controls was conducted based on a standardized questionnaire. The responses are summarized below. A checkmark (\ding{51}) indicates a positive control is in place, while a cross (\ding{55}) indicates a potential gap.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Controls Questionnaire}
+\begin{tabular}{@{}lc}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textbf{\color{red}\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The organization has implemented strong identity and access management controls, with Multi-Factor Authentication (MFA) widely enforced. However, the failure to provide security awareness training to new employees upon hiring is a significant vulnerability. While annual training is conducted, the initial employment period is when staff are most susceptible to attacks and unfamiliar with corporate security policies. This gap is the primary finding from the control review.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports, running services, and potential vulnerabilities on the public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\subsection{Scan Summary}
+The scan of the target IP address revealed \textbf{no open TCP or UDP ports}. All connection attempts were either filtered or dropped, indicating that a firewall or similar security device is effectively blocking unsolicited inbound traffic.
+
+\subsection{Analysis}
+This is an excellent security posture from an external network perspective. A host with no exposed services presents a minimal attack surface to external adversaries. This result suggests that the organization's network perimeter security is well-configured and effectively enforced. It is crucial to maintain this configuration and ensure that any future changes to firewall rules are carefully vetted through a formal change control process.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from the security control review, technical scans, and pre-existing risk data. The following table details the identified risks to Borealis Tech, prioritized by severity.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Security Risks}
+\begin{tabular}{@{}p{0.1\linewidth} p{0.25\linewidth} p{0.4\linewidth} p{0.1\linewidth}@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & Lack of Onboarding Security Training & New employees do not receive security awareness training as part of the onboarding process. This creates a window of vulnerability where new staff are more susceptible to social engineering attacks (e.g., phishing) before they are familiar with organizational security policies. & \colorbox{sevhigh}{\color{white}\textbf{High}} \\
+\midrule
+\multicolumn{4}{l}{\textit{No other high-priority risks were identified during this assessment.}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the findings of this assessment, the following actions are recommended to enhance the cybersecurity posture of Borealis Tech.
+
+\begin{itemize}
+    \item[\textbf{1.}] \textbf{[High Priority] Implement Mandatory Onboarding Security Training:}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and integrate a mandatory security awareness training module into the new employee onboarding process.
+        \item \textbf{Details:} This training should be completed within the first week of employment and cover essential topics such as phishing identification, password security, acceptable use of company assets, and procedures for reporting security incidents. This directly mitigates the risk identified as RISK-001.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item[\textbf{2.}] \textbf{[Good Practice] Maintain and Validate Network Perimeter Security:}
+    \begin{itemize}
+        \item \textbf{Action:} Continue the current practice of maintaining a restrictive firewall policy.
+        \item \textbf{Details:} Conduct periodic, automated external vulnerability scans (at least quarterly) to validate that no new services have been inadvertently exposed. Ensure a formal change management process is in place for all firewall rule modifications.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

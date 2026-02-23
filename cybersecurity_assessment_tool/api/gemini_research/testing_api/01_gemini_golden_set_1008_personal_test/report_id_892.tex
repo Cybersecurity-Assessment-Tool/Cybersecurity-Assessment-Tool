@@ -1,0 +1,162 @@
+```latex
+\documentclass[12pt]{article}
+
+% -------------------
+% --- PREAMBLE ---
+% -------------------
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % Required for \ding
+\usepackage{booktabs} % Required for professional tables (\toprule, \midrule, \bottomrule)
+\usepackage{hyperref} % Required for clickable links and metadata
+\usepackage{url}      % Required for \url{} command
+\usepackage{xcolor}   % For coloring text
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+
+% --- Hyperlink Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Nmap, Risk, Assessment}
+}
+
+% --- Custom Commands & Colors ---
+\newcommand{\yes}{\textcolor{darkgray}{\ding{51}}}
+\newcommand{\no}{\textcolor{red}{\textbf{\ding{55}}}}
+\definecolor{lightred}{rgb}{1,0.8,0.8}
+\definecolor{lightyellow}{rgb}{1,1,0.8}
+\definecolor{lightgreen}{rgb}{0.8,1,0.8}
+
+% -------------------
+% --- DOCUMENT ---
+% -------------------
+\begin{document}
+
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+\hrule\vspace{1em}
+
+% ===================================================================
+\section*{Executive Summary}
+% ===================================================================
+
+This report details the cybersecurity posture of \textbf{Maple Leaf Logistics}. The assessment combined a technical network scan, a review of pre-existing risks, and an analysis of organizational security controls provided via a questionnaire.
+
+The technical scan of the target system \texttt{192.168.1.100} revealed a strong external network perimeter, with no open ports discovered. This indicates a well-configured firewall and is a positive security finding.
+
+However, the review of internal security controls identified several \textbf{critical and high-risk gaps}. The most significant findings are the absence of Multi-Factor Authentication (MFA) for sensitive data systems, the lack of an employee acceptable use policy, and no formal security awareness training program for staff.
+
+These deficiencies expose the organization to significant risk from both internal and external threats, particularly social engineering, insider threats, and unauthorized access to critical data. Immediate remediation of these policy and control gaps is strongly recommended to reduce the attack surface and improve the overall security posture.
+
+% ===================================================================
+\section{Organizational Information}
+% ===================================================================
+
+The following information was provided for the assessment:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Item}             & \textbf{Details} \\ \midrule
+Organization Name         & Maple Leaf Logistics \\
+Email Domain              & \texttt{MapleLeafLogistics.net} \\
+Website Domain            & \url{www.MapleLeafLogistics.net} \\
+External IP Address       & \texttt{34.247.70.64} \\
+Target Scanned IP         & \texttt{192.168.1.100} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\end{table}
+
+% ===================================================================
+\section{Security Control Review}
+% ===================================================================
+
+The following table summarizes the responses from the organizational security questionnaire. Items marked with \no\ represent significant gaps in the security framework and are addressed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \yes \\
+\rowcolor{lightred}
+Do you require MFA to access sensitive data systems? & \no \\
+\rowcolor{lightred}
+Does your organization have an employee acceptable use policy? & \no \\
+\rowcolor{lightred}
+Does your organization do security awareness training for new employees? & \no \\
+\rowcolor{lightred}
+Does your organization do security awareness training for all employees at least once per year? & \no \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results (\yes = Yes, \no = No).}
+\end{table}
+
+% ===================================================================
+\section{Technical Network Scan Results}
+% ===================================================================
+
+An Nmap scan was conducted on the target IP address \texttt{192.168.1.100}. The scan results indicate that the host is online, but no open TCP ports were discovered. All 1000 scanned ports were reported as 'closed'.
+
+This is a positive security finding, suggesting that the target system is well-protected by a firewall that denies unsolicited inbound connections. This significantly reduces the external attack surface of this specific asset.
+
+% ===================================================================
+\section{Risk Assessment}
+% ===================================================================
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data. As no pre-existing vulnerabilities were reported and the technical scan was clean, all identified risks stem from the organizational control gaps.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\textwidth}p{0.5\textwidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\ \midrule
+\rowcolor{lightred}
+No MFA for Sensitive Data & The lack of MFA on critical systems allows an attacker with stolen credentials (e.g., from a phishing attack) to gain direct access to sensitive data, bypassing a key security layer. & \textbf{Critical} \\
+\addlinespace
+\rowcolor{lightyellow}
+No Employee Acceptable Use Policy & Without a formal Acceptable Use Policy (AUP), employees may be unaware of their security responsibilities, leading to unsafe behavior, misuse of assets, and potential legal or compliance issues. & \textbf{High} \\
+\addlinespace
+\rowcolor{lightyellow}
+No Security Awareness Training Program & Employees are not trained to recognize and respond to common cyber threats like phishing, ransomware, or social engineering, making them the most vulnerable vector for an attack. & \textbf{High} \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\end{table}
+
+% ===================================================================
+\section{Recommendations}
+% ===================================================================
+
+The following actions are recommended to mitigate the identified risks and strengthen the organization's cybersecurity posture.
+
+\begin{enumerate}
+    \item \textbf{Implement MFA for Sensitive Systems (Critical Priority):}
+    \begin{itemize}
+        \item Immediately deploy and enforce MFA on all applications, databases, and administrative interfaces that store or process sensitive company or customer data.
+        \item Prioritize systems that are remotely accessible or critical to business operations.
+    \end{itemize}
+
+    \item \textbf{Develop and Enforce an Acceptable Use Policy (High Priority):}
+    \begin{itemize}
+        \item Create a formal AUP that clearly outlines the rules and expected behaviors for using company IT assets, including email, internet, and software.
+        \item Require all current employees and new hires to read and formally acknowledge the policy as a condition of system access.
+    \end{itemize}
+
+    \item \textbf{Establish a Security Awareness Training Program (High Priority):}
+    \begin{itemize}
+        \item Implement a mandatory, ongoing security awareness training program for all employees.
+        \item Training should be conducted upon hiring and at least annually thereafter.
+        \item Key topics must include phishing and spear-phishing recognition, password security, safe browsing habits, and procedures for reporting security incidents.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

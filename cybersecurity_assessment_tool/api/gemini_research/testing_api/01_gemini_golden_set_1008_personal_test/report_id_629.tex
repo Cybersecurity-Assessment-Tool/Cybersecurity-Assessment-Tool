@@ -1,0 +1,162 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage[T1]{fontenc}
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{\stretch{1.0}}
+    \Huge{\textbf{Cybersecurity Posture and Risk Assessment Report}}
+    \vspace{1.5cm}
+    \Large{\textbf{Prepared for: Nexus Dynamics}}
+    \vspace{2.0cm}
+    \normalsize
+    \begin{tabular}{ll}
+        \textbf{Author:} & Cybersecurity Analyst \\
+        \textbf{Date:} & \today \\
+        \textbf{Report ID:} & CSR-2023-481A \\
+    \end{tabular}
+    \vspace*{\stretch{2.0}}
+    \hrule
+    \small{\textit{This document contains sensitive information and is intended for the exclusive use of the recipient organization. Unauthorized distribution is prohibited.}}
+    \hrule
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section*{1. Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for Nexus Dynamics, based on a synthesis of network scan data, organizational security controls, and pre-existing risk information.
+
+The assessment identified two critical-risk findings that require immediate attention. Firstly, the technical network scan revealed an open Remote Desktop Protocol (RDP) port on a newly identified system (\texttt{10.10.10.51}). This finding, correlated with a pre-existing risk of RDP exposure on another host, points to a systemic weakness in managing remote access protocols. Open RDP is a primary vector for ransomware and unauthorized access.
+
+Secondly, the security questionnaire revealed a significant gap in access control: multi-factor authentication (MFA) is not required for accessing sensitive data systems. This policy oversight dramatically increases the risk of a data breach, especially when combined with exposed services like RDP.
+
+While the organization demonstrates a solid foundation in security awareness training and policy, the identified technical and procedural gaps present a clear and present danger to operational integrity and data confidentiality. Immediate remediation of the RDP exposures and the swift implementation of MFA on critical systems are strongly recommended.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section*{2. Organizational Information}
+The following details were provided for the assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} Nexus Dynamics
+    \item \textbf{Email Domain:} \texttt{NexusDynamics.net}
+    \item \textbf{Website Domain:} \url{www.NexusDynamics.net}
+    \item \textbf{External IP Address:} \texttt{72.131.31.248}
+\end{itemize}
+
+% --- SECURITY CONTROL REVIEW ---
+\section*{3. Security Control Review}
+An assessment of organizational security controls was conducted via a questionnaire. The results below highlight the organization's current policies and procedures. A green checkmark (\yes) indicates a positive control is in place, while a red cross (\no) indicates a potential security gap.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.8\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \yes \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textbf{\no} \\
+Does your organization have an employee acceptable use policy? & \yes \\
+Does your organization do security awareness training for new employees? & \yes \\
+Does your organization do security awareness training for all employees at least once per year? & \yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The organization has implemented several foundational security controls effectively, including MFA for email and workstations, and a robust security awareness program. However, the absence of mandatory MFA for accessing sensitive data systems is a \textbf{critical weakness}. This gap means that a single compromised password could be sufficient for an attacker to access the organization's most valuable data, bypassing other security layers.
+
+% --- TECHNICAL SCAN RESULTS ---
+\section*{4. Technical Scan Results}
+A network scan was performed to identify open ports and services on the target system.
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{10.10.10.51}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{10.10.10.51}}
+\begin{tabular}{cccl}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Description} \\
+\midrule
+3389/tcp & open & \texttt{ms-wbt-server} & Microsoft Remote Desktop Protocol (RDP) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified that port 3389 is open, which corresponds to the Remote Desktop Protocol (RDP). RDP is used for remote administration of Windows systems. While useful for administrators, exposing RDP directly to a network without proper controls (such as a VPN or strict IP whitelisting) is extremely dangerous. It is a frequent target for brute-force credential attacks and is a primary entry point for ransomware groups.
+
+% --- RISK ASSESSMENT ---
+\section*{5. Consolidated Risk Assessment}
+This section correlates findings from the security control review, the technical scan, and pre-existing risk data to provide a unified view of the current risk landscape.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth}p{0.45\linewidth}p{0.1\linewidth}p{0.1\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} & \textbf{Affected System(s)} \\
+\midrule
+\textbf{Systemic RDP Exposure} & The RDP service is exposed on multiple systems. This indicates a lack of a secure remote access policy and creates a significant attack surface. & \textbf{Critical} & \texttt{10.10.10.50} \texttt{10.10.10.51} \\
+\addlinespace
+\textbf{Inadequate MFA for Sensitive Data} & The lack of a second authentication factor for critical data systems means that a compromised password directly leads to a potential data breach. & \textbf{Critical} & Org-wide \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section*{6. Recommendations}
+Based on the analysis, the following actions are recommended to mitigate the identified risks and improve the overall security posture of Nexus Dynamics.
+
+\subsection*{Immediate Actions (Next 72 Hours)}
+\begin{enumerate}
+    \item \textbf{Remediate RDP Exposure:} Immediately close port 3389 on both \texttt{10.10.10.50} and \texttt{10.10.10.51} on any external-facing firewalls. If remote access to these systems is required, it must be placed behind a secure gateway.
+\end{enumerate}
+
+\subsection*{High-Priority Actions (Next 30 Days)}
+\begin{enumerate}
+    \item \textbf{Implement MFA for Sensitive Systems:} Enforce MFA on all applications, databases, and administrative interfaces that contain or provide access to sensitive company or customer data. This is the single most effective control to mitigate the risk of credential compromise.
+    \item \textbf{Deploy a Secure Remote Access Solution:} Implement a Virtual Private Network (VPN) with mandatory MFA for all remote administrative access. Prohibit direct RDP access from untrusted networks.
+\end{enumerate}
+
+\subsection*{Strategic Recommendations (Next 90 Days)}
+\begin{enumerate}
+    \item \textbf{Conduct Comprehensive Vulnerability Scanning:} Perform authenticated and unauthenticated vulnerability scans across the entire network infrastructure to identify and remediate other potential weaknesses or misconfigurations.
+    \item \textbf{Develop a Formal Remote Access Policy:} Create and enforce a clear policy that defines the acceptable methods for remote access, ensuring all connections are authenticated, encrypted, and logged.
+\end{enumerate}
+
+% --- CONCLUSION ---
+\section*{7. Conclusion}
+Nexus Dynamics has a solid foundation of security awareness but is currently exposed to significant risk due to critical gaps in technical and access control measures. The combination of exposed administrative services (RDP) and the absence of MFA for sensitive data creates a high-likelihood path for a security breach.
+
+By taking the immediate and high-priority actions recommended in this report, the organization can substantially reduce its attack surface and protect its most critical assets. Continued investment in proactive security measures will be essential for long-term resilience.
+
+\end{document}
+```

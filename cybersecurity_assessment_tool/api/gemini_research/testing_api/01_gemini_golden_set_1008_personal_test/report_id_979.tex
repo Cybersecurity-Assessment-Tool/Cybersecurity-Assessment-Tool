@@ -1,0 +1,195 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{fancyhdr} % For headers and footers
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For images (e.g., logo)
+\usepackage{datetime} % For date formatting
+
+% --- Document Setup ---
+
+% Hyperref settings
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{Mainframe Managed}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Content ---
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    {\Huge\bfseries Cybersecurity Assessment Report\par}
+    \vspace{1.5cm}
+    
+    {\Large\bfseries For\par}
+    \vspace{0.5cm}
+    {\Huge\bfseries Mainframe Managed\par}
+    
+    \vfill
+    
+    {\large
+    \textbf{Date of Report:} \today \par
+    \vspace{0.5cm}
+    \textbf{Author:} Cybersecurity Analyst \par
+    }
+    
+    \vspace{1cm}
+    \textit{This report contains sensitive information and should be handled with care.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a cybersecurity assessment for Mainframe Managed, based on a combination of organizational data, a security controls questionnaire, and a network vulnerability scan. The assessment was conducted to identify key risks and provide actionable recommendations to improve the organization's security posture.
+
+The analysis revealed several significant security gaps that require immediate attention. Most critically, the lack of mandatory Multi-Factor Authentication (MFA) for email and computer access represents a \textbf{Critical} risk. Email is a primary vector for phishing and account compromise, while unprotected workstations provide an entry point for attackers to gain internal network access.
+
+Additionally, a technical scan of the external IPv6 address \seqsplit{\texttt{2001:db8::1}} identified an open Secure Shell (SSH) port (22). While necessary for remote administration, a publicly exposed SSH service is a common target for brute-force attacks and requires robust hardening.
+
+The overall security posture is weakened by these fundamental control gaps. We strongly recommend prioritizing the implementation of MFA across all user-facing systems and securing the exposed SSH service as outlined in the recommendations section of this report.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information helps establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Mainframe Managed \\
+    Email Domain & \texttt{MainframeManaged.org} \\
+    Website Domain & \url{www.MainframeManaged.org} \\
+    External IP Address & \seqsplit{\texttt{71.202.116.226}} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. This review helps identify gaps in administrative and policy-based security measures. Items marked with \ding{55} indicate a deviation from security best practices and are discussed further in the Risk Assessment section.
+
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.25\linewidth}@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{red}{\ding{55}} & \textbf{Critical Gap.} Lack of MFA on email exposes the organization to phishing and account takeover. \\
+    \addlinespace
+    Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} & \textbf{High Risk.} Unprotected workstations are vulnerable to credential theft and unauthorized access. \\
+    \addlinespace
+    Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} & Best practice is being followed. \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} & Foundational policy is in place. \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} & Good practice for onboarding. \\
+    \addlinespace
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} & Meets compliance and best practice standards. \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed on the specified target to identify open ports and exposed services. This scan provides insight into the external attack surface of the organization.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+The following table details the open ports discovered during the scan.
+
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+    \midrule
+    22/tcp & Open & SSH (Secure Shell) & The service is exposed to the public internet. This is a common target for automated brute-force attacks. Version information was not available from this scan. \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+
+This section synthesizes findings from the security control review and the technical scan into a prioritized list of risks. Each risk is assigned a severity level to guide remediation efforts.
+
+\begin{tabular}{@{}p{0.1\linewidth} p{0.6\linewidth} l@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & \textbf{No MFA for Email Access:} User email accounts are protected only by passwords, making them highly susceptible to phishing, credential stuffing, and unauthorized access. A compromised email account can lead to data breaches and further internal compromise. & \textcolor{red}{\textbf{Critical}} \\
+    \addlinespace
+    RISK-002 & \textbf{No MFA for Computer Logins:} Employee workstations and laptops lack MFA, weakening endpoint security. If user credentials are stolen, an attacker can gain direct access to the internal network, company data, and potentially escalate privileges. & \textcolor{orange}{\textbf{High}} \\
+    \addlinespace
+    RISK-003 & \textbf{Publicly Exposed SSH Service:} The SSH management port (22) is open to the entire internet on \seqsplit{\texttt{2001:db8::1}}. This exposes the system to continuous brute-force login attempts and potential exploitation if a vulnerability exists in the SSH server software. & \textcolor{yellow!80!black}{\textbf{Medium}} \\
+    \bottomrule
+\end{tabular}
+
+\textit{Note: No pre-existing vulnerabilities were provided for this assessment.}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+Based on the identified risks, the following prioritized actions are recommended to enhance the security posture of Mainframe Managed.
+
+\subsection*{Immediate Priority (Critical Risk)}
+
+\begin{itemize}
+    \item \textbf{RISK-001: Remediate Lack of Email MFA}
+    \begin{itemize}
+        \item Immediately enforce a mandatory MFA policy for all user accounts accessing the email system (e.g., Office 365, Google Workspace).
+        \item Prioritize authentication methods that are resistant to phishing, such as FIDO2 security keys or authenticator apps over SMS.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{High Priority}
+
+\begin{itemize}
+    \item \textbf{RISK-002: Remediate Lack of Workstation MFA}
+    \begin{itemize}
+        \item Implement and enforce MFA for all Windows, macOS, and Linux workstation logins.
+        \item This control is critical for all employees, especially those with privileged access and remote workers.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Medium Priority}
+
+\begin{itemize}
+    \item \textbf{RISK-003: Harden Exposed SSH Service}
+    \begin{itemize}
+        \item \textbf{Restrict Access:} If remote SSH access is required, configure firewall rules to allow connections only from specific, trusted IP addresses (e.g., administrator home or office IPs).
+        \item \textbf{Disable Password Authentication:} Configure the SSH server to disallow password-based logins and require public key authentication exclusively. This mitigates the risk of brute-force attacks.
+        \item \textbf{Keep Updated:} Ensure the SSH server software is patched and running the latest stable version to protect against known vulnerabilities.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

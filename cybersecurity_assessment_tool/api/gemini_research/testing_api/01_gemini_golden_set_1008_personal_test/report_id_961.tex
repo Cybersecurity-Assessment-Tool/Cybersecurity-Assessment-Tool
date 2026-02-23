@@ -1,0 +1,179 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long text strings to prevent overflow
+
+% --- DOCUMENT METADATA ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Analysis, Report},
+    bookmarks=true
+}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{\fill}
+    \Huge{\textbf{Cybersecurity Posture Report}}\\[0.5cm]
+    \Large{Prepared for: \textbf{Ember Glow Hospitality}}\\[2.0cm]
+    \normalsize
+    \begin{tabular}{ll}
+        \textbf{Report Date:} & November 22, 2025 \\
+        \textbf{Author:} & Cybersecurity Analyst \\
+    \end{tabular}
+    \vfill
+    \textit{This report contains sensitive information and should be handled with care.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Ember Glow Hospitality}, based on technical network scans, a security controls questionnaire, and a review of known risks. The assessment was conducted on November 22, 2025.
+
+The overall security posture is considered \textbf{critically weak} and requires immediate remediation. Several significant security gaps were identified that expose the organization to a high risk of unauthorized access, data breach, and service disruption.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical - No Multi-Factor Authentication (MFA):} The complete absence of MFA for email, computer logins, and sensitive data systems represents a severe vulnerability. This significantly increases the risk of account compromise via phishing or credential theft.
+    \item \textbf{High - Vulnerable Web Server:} The external-facing web server at \texttt{192.168.10.5} is running an outdated version of Nginx (1.18.0), which has multiple publicly known vulnerabilities.
+    \item \textbf{High - Inadequate Employee Security Policies:} The lack of an Acceptable Use Policy and mandatory security training for new employees creates a significant risk from insider threats, whether malicious or unintentional.
+    \item \textbf{Medium - SSL Certificate Mismatch:} The SSL certificate on the web server does not match the organization's domain, which can erode user trust and indicates poor configuration management.
+\end{itemize}
+
+Immediate action is required to address these findings. Recommendations are detailed in Section \ref{sec:recommendations}.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Ember Glow Hospitality} \\
+    Email Domain & \texttt{EmberGlowHospitality.com} \\
+    Website Domain & \url{www.EmberGlowHospitality.com} \\
+    External IP Address & \texttt{146.120.54.26} \\
+    \bottomrule
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+A review of administrative and policy-based security controls was conducted via a questionnaire. The results highlight critical gaps in foundational security practices. A "No" response indicates a missing control and a potential area of high risk.
+
+\begin{tabular}{@{}p{0.75\linewidth}c}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \ding{55} \\
+    Do you require MFA to log into computers? & \ding{55} \\
+    Do you require MFA to access sensitive data systems? & \ding{55} \\
+    Does your organization have an employee acceptable use policy? & \ding{55} \\
+    Does your organization do security awareness training for new employees? & \ding{55} \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+    \bottomrule
+\end{tabular}
+
+\vspace{0.5cm}
+\noindent \textbf{Analysis:} The lack of MFA across all critical access points is a severe deficiency. Furthermore, the absence of an acceptable use policy and security training for new hires creates an environment where employees are more likely to fall victim to social engineering or misuse company assets, leading to a security incident.
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and exposed services on the specified target system.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{192.168.10.5}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+\subsection{Open Ports and Services}
+The following services were found to be accessible on the target system:
+
+\begin{tabular}{@{}lllll}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    443/TCP & open & https & nginx & 1.18.0 \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Technical Findings and Analysis}
+\begin{itemize}
+    \item \textbf{Outdated Nginx Version:} The web server is running Nginx version 1.18.0, which was released in 2020. This version is significantly outdated and is known to be vulnerable to multiple security threats, including but not limited to request smuggling and denial-of-service attacks. Running unsupported and unpatched software on an internet-facing server presents a high risk of compromise.
+    \item \textbf{SSL Certificate Mismatch:} The scan revealed that the SSL certificate's Common Name is \texttt{www.acme-corp.com}. This does not match the organization's domain (\texttt{www.EmberGlowHospitality.com}). This misconfiguration will cause browser trust warnings for users, can be a symptom of other configuration issues, and may be leveraged by attackers in certain scenarios.
+\end{itemize}
+
+% --- RISK ASSESSMENT ---
+\section{Risk Assessment}
+Based on the correlation of the security control review and technical scan results, the following risks have been identified. The pre-existing risk register was empty.
+
+\begin{tabular}{@{}p{0.2\linewidth}p{0.55\linewidth}p{0.15\linewidth}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+    \midrule
+    \textbf{Account Compromise via No MFA} & The absence of MFA on email, endpoints, and sensitive systems allows an attacker with valid credentials (e.g., from a phishing attack) to gain immediate and unrestricted access. & \textbf{Critical} \\
+    \addlinespace
+    \textbf{Web Server Compromise} & The outdated Nginx 1.18.0 server is exposed to publicly known vulnerabilities. An attacker could exploit these to gain control of the server, deface the website, or access underlying data. & \textbf{High} \\
+    \addlinespace
+    \textbf{High Risk of Human Error} & The lack of an Acceptable Use Policy and security training for new hires makes employees highly susceptible to social engineering attacks and policy violations, which are a leading cause of data breaches. & \textbf{High} \\
+    \addlinespace
+    \textbf{SSL Configuration Weakness} & The certificate mismatch indicates poor security hygiene and configuration management. This erodes trust and could lead to users ignoring legitimate browser warnings in the future. & \textbf{Medium} \\
+    \bottomrule
+\end{tabular}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+\label{sec:recommendations}
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\begin{enumerate}
+    \item \textbf{[Immediate Priority] Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item Enforce MFA for all user accounts for accessing email, VPN, and any systems containing sensitive organizational data.
+        \item This is the single most effective control to prevent unauthorized access from compromised credentials.
+    \end{itemize}
+
+    \item \textbf{[High Priority] Patch Vulnerable Web Server:}
+    \begin{itemize}
+        \item Upgrade the Nginx server at \texttt{192.168.10.5} from version 1.18.0 to the latest stable version immediately.
+        \item Implement a formal patch management process to ensure all internet-facing systems are updated in a timely manner.
+    \end{itemize}
+
+    \item \textbf{[High Priority] Establish Foundational Employee Security Policies:}
+    \begin{itemize}
+        \item Develop and implement a mandatory security awareness training module for all new employees as part of their onboarding process.
+        \item Draft and enforce a formal Acceptable Use Policy (AUP) that all employees must read and sign.
+    \end{itemize}
+
+    \item \textbf{[Medium Priority] Correct SSL Certificate Configuration:}
+    \begin{itemize}
+        \item Replace the current SSL certificate on the web server with a valid one that matches the domain \texttt{www.EmberGlowHospitality.com}.
+        \item Ensure certificates are monitored for expiration and proper configuration.
+    \end{itemize}
+\end{enumerate}
+
+% --- CONCLUSION ---
+\section{Conclusion}
+The security posture of \textbf{Ember Glow Hospitality} contains multiple critical and high-risk vulnerabilities that require immediate attention. The combination of technical flaws, such as the outdated web server, and significant policy gaps, particularly the lack of MFA, creates a high probability of a successful cyberattack.
+
+By implementing the prioritized recommendations in this report, the organization can significantly reduce its attack surface and build a stronger, more resilient security foundation.
+
+\end{document}
+```

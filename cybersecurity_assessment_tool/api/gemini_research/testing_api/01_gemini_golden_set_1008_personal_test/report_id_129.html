@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="titlepage">
+<p><strong>Cybersecurity Posture Assessment Report</strong>
+<strong>Prepared for:</strong><br />
+Signal Flare <strong>Date of Report:</strong><br />
+2026-01-31 <strong>Analysis Conducted By:</strong><br />
+Cybersecurity Analysis Division</p>
+</div>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive analysis of the cybersecurity
+posture for Signal Flare, based on network scans, organizational
+questionnaires, and a review of existing risk documentation. The
+assessment was conducted to identify vulnerabilities, security control
+gaps, and areas of non-compliance with cybersecurity best practices.</p>
+<p>The overall security posture is rated as <strong>Weak</strong>.
+Several critical-risk findings require immediate attention. The analysis
+revealed significant gaps in fundamental security controls, particularly
+the lack of Multi-Factor Authentication (MFA) for email and computer
+access. This exposes the organization to a high risk of account
+compromise and unauthorized access.</p>
+<p>Furthermore, a technical scan identified an exposed service on port
+8080 of an internal system (<code>10.5.5.5</code>) with a highly
+concerning banner: <code>"TOP SECRET DB"</code>. This suggests a
+sensitive database or application is accessible on the network without
+adequate protection. Critically, this finding directly contradicts the
+existing risk documentation, which lists this port as a secured false
+positive. This discrepancy indicates that the current risk register is
+outdated and does not reflect the actual state of the network, posing a
+significant meta-risk to the organization’s security management
+program.</p>
+<p>Immediate remediation of the exposed service and the implementation
+of MFA are the highest priorities.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following details were provided by the client and used as a
+baseline for this assessment.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;">Signal Flare</td>
+</tr>
+<tr>
+<td style="text-align: left;">Email Domain</td>
+<td style="text-align: left;"><code>SignalFlare.net</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Website Domain</td>
+<td style="text-align: left;"><a href="www.SignalFlare.net"
+class="uri">www.SignalFlare.net</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Address</td>
+<td style="text-align: left;"><code>180.44.245.252</code></td>
+</tr>
+</tbody>
+</table>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of organizational security controls was conducted via a
+standardized questionnaire. The responses indicate several critical gaps
+in foundational security practices. A summary is provided below.</p>
+<table>
+<caption>Organizational Security Controls Questionnaire</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+</tbody>
+</table>
+<p>The absence of MFA for primary access vectors like email and
+workstations, combined with the lack of an Acceptable Use Policy,
+represents a significant risk to the organization’s data and
+systems.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An active network scan was performed to identify open ports and
+exposed services on the target system.</p>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>10.5.5.5</code></p></li>
+<li><p><strong>Scan Date:</strong> 2024-05-21 (Assumed from current
+date)</p></li>
+</ul>
+<p>The scan revealed the following open port:</p>
+<table>
+<caption>Open Port Analysis for <code>10.5.5.5</code></caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service Info</strong></th>
+<th style="text-align: left;"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">8080/tcp</td>
+<td style="text-align: left;">Open</td>
+<td style="text-align: left;">HTTP service with title:
+<strong><code>"TOP SECRET DB"</code></strong></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Analysis:</strong> The presence of an open port with a title
+explicitly mentioning a "TOP SECRET DB" is a critical finding. This
+strongly suggests that a sensitive, possibly unauthenticated, database
+management interface or application is exposed on the network. This
+service must be investigated immediately to determine its purpose and
+secure it from unauthorized access.</p>
+<h1 id="risk-assessment-correlation">Risk Assessment &amp;
+Correlation</h1>
+<p>This section synthesizes findings from the security control review,
+technical scans, and existing risk documentation.</p>
+<table>
+<caption>Summary of Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Title</strong></th>
+<th style="text-align: left;"><strong>Description</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Exposed Sensitive
+Service</strong></td>
+<td style="text-align: left;">An HTTP service on
+<code>10.5.5.5:8080</code> is open and identifies itself as
+<code>"TOP SECRET DB"</code>. This poses an immediate and severe risk of
+data exfiltration or system compromise.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lack of Multi-Factor
+Authentication</strong></td>
+<td style="text-align: left;">MFA is not enforced for email or computer
+logins, making user accounts highly susceptible to takeover via phishing
+or credential stuffing attacks.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Outdated Risk
+Register</strong></td>
+<td style="text-align: left;">The existing risk register incorrectly
+lists Port 8080 as a secured false positive. This live finding proves
+the register is inaccurate, undermining the reliability of the
+organization’s risk management program.</td>
+<td style="text-align: left;"><strong>High</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Missing Acceptable Use
+Policy</strong></td>
+<td style="text-align: left;">The absence of a formal Acceptable Use
+Policy (AUP) creates ambiguity regarding security responsibilities for
+employees and increases the risk of insider threat and policy
+violations.</td>
+<td style="text-align: left;"><strong>High</strong></td>
+</tr>
+</tbody>
+</table>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following prioritized recommendations are provided to mitigate
+the identified risks and improve the overall security posture of Signal
+Flare.</p>
+<h2 id="priority-1-immediate-actions-critical-risks">Priority 1:
+Immediate Actions (Critical Risks)</h2>
+<ol>
+<li><p><strong>Secure the Exposed Service on Port 8080:</strong></p>
+<ul>
+<li><p>Immediately investigate the service running on
+<code>10.5.5.5:8080</code>.</p></li>
+<li><p>Identify the owner and purpose of the "TOP SECRET DB".</p></li>
+<li><p>If the service is not essential, disable it.</p></li>
+<li><p>If essential, restrict access to authorized personnel only via
+firewall rules and implement strong authentication and
+encryption.</p></li>
+</ul></li>
+<li><p><strong>Implement Multi-Factor Authentication (MFA):</strong></p>
+<ul>
+<li><p>Enforce MFA for all user accounts across all critical systems,
+starting with email (e.g., Office 365, Google Workspace) and workstation
+logins (e.g., Windows Hello, Duo).</p></li>
+</ul></li>
+</ol>
+<h2 id="priority-2-foundational-improvements-high-risks">Priority 2:
+Foundational Improvements (High Risks)</h2>
+<ol start="3">
+<li><p><strong>Develop and Implement an Acceptable Use Policy
+(AUP):</strong></p>
+<ul>
+<li><p>Create a formal AUP that clearly defines the rules for using
+company IT assets, data handling, and security
+responsibilities.</p></li>
+<li><p>Require all employees to read and acknowledge the
+policy.</p></li>
+</ul></li>
+<li><p><strong>Review and Update the Risk Register:</strong></p>
+<ul>
+<li><p>Conduct a full review of the existing risk register to validate
+all entries against the current environment.</p></li>
+<li><p>Correct the entry for Port 8080 to reflect its status as a
+critical vulnerability.</p></li>
+<li><p>Establish a formal process for regular review and validation of
+the risk register.</p></li>
+</ul></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

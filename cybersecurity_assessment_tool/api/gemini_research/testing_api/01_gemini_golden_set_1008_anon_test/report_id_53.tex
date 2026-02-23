@@ -1,0 +1,185 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{datetime}
+
+% Define custom colors
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=darkblue,      
+    urlcolor=darkblue,
+    citecolor=darkblue,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Document Information
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture Assessment Report}\\
+    \large For: \textbf{[Organization Name]}
+    \vspace{1cm}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on technical network scans, a security controls questionnaire, and a review of pre-existing risk data. The assessment was conducted to identify vulnerabilities, security gaps, and areas for improvement.
+
+The analysis revealed two critical-risk findings that require immediate attention:
+\begin{enumerate}
+    \item \textbf{Publicly Exposed Remote Desktop Protocol (RDP):} The external network scan confirmed that port 3389 (RDP) is open on the asset \texttt{[Target IP]}. This aligns with a known high-severity risk and presents a significant threat, as exposed RDP is a primary attack vector for ransomware and unauthorized access.
+    \item \textbf{Lack of Multi-Factor Authentication (MFA) for Email:} The security controls review identified that MFA is not required for accessing email accounts. This represents a critical gap in identity and access management, leaving the organization highly susceptible to phishing attacks, business email compromise (BEC), and subsequent data breaches.
+\end{enumerate}
+
+While the organization has implemented some positive security controls, such as MFA for computer logins and security awareness training, the aforementioned critical findings substantially elevate the overall risk profile. Immediate remediation is strongly recommended to mitigate these threats.
+
+% --- Organizational Information ---
+\section{Organizational Information}
+This section details the organizational data used as the basis for this assessment. Due to the anonymized nature of the input data, placeholders have been used.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name    & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+External IP Scanned  & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\end{table}
+
+% --- Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+The following table summarizes the organization's responses to a security controls questionnaire. These answers provide insight into the current policies and procedures governing the security environment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \textcolor{darkred}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green!50!black}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green!50!black}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green!50!black}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green!50!black}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green!50!black}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis}
+The review indicates a significant gap in the organization's access control strategy. The absence of MFA for email (\textcolor{darkred}{\ding{55}}) is a critical vulnerability. Email is a primary target for attackers seeking to gain an initial foothold in a network. Without MFA, a compromised password is all that is needed for an attacker to gain access to sensitive communications and data, and to launch further attacks against employees, partners, and customers.
+
+% --- Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services on the organization's public-facing infrastructure.
+
+\subsection*{Scan Target}
+The scan was directed at the following target, which was identified as a key external asset.
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+\end{itemize}
+
+\subsection*{Open Ports and Services}
+The following table details the services discovered to be accessible from the public internet.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\ \midrule
+3389/tcp & open & ms-wbt-server & \textit{Not Fingerprinted} \\
+\bottomrule
+\end{tabular}
+\caption{Discovered Open Ports on \texttt{[Target IP]}}
+\end{table}
+
+\subsection*{Analysis}
+The scan confirms that TCP port 3389 is open. This port is used by Microsoft's Remote Desktop Protocol (RDP). Exposing RDP directly to the internet is extremely dangerous and is a common finding in ransomware incident post-mortems. Attackers continuously scan the internet for open RDP ports to exploit via brute-force password attacks or by using known vulnerabilities. This finding validates the pre-existing risk documented in the organization's risk register.
+
+% --- Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes findings from the technical scan, the controls review, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\textbf{Exposed RDP Service} & The Remote Desktop Protocol service on \texttt{[Target IP]} is publicly accessible. This allows attackers to attempt brute-force logins or exploit RDP vulnerabilities to gain complete control of the server. & \textbf{Critical (9.0)} \\
+\addlinespace
+\textbf{Lack of MFA for Email} & Email accounts are secured with passwords only. A single compromised password could lead to an account takeover, enabling data exfiltration, internal phishing, and Business Email Compromise (BEC). & \textbf{Critical} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% --- Recommendations ---
+\section{Recommendations}
+Based on the correlated risk assessment, the following actions are recommended to improve the security posture of \textbf{[Organization Name]}. Recommendations are prioritized by severity.
+
+\subsection*{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Remediate RDP Exposure Immediately:}
+    \begin{itemize}
+        \item \textbf{Short-Term Fix:} If RDP access is not required, immediately implement a firewall rule to block all inbound traffic to TCP port 3389 on \texttt{[Target IP]}.
+        \item \textbf{Long-Term Fix:} If remote access is necessary, deploy a Virtual Private Network (VPN) with strong authentication (e.g., MFA) and require all remote administration to occur through the VPN tunnel. RDP should only be accessible from within the trusted internal network.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Enforce MFA for All Email Accounts:}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately enable and enforce MFA for all user accounts, especially those with administrative privileges, across the email platform (e.g., Microsoft 365, Google Workspace).
+        \item \textbf{Justification:} This single action dramatically reduces the risk of account compromise via stolen credentials and is one of the most effective security controls an organization can implement.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Strategic Actions (High Priority)}
+\begin{enumerate}
+    \item \textbf{Implement Regular Vulnerability Scanning:}
+    \begin{itemize}
+        \item \textbf{Action:} Establish a program for regular, automated vulnerability scanning of all external-facing and internal assets. This will help proactively identify and remediate new exposures before they can be exploited.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Review and Enhance Access Control Policies:}
+    \begin{itemize}
+        \item \textbf{Action:} Conduct a review of all access control policies to ensure the principle of least privilege is consistently applied. Ensure that MFA is a standard requirement for access to any system containing sensitive data, not just those explicitly identified in the questionnaire.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

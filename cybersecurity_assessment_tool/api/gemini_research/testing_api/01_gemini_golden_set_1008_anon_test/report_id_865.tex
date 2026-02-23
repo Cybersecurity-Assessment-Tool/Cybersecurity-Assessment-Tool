@@ -1,0 +1,153 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Overview ---
+\section{Executive Overview}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, conducted on November 22, 2025. The assessment combines a review of organizational security controls, an external network scan, and an evaluation of known risks.
+
+The organization demonstrates a strong commitment to identity and access management, with multi-factor authentication (MFA) consistently enforced across email, computer logins, and sensitive data systems. This is a commendable foundational strength.
+
+However, the assessment identified two critical gaps in administrative controls and one high-risk technical vulnerability. The absence of a formal Employee Acceptable Use Policy and the lack of security awareness training for new hires create significant human-factor risks. These policy gaps are compounded by a technical finding: the primary external web server at \texttt{[Target IP]} is running an outdated and unsupported version of Nginx (1.18.0), exposing the organization to numerous publicly known vulnerabilities.
+
+Immediate remediation should focus on developing and implementing the missing security policies and upgrading the vulnerable web server software to mitigate these high-priority risks.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+This section details the information provided by the client for this assessment. As per the template mode for anonymized data, placeholders are used where specific identity information was not available.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Address Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. Answers marked with \ding{55} represent significant gaps in the current security framework and are addressed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The organization has successfully implemented MFA across critical access points, which significantly reduces the risk of unauthorized access via compromised credentials. However, the lack of an Acceptable Use Policy (AUP) and mandatory security training during employee onboarding are critical deficiencies that increase the risk of insider threats, whether malicious or unintentional.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services on \texttt{[Target IP]}}
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Port} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The scan identified a web server running Nginx version 1.18.0. This version was released in April 2020 and is now considered outdated and is no longer supported. It is vulnerable to multiple publicly disclosed Common Vulnerabilities and Exposures (CVEs). Running end-of-life software on a public-facing server presents a high risk of compromise, as attackers can exploit known flaws to gain unauthorized access, execute arbitrary code, or cause a denial of service.
+
+% --- 5. Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from the security control review and technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks and Severity}
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.45\linewidth} l}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & Lack of Acceptable Use Policy (AUP) & Without a formal AUP, employees lack clear guidelines on the proper use of company assets, data, and networks. This increases the risk of data leakage, malware infections, and legal liability. & \textbf{High} \\
+\addlinespace
+RISK-002 & No Security Onboarding Training & New employees are not trained on security best practices upon joining. This makes them highly susceptible to phishing, social engineering, and unintentional policy violations. & \textbf{High} \\
+\addlinespace
+RISK-003 & Outdated Web Server Software & The public-facing web server runs Nginx 1.18.0, an unsupported version with known vulnerabilities. This exposes the server to remote exploitation. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{Remediation for RISK-001: Acceptable Use Policy}
+\begin{itemize}
+    \item \textbf{Action:} Develop and implement a comprehensive Acceptable Use Policy (AUP) that clearly defines the rules and responsibilities for all employees when using company technology and data.
+    \item \textbf{Details:} The policy should cover topics such as data handling, internet usage, email security, and the use of personal devices.
+    \item \textbf{Priority:} High
+\end{itemize}
+
+\subsection{Remediation for RISK-002: Security Onboarding Training}
+\begin{itemize}
+    \item \textbf{Action:} Establish a mandatory security awareness training program for all new hires to be completed within their first week of employment.
+    \item \textbf{Details:} This training should cover the AUP, phishing identification, password security, and incident reporting procedures. This will supplement the existing annual training program.
+    \item \textbf{Priority:} High
+\end{itemize}
+
+\subsection{Remediation for RISK-003: Outdated Web Server}
+\begin{itemize}
+    \item \textbf{Action:} Upgrade the Nginx server on host \texttt{[Target IP]} from version 1.18.0 to a current, stable, and patched version supported by the vendor.
+    \item \textbf{Details:} Before deployment, the new version should be tested in a staging environment to ensure compatibility with existing applications. Implement a patch management process to ensure the server software remains up-to-date.
+    \item \textbf{Priority:} Critical
+\end{itemize}
+
+\end{document}
+```

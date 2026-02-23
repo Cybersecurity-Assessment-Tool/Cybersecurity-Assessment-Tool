@@ -1,0 +1,211 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- Document Setup ---
+% Define colors for risk levels
+\definecolor{critical}{HTML}{990000}
+\definecolor{high}{HTML}{D14343}
+\definecolor{medium}{HTML}{EFAF4A}
+\definecolor{low}{HTML}{82B366}
+\definecolor{info}{HTML}{6699CC}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Cybersecurity Posture Report}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Posture Report}}
+    \vspace{1.5cm}
+    \Large{\textbf{For:}}
+    \vspace{0.5cm}
+    \Large{\textbf{[Organization Name]}}
+    \vspace{2cm}
+    \rule{\linewidth}{0.5mm}
+    \vspace{0.5cm}
+    \begin{center}
+        \large
+        \textbf{Date of Report:} \today \\
+        \textbf{Author:} Cybersecurity Analyst
+    \end{center}
+    \rule{\linewidth}{0.5mm}
+    \vfill
+    \begin{center}
+        \textit{This report contains sensitive information and should be handled with care. Distribution is restricted to authorized personnel only.}
+    \end{center}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on data collected from a network scan, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals a mixed security posture. The external network scan of the target system, \texttt{[Target IP]}, did not identify any open ports, suggesting a strong perimeter defense at the time of the scan. This finding contradicts a pre-existing risk concerning an unencrypted web server on port 80, indicating that this specific vulnerability may have been remediated.
+
+However, the analysis of organizational security controls highlights several \textbf{critical gaps}. The absence of mandatory Multi-Factor Authentication (MFA) for email and computer access represents a significant and immediate risk, exposing the organization to account compromise and unauthorized access. Furthermore, the lack of a formal security awareness training program for employees leaves the organization highly vulnerable to social engineering attacks, such as phishing.
+
+Immediate action should be prioritized to address these administrative and procedural weaknesses to prevent potential security incidents.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This section details the organizational context for this assessment. Due to the anonymized nature of the provided data, placeholders are used.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \texttt{[Domain]} \\
+    External IP Scanned & \texttt{[Client IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. A \textcolor{green}{\ding{51}} indicates adherence to best practices, while a \textcolor{red}{\ding{55}} signifies a gap that increases risk.
+
+\begin{table}[h!]
+    \centering
+    \caption{Security Controls Questionnaire Analysis}
+    \label{tab:controls}
+    \begin{tabular}{@{}p{0.6\linewidth} p{0.15\linewidth} c@{}}
+        \toprule
+        \textbf{Control Question} & \textbf{Best Practice} & \textbf{Status} \\
+        \midrule
+        Do you require MFA to access email? & Required & \textcolor{red}{\ding{55}} \\
+        Do you require MFA to log into computers? & Required & \textcolor{red}{\ding{55}} \\
+        Do you require MFA to access sensitive data systems? & Required & \textcolor{green}{\ding{51}} \\
+        Does your organization have an employee acceptable use policy? & Required & \textcolor{green}{\ding{51}} \\
+        Does your organization do security awareness training for new employees? & Required & \textcolor{red}{\ding{55}} \\
+        Does your organization do security awareness training for all employees at least once per year? & Required & \textcolor{red}{\ding{55}} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The review identifies critical deficiencies in access control and security awareness, which are detailed in the Risk Assessment section.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify accessible services and potential vulnerabilities.
+
+\subsection{Scan Metadata}
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Target IP Address & \texttt{[Target IP]} \\
+    Scan Date & \today \\
+    Scanner Used & Nmap \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Port Scan Findings}
+The scan of the target host indicated that all tested ports were in a 'closed' state. This suggests that a firewall is likely in place and properly configured to deny external traffic to these common ports.
+
+\begin{table}[h!]
+    \centering
+    \caption{Scanned Port Status}
+    \label{tab:ports}
+    \begin{tabular}{@{}ccc@{}}
+        \toprule
+        \textbf{Port} & \textbf{Protocol} & \textbf{State} \\
+        \midrule
+        80 & TCP & Closed \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\textbf{Note:} This result conflicts with pre-existing risk data that listed Port 80 as open. The current scan indicates this risk may have been remediated. Verification is recommended.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from all data sources into a consolidated list of identified risks.
+
+\begin{table}[h!]
+    \centering
+    \caption{Consolidated Risk Register}
+    \label{tab:risks}
+    \begin{tabular}{@{}p{0.25\linewidth} p{0.15\linewidth} p{0.55\linewidth}@{}}
+        \toprule
+        \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+        \midrule
+        \textbf{Inadequate Security Awareness Training} & \textcolor{critical}{\textbf{Critical}} & The lack of initial and ongoing training makes employees susceptible to phishing, malware, and other social engineering attacks, which are common initial access vectors for breaches. \\
+        \addlinespace
+        \textbf{No MFA on Email} & \textcolor{high}{\textbf{High}} & Email accounts are a primary target for attackers. Without MFA, a compromised password provides direct access to sensitive communications, data, and the ability to perform password resets for other services. \\
+        \addlinespace
+        \textbf{No MFA on Workstations} & \textcolor{high}{\textbf{High}} & A stolen or weak password could allow an attacker to gain full access to an employee's computer and, potentially, the internal network. MFA provides a critical second layer of defense. \\
+        \addlinespace
+        \textbf{Unencrypted Web Server (Potentially Remediated)} & \textcolor{info}{\textbf{Informational}} & A pre-existing risk noted that Port 80 was open. The current scan found this port to be closed. This risk should be formally verified and closed if confirmed to be remediated. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks, prioritized by severity.
+
+\subsection{Priority 1: Critical}
+\begin{itemize}
+    \item \textbf{Implement Security Awareness Training:}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Enroll all employees in a foundational security awareness training program covering phishing, password hygiene, and acceptable use.
+        \item \textbf{Long-Term Strategy:} Establish a recurring, annual training requirement for all staff and integrate security training into the onboarding process for new hires. Conduct periodic phishing simulations to test and reinforce learning.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Priority 2: High}
+\begin{itemize}
+    \item \textbf{Enforce Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Enable and enforce MFA for all user accounts on the primary email system (e.g., Microsoft 365, Google Workspace).
+        \item \textbf{Long-Term Strategy:} Expand MFA enforcement to all remote access solutions (VPNs) and workstation logins (e.g., via Windows Hello for Business, Duo).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Priority 3: Informational}
+\begin{itemize}
+    \item \textbf{Verify and Close Historical Risk:}
+    \begin{itemize}
+        \item \textbf{Action:} Internally confirm that the service on Port 80 has been intentionally decommissioned or secured behind a firewall. Update the internal risk register to reflect that this vulnerability has been remediated.
+    \end{itemize}
+\end{itemize}
+
+% --- Section 7: Conclusion ---
+\section{Conclusion}
+The security posture of \textbf{[Organization Name]} demonstrates effective perimeter security on the scanned asset but reveals significant internal control weaknesses. While the technical configuration appears sound from an external perspective, the identified gaps in MFA and security training present a high likelihood of compromise through user-focused attacks.
+
+We strongly advise prioritizing the implementation of a robust security awareness program and the enforcement of Multi-Factor Authentication across all critical systems to build a more resilient and defensible security posture.
+
+\end{document}
+```

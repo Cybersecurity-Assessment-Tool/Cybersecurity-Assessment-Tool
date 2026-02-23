@@ -1,0 +1,156 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, synthesizing data from a technical network scan, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals a mixed security posture. On a positive note, the external network perimeter appears to be well-secured. A network scan of the designated target IP address, \texttt{[Client IP]}, found no open ports, suggesting a properly configured firewall that effectively limits external attack vectors.
+
+However, significant and critical vulnerabilities were identified in the organization's internal security policies and identity management practices. The lack of Multi-Factor Authentication (MFA) for critical systems like email and computer logins presents a critical risk of account compromise and unauthorized access. Furthermore, the absence of a formal Acceptable Use Policy (AUP) and a mandatory annual security awareness training program for all employees creates a high-risk environment where human error can easily lead to security incidents.
+
+Immediate action is required to address these policy and identity-related gaps to prevent potential breaches stemming from phishing, credential theft, or insider threats. Recommendations are detailed in Section \ref{sec:recommendations}.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+This assessment was conducted for the following entity. As organizational data was not provided, placeholders have been used.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \seqsplit{\texttt{[Domain]}} \\
+External IP Scanned & \seqsplit{\texttt{[Client IP]}} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\label{tab:org_info}
+\end{table}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+
+An internal security questionnaire was completed to evaluate the current state of administrative and policy-based controls. The responses indicate several critical gaps in foundational security practices.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\linewidth}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Best Practice} \\ \midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} No & \textcolor{green}{\ding{51}} Yes \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} No & \textcolor{green}{\ding{51}} Yes \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} Yes & \textcolor{green}{\ding{51}} Yes \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} No & \textcolor{green}{\ding{51}} Yes \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} Yes & \textcolor{green}{\ding{51}} Yes \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} No & \textcolor{green}{\ding{51}} Yes \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+\begin{itemize}
+    \item \textbf{MFA Deficiencies:} The lack of MFA on email and computer logins is a critical vulnerability. Email is a primary target for phishing attacks, and a compromised account can lead to widespread data breaches and further system compromise. Similarly, unprotected computer logins remove a vital layer of defense against unauthorized physical or remote access.
+    \item \textbf{Policy and Training Gaps:} The absence of an Acceptable Use Policy (AUP) means there are no formal guidelines for employees on how to handle company data and resources securely. This, combined with the lack of annual security training, significantly increases the risk of accidental data exposure, malware infections, and non-compliance.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network port scan was conducted using Nmap to identify accessible services on the organization's external-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{[Target IP]}} (Placeholder used as target was not specified in scan data)
+    \item \textbf{Scan Status:} The target host was found to be online and responsive.
+    \item \textbf{Findings:} The scan reported that all 65,535 TCP ports were in a \texttt{closed} state. No open ports or active services were detected.
+\end{itemize}
+
+\subsection*{Interpretation}
+The absence of open ports is a strong positive security finding. It indicates that the perimeter firewall is configured to a "default deny" policy, which is a security best practice. This configuration significantly reduces the external attack surface, making it difficult for attackers to directly probe for vulnerable services.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+
+This section correlates the findings from the security control review, technical scan, and pre-existing risk data. As no pre-existing vulnerabilities were reported, the risks below are derived solely from this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\ \midrule
+\textbf{Lack of Comprehensive MFA} & The absence of MFA on email and endpoint logins exposes the organization to a high likelihood of account takeover via credential theft or phishing. This could lead to data breach, financial fraud, and ransomware deployment. & \textbf{Critical} \\
+\addlinespace
+\textbf{Insufficient Security Policy and Training} & Without a formal AUP and recurring annual training, employees are more likely to engage in risky behavior, fall victim to social engineering, or mishandle sensitive data, leading to preventable security incidents. & \textbf{High} \\
+\addlinespace
+\textbf{Strong External Perimeter (Mitigating Factor)} & The well-configured firewall with no open ports significantly reduces the risk of external, network-based attacks. However, it does not mitigate risks from phishing or other identity-based attacks. & \textit{Info} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+\label{sec:recommendations}
+
+Based on the consolidated risk assessment, the following actionable recommendations are provided to improve the security posture of \textbf{[Organization Name]}.
+
+\begin{enumerate}
+    \item \textbf{Implement Comprehensive MFA (Priority: Critical)}
+    \begin{itemize}
+        \item \textbf{Action:} Enforce MFA for all users on all critical systems, starting immediately with email (e.g., Office 365, Google Workspace) and computer logins (e.g., via Windows Hello for Business, Duo).
+        \item \textbf{Impact:} Drastically reduces the risk of account compromise from stolen credentials, which is the leading cause of data breaches.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP) (Priority: High)}
+    \begin{itemize}
+        \item \textbf{Action:} Draft a formal AUP that clearly defines the rules for using company IT assets, data handling, internet usage, and security responsibilities. This policy must be communicated to all employees and acknowledged via signature.
+        \item \textbf{Impact:} Establishes a clear security baseline for all employees, reduces legal liability, and provides a framework for enforcing security standards.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Establish an Annual Security Awareness Training Program (Priority: High)}
+    \begin{itemize}
+        \item \textbf{Action:} Implement a mandatory security awareness training program for all employees to be completed at least once per year. The training should cover topics such as phishing identification, password security, data handling, and incident reporting.
+        \item \textbf{Impact:} Creates a security-conscious culture and empowers employees to become the first line of defense against common cyber threats like phishing and social engineering.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

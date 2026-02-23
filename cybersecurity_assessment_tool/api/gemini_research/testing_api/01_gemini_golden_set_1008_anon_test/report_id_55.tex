@@ -1,0 +1,184 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{array}
+
+% --- Document Setup ---
+
+% Hyperref settings
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define colors for risk levels
+\definecolor{critical}{HTML}{990000}
+\definecolor{high}{HTML}{D14302}
+\definecolor{medium}{HTML}{FFBF00}
+\definecolor{low}{HTML}{008000}
+
+% Custom command for severity text
+\newcommand{\severity}[2]{\colorbox{#1}{\textcolor{white}{\textbf{\strut #2}}}}
+
+% --- Document Start ---
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder logo
+    \vfill
+    \Huge{\textbf{Cybersecurity Posture Report}}
+    \vspace{1.5cm}
+    \Large{\textbf{Prepared for:}} \\
+    \vspace{0.5cm}
+    \huge{\textbf{[Organization Name]}}
+    \vfill
+    \large{\textbf{Date of Report:}} \\
+    \vspace{0.2cm}
+    \Large{\today}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on a review of organizational security controls, an external network scan, and pre-existing risk data. The assessment was conducted on \today.
+
+The analysis revealed several high-priority security gaps that require immediate attention. The most critical finding is the lack of Multi-Factor Authentication (MFA) on employee email accounts, which exposes the organization to a significant risk of business email compromise, phishing, and account takeover.
+
+Furthermore, the organization's security awareness training program is insufficient, with no mandatory training for new or existing employees. This gap elevates the human element of risk, making the organization more susceptible to social engineering attacks.
+
+From a technical perspective, an external scan identified an exposed Secure Shell (SSH) service (port 22) on the network perimeter. While necessary for remote administration, public exposure of this service makes it a prime target for automated brute-force attacks.
+
+Overall, the current security posture has critical deficiencies. The recommendations outlined in this report are designed to provide a clear, actionable roadmap for mitigating the identified risks and strengthening the organization's defenses.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were used as the basis for this assessment. Information that was not provided has been marked with a placeholder.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+Client External IP & \texttt{[Client IP]} \\
+Target IP Scanned & \texttt{[Target IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client and Target Information.}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a standardized questionnaire. The responses indicate the current state of implemented policies and procedures. "No" answers represent significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.6\linewidth} >{\centering\arraybackslash}m{0.15\linewidth} >{\centering\arraybackslash}m{0.15\linewidth}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & No & \ding{55} \\
+Do you require MFA to log into computers? & Yes & \ding{51} \\
+Do you require MFA to access sensitive data systems? & Yes & \ding{51} \\
+Does your organization have an employee acceptable use policy? & Yes & \ding{51} \\
+Does your organization do security awareness training for new employees? & No & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & No & \ding{55} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results.}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The questionnaire reveals three primary areas of concern:
+\begin{itemize}
+    \item \textbf{MFA on Email:} The absence of MFA for email is a critical vulnerability. Email accounts are high-value targets for attackers seeking to launch phishing campaigns, commit financial fraud, or gain a foothold in the network.
+    \item \textbf{New Employee Training:} Without security training during onboarding, new employees are unaware of organizational policies and common threats, making them highly susceptible to social engineering attacks.
+    \item \textbf{Annual Refresher Training:} Cybersecurity threats evolve constantly. The lack of annual training for all staff means their knowledge becomes outdated, increasing the organization's overall risk profile.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the target IP address \texttt{[Target IP]} to identify open ports and exposed services.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product/Version} & \textbf{Notes} \\ \midrule
+22 & Open & ssh (inferred) & Not Detected & Exposed to public internet. \\ \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{[Target IP]}.}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified that port 22, commonly used for the Secure Shell (SSH) protocol, is open. SSH is a standard tool for remote system administration. However, when exposed to the public internet, it becomes a target for:
+\begin{itemize}
+    \item \textbf{Brute-Force Attacks:} Automated tools constantly scan the internet for open SSH ports and attempt to guess credentials.
+    \item \textbf{Credential Stuffing:} If user credentials are leaked from another service, attackers will try them against this exposed SSH port.
+    \item \textbf{Exploitation of Vulnerabilities:} If the SSH server software is outdated, it may be vulnerable to known exploits. The scan did not retrieve version information, so the patch level is unknown.
+\end{itemize}
+This finding, combined with the lack of comprehensive security training, increases the risk of a successful compromise.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review and the technical scan. No pre-existing vulnerabilities were provided for this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.3\linewidth}p{0.4\linewidth}l@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\ \midrule
+R-01 & Lack of MFA on Email & The absence of MFA on email accounts allows for account takeover with only a compromised password. This enables phishing, data exfiltration, and financial fraud. & \severity{critical}{Critical} \\
+\addlinespace
+R-02 & Inadequate Security Awareness Training & Employees are not trained on security best practices, making them vulnerable to phishing and other social engineering attacks. & \severity{high}{High} \\
+\addlinespace
+R-03 & Exposed SSH Service & The SSH management port is open to the public internet, making it a target for brute-force attacks and potential exploitation if unpatched. & \severity{medium}{Medium} \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}. Recommendations are prioritized by severity.
+
+\subsection*{R-01: Implement MFA on Email (Critical)}
+\begin{itemize}
+    \item \textbf{Action:} Immediately enforce MFA for all user accounts on the primary email system (\texttt{[Domain]}).
+    \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access to email accounts, significantly reducing the risk of business email compromise.
+    \item \textbf{Timeline:} Immediate (1-7 days).
+\end{itemize}
+
+\subsection*{R-02: Establish Security Awareness Training Program (High)}
+\begin{itemize}
+    \item \textbf{Action:} Develop and implement a mandatory security awareness training program. This program must include an initial module for all new hires and an annual refresher course for all employees.
+    \item \textbf{Justification:} A well-trained workforce is a critical layer of defense. Training reduces the likelihood of employees falling for phishing, malware, and other common attacks.
+    \item \textbf{Timeline:} Short-Term (30-60 days).
+\end{itemize}
+
+\subsection*{R-03: Secure the Exposed SSH Service (Medium)}
+\begin{itemize}
+    \item \textbf{Action:} Restrict access to the SSH service on port 22. Use a firewall or cloud security group to allow connections only from specific, trusted IP addresses (e.g., office or administrator home networks).
+    \item \textbf{Action:} As a best practice, disable password-based authentication for SSH and enforce the use of cryptographic keys.
+    \item \textbf{Justification:} Limiting access drastically reduces the attack surface, protecting the service from automated scanning and brute-force attacks from the public internet.
+    \item \textbf{Timeline:} Immediate (1-7 days).
+\end{itemize}
+
+\end{document}
+```

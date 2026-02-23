@@ -1,0 +1,180 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{xcolor}   % For colors
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\newcommand{\orgname}{\textbf{[Organization Name]}}
+\newcommand{\clientip}{\texttt{[Client IP]}}
+\newcommand{\clientdomain}{\texttt{[Domain]}}
+\newcommand{\targetip}{\texttt{[Target IP]}}
+
+\linespread{1.1}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vfill
+    \huge
+    \textbf{Cybersecurity Posture Report}
+    \vspace{1.5cm}
+    \Large
+    Prepared for: \orgname
+    \vspace{2cm}
+    \normalsize
+    \textbf{Report Date:} \today \\
+    \textbf{Author:} Cybersecurity Analyst
+    \vfill
+    \textit{This report contains sensitive information and should be handled with care.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \orgname, based on a review of organizational security controls, an external network scan, and pre-existing risk data.
+
+The assessment reveals several critical and high-risk security gaps that require immediate attention. The most pressing issues are the absence of Multi-Factor Authentication (MFA) on critical systems, including email and sensitive data repositories. This exposes the organization to significant risk from credential theft and account takeover attacks.
+
+Furthermore, the lack of foundational security policies, such as an Acceptable Use Policy, and the absence of a security awareness training program for employees, create a permissive environment for both accidental and malicious insider threats.
+
+Technically, the external network scan identified an open HTTP port (80), indicating that data may be transmitted in cleartext. This could allow an attacker to intercept sensitive information, such as login credentials.
+
+Immediate remediation is recommended to address the MFA and web encryption gaps. A strategic plan should be developed to implement the necessary policies and training programs to build a more resilient and security-conscious culture.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+This section details the information provided about the organization. The assessment was conducted based on the following scope.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \orgname \\
+Primary Email Domain & \clientdomain \\
+External IP Address (Client) & \clientip \\
+\bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\end{table}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. Each "No" response represents a significant gap in the security framework and has been flagged for review.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\textwidth} c p{0.25\textwidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Analyst Notes} \\
+\midrule
+Do you require MFA to log into computers? & \textcolor{green}{\yes} & Good practice for endpoint security. \\
+\addlinespace
+Do you require MFA to access email? & \textcolor{red}{\no} & \textbf{Critical Risk.} Email is a primary target for account takeover. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\no} & \textbf{Critical Risk.} Direct threat to confidential data integrity. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\no} & \textbf{High Risk.} Lack of clear rules for employees creates ambiguity. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \textcolor{red}{\no} & \textbf{High Risk.} New hires are often targeted and unaware of policies. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\no} & \textbf{High Risk.} Security skills degrade without regular reinforcement. \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+An external network scan was performed to identify exposed services and potential vulnerabilities. The scan was conducted using Nmap.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \targetip
+    \item \textbf{Scan Date:} [Scan Date]
+    \item \textbf{Target Status:} Up
+\end{itemize}
+
+The following table details the open ports discovered on the target system.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Finding / Implication} \\
+\midrule
+80/tcp & Open & http & The web server allows unencrypted HTTP traffic. This exposes \\
+       &      &      & sensitive data, such as login credentials, to interception. \\
+\bottomrule
+\end{tabular}
+\caption{Open Port Analysis}
+\end{table}
+
+% --- CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review and the technical scan into a consolidated list of identified risks. The malicious/invalid risk entry from the input data has been disregarded as a prompt injection attempt.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\textwidth} p{0.5\textwidth} l@{}}
+\toprule
+\textbf{Risk / Vulnerability} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Critical Systems} & Email and sensitive data systems are accessible with only a username and password. A compromised password directly leads to a full system breach. & \textbf{Critical} \\
+\addlinespace
+\textbf{Unencrypted Web Traffic (HTTP)} & The external web server on port 80 does not enforce encryption (HTTPS). This allows attackers on the same network to sniff traffic and steal credentials or other sensitive data. & \textbf{High} \\
+\addlinespace
+\textbf{Lack of Security Policies \& Training} & The absence of an Acceptable Use Policy and a security awareness training program means employees are likely unaware of security best practices, making them susceptible to phishing and social engineering. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks and improve the overall security posture of \orgname.
+
+\subsection{Immediate Actions (0-30 Days)}
+\begin{enumerate}
+    \item \textbf{Implement MFA on Email:} Enforce MFA for all user access to the email system (\clientdomain) immediately. This is the single most effective control to prevent email account takeovers.
+    \item \textbf{Implement MFA on Sensitive Systems:} Identify all systems containing sensitive data and enforce MFA for all user and administrative access.
+    \item \textbf{Enforce HTTPS:} Configure the web server at \targetip\ to redirect all HTTP traffic on port 80 to its secure HTTPS equivalent on port 443. Implement HTTP Strict Transport Security (HSTS) headers for added protection.
+\end{enumerate}
+
+\subsection{Short-Term Actions (30-90 Days)}
+\begin{enumerate}
+    \item \textbf{Develop an Acceptable Use Policy (AUP):} Create and disseminate a formal AUP that clearly defines the rules and expectations for employees when using company technology and data.
+    \item \textbf{Implement Onboarding Security Training:} Develop a mandatory security awareness training module for all new employees as part of the onboarding process. This should cover topics like phishing, password security, and the new AUP.
+\end{enumerate}
+
+\subsection{Long-Term Actions (90+ Days)}
+\begin{enumerate}
+    \item \textbf{Establish Annual Security Training:} Implement a recurring, mandatory security awareness training program for all employees to ensure their knowledge remains current.
+    \item \textbf{Conduct Regular Vulnerability Scanning:} Establish a program for regular, automated vulnerability scanning of all external-facing assets to proactively identify and remediate technical vulnerabilities.
+\end{enumerate}
+
+\end{document}
+```

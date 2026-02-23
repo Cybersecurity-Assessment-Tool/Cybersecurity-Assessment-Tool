@@ -1,0 +1,191 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[a4paper, margin=1in]{geometry} % Page layout
+\usepackage{pifont}                      % For checkmarks and crosses
+\usepackage{booktabs}                    % For professional tables
+\usepackage{graphicx}                    % For potential logos/images
+\usepackage[hidelinks]{hyperref}         % For clickable links
+\usepackage{url}                         % For formatting URLs
+\usepackage{seqsplit}                    % For splitting long strings in texttt
+\usepackage{xcolor}                      % For colored text
+\usepackage{fancyhdr}                    % For headers/footers
+
+% Define colors for severity levels
+\definecolor{criticalred}{HTML}{D73B3E}
+\definecolor{highorange}{HTML}{E58228}
+\definecolor{mediumyellow}{HTML}{F0C20C}
+\definecolor{lowblue}{HTML}{337AB7}
+
+% Document Metadata
+\hypersetup{
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Security, Nmap, Risk Assessment},
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{Atlas Mapping}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- START OF DOCUMENT ---
+\begin{document}
+
+\begin{center}
+    \huge{\textbf{Cybersecurity Assessment Report}}\\[0.5cm]
+    \large{\textbf{Prepared for: Atlas Mapping}}\\[0.2cm]
+    \large{\today}\\[1cm]
+    \large{CONFIDENTIAL}
+\end{center}
+
+\tableofcontents
+\newpage
+
+% --- 1. EXECUTIVE SUMMARY ---
+\section*{1. Executive Summary}
+
+This report provides a cybersecurity assessment for Atlas Mapping, based on a combination of network scanning, a security controls questionnaire, and a review of pre-existing risks. The analysis reveals several critical and high-risk findings that require immediate attention to mitigate potential threats to the organization's data and operations.
+
+The most critical findings are the systemic exposure of Remote Desktop Protocol (RDP) on internal systems and significant gaps in the implementation of Multi-Factor Authentication (MFA). The technical scan confirmed an open RDP port on host \texttt{10.10.10.51}, which correlates with a previously identified risk on another host (\texttt{10.10.10.50}). This exposure, combined with the lack of MFA for email and computer logins, creates a high-impact attack vector for ransomware and unauthorized access.
+
+Furthermore, the absence of annual security awareness training for all employees constitutes a high risk, as it increases the organization's susceptibility to phishing and social engineering attacks, which are common precursors to credential theft.
+
+Immediate remediation should focus on securing RDP access, enforcing MFA across all critical systems, and implementing a recurring security training program.
+
+% --- 2. ORGANIZATIONAL INFORMATION ---
+\section*{2. Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Atlas Mapping} \\
+    Email Domain      & \texttt{AtlasMapping.net} \\
+    Website Domain    & \seqsplit{\url{www.AtlasMapping.net}} \\
+    External IP       & \texttt{211.121.109.207} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. SECURITY CONTROL REVIEW ---
+\section*{3. Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight key areas of strength and weakness in the current security posture. Gaps identified in this review are directly correlated with increased organizational risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{8.5cm}ccp{3cm}@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Status} & \textbf{Analyst Assessment} \\
+    \midrule
+    Do you require MFA to access email? & No & \ding{55} & \textcolor{criticalred}{\textbf{Critical Gap}} \\
+    Do you require MFA to log into computers? & No & \ding{55} & \textcolor{criticalred}{\textbf{Critical Gap}} \\
+    Do you require MFA to access sensitive data systems? & Yes & \ding{51} & Best Practice Met \\
+    Does your organization have an employee acceptable use policy? & Yes & \ding{51} & Best Practice Met \\
+    Does your organization do security awareness training for new employees? & Yes & \ding{51} & Best Practice Met \\
+    Does your organization do security awareness training for all employees at least once per year? & No & \ding{55} & \textcolor{highorange}{\textbf{High Risk}} \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+% --- 4. TECHNICAL SCAN RESULTS ---
+\section*{4. Technical Scan Results}
+
+An internal network scan was performed to identify active services and potential vulnerabilities.
+
+\subsection*{4.1. Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{10.10.10.51}
+    \item \textbf{Scan Type:} Nmap Port Scan
+\end{itemize}
+
+\subsection*{4.2. Open Ports and Services}
+The scan identified the following open port on the target system:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Analysis} \\
+    \midrule
+    3389/tcp & open & \texttt{ms-wbt-server} & Microsoft Remote Desktop Protocol (RDP) \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports on \texttt{10.10.10.51}}
+\end{table}
+
+\subsection*{4.3. Technical Analysis}
+The discovery of an open RDP port on host \texttt{10.10.10.51} is a significant finding. RDP is a primary target for attackers seeking to gain unauthorized access to internal networks. This finding corroborates a pre-existing risk of RDP exposure on another host (\texttt{10.10.10.50}), indicating a potential systemic configuration issue rather than an isolated incident. When combined with the lack of MFA on computer logins, this vulnerability becomes critical.
+
+% --- 5. CONSOLIDATED RISK ASSESSMENT ---
+\section*{5. Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security questionnaire, technical scan, and pre-existing risk data into a prioritized list of risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{4.5cm}p{1.5cm}p{8.5cm}@{}}
+    \toprule
+    \textbf{Risk Title} & \textbf{Severity} & \textbf{Description} \\
+    \midrule
+    \textbf{Systemic RDP Exposure} & \textcolor{criticalred}{\textbf{Critical}} & RDP is exposed on multiple internal systems (\texttt{10.10.10.51}, \texttt{10.10.10.50}). This allows a direct path for attackers with compromised credentials to gain control of servers and workstations, facilitating lateral movement and ransomware deployment. \\
+    \addlinespace
+    \textbf{Lack of MFA on Critical Entry Points} & \textcolor{criticalred}{\textbf{Critical}} & MFA is not enforced for email or computer logins. This dramatically increases the risk of account takeover via phishing or password spraying. Compromised email can lead to data breaches and further attacks. \\
+    \addlinespace
+    \textbf{Inadequate Security Awareness Training} & \textcolor{highorange}{\textbf{High}} & The lack of annual, recurring security training for all employees means that their ability to recognize and report modern threats like phishing and social engineering is diminished over time. This makes them the weakest link in the security chain. \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% --- 6. RECOMMENDATIONS ---
+\section*{6. Recommendations}
+
+The following prioritized recommendations are provided to address the identified risks and improve the overall security posture of Atlas Mapping.
+
+\subsection*{6.1. Immediate Actions (To be completed within 7 days)}
+\begin{enumerate}
+    \item \textbf{Remediate RDP Exposure:}
+    \begin{itemize}
+        \item Immediately close port 3389 on \texttt{10.10.10.51} and \texttt{10.10.10.50} if remote access is not required.
+        \item If RDP is business-critical, restrict access to a minimal set of authorized IP addresses using host-based or network firewalls.
+        \item The long-term solution is to place all RDP access behind a secure VPN with MFA.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{6.2. High-Priority Actions (To be completed within 30 days)}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Continue numbering
+    \item \textbf{Implement Comprehensive MFA:}
+    \begin{itemize}
+        \item Enable and enforce MFA for all user accounts on the email platform (e.g., Office 365, Google Workspace).
+        \item Deploy an MFA solution for all workstation and server logins, both local and remote.
+    \end{itemize}
+    \item \textbf{Establish Annual Security Training Program:}
+    \begin{itemize}
+        \item Procure and schedule mandatory annual security awareness training for all employees.
+        \item Include topics such as phishing identification, password hygiene, and acceptable use policies. Track completion to ensure compliance.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{6.3. Strategic Recommendations}
+\begin{enumerate}
+    \setcounter{enumi}{3} % Continue numbering
+    \item \textbf{Conduct a Comprehensive Vulnerability Assessment:} Perform an authenticated vulnerability scan across the internal network to identify other misconfigurations, missing patches, and insecure services.
+    \item \textbf{Review Network Segmentation:} Evaluate the network architecture to ensure proper segmentation is in place. This can limit an attacker's ability to move laterally across the network if a system is compromised.
+\end{enumerate}
+
+\end{document}
+```

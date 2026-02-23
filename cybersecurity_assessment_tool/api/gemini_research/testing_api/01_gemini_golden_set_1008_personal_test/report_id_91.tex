@@ -1,0 +1,205 @@
+```latex
+\documentclass[12pt]{article}
+
+% 1. Document Setup and Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings like hashes or IPs
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For logo (placeholder)
+\usepackage{fancyhdr} % For headers/footers
+
+% Define colors for risk levels
+\definecolor{critical}{HTML}{990000}
+\definecolor{high}{HTML}{D14302}
+\definecolor{medium}{HTML}{E79513}
+\definecolor{low}{HTML}{3A7A2A}
+
+% Setup Hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Assessment Report}
+\rhead{Modern Myth}
+\cfoot{\thepage}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% 2. Title Page
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Cybersecurity Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{Modern Myth}
+    
+    \vspace{2cm}
+    
+    {\large \today}
+    
+    \vfill
+    
+    \large
+    \textbf{Confidential}
+    
+    \vspace{0.8cm}
+    
+    \textit{This document contains sensitive information. Access is restricted to authorized personnel only. Do not distribute without explicit permission.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% 3. Executive Summary
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for Modern Myth. The assessment combined a review of organizational security controls, an external network scan, and an analysis of known risks to evaluate the organization's overall security posture.
+
+The assessment revealed \textbf{critical deficiencies} in foundational security controls. The complete absence of Multi-Factor Authentication (MFA) across all services, coupled with a lack of employee security training and formal policies, presents a significant and immediate risk to the organization. 
+
+Furthermore, a technical scan identified an externally exposed administrative service (SSH on port 22). When combined with the organizational weaknesses, this technical finding elevates the risk of a successful brute-force or credential-based attack, which could lead to a full system compromise.
+
+Urgent remediation is required to address these gaps. Key recommendations include the immediate implementation of MFA, restricting access to exposed services, and establishing a baseline security awareness and policy program.
+
+% 4. Organizational Information
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information forms the basis of the analysis and defines the scope of the review.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Modern Myth
+    \item \textbf{Primary Email Domain:} \texttt{ModernMyth.org}
+    \item \textbf{Primary Website Domain:} \url{www.ModernMyth.org}
+    \item \textbf{Known External IP:} \texttt{237.253.37.85}
+\end{itemize}
+
+% 5. Security Control Review
+\section{Security Control Review}
+
+A questionnaire was used to evaluate the implementation of essential organizational security controls. The responses indicate a lack of maturity in the current security program, with multiple critical controls not being enforced. The results are summarized in Table \ref{tab:controls}.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Status}
+\label{tab:controls}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{55} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees annually? & \ding{55} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The consistent "No" responses (\ding{55}) highlight a critical failure to implement basic security hygiene. The lack of MFA is the most severe finding, as it means that a compromised password is all an attacker needs to gain access to email, workstations, and sensitive data. The absence of policies and training exacerbates this risk by making it more likely that employees will engage in insecure behaviors (e.g., using weak or reused passwords).
+
+% 6. Technical Scan Results
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services on the organization's perimeter.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on Target}
+\label{tab:ports}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\ \midrule
+22/tcp & open & SSH (Secure Shell) & Administrative access protocol. \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The scan identified that port 22 (SSH) is open to the public internet. SSH is a common protocol for remote server administration. While necessary for management, a publicly exposed SSH port is a primary target for automated brute-force attacks. The scan did not retrieve service version information, but it is crucial to ensure the SSH server is fully patched against known vulnerabilities. The risk associated with this finding is significantly amplified by the lack of MFA identified in the security control review.
+
+% 7. Risk Assessment
+\section{Risk Assessment}
+
+This section correlates the findings from the organizational and technical reviews to provide a synthesized view of the top risks facing Modern Myth. The pre-existing risk register was empty, so all identified risks are new findings from this assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{@{}p{0.7in}p{1.2in}p{2.8in}@{}}
+\toprule
+\textbf{Severity} & \textbf{Risk Name} & \textbf{Description} \\ \midrule
+\textcolor{critical}{\textbf{Critical}} & Systemic Lack of MFA & The absence of MFA on email, computers, and sensitive systems means that a single compromised password could lead to a catastrophic data breach or system compromise. \\
+\addlinespace
+\textcolor{high}{\textbf{High}} & Exposed Administrative Service & The SSH port is open to the internet. Without MFA or IP-based restrictions, this service is highly vulnerable to credential stuffing and brute-force attacks, which could grant an attacker remote control of the server. \\
+\addlinespace
+\textcolor{high}{\textbf{High}} & No Security Policy or Training Program & The lack of an acceptable use policy and security awareness training creates a weak human firewall. Employees are more likely to fall for phishing attacks or use weak passwords, directly enabling attacker success. \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% 8. Recommendations
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of Modern Myth. Recommendations are prioritized based on risk severity.
+
+\subsection{Immediate Priority (Critical Risk)}
+\begin{enumerate}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item Immediately enable MFA for all users on all critical systems, starting with email (e.g., Office 365, Google Workspace) and any remote access solutions (VPN, SSH).
+        \item Develop a plan to roll out MFA for workstation logins and access to all systems containing sensitive data.
+    \end{itemize}
+    
+    \item \textbf{Secure the Exposed SSH Service:}
+    \begin{itemize}
+        \item If possible, restrict access to port 22 using a firewall rule that only allows connections from trusted, whitelisted IP addresses.
+        \item If public access is required, disable password-based authentication and enforce the use of strong cryptographic keys (e.g., ED25519) for all SSH access.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Short-Term Priority (High Risk)}
+\begin{enumerate}
+    \item \textbf{Establish Foundational Security Policies:}
+    \begin{itemize}
+        \item Develop and implement an \textbf{Acceptable Use Policy (AUP)} that all employees must read and sign.
+        \item Create and enforce a \textbf{Password Policy} that mandates minimum length, complexity, and prohibits the reuse of passwords.
+    \end{itemize}
+    
+    \item \textbf{Deploy Security Awareness Training:}
+    \begin{itemize}
+        \item Enroll all current employees in a comprehensive security awareness training program.
+        \item Integrate this training into the onboarding process for all new hires.
+        \item Plan for annual refresher training for all staff.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Ongoing Recommendations}
+\begin{enumerate}
+    \item \textbf{Vulnerability Management:} Establish a process for regularly scanning internal and external systems for vulnerabilities and applying security patches in a timely manner.
+    \item \textbf{Annual Review:} Conduct an annual review of security controls, policies, and technical configurations to adapt to the evolving threat landscape.
+\end{enumerate}
+
+\end{document}
+```

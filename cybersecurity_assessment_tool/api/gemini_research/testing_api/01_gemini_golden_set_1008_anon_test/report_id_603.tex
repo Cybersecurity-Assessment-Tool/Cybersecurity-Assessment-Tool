@@ -1,0 +1,184 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks and document metadata
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{datetime}
+
+% --- Document Metadata ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment, Nmap, Vulnerability},
+    pdffitwindow=true,
+    unicode=true
+}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\newcommand{\severityhigh}{\textcolor{red}{\textbf{High}}}
+\newcommand{\severitycritical}{\textcolor{red!60!black}{\textbf{Critical}}}
+
+% --- Title Page ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{[Organization Name]}. The analysis is based on a correlation of network scan data, a security controls questionnaire, and a review of pre-existing risk documentation.
+
+The assessment identified several high-impact risks that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Database Exposure:} An externally-facing MySQL database service was discovered on port 3306. This service is running an End-of-Life (EOL) version (MySQL 5.7.33), which no longer receives security updates, exposing it to a wide range of known vulnerabilities.
+    \item \textbf{Critical Authentication Gap:} Multi-Factor Authentication (MFA) is not enforced for accessing email accounts. This represents a significant security gap, as compromised email accounts are a primary vector for Business Email Compromise (BEC), phishing, and further network intrusion.
+\end{itemize}
+
+The combination of these findings places the organization at a high risk of data breach, financial loss, and reputational damage. This report outlines specific, actionable recommendations to mitigate these risks and improve the overall security posture.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following information was used as the basis for this assessment. Where data was not provided, placeholders have been used.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Domain & \texttt{[Domain]} \\
+    External IP Address Scanned & \texttt{[Client IP]} \\
+    Target IP Address Scanned & \texttt{[Target IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses indicate a solid foundation in policy and employee training. However, a critical gap was identified in the implementation of Multi-Factor Authentication for email, which is a primary control for preventing account takeovers.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}lc@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \no \\
+    Do you require MFA to log into computers? & \yes \\
+    Do you require MFA to access sensitive data systems? & \yes \\
+    Does your organization have an employee acceptable use policy? & \yes \\
+    Does your organization do security awareness training for new employees? & \yes \\
+    Does your organization do security awareness training for all employees annually? & \yes \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed to identify exposed services. The scan revealed a publicly accessible database service.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services Detected}
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    3306/tcp & Open & mysql & MySQL & 5.7.33 \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Findings}
+The most significant finding is the open MySQL port (3306). 
+\begin{itemize}
+    \item \textbf{Public Exposure:} Exposing a database directly to the internet is a critical security risk. It allows attackers to perform brute-force attacks, exploit vulnerabilities, and potentially exfiltrate or manipulate sensitive data.
+    \item \textbf{End-of-Life Software:} The detected version, \textbf{MySQL 5.7.33}, reached its official End-of-Life (EOL) in October 2023. EOL software no longer receives security patches from the vendor, making it an easy target for exploitation using publicly known vulnerabilities.
+\end{itemize}
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security questionnaire, the technical scan, and pre-existing risk data into a prioritized list of security risks.
+
+\begin{table}[h!]
+\centering
+\caption{Prioritized Risk Summary}
+\begin{tabular}{@{}p{0.3\linewidth}p{0.15\linewidth}p{0.45\linewidth}@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+    \midrule
+    Publicly Exposed Database Service & \severitycritical & The MySQL database on port 3306 is open to the public internet, inviting unauthorized access attempts and attacks. This confirms the pre-existing risk "Database Exposure". \\
+    \addlinespace
+    Use of End-of-Life Software & \severityhigh & The exposed MySQL service is version 5.7.33, which is no longer supported with security patches. This makes it highly susceptible to known exploits. \\
+    \addlinespace
+    Lack of MFA on Email Accounts & \severityhigh & Email accounts, a primary target for attackers, are not protected by MFA. This significantly increases the risk of account compromise and Business Email Compromise (BEC). \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+To address the identified risks, we recommend the following actions, prioritized by urgency and impact.
+
+\begin{enumerate}
+    \item \textbf{Immediate: Restrict Database Access.}
+    \begin{itemize}
+        \item \textbf{Action:} Implement strict firewall rules to deny all public access to TCP port 3306. Access should only be permitted from trusted internal IP addresses or via a secure management channel.
+        \item \textbf{Risk Mitigated:} Publicly Exposed Database Service.
+    \end{itemize}
+
+    \item \textbf{High Priority: Enforce MFA on Email.}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately enable and enforce Multi-Factor Authentication (MFA) for all user email accounts. This is the single most effective control to prevent unauthorized account access.
+        \item \textbf{Risk Mitigated:} Lack of MFA on Email Accounts.
+    \end{itemize}
+    
+    \item \textbf{High Priority: Upgrade End-of-Life Database.}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and execute a plan to upgrade the MySQL 5.7 database to a currently supported version (e.g., MySQL 8.0 or later). This will ensure the system receives critical security updates.
+        \item \textbf{Risk Mitigated:} Use of End-of-Life Software.
+    \end{itemize}
+
+    \item \textbf{Long-Term: Implement Secure Remote Access.}
+    \begin{itemize}
+        \item \textbf{Action:} For any required remote database administration, implement a Virtual Private Network (VPN) solution. This provides an encrypted and authenticated tunnel for administrative access, eliminating the need for any direct public exposure.
+        \item \textbf{Risk Mitigated:} Publicly Exposed Database Service (Long-Term).
+    \end{itemize}
+\end{enumerate}
+
+% --- Section 7: Conclusion ---
+\section{Conclusion}
+
+The assessment reveals a high-risk security posture for \textbf{[Organization Name]}, primarily due to a publicly exposed, unsupported database and a lack of MFA on email. While the organization has good policies and training programs in place, these critical technical and procedural gaps undermine its defenses.
+
+By implementing the recommendations outlined in this report—starting with restricting database access and enforcing MFA—the organization can significantly and immediately reduce its attack surface and strengthen its resilience against common cyber threats.
+
+\end{document}
+```

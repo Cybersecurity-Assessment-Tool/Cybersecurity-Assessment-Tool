@@ -1,0 +1,190 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and metadata
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Risk, Assessment},
+    bookmarks=true
+}
+
+% --- Header & Footer ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Report}
+\fancyhead[R]{Structure \& Form}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{Structure \& Form}
+    
+    \vspace{2cm}
+    
+    \large
+    \textbf{Date of Report:} \today
+    
+    \vfill
+    
+    \normalsize
+    \textit{This report contains sensitive information and should be handled with care. Access is restricted to authorized personnel only.}
+    
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Structure \& Form}, based on an analysis of network scan data, organizational security controls, and pre-existing risk information. The goal is to identify security gaps, correlate technical vulnerabilities with procedural weaknesses, and provide actionable recommendations to enhance the organization's security posture.
+
+\paragraph{Key Findings:} The assessment revealed several areas of concern requiring immediate attention. 
+\begin{itemize}
+    \item \textbf{Critical Risk - Lack of Email MFA:} The absence of Multi-Factor Authentication (MFA) on the primary email system (\texttt{StructureForm.com}) presents a critical vulnerability. This significantly increases the risk of Business Email Compromise (BEC), phishing success, and unauthorized access to sensitive communications.
+    \item \textbf{Critical Risk - Exposed Internal Service:} A network scan confirmed a pre-existing critical risk, "Localhost Exposed," on the host \seqsplit{\texttt{127.0.0.1}}. An open SSH port (22) on the loopback interface suggests a potential misconfiguration that could be exploited if network routing is compromised.
+    \item \textbf{High Risk - Insufficient Security Training:} The organization does not conduct annual security awareness training for all employees. This procedural gap allows security knowledge to decay, making staff more susceptible to evolving social engineering and phishing tactics over time.
+\end{itemize}
+
+\paragraph{Overall Posture:} While the organization has implemented some foundational security controls, such as MFA for computer and sensitive system access, the identified critical gaps substantially elevate the overall risk profile. Immediate remediation of the email MFA and exposed service issues is strongly recommended to prevent potentially severe security incidents.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This section details the organizational data provided for this assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Structure \& Form} \\
+Email Domain & \texttt{StructureForm.com} \\
+Website Domain & \url{www.StructureForm.com} \\
+External IP Address & \seqsplit{\texttt{116.32.160.30}} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. These answers highlight the current state of implemented policies and procedures. A checkmark (\textcolor{green}{\ding{51}}) indicates a positive control, while an X (\textcolor{red}{\ding{55}}) indicates a potential security gap.
+
+\subsection{Questionnaire Results}
+\begin{tabular}{@{}p{0.8\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+
+\subsection{Analysis of Gaps}
+Two significant gaps were identified from the questionnaire:
+\begin{itemize}
+    \item \textbf{No MFA for Email:} Email is a primary target for attackers. Without MFA, a compromised password is all an attacker needs to gain full access to an employee's mailbox, which can lead to data theft, financial fraud, and further system compromise. This is considered a \textbf{critical} gap.
+    \item \textbf{No Annual Security Training:} Security is a continuous process. The threat landscape evolves, and employee knowledge must be refreshed. The lack of annual training creates a high-risk environment where employees are less likely to recognize and report modern threats like sophisticated phishing attacks. This is considered a \textbf{high} risk.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and services on the target system. The findings are detailed below.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \seqsplit{\texttt{127.0.0.1}}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\begin{tabular}{@{}lllll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product/Version} & \textbf{Notes} \\
+\midrule
+22/tcp & open & ssh (inferred) & Not provided & Port 22 is open. This confirms the \\
+& & & & pre-existing risk "Localhost Exposed." \\
+& & & & Service is exposed on the loopback \\
+& & & & interface. \\
+\bottomrule
+\end{tabular}
+
+\paragraph{Analysis:} The scan detected an open SSH port on the localhost address. While the scan data is minimal, it directly corroborates the high-severity risk identified in \textit{Input\_3\_Current\_Risks\_JSON}. Exposing services, even on localhost, can be dangerous if other vulnerabilities on the system allow for network pivot attacks or Server-Side Request Forgery (SSRF).
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a unified risk register.
+
+\begin{tabular}{@{}p{0.1\linewidth}p{0.25\linewidth}p{0.3\linewidth}p{0.1\linewidth}p{0.15\linewidth}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} & \textbf{Affected Asset(s)} \\
+\midrule
+RISK-001 & \textbf{Lack of Email MFA} & The absence of a second authentication factor for email access allows for account takeover via stolen credentials. & \textbf{Critical} & Email System, All User Accounts \\
+\addlinespace
+RISK-002 & \textbf{Localhost Exposed} & The SSH service is accessible on the loopback interface, creating an unnecessary attack surface. & \textbf{Critical} & Host \seqsplit{\texttt{127.0.0.1}} \\
+\addlinespace
+RISK-003 & \textbf{Inadequate Security Training} & Lack of annual training reduces employee ability to defend against social engineering and phishing attacks. & \textbf{High} & All Employees, Org. Resilience \\
+\bottomrule
+\end{tabular}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Structure \& Form}.
+
+\subsection{RISK-001: Implement MFA for Email (Critical)}
+\begin{itemize}
+    \item \textbf{Action:} Immediately enable and enforce Multi-Factor Authentication for all user accounts on the \texttt{StructureForm.com} email platform.
+    \item \textbf{Justification:} This is the single most effective control to prevent Business Email Compromise (BEC) and unauthorized account access. It mitigates the risk of password reuse, brute-force attacks, and credential stuffing.
+    \item \textbf{Implementation:} Leverage the built-in MFA capabilities of your email provider (e.g., Microsoft 365, Google Workspace). Prioritize authenticator apps (e.g., Google Authenticator, Microsoft Authenticator) or hardware tokens over less secure SMS-based methods.
+\end{itemize}
+
+\subsection{RISK-002: Remediate Exposed Localhost Service (Critical)}
+\begin{itemize}
+    \item \textbf{Action:} Investigate the purpose of the SSH service running on \seqsplit{\texttt{127.0.0.1}}. If it is not required, disable it. If it is required for a specific application, ensure it is properly configured and not accessible by unauthorized processes.
+    \item \textbf{Justification:} Unnecessary services increase the attack surface of a system. Even a localhost service can be abused by other vulnerabilities on the same machine. Adhering to the principle of least privilege, services should only run when and where they are explicitly needed.
+    \item \textbf{Implementation:} Use system commands (e.g., \texttt{systemctl disable ssh}) to stop and disable the service. If required, configure the application that needs it to use a more secure communication method like a UNIX socket if possible.
+\end{itemize}
+
+\subsection{RISK-003: Establish Annual Security Awareness Training (High)}
+\begin{itemize}
+    \item \textbf{Action:} Develop and mandate an annual security awareness training program for all employees, including management.
+    \item \textbf{Justification:} A well-trained workforce is a critical layer of defense (the "human firewall"). Regular training ensures that employees can recognize and appropriately respond to the latest threats, reducing the likelihood of successful phishing and social engineering attacks.
+    \item \textbf{Implementation:} Utilize a third-party training platform or develop in-house content covering key topics such as phishing identification, password security, acceptable use, and incident reporting. Track completion to ensure compliance.
+\end{itemize}
+
+\end{document}
+```

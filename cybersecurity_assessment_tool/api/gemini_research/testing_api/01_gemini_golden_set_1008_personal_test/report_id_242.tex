@@ -1,0 +1,188 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding
+\usepackage{booktabs} % For professional tables (\toprule, \midrule, \bottomrule)
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url}      % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in \texttt
+\usepackage{xcolor}   % For text coloring
+\usepackage{graphicx} % For potential logos/images
+\usepackage{fancyhdr} % For headers and footers
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+}
+
+% --- CUSTOM COMMANDS ---
+\newcommand{\yes}{\ding{51}} % Checkmark
+\newcommand{\no}{\ding{55}}  % X mark
+\newcommand{\orgname}{True Grit}
+\newcommand{\orgdomain}{\texttt{TrueGrit.net}}
+\newcommand{\orgip}{\texttt{151.196.67.31}}
+\newcommand{\targetip}{\texttt{10.0.0.15}}
+
+% --- HEADER & FOOTER ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{\orgname}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Posture Assessment Report}}
+    \vspace{1.5cm}
+    \Large{\textbf{Prepared for:}} \\
+    \vspace{0.5cm}
+    \Large{\orgname}
+    \vfill
+    \large{
+    \textbf{Report Date:} \today \\
+    \vspace{0.5cm}
+    \textbf{Analysis Period:} October 2023 \\ % Placeholder date
+    \vspace{0.5cm}
+    \textbf{Classification:} Confidential
+    }
+    \vspace{1.5cm}
+    \textit{This report contains sensitive information regarding the security posture of \orgname. Distribution should be limited to authorized personnel.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture of \orgname, synthesizing data from technical network scans, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment revealed several high-impact risks requiring immediate attention. A critical vulnerability was identified on an internal host, \targetip, which is running an outdated and insecure version of the vsftpd FTP service (version 2.3.4). This specific version is widely known to contain a critical backdoor vulnerability (CVE-2011-2523), which could allow an attacker to gain complete control of the system. This risk is compounded by the server's configuration, which permits anonymous, unauthenticated access.
+
+Furthermore, a significant procedural gap was noted: the absence of mandatory security awareness training for new employees. This oversight creates a heightened risk of social engineering, phishing, and other human-centric attacks.
+
+Immediate remediation should focus on securing the vulnerable FTP server. Strategic initiatives should address the implementation of a comprehensive security training program and the continued mitigation of previously identified risks, such as the use of outdated Windows 7 workstations.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+\begin{center}
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \orgname \\
+Email Domain & \orgdomain \\
+Website Domain & \url{www.TrueGrit.net} \\
+External IP & \orgip \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+This section evaluates the organization's adherence to fundamental security controls based on the provided questionnaire. While several controls are effectively implemented, a critical gap in employee onboarding was identified.
+
+\begin{center}
+\begin{tabular}{p{0.8\textwidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \yes \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \yes \\
+\textbf{Does your organization do security awareness training for new employees?} & \textcolor{red}{\no} \\
+Does your organization do security awareness training for all employees at least once per year? & \yes \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis of Findings}
+The lack of security awareness training for new employees represents a \textbf{High Risk}. New hires are often prime targets for social engineering and phishing attacks as they are unfamiliar with internal procedures and security protocols. This gap undermines the overall security culture and increases the likelihood of a security incident caused by human error.
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+A network scan was performed on the target host \targetip. The results indicate a critical misconfiguration and a vulnerable service running on the network.
+
+\begin{center}
+\begin{tabular}{@{}llllll}
+\toprule
+\textbf{Host} & \textbf{Port/Proto} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Notes} \\
+\midrule
+\targetip & 21/tcp & open & ftp & vsftpd 2.3.4 & \textcolor{red}{\textbf{Critical:}} Anonymous FTP login allowed. \\
+& & & & & \textcolor{red}{\textbf{Critical:}} Version vulnerable to RCE (CVE-2011-2523). \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis of Findings}
+\begin{itemize}
+    \item \textbf{Vulnerable Service (vsftpd 2.3.4):} This version contains a well-documented backdoor vulnerability (\textbf{CVE-2011-2523}) that allows for remote command execution. An attacker exploiting this flaw could gain unauthorized shell access to the server, leading to a full system compromise.
+    \item \textbf{Anonymous FTP Login:} The server is configured to allow any user to log in without credentials. This exposes any files stored on the FTP server to unauthorized access, modification, or theft. It also provides an easy entry point for attackers to probe the system further.
+\end{itemize}
+
+% --- CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the technical scan, the controls review, and pre-existing risk data to provide a unified view of the current risk landscape.
+
+\begin{center}
+\begin{tabular}{p{0.3\textwidth}p{0.5\textwidth}l}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Vulnerable FTP Service} & The FTP server at \targetip is running vsftpd 2.3.4, which is susceptible to a known remote code execution backdoor (CVE-2011-2523). & \textcolor{red}{Critical} \\
+\addlinespace
+\textbf{Anonymous FTP Access} & The FTP server allows anonymous, unauthenticated login, exposing files to unauthorized access and providing a foothold for attackers. & \textcolor{red}{Critical} \\
+\addlinespace
+\textbf{No New Hire Security Training} & New employees are not provided with security awareness training, increasing susceptibility to phishing and social engineering attacks. & \textcolor{orange}{High} \\
+\addlinespace
+\textbf{Outdated Windows Policy} & (Pre-existing) Workstations are running Windows 7, which is end-of-life and no longer receives critical security updates from Microsoft. & \textcolor{yellow!80!black}{Medium} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\begin{enumerate}
+    \item \textbf{Remediate FTP Vulnerability (Immediate Priority):}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately take the FTP server at \targetip offline to prevent exploitation.
+        \item \textbf{Action:} Conduct a forensic analysis of the server to determine if it has already been compromised.
+        \item \textbf{Long-Term Fix:} Upgrade the \texttt{vsftpd} service to the latest stable version or replace it with a secure alternative such as SFTP (SSH File Transfer Protocol). If FTP is not a business necessity, the service should be permanently disabled and removed.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Disable Anonymous FTP Access (Immediate Priority):}
+    \begin{itemize}
+        \item \textbf{Action:} As part of the remediation in step 1, ensure the new or upgraded service configuration explicitly disallows anonymous logins.
+        \item \textbf{Action:} Enforce a policy requiring strong, unique user credentials for all file transfer access.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Implement New Hire Security Training (High Priority):}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and implement a mandatory security awareness training module as part of the standard employee onboarding process.
+        \item \textbf{Action:} Topics should include phishing identification, strong password policies, acceptable use of company assets, and incident reporting procedures.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Continue Windows Upgrade Plan (Medium Priority):}
+    \begin{itemize}
+        \item \textbf{Action:} Continue with the pre-existing recommendation to upgrade all Windows 7 workstations to a supported operating system (e.g., Windows 10/11).
+        \item \textbf{Action:} Prioritize upgrades for systems that handle sensitive data or have external network access.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

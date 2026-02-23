@@ -1,0 +1,165 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Assessment Report}
+\rhead{\textbf{[Organization Name]}}
+\cfoot{\thepage}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Assessment Report}}
+    \vspace{1.5cm}
+    \large{Prepared for:}
+    \vspace{0.5cm}
+    \Huge{\textbf{[Organization Name]}}
+    \vspace{2cm}
+    \large{Date of Report:}
+    \vspace{0.5cm}
+    \Large{\today}
+    \vfill
+    \large{This report contains sensitive information and should be handled with care.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a cybersecurity assessment for \textbf{[Organization Name]}, based on an analysis of organizational security controls, an external network scan, and a review of existing risk data. The assessment was conducted to identify key vulnerabilities and provide actionable recommendations to improve the organization's security posture.
+
+The analysis revealed several critical and high-risk security gaps. The most significant findings include:
+\begin{itemize}
+    \item \textbf{Critical - Widespread Lack of Multi-Factor Authentication (MFA):} The organization does not enforce MFA for accessing email, logging into computers, or accessing sensitive data systems. This represents a critical vulnerability, as compromised credentials could lead to unauthorized access with no secondary security barrier.
+    \item \textbf{High - Exposed Unencrypted Web Service:} The external network scan identified a web server operating over unencrypted HTTP (Port 80). This exposes any data transmitted between clients and the server, including potential credentials or sensitive information, to interception.
+    \item \textbf{High - Inadequate Security Awareness Training:} While new employees receive initial training, there is no mandatory annual security awareness training for all staff. This increases the risk of employees falling victim to phishing, social engineering, and other common cyberattacks.
+\end{itemize}
+
+The overall security posture is considered high-risk. Immediate action is required to address the identified vulnerabilities, particularly the implementation of MFA. Detailed findings and prioritized recommendations are provided in the subsequent sections of this report.
+
+% --- 2. Organizational & Technical Information ---
+\section{Organizational \& Technical Information}
+This section outlines the basic information used as the basis for this assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Email Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Address Scanned:} \texttt{[Client IP]}
+    \item \textbf{Target IP from Scan Data:} \texttt{[Target IP]}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The responses indicate significant gaps in identity and access management and employee security training. A green checkmark (\ding{51}) indicates a positive control, while a red cross (\ding{55}) indicates a security gap.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Controls Questionnaire}
+\begin{tabular}{p{0.75\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the target IP address \texttt{[Target IP]}. The scan revealed one open port, indicating an exposed and unencrypted service.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{l l l p{0.5\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Finding / Implication} \\
+\midrule
+80/tcp & open & HTTP & The presence of an open HTTP port indicates a web server is running without encryption (TLS/SSL). This allows for man-in-the-middle attacks where an attacker can intercept, read, and modify traffic. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textit{Note: The provided scan data did not include specific service, product, or version information.}
+
+% --- 5. Synthesized Risk Assessment ---
+\section{Synthesized Risk Assessment}
+This section correlates the findings from the security control review and the technical scan to provide a synthesized list of key risks facing the organization. The risk from the `Current_Risks_JSON` input was determined to be invalid and has been excluded in favor of risks derived from verifiable data.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Key Risks}
+\begin{tabular}{p{0.15\linewidth} p{0.55\linewidth} l}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & \textbf{Widespread Lack of MFA:} User accounts for email, endpoints, and sensitive systems are protected only by passwords, making them highly vulnerable to credential stuffing, phishing, and brute-force attacks. & \textbf{Critical} \\
+\addlinespace
+RISK-002 & \textbf{Exposed Unencrypted Web Service:} The web server on port 80 transmits data in cleartext. This could lead to the compromise of user credentials or other sensitive data submitted via the web service. & \textbf{High} \\
+\addlinespace
+RISK-003 & \textbf{Inadequate Security Awareness Program:} The absence of annual refresher training for all employees results in a workforce less prepared to identify and respond to evolving cyber threats like sophisticated phishing attacks. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following recommendations are provided to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{RISK-001: Implement Multi-Factor Authentication (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Prioritize the deployment of a robust MFA solution for all employees and contractors. The rollout should be phased, starting with the most critical systems:
+    \begin{enumerate}
+        \item Access to sensitive data systems and administrative accounts.
+        \item Email access (e.g., Office 365, Google Workspace).
+        \item Remote access solutions (VPNs).
+        \item Endpoint logins.
+    \end{enumerate}
+    \item \textbf{Long-Term Strategy:} Develop a corporate policy that mandates MFA for all new systems and services deployed within the organization.
+\end{itemize}
+
+\subsection{RISK-002: Secure Web Services with HTTPS (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Install a valid TLS/SSL certificate on the web server currently listening on port 80. Configure the server to enforce HTTPS for all connections.
+    \item \textbf{Supporting Action:} Implement HTTP Strict Transport Security (HSTS) to ensure that browsers only connect to the server over HTTPS. Configure a permanent (301) redirect for all HTTP traffic to its HTTPS equivalent.
+\end{itemize}
+
+\subsection{RISK-003: Establish a Continuous Security Training Program (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Procure and schedule mandatory annual security awareness training for all employees. This training should cover current threats, including phishing, ransomware, and proper data handling.
+    \item \textbf{Long-Term Strategy:} Implement a continuous security culture program that includes regular phishing simulations, security newsletters, and just-in-time training to reinforce security best practices throughout the year.
+\end{itemize}
+
+\end{document}
+```

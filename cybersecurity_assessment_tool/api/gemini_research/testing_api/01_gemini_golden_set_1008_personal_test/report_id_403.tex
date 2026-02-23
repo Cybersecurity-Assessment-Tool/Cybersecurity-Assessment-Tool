@@ -1,0 +1,210 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding{51}, \ding{55})
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings like IPs
+\usepackage{graphicx}
+\usepackage[table]{xcolor} % For coloring table cells
+\usepackage{lastpage} % To get the total number of pages
+\usepackage{fancyhdr} % For custom headers/footers
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Report, Analysis},
+}
+
+% --- Custom Colors for Severity ---
+\definecolor{sevhigh}{HTML}{D9534F}
+\definecolor{sevmedium}{HTML}{F0AD4E}
+\definecolor{sevlow}{HTML}{5CB85C}
+\definecolor{sevinfo}{HTML}{5BC0DE}
+\definecolor{tablehead}{gray}{0.9}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{Solid State}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder for company logo
+    \vfill
+    \huge\textbf{Cybersecurity Assessment Report}\\[0.5cm]
+    \Large For\\[0.5cm]
+    \textbf{Solid State}\\[2cm]
+    \large
+    \begin{tabular}{ll}
+        \textbf{Date of Report:} & \today \\
+        \textbf{Prepared by:} & Expert Cybersecurity Analyst \\
+    \end{tabular}
+    \vfill
+    \textit{This document contains sensitive and confidential information. Distribution is restricted to authorized personnel only.}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity assessment conducted for Solid State. The assessment combined an analysis of organizational security controls, a technical network scan, and a review of known risks to evaluate the organization's overall security posture.
+
+\paragraph{Key Findings:} The assessment identified several areas of concern that require immediate attention. The most critical findings include:
+\begin{itemize}
+    \item \textbf{Lack of Endpoint Multi-Factor Authentication (MFA):} The absence of MFA for computer logins represents a significant security gap, exposing the organization to risks from compromised credentials.
+    \item \textbf{Missing Acceptable Use Policy (AUP):} The lack of a formal AUP creates ambiguity regarding employee responsibilities for security and the proper use of company assets, increasing the potential for insider threats.
+    \item \textbf{Exposed Network Service:} A Secure Shell (SSH) service was identified as being accessible from the internet. Without proper hardening, this service could serve as a potential entry point for attackers.
+\end{itemize}
+
+\paragraph{Strengths:} The organization demonstrates a solid foundation in other areas. The implementation of MFA for email and sensitive data systems, along with a consistent security awareness training program for all employees, are commendable security practices that reduce risk in those domains.
+
+\paragraph{Recommendation Overview:} Recommendations focus on mitigating the identified risks by implementing foundational security controls. This includes enforcing MFA on all endpoints, developing and implementing a formal AUP, and securing the exposed SSH service. Detailed, actionable steps are provided in Section \ref{sec:recommendations}.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This section provides the organizational details used as a basis for this assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Solid State} \\
+    Email Domain & \texttt{SolidState.com} \\
+    Website Domain & \url{www.SolidState.com} \\
+    External IP Address & \texttt{226.60.111.90} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. These answers provide insight into the current policies and procedures governing the security environment. Gaps identified here are correlated with technical findings in the Risk Assessment section.
+
+\rowcolors{2}{gray!10}{white}
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.6\linewidth} c p{0.25\linewidth}}
+    \toprule
+    \rowcolor{tablehead}
+    \textbf{Control Question} & \textbf{Status} & \textbf{Analyst Note} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} & Strong control. Protects a primary communication channel. \\
+    Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} & \textbf{Critical Gap.} Compromised credentials could lead to direct endpoint access. \\
+    Do you require MFA to access sensitive data systems? & \ding{51} & Excellent practice for protecting critical assets. \\
+    Does your organization have an employee acceptable use policy? & \textbf{\color{red}\ding{55}} & \textbf{High Risk.} Lack of a formal policy increases insider threat risk. \\
+    Does your organization do security awareness training for new employees? & \ding{51} & Good practice for establishing a security baseline. \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Strong control. Reinforces security-conscious culture. \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify accessible services and potential vulnerabilities.
+
+\subsection{Scan Metadata}
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Target IP Address & \seqsplit{\texttt{2001:db8::1}} \\
+    Scan Date & \today \\
+    Scanner Used & Nmap \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Open Ports and Services}
+The scan identified the following open port on the target system. An open port indicates a listening service that is accessible from the public internet.
+
+\rowcolors{2}{gray!10}{white}
+\begin{table}[h!]
+\centering
+\begin{tabular}{c c c p{0.5\linewidth}}
+    \toprule
+    \rowcolor{tablehead}
+    \textbf{Port} & \textbf{State} & \textbf{Service (Assumed)} & \textbf{Notes} \\
+    \midrule
+    22/tcp & Open & SSH & The service is accessible. Version information was not obtained during the scan. This port is commonly used for remote system administration. \\
+    \bottomrule
+\end{tabular}
+\caption{Identified Open Ports}
+\label{tab:ports}
+\end{table}
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment and Findings}
+This section synthesizes the results from the security control review and technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.1\linewidth} p{0.2\linewidth} c p{0.5\linewidth}}
+    \toprule
+    \rowcolor{tablehead}
+    \textbf{Risk ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+    \midrule
+    RISK-001 & Lack of Endpoint Multi-Factor Authentication & \cellcolor{sevhigh}High & The absence of MFA on computer logins is a critical weakness. If an employee's password is stolen or guessed, an attacker can gain direct access to their workstation and potentially the internal network. \\
+    \addlinespace
+    RISK-002 & Missing Acceptable Use Policy (AUP) & \cellcolor{sevhigh}High & Without a formal AUP, employees may be unaware of their security responsibilities. This policy gap weakens the organization's ability to enforce security standards and manage risks related to data handling and system usage. \\
+    \addlinespace
+    RISK-003 & Exposed SSH Management Port & \cellcolor{sevmedium}Medium & The SSH service on port 22 is exposed to the internet. While necessary for remote administration, it is a common target for brute-force attacks. This risk is elevated by the lack of endpoint MFA (RISK-001), as password-based authentication for SSH would be a primary target. \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+\label{sec:recommendations}
+The following actionable recommendations are provided to address the risks identified in this report.
+
+\subsection{RISK-001: Implement Endpoint MFA (Severity: High)}
+\begin{itemize}
+    \item \textbf{Action:} Procure and deploy an MFA solution for all employee workstations and servers. Solutions can include push notifications, authenticator app codes (TOTP), or physical security keys.
+    \item \textbf{Justification:} This will prevent unauthorized access to endpoints even if user credentials are compromised, directly mitigating the risk of lateral movement and data breaches originating from a single compromised account.
+    \item \textbf{Priority:} Immediate.
+\end{itemize}
+
+\subsection{RISK-002: Develop an Acceptable Use Policy (Severity: High)}
+\begin{itemize}
+    \item \textbf{Action:} Create a formal AUP document that clearly defines the rules and expectations for using company technology and data. The policy should be reviewed by management, communicated to all employees, and formally acknowledged via signature.
+    \item \textbf{Justification:} An AUP establishes a clear security baseline for all employees, reduces the risk of accidental or malicious insider threats, and provides a framework for disciplinary action in case of policy violations.
+    \item \textbf{Priority:} Immediate.
+\end{itemize}
+
+\subsection{RISK-003: Harden Exposed SSH Service (Severity: Medium)}
+\begin{itemize}
+    \item \textbf{Action:} Review the business justification for exposing SSH to the entire internet. If remote access is required, implement the following hardening measures:
+    \begin{enumerate}
+        \item \textbf{Disable Password Authentication:} Enforce the use of cryptographic key pairs for authentication, which is significantly more secure than passwords.
+        \item \textbf{Implement an Access Control List (ACL):} Restrict access to the SSH port to only trusted source IP addresses (e.g., office or administrator home IPs).
+        \item \textbf{Use a Non-Standard Port:} While this is a minor deterrent (security through obscurity), it can reduce automated scanning noise.
+    \end{enumerate}
+    \item \textbf{Justification:} Hardening the SSH service drastically reduces its attack surface, protecting a critical administrative entry point from automated brute-force attacks and targeted intrusion attempts.
+    \item \textbf{Priority:} High.
+\end{itemize}
+
+\end{document}
+```

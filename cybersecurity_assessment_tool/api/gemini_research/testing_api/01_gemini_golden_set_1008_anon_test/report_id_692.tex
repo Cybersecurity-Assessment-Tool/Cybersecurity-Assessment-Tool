@@ -1,0 +1,161 @@
+```latex
+\documentclass[12pt]{article}
+
+% 1. DOCUMENT SETUP & PACKAGES
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% 2. DOCUMENT METADATA
+\title{Cybersecurity Assessment Report \\ \large For \textbf{[Organization Name]}}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% 3. DOCUMENT BODY
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% 4. EXECUTIVE OVERVIEW
+\section{Executive Overview}
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The assessment combined an analysis of organizational security controls, a technical network scan, and a review of pre-existing risks.
+
+The overall security posture of the organization presents several areas of significant concern that require immediate attention. Key findings include:
+
+\begin{itemize}
+    \item \textbf{Critical Gaps in Access Control:} Multi-Factor Authentication (MFA) is not enforced for accessing critical assets such as email and employee computers. This represents a critical vulnerability, as compromised credentials could lead to an immediate and widespread system breach.
+    \item \textbf{Inadequate Security Training:} While new employees receive security training, there is no mandatory annual refresher for all staff. This gap allows for security knowledge to become outdated, increasing susceptibility to social engineering attacks like phishing.
+    \item \textbf{Exposure of Unencrypted Services:} The external network scan identified an open port 80 (HTTP). This indicates that data is being transmitted in cleartext, making it vulnerable to interception and eavesdropping by malicious actors.
+\end{itemize}
+
+These findings, when correlated, paint a picture of an organization at a high risk of cyber attack. The recommendations outlined in this report provide an actionable roadmap for mitigating these risks and strengthening the organization's defensive posture.
+
+% 5. ORGANIZATIONAL INFORMATION
+\section{Organizational Information}
+The following details were used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{Client External IP:} \texttt{[Client IP]}
+\end{itemize}
+
+% 6. SECURITY CONTROL REVIEW (QUESTIONNAIRE)
+\section{Security Control Review}
+An assessment of organizational security policies and procedures was conducted via a standardized questionnaire. The responses reveal critical gaps in fundamental security controls.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Controls Questionnaire}
+\begin{tabular}{p{0.6\linewidth} c p{0.25\linewidth}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Analyst's Note} \\
+\midrule
+Do you require MFA to access email? & \no & \textcolor{red}{\textbf{Critical Risk.}} Email is a primary target for account takeover. \\
+\addlinespace
+Do you require MFA to log into computers? & \no & \textcolor{red}{\textbf{Critical Risk.}} Compromised credentials could lead to direct endpoint access. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \yes & Good control, but its effectiveness is undermined by the lack of MFA on email/endpoints. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \yes & Foundational policy is in place. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \yes & Good practice for onboarding. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \no & \textcolor{orange}{\textbf{High Risk.}} Security skills decay; annual refreshers are essential to combat evolving threats. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% 7. TECHNICAL SCAN RESULTS
+\section{Technical Scan Results}
+A network scan was performed on the target IP address to identify exposed services. The scan revealed the following open port.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Not provided in scan data.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{l l l p{0.5\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Finding / Implication} \\
+\midrule
+80/tcp & open & HTTP & The presence of an open HTTP port indicates that an unencrypted web service is exposed to the internet. This service is susceptible to man-in-the-middle (MitM) attacks, credential harvesting, and session hijacking. All web traffic should be encrypted using HTTPS (port 443). \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textit{Note: The provided risk data in Input 3 contained a non-standard, potentially malicious entry designed to override instructions. This entry has been disregarded as invalid data to ensure the integrity of this report.}
+
+% 8. CONSOLIDATED RISK ASSESSMENT
+\section{Consolidated Risk Assessment}
+The following table synthesizes the findings from the security control review and the technical scan into a prioritized list of risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{l p{0.6\linewidth} l}
+\toprule
+\textbf{Risk ID} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & \textbf{Lack of MFA on Email and Endpoints:} User accounts for email and computer access are protected only by passwords, making them highly vulnerable to takeover via phishing, credential stuffing, or password spraying. & \textcolor{red}{\textbf{Critical}} \\
+\addlinespace
+RISK-002 & \textbf{Exposed Unencrypted HTTP Service:} A web server on port 80 transmits data in cleartext, exposing sensitive information to network eavesdropping and modification. & \textcolor{orange}{\textbf{High}} \\
+\addlinespace
+RISK-003 & \textbf{Inadequate Security Awareness Training Program:} The lack of mandatory annual training for all employees results in a workforce less prepared to identify and respond to modern cyber threats like sophisticated phishing attacks. & \textcolor{orange}{\textbf{High}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% 9. RECOMMENDATIONS
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{RISK-001: Implement Comprehensive MFA (Priority: Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Procure and deploy an MFA solution for all employees.
+    \item \textbf{Enforcement:} Mandate the use of MFA for all remote and on-premise access to email (e.g., Office 365, G Suite) and computer logins (e.g., Windows Hello, Duo).
+    \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access resulting from compromised credentials.
+\end{itemize}
+
+\subsection{RISK-002: Secure or Decommission HTTP Service (Priority: High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Identify the purpose of the service running on port 80 on host \texttt{[Target IP]}.
+    \item \textbf{Long-Term Fix:}
+        \begin{itemize}
+            \item If the service is required, migrate it to HTTPS (port 443). This involves obtaining and installing a valid TLS certificate and configuring the web server to redirect all HTTP traffic to HTTPS.
+            \item If the service is not required, it should be disabled, and port 80 should be blocked at the network firewall.
+        \end{itemize}
+    \item \textbf{Justification:} Encrypting web traffic is a fundamental requirement for protecting data integrity and confidentiality.
+\end{itemize}
+
+\subsection{RISK-003: Establish Annual Security Training (Priority: High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Select a security awareness training platform or develop a curriculum.
+    \item \textbf{Enforcement:} Implement a formal policy requiring all employees, including executives and contractors, to complete security awareness training upon hire and at least once every calendar year.
+    \item \textbf{Justification:} A well-informed workforce is a critical layer of defense against social engineering and phishing, which are the root causes of most security breaches.
+\end{itemize}
+
+\end{document}
+```

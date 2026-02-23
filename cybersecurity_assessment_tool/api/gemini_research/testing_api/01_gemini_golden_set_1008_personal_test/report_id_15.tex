@@ -1,0 +1,165 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry} % For setting page margins
+\usepackage{pifont}               % For using symbols like checkmarks (\ding{51}) and crosses (\ding{55})
+\usepackage{booktabs}             % For professional-looking tables (\toprule, \midrule, \bottomrule)
+\usepackage{hyperref}             % For creating hyperlinks within the document
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % For splitting long text strings to prevent overflow
+\usepackage{xcolor}               % For custom colors
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperlink Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% 1. EXECUTIVE SUMMARY
+% ==============================================================================
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Pacific Rim Exports}, based on network scans, a security controls questionnaire, and a review of pre-existing risk data. The analysis reveals several critical and high-risk vulnerabilities that require immediate attention to mitigate potential threats to the organization's data and operations.
+
+Key findings indicate a significant risk of data breach due to a publicly exposed MySQL database running an outdated, end-of-life version. This technical vulnerability is compounded by critical gaps in organizational security controls, most notably the lack of Multi-Factor Authentication (MFA) for email access and the absence of a formal security awareness training program. These issues collectively create an environment susceptible to both targeted attacks and opportunistic threats.
+
+Immediate remediation is recommended, focusing on securing the exposed database, upgrading outdated software, enforcing MFA across all critical systems, and implementing a comprehensive employee security training program.
+
+% ==============================================================================
+% 2. ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Pacific Rim Exports} \\
+Email Domain & \texttt{PacificRimExports.net} \\
+Website Domain & \url{www.PacificRimExports.net} \\
+External IP Address & \texttt{39.155.187.115} \\
+\bottomrule
+\end{tabular}
+
+% ==============================================================================
+% 3. SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight significant gaps in user access controls and security awareness, which are foundational elements of a robust security posture. A "No" answer indicates a deviation from security best practices.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}lc}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees annually? & \ding{55} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent \textbf{Analysis:} The lack of MFA on email represents a high-risk vulnerability, as email is a primary vector for phishing and account compromise. The complete absence of a security awareness training program is a critical gap, leaving the organization highly susceptible to social engineering attacks.
+
+% ==============================================================================
+% 4. TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed on the target host \texttt{172.16.50.20}. The scan identified one open port, which exposes a critical database service directly to the network.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{@{}lllll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+3306/tcp & open & mysql & MySQL & 5.7.33 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent \textbf{Critical Finding:} The scan revealed that \textbf{MySQL version 5.7.33} is in use. This version reached its official End of Life (EOL) in October 2023. Systems running EOL software no longer receive security patches from the vendor and are highly likely to contain unpatched, publicly known vulnerabilities. This finding, combined with the port's public exposure, elevates the risk of a database compromise to a critical level.
+
+% ==============================================================================
+% 5. CONSOLIDATED RISK ASSESSMENT
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l}
+\toprule
+\textbf{Risk / Vulnerability} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Outdated Database Software} & The MySQL server is version 5.7.33, which is End-of-Life (EOL) and no longer receives security updates. & \textbf{Critical} \\
+\addlinespace
+\textbf{Public Database Exposure} & Port 3306 (MySQL) is open to the network, allowing direct connection attempts and exposing it to brute-force attacks and exploitation. & \textbf{High} \\
+\addlinespace
+\textbf{Lack of MFA for Email} & Email accounts, a primary target for attackers, are secured only by passwords, making them vulnerable to phishing and credential stuffing. & \textbf{High} \\
+\addlinespace
+\textbf{No Security Awareness Training} & Employees are not trained to recognize or respond to phishing, social engineering, or other common cyber threats, increasing organizational risk. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% 6. RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+The following actions are recommended to address the identified risks. These are prioritized based on severity and potential impact.
+
+\subsection{Remediate Outdated and Exposed Database (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Implement strict firewall rules to restrict all access to port 3306, allowing connections only from trusted internal IP addresses.
+    \item \textbf{Short-Term Project:} Plan and execute an urgent upgrade of the MySQL server from the EOL 5.7 version to a currently supported version (e.g., MySQL 8.x). This will ensure the system receives critical security patches.
+    \item \textbf{Long-Term Strategy:} For any required external access, implement a Virtual Private Network (VPN) with strong authentication, ensuring that the database port is never directly exposed to the internet.
+\end{itemize}
+
+\subsection{Enforce Multi-Factor Authentication (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Enable and enforce MFA for all user accounts on the email system (\texttt{PacificRimExports.net}). This single control significantly reduces the risk of account takeover.
+    \item \textbf{Policy Review:} Update the organization's access control policy to mandate MFA for all cloud services and critical systems.
+\end{itemize}
+
+\subsection{Implement Security Awareness Training (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Enroll all employees in a foundational security awareness training course covering phishing, password security, and acceptable use.
+    \item \textbf{Ongoing Program:} Establish a formal security awareness program that includes mandatory training for all new hires and annual refresher training for all staff.
+    \item \textbf{Testing:} Conduct periodic, unannounced phishing simulation campaigns to test employee awareness and measure the effectiveness of the training program.
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,186 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGE IMPORTS ---
+\usepackage[a4paper, margin=1in]{geometry} % Page layout
+\usepackage{pifont}                       % For checkmarks and crosses (\ding)
+\usepackage{booktabs}                     % For professional-looking tables
+\usepackage{hyperref}                     % For hyperlinks and metadata
+\usepackage{url}                          % For URL formatting
+\usepackage{seqsplit}                     % To split long strings in \texttt
+\usepackage{graphicx}                     % For potential logos/images
+\usepackage{fancyhdr}                     % For headers and footers
+
+% --- DOCUMENT METADATA ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Assessment, Report, RDP, Training}
+}
+
+% --- HEADER & FOOTER SETUP ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment Report}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Huge \textbf{Cybersecurity Posture Assessment Report}\par}
+    \vspace{1.5cm}
+    
+    {\Large Prepared for:\par}
+    \vspace{0.5cm}
+    {\Huge \textbf{[Organization Name]}}\par
+    
+    \vfill
+    
+    {\large \today\par}
+    
+    \vspace{1cm}
+    
+    {\large \textbf{CONFIDENTIAL DOCUMENT}\par}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The analysis correlates data from an external network scan, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment identified a \textbf{critical-risk finding}: the direct exposure of a Remote Desktop Protocol (RDP) service on port 3389 to the public internet at the IP address \seqsplit{\texttt{[Target IP]}}. This configuration represents a severe and immediate threat, as it is a primary target for ransomware gangs and other malicious actors. This technical finding directly validates a previously identified risk, confirming its active status.
+
+A second \textbf{high-risk finding} was identified in the organization's security processes: the absence of mandatory security awareness training for new employees during their onboarding. This gap leaves the organization vulnerable to social engineering and phishing attacks, as new staff may not be aware of established security policies and threat indicators.
+
+While the organization has implemented several strong controls, such as multi-factor authentication (MFA) across key systems, the identified critical and high-risk vulnerabilities must be remediated urgently to reduce the likelihood of a significant security breach.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+
+This section provides the key identification details for the organization under review. As the provided data was anonymized, placeholders are used.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+External IP Address Scanned & \seqsplit{\texttt{[Client IP]}} \\
+\bottomrule
+\end{tabular}
+\caption{Organizational Details.}
+\label{tab:org_info}
+\end{table}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review (Questionnaire Analysis)}
+
+An analysis of the security controls questionnaire was performed to evaluate the organization's policies and procedures against industry best practices. The results are summarized in Table \ref{tab:controls}. The organization demonstrates a strong commitment to identity security with widespread MFA adoption. However, a significant gap exists in the employee onboarding process.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textbf{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results. (\ding{51} = Yes, \ding{55} = No)}
+\label{tab:controls}
+\end{table}
+
+\paragraph{Finding:} The lack of security awareness training for new employees is a high-risk procedural gap. New hires are often targeted by attackers and are less likely to be familiar with corporate security policies, making them more susceptible to phishing and social engineering attacks.
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+
+An external network scan was conducted against the target IP address to identify exposed services. The scan revealed one open port, which presents a critical vulnerability.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Target IP} \\
+\midrule
+3389/tcp & open & \texttt{ms-wbt-server} & \seqsplit{\texttt{[Target IP]}} \\
+\bottomrule
+\end{tabular}
+\caption{External Port Scan Findings.}
+\label{tab:scan_results}
+\end{table}
+
+\paragraph{Analysis:} The service \texttt{ms-wbt-server} is the Microsoft Windows Remote Desktop Protocol (RDP). Exposing RDP directly to the internet is extremely dangerous. It is a frequent target for brute-force password attacks, credential stuffing, and exploitation of known vulnerabilities (e.g., BlueKeep). A successful compromise of an RDP server often provides an attacker with a direct foothold into the internal network, which is a common precursor to ransomware deployment. This finding confirms the pre-existing risk documented in the organization's risk register.
+
+% --- CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the questionnaire, technical scan, and pre-existing risk data into a prioritized list of security risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\linewidth} p{0.45\linewidth} p{0.15\linewidth} p{0.2\linewidth}@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Finding} & \textbf{Severity} & \textbf{Source} \\
+\midrule
+\textbf{R-01} & \textbf{Publicly Exposed RDP (Port 3389)} & \textbf{Critical (9.0)} & Technical Scan, Existing Risk Data \\
+\textbf{R-02} & \textbf{No Security Awareness Training for New Employees} & \textbf{High} & Questionnaire \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\label{tab:risk_summary}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity.
+
+\subsection{R-01: Remediate Public RDP Exposure (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action (Containment):} Immediately create a firewall rule to \textbf{block all inbound traffic to TCP port 3389} on the external interface corresponding to \seqsplit{\texttt{[Target IP]}}. This will remove the immediate threat.
+    \item \textbf{Long-Term Solution (Remediation):} For necessary remote access, implement a secure access solution. Options include:
+    \begin{itemize}
+        \item A \textbf{Virtual Private Network (VPN)} with strong authentication (MFA).
+        \item A \textbf{Zero Trust Network Access (ZTNA)} solution or RDP Gateway.
+    \end{itemize}
+    This ensures that all remote connections are authenticated and encrypted before reaching the internal server.
+\end{itemize}
+
+\subsection{R-02: Enhance Employee Onboarding Process (High)}
+\begin{itemize}
+    \item \textbf{Procedural Action (Remediation):} Develop and implement a mandatory security awareness training module for all new employees. This training should be a required part of the onboarding process before system access is granted.
+    \item \textbf{Content Suggestion:} The training should cover, at a minimum:
+    \begin{itemize}
+        \item Phishing and spear-phishing recognition.
+        \item The organization's acceptable use policy.
+        \item Password and MFA best practices.
+        \item Procedures for reporting security incidents.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

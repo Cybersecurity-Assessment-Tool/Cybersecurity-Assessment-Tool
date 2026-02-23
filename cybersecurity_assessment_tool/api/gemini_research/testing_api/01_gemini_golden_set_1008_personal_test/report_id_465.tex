@@ -1,0 +1,158 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[hidelinks]{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Define colors for severity
+\definecolor{criticalred}{HTML}{D7263D}
+\definecolor{highorange}{HTML}{F49D0C}
+\definecolor{mediumyellow}{HTML}{F4D03F}
+
+% Document Information
+\title{Cybersecurity Posture and Risk Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Ember Glow Hospitality}. The analysis is based on a correlation of network scan data, organizational security control questionnaires, and a review of pre-existing risk documentation.
+
+The assessment reveals several critical and high-risk security gaps. A network scan identified an openly accessible web interface on an internal system (\texttt{10.5.5.5:8080}) with the title \textbf{"TOP SECRET DB"}. This finding directly contradicts a previous risk assessment which incorrectly labeled this port as secure. This discrepancy points to a severe and immediate risk of sensitive data exposure.
+
+Furthermore, significant procedural and policy-based weaknesses were identified. The organization lacks mandatory multi-factor authentication (MFA) for computer logins, an employee acceptable use policy, and a security awareness training program. These gaps substantially increase the organization's susceptibility to credential theft, insider threats, and social engineering attacks.
+
+Immediate remediation is required to secure the exposed database interface. Following this, a strategic effort must be undertaken to implement foundational security controls, including MFA, policy development, and employee training, to build a more resilient security posture.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+This section details the organizational data provided for this assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Ember Glow Hospitality
+    \item \textbf{Email Domain:} \seqsplit{\texttt{EmberGlowHospitality.org}}
+    \item \textbf{Website Domain:} \seqsplit{\texttt{www.EmberGlowHospitality.org}}
+    \item \textbf{Known External IP:} \texttt{183.30.24.122}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. Each "No" response, marked with \ding{55}, represents a significant gap in the organization's defensive posture.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{0.7\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+\textbf{Do you require MFA to log into computers?} & \textcolor{criticalred}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+\textbf{Does your organization have an employee acceptable use policy?} & \textcolor{criticalred}{\ding{55}} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textcolor{criticalred}{\ding{55}} \\
+\textbf{Does your organization do security awareness training for all employees at least once per year?} & \textcolor{criticalred}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{No MFA for Computer Logins:} The absence of MFA on endpoints is a critical vulnerability. If an employee's password is stolen, an attacker can gain direct access to their workstation and potentially the internal network.
+    \item \textbf{Lack of Acceptable Use Policy (AUP):} Without a formal AUP, there are no clear guidelines for employees on the proper use of company assets. This increases the risk of misuse, data leakage, and legal liability.
+    \item \textbf{No Security Awareness Training:} The complete absence of a security training program leaves employees uninformed about modern threats like phishing and social engineering, making them highly susceptible to attacks. This is a foundational failure in building a security-conscious culture.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed to identify active services and potential vulnerabilities on the specified target system.
+
+\begin{itemize}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Target IP Address:} \texttt{10.5.5.5}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services on \texttt{10.5.5.5}}
+\begin{tabular}{l l p{0.5\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Information / Banner} \\
+\midrule
+8080/tcp & Open & HTTP service with the title: \textbf{"TOP SECRET DB"} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan revealed a highly alarming finding. Port 8080 is open and hosts a web service explicitly titled \textbf{"TOP SECRET DB"}. This strongly suggests an exposed database or administration interface containing highly sensitive information. This finding is made more severe by its direct contradiction with the existing risk documentation (\textit{Input\_3\_Current\_Risks\_JSON}), which stated this port was a "confirmed secure" false positive. This indicates a failure in the previous risk assessment process and an active, unmitigated critical threat.
+
+% --- 5. Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+
+This section synthesizes findings from the security questionnaire, technical scans, and existing risk data to present a holistic view of the current risk landscape.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.55\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Exposed Sensitive Database Interface} & An open port (8080) on an internal server (\texttt{10.5.5.5}) is broadcasting a web page titled "TOP SECRET DB". This contradicts previous assessments and presents an immediate threat of a major data breach. & \textcolor{criticalred}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Lack of Endpoint Access Control} & The absence of MFA for computer logins means that a single compromised password could grant an attacker full access to an employee's workstation and the internal network. & \textcolor{highorange}{\textbf{High}} \\
+\addlinespace
+\textbf{Untrained Workforce} & With no security awareness training, employees are highly vulnerable to phishing and social engineering, which are the primary vectors for initial network compromise. & \textcolor{highorange}{\textbf{High}} \\
+\addlinespace
+\textbf{Absence of Governance Policies} & The lack of a formal Acceptable Use Policy creates ambiguity for employees and exposes the organization to insider threats and potential legal non-compliance. & \textcolor{highorange}{\textbf{High}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{Immediate Actions (Within 24 Hours)}
+\begin{enumerate}
+    \item \textbf{Isolate and Investigate Exposed Database:} Immediately apply a firewall rule to block all access to \texttt{10.5.5.5:8080}. Launch an urgent investigation to identify the system's owner, the nature of the data it contains, and review its access logs for signs of compromise.
+    \item \textbf{Review Risk Assessment Process:} The failure to correctly identify the risk on port 8080 indicates a flawed validation process. A full review of how risks are assessed and validated must be conducted.
+\end{enumerate}
+
+\subsection*{High-Priority Actions (Next 30-90 Days)}
+\begin{enumerate}
+    \item \textbf{Deploy Endpoint MFA:} Implement and enforce Multi-Factor Authentication for all employee computer and laptop logins.
+    \item \textbf{Establish Security Awareness Training Program:} Procure and deploy a security awareness training solution. All employees must complete an initial training module covering phishing, password hygiene, and data handling, with mandatory annual refreshers.
+    \item \textbf{Develop and Implement an AUP:} Draft a formal Acceptable Use Policy that clearly defines the rules for using company technology and data. Require all employees to read and formally acknowledge the policy.
+\end{enumerate}
+
+\subsection*{Long-Term Recommendations}
+\begin{enumerate}
+    \item \textbf{Conduct Comprehensive Vulnerability Scanning:} Implement a regular, authenticated vulnerability scanning program for the entire internal network to proactively identify misconfigurations and outdated software.
+    \item \textbf{Develop an Incident Response Plan:} Formalize a plan that details the steps to be taken in the event of a security breach to ensure a swift and effective response.
+\end{enumerate}
+
+\end{document}
+```

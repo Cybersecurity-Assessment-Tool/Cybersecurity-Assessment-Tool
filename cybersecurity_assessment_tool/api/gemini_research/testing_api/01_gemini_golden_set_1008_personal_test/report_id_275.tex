@@ -1,0 +1,184 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% METADATA & PACKAGES
+% ----------------------------------------------------------------------
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment}
+}
+
+\title{Cybersecurity Assessment Report \\ \large For: Nexus Dynamics}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% ----------------------------------------------------------------------
+% DOCUMENT START
+% ----------------------------------------------------------------------
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% 1. EXECUTIVE OVERVIEW
+% ----------------------------------------------------------------------
+\section{Executive Overview}
+
+This report provides a comprehensive cybersecurity assessment for Nexus Dynamics, based on a combination of technical network scanning, a review of organizational security controls, and an analysis of pre-existing risk data. The assessment was conducted on \today.
+
+The analysis identified several high-impact security deficiencies that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Policy Gap - No MFA for Email:} The lack of mandatory Multi-Factor Authentication (MFA) for email access represents a critical vulnerability. Email accounts are a primary target for attackers, and a compromise could lead to significant data breaches and further network intrusion.
+    \item \textbf{Critical Misconfiguration - Exposed Local Service:} A technical scan confirmed the presence of an exposed service (SSH on port 22) on the localhost interface (\texttt{127.0.0.1}). This finding correlates with a known critical risk and indicates a severe misconfiguration that could be exploited.
+    \item \textbf{High-Risk Process Gap - Inadequate Employee Onboarding:} The organization does not provide security awareness training to new employees. This oversight leaves the organization vulnerable, as new hires are often targeted by social engineering attacks and are unaware of internal security policies.
+\end{itemize}
+
+The combination of these findings places the organization at a high risk of a security incident. This report outlines these risks in detail and provides actionable recommendations to mitigate them effectively. We urge management to prioritize the remediation steps outlined in Section 6.
+
+% ----------------------------------------------------------------------
+% 2. ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Nexus Dynamics \\
+    Email Domain & \seqsplit{\texttt{NexusDynamics.org}} \\
+    Website Domain & \seqsplit{\url{www.NexusDynamics.org}} \\
+    External IP Address & \seqsplit{\texttt{123.33.56.242}} \\
+    \bottomrule
+\end{tabular}
+
+% ----------------------------------------------------------------------
+% 3. SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+
+A review of internal security controls was conducted based on a standardized questionnaire. The responses reveal significant gaps in the organization's security posture.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\textwidth} c p{0.25\textwidth}@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Analyst Notes} \\
+    \midrule
+    Do you require MFA to access email? & \ding{55} & \textbf{Critical Gap.} A primary vector for account takeover. \\
+    \addlinespace
+    Do you require MFA to log into computers? & \ding{51} & Good Practice. \\
+    \addlinespace
+    Do you require MFA to access sensitive data systems? & \ding{51} & Good Practice. \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \ding{51} & Good Foundation. \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & \ding{55} & \textbf{High Risk.} New hires are a common target. \\
+    \addlinespace
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Good Practice. \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+% ----------------------------------------------------------------------
+% 4. TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+
+A network scan was performed to identify exposed services and potential vulnerabilities on the specified target.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{127.0.0.1}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+The scan revealed the following open port(s):
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Product / Version} \\
+    \midrule
+    22/tcp & open & SSH & \textit{Not provided in scan data} \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports on \texttt{127.0.0.1}}
+\end{table}
+
+\paragraph{Analysis:} The scan identified that port 22, commonly used for the Secure Shell (SSH) protocol, is open on the localhost interface (\texttt{127.0.0.1}). Exposing a remote administration service on this interface is highly unusual and often indicates a service misconfiguration. This technical finding directly corroborates the pre-existing risk "Localhost Exposed" (see Section 5), which has been assigned the highest possible severity score (CVSS 10.0). Lack of version information from the scan prevents further analysis for known exploits, but the configuration itself is a critical risk.
+
+% ----------------------------------------------------------------------
+% 5. CONSOLIDATED RISK ASSESSMENT
+% ----------------------------------------------------------------------
+\section{Consolidated Risk Assessment}
+
+The following table summarizes the key risks identified through the correlation of the security control review, technical scan results, and pre-existing risk data.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\textwidth} p{0.4\textwidth} p{0.25\textwidth} p{0.15\textwidth}@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Description} & \textbf{Source of Finding} & \textbf{Severity} \\
+    \midrule
+    R-01 & \textbf{Exposed SSH on Localhost.} The SSH service is running and exposed on the loopback interface, confirmed by both technical scan and existing risk data. & Network Scan, Current Risks JSON & \textbf{Critical} \\
+    \addlinespace
+    R-02 & \textbf{No MFA for Email Access.} Lack of multi-factor authentication on email accounts makes them highly susceptible to compromise via phishing or password reuse attacks. & Questionnaire & \textbf{Critical} \\
+    \addlinespace
+    R-03 & \textbf{No Security Training for New Hires.} New employees are not trained on security policies and threats, creating an immediate vulnerability upon joining the organization. & Questionnaire & \textbf{High} \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% ----------------------------------------------------------------------
+% 6. RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity.
+
+\subsection{R-01: Remediate Exposed SSH Service (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Investigate the host at \texttt{127.0.0.1} to determine why the SSH service is running and bound to the loopback interface. 
+    \item \textbf{Containment:} If the service is not essential for a specific, documented business function, it should be disabled immediately.
+    \item \textbf{Long-Term Fix:} If the service is required, reconfigure it to bind only to necessary internal management interfaces and ensure it is protected by a host-based firewall. Access should be restricted to authorized personnel only, using strong authentication methods (e.g., key-based authentication).
+\end{itemize}
+
+\subsection{R-02: Implement MFA for Email (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Procure and deploy an MFA solution for the organization's email system (e.g., Microsoft 365, Google Workspace).
+    \item \textbf{Policy Enforcement:} Update IT policy to mandate the use of MFA for all users, without exception, for email access.
+    \item \textbf{Rollout:} Execute a phased rollout plan, starting with administrative and high-privilege accounts, with a goal of 100\% user adoption within 30 days.
+\end{itemize}
+
+\subsection{R-03: Establish New Hire Security Training (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Develop or procure a foundational security awareness training module. This module should cover, at a minimum: phishing identification, password hygiene, acceptable use of company assets, and how to report a security incident.
+    \item \textbf{Process Integration:} Integrate this mandatory training into the formal employee onboarding process for all new hires, to be completed within their first week of employment.
+    \item \textbf{Verification:} Implement a system to track completion of the training to ensure compliance across the organization.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% DOCUMENT END
+% ----------------------------------------------------------------------
+\end{document}
+```

@@ -1,0 +1,194 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define checkmark and cross symbols for clarity
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Assessment Report}}
+    \vspace{1.5cm}
+    \Large{\textbf{Prepared for:}} \\
+    \vspace{0.5cm}
+    \Huge{\textbf{[Organization Name]}}
+    \vspace{2cm}
+    \large{\textbf{Date of Report:}} \\
+    \vspace{0.2cm}
+    \large{\today}
+    \vfill
+    \large{
+        \textbf{CONFIDENTIAL} \\
+        This document contains sensitive information and is intended solely for the use of the designated recipient.
+    }
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Executive Summary ---
+\section*{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture of \textbf{[Organization Name]}, based on a review of organizational security controls, a network vulnerability scan, and an assessment of pre-existing risks. The assessment was conducted on \today.
+
+The analysis revealed several critical and high-risk security gaps that require immediate attention. The most significant findings include a complete lack of Multi-Factor Authentication (MFA) for email, computer logins, and sensitive data systems. This represents a critical vulnerability, as a single compromised password could lead to a widespread system breach.
+
+Furthermore, the organization lacks a formal security awareness training program for both new and existing employees. This elevates the risk of successful phishing attacks and other forms of social engineering.
+
+A technical network scan identified an exposed Secure Shell (SSH) service on the external network perimeter. While necessary for remote administration, its exposure without compensating controls like IP whitelisting or enforced key-based authentication presents a medium-level risk.
+
+This report outlines these findings in detail and provides a prioritized list of actionable recommendations to mitigate the identified risks and strengthen the organization's overall security posture.
+
+% --- Organizational Information ---
+\section*{Organizational Information}
+The following details were used as the basis for this assessment. As per the provided data, some identifying information has been replaced with placeholders.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Address Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Security Control Review ---
+\section*{Security Control Review}
+A review of foundational security controls was conducted via a questionnaire. The results indicate significant gaps in identity management and security awareness policies. A "No" answer highlights a missing control and a potential area of high risk.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Controls Questionnaire}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \xmark \\
+Do you require MFA to log into computers? & \xmark \\
+Do you require MFA to access sensitive data systems? & \xmark \\
+Does your organization have an employee acceptable use policy? & \cmark \\
+Does your organization do security awareness training for new employees? & \xmark \\
+Does your organization do security awareness training for all employees at least once per year? & \xmark \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{Lack of Multi-Factor Authentication (MFA):} The absence of MFA across all critical access points (email, endpoints, data systems) is a critical weakness. It places the organization at extreme risk of account takeover attacks, where a single stolen password can grant an attacker full access.
+    \item \textbf{Inadequate Security Awareness Training:} While an acceptable use policy exists, its effectiveness is severely undermined by the lack of training. Employees are not being educated on current threats like phishing, malware, or social engineering, making them the weakest link in the organization's defense.
+\end{itemize}
+
+% --- Technical Scan Results ---
+\section*{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services on the organization's perimeter.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Scan data was processed on \today.
+    \item \textbf{Scanner Used:} Nmap
+\end{itemize}
+
+The scan identified the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\begin{tabular}{c c l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Inferred Service} \\
+\midrule
+22/tcp & Open & SSH (Secure Shell) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The presence of an open SSH port (22) indicates that a system is configured for remote administrative access from the internet. While SSH is an encrypted protocol, its exposure is a risk. It is a primary target for automated brute-force attacks where attackers attempt to guess usernames and passwords. Without strong password policies, MFA, or IP-based access restrictions, this service represents a significant entry point for an attacker. This risk is amplified by the organization-wide lack of MFA.
+
+% --- Risk Assessment Summary ---
+\section*{Risk Assessment Summary}
+The following table synthesizes the findings from the security control review and the technical scan into a prioritized list of identified risks. The pre-existing risk register was empty.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.45\linewidth} p{0.1\linewidth}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & Widespread Lack of MFA & The absence of MFA for email, endpoints, and sensitive systems allows for account takeover via single-factor (password) compromise. & \textbf{Critical} \\
+\addlinespace
+RISK-002 & Inadequate Security Awareness Program & Employees are not trained to recognize or respond to cyber threats (e.g., phishing), making them highly susceptible to social engineering. & \textbf{High} \\
+\addlinespace
+RISK-003 & Exposed SSH Service & The SSH management port is open to the public internet, making it a target for brute-force attacks and unauthorized access attempts. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Recommendations ---
+\section*{Recommendations}
+Based on the risk assessment, the following prioritized actions are recommended to mitigate the identified vulnerabilities and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection*{Immediate Priority (Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Implement Multi-Factor Authentication (RISK-001):}
+    \begin{itemize}
+        \item Immediately enable and enforce MFA for all users on the primary email system (e.g., Microsoft 365, Google Workspace).
+        \item Phase in MFA for all remote access solutions (VPNs) and access to systems containing sensitive data.
+        \item Develop a roadmap to implement MFA for all computer logins.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{High Priority (High Risks)}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Establish a Security Awareness Program (RISK-002):}
+    \begin{itemize}
+        \item Procure and implement a security awareness training platform.
+        \item Enroll all new employees in mandatory foundational training as part of their onboarding process.
+        \item Schedule and conduct mandatory annual security awareness training for all staff, covering topics like phishing, password security, and acceptable use.
+        \item Conduct periodic phishing simulation campaigns to test and reinforce training.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Medium Priority (Medium Risks)}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Secure the Exposed SSH Service (RISK-003):}
+    \begin{itemize}
+        \item If SSH access is not required from the public internet, block port 22 at the firewall.
+        \item If external access is required, restrict access to a whitelist of trusted source IP addresses.
+        \item Enforce public key authentication and disable password-based authentication for SSH.
+        \item Ensure the SSH server software is fully patched and configured according to security best practices.
+    \end{itemize}
+\end{enumerate}
+
+% --- Conclusion ---
+\section*{Conclusion}
+The assessment has identified fundamental gaps in the cybersecurity defenses of \textbf{[Organization Name]}. While the issues are serious, they can be effectively addressed. By prioritizing the implementation of Multi-Factor Authentication and establishing a robust security awareness program, the organization can significantly reduce its risk of a major security breach. Further hardening of the network perimeter by securing exposed services will add critical layers of defense. We recommend that the organization develop a formal plan of action to address these recommendations promptly.
+
+% --- Document End ---
+\end{document}
+```

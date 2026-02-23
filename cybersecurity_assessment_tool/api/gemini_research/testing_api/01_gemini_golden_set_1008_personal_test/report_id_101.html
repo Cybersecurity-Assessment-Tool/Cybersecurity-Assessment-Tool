@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>This section outlines the organizational details provided for this
+assessment. This information is used to establish the context and scope
+of the review.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;"><strong>Blue Marble</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Email Domain</td>
+<td style="text-align: left;"><code>BlueMarble.net</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Website Domain</td>
+<td style="text-align: left;"><a href="www.BlueMarble.net"
+class="uri">www.BlueMarble.net</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Address</td>
+<td style="text-align: left;"><code>137.7.4.254</code></td>
+</tr>
+</tbody>
+</table>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>The following table summarizes the organization’s responses to a
+security controls questionnaire. "No" answers indicate significant gaps
+in the defensive posture and are flagged for immediate attention.</p>
+<div class="tabular">
+<p><span>@ L<span>8cm</span> c L<span>5cm</span> @</span>
+<strong>Control Question</strong> &amp; <strong>Response</strong> &amp;
+<strong>Analyst Note</strong><br />
+Do you require MFA to access email? &amp; &amp; Good practice. Mitigates
+email account takeover.<br />
+Do you require MFA to log into computers? &amp; &amp; Strong control for
+endpoint security.<br />
+<strong>Do you require MFA to access sensitive data systems?</strong>
+&amp; <strong></strong> &amp; <strong>Critical Gap.</strong> Lack of MFA
+on critical systems drastically increases the risk of a breach via
+stolen credentials.<br />
+Does your organization have an employee acceptable use policy? &amp;
+&amp; Foundational policy is in place.<br />
+<strong>Does your organization do security awareness training for new
+employees?</strong> &amp; <strong></strong> &amp; <strong>High
+Risk.</strong> New hires are a common target for phishing and social
+engineering. Lack of initial training leaves the organization
+vulnerable.<br />
+Does your organization do security awareness training for all employees
+at least once per year? &amp; &amp; Good practice for maintaining
+security awareness.<br />
+</p>
+</div>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed to identify open ports and exposed
+services on the target system.</p>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>10.10.10.51</code></p></li>
+<li><p><strong>Scan Date:</strong> Assumed to be current as of report
+generation.</p></li>
+</ul>
+<p>The scan revealed the following open port:</p>
+<div class="tabular">
+<p><span>@ l l l L<span>6cm</span> @</span> <strong>Port</strong> &amp;
+<strong>State</strong> &amp; <strong>Service Name</strong> &amp;
+<strong>Finding</strong><br />
+/tcp &amp; Open &amp; <code>ms-wbt-server</code> &amp; The Remote
+Desktop Protocol (RDP) service is exposed. This is a high-value target
+for attackers and is frequently exploited for initial access, often
+leading to ransomware deployment.<br />
+</p>
+</div>
+<h2 id="correlation-with-existing-risks">Correlation with Existing
+Risks</h2>
+<p>This finding is particularly concerning as it indicates a systemic
+issue. A pre-existing risk was documented for RDP exposure on a
+different host (<code>10.10.10.50</code>). The discovery of a second
+exposed host suggests that network segmentation and firewall
+egress/ingress rules may not be consistently applied or enforced.</p>
+<h1 id="consolidated-risk-assessment">Consolidated Risk Assessment</h1>
+<p>This section synthesizes findings from the security control review,
+technical scan, and pre-existing risk data into a consolidated list of
+key risks facing the organization.</p>
+<div class="tabular">
+<p><span>@ l L<span>4cm</span> L<span>3.5cm</span> L<span>5cm</span>
+@</span> <strong>Severity</strong> &amp; <strong>Risk Title</strong>
+&amp; <strong>Affected Asset(s)</strong> &amp;
+<strong>Description</strong><br />
+<strong>Critical</strong> &amp; Newly Discovered RDP Exposure &amp;
+Host: <code>10.10.10.51</code> &amp; Open RDP port allows direct
+brute-force or credential-stuffing attacks. This is a primary vector for
+ransomware.<br />
+<strong>Critical</strong> &amp; Pre-Existing RDP Exposure &amp; Host:
+<code>10.10.10.50</code> &amp; A known, unmitigated critical risk. The
+presence of multiple exposed hosts elevates the overall organizational
+risk significantly.<br />
+<strong>High</strong> &amp; Lack of MFA for Sensitive Systems &amp;
+Organization-wide &amp; The absence of MFA on critical systems means
+that a single compromised password could lead to a major data breach.
+This directly exacerbates the RDP exposure risk.<br />
+<strong>High</strong> &amp; No Security Training for New Hires &amp;
+Organization-wide &amp; New employees are highly susceptible to phishing
+attacks. This gap makes it easier for attackers to steal credentials
+needed to exploit other vulnerabilities like exposed RDP.<br />
+</p>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the analysis, the following actions are recommended to
+improve the security posture of Blue Marble. Recommendations are
+prioritized to address the most critical risks first.</p>
+<h2 id="immediate-priority-0-7-days">Immediate Priority (0-7 Days)</h2>
+<ol>
+<li><p><strong>Remediate RDP Exposure:</strong> Immediately close port
+3389 on hosts <code>10.10.10.51</code> and <code>10.10.10.50</code> to
+all external traffic. If remote access is required, it must be placed
+behind a secure gateway such as a VPN.</p></li>
+<li><p><strong>Conduct Emergency Scan:</strong> Perform a comprehensive
+scan of the entire network perimeter and internal subnets to identify
+any other instances of exposed RDP or other risky services.</p></li>
+</ol>
+<h2 id="short-term-priority-1-3-months">Short-Term Priority (1-3
+Months)</h2>
+<ol>
+<li><p><strong>Deploy Multi-Factor Authentication (MFA):</strong>
+Prioritize the rollout of MFA for all access to sensitive data systems,
+administrative interfaces, and remote access solutions (e.g., VPN). This
+is the single most effective control to mitigate the risk of compromised
+credentials.</p></li>
+<li><p><strong>Implement New Hire Security Training:</strong> Develop
+and mandate a security awareness training module as part of the
+onboarding process for all new employees. This training should cover
+phishing, acceptable use, and password hygiene.</p></li>
+</ol>
+<h2 id="long-term-priority-3-12-months">Long-Term Priority (3-12
+Months)</h2>
+<ol>
+<li><p><strong>Formalize Remote Access Strategy:</strong> Implement a
+formal, secure remote access solution like a Zero Trust Network Access
+(ZTNA) gateway or a fully managed VPN. Prohibit direct, unauthenticated
+access to internal services from the internet.</p></li>
+<li><p><strong>Review Network Architecture and Segmentation:</strong>
+Conduct a thorough review of the network architecture. Implement network
+segmentation to isolate critical systems, preventing lateral movement in
+the event of a breach.</p></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

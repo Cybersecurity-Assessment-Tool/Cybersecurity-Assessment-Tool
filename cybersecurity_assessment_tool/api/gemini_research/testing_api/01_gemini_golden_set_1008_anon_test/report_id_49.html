@@ -1,0 +1,241 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive analysis of the cybersecurity
+posture of <strong>[Organization Name]</strong>, based on data gathered
+on November 22, 2025. The assessment combines a review of organizational
+security controls, an external network scan, and an evaluation of known
+risks.</p>
+<p>The analysis reveals a mixed security posture. While the organization
+has implemented several essential controls, such as multi-factor
+authentication (MFA) for computer and sensitive system access, two
+significant risks were identified that require immediate attention:</p>
+<ol>
+<li><p><strong>Critical Control Gap:</strong> Multi-factor
+authentication is not enforced for email access. As email is a primary
+vector for phishing and business email compromise (BEC) attacks, this
+gap exposes the organization to a high risk of account takeover and
+subsequent data breaches.</p></li>
+<li><p><strong>High-Risk Technical Vulnerability:</strong> The
+public-facing web server is running an outdated and unsupported version
+of Nginx (1.18.0). This software is vulnerable to numerous publicly
+known exploits, creating a direct pathway for attackers to compromise
+the system.</p></li>
+</ol>
+<p>While no pre-existing vulnerabilities were reported, these two
+findings present a clear and present danger to the organization’s
+security. This report provides detailed findings and actionable
+recommendations to mitigate these risks and strengthen the overall
+security framework.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following information was used as the basis for this assessment.
+Due to the anonymized nature of the provided data, placeholders have
+been used where necessary.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Primary Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>External IP Address:</strong>
+<code>[Client IP]</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of the organization’s security policies and controls was
+conducted via a questionnaire. The results indicate that while a
+foundational security program is in place, a critical gap exists in
+protecting the primary communication channel (email).</p>
+<div id="tab:controls">
+<table style="width:75%;">
+<caption>Organizational Security Control Questionnaire Results</caption>
+<colgroup>
+<col style="width: 75%" />
+<col />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The failure to enforce MFA on email is a significant finding and is
+categorized as a high-risk gap in the Risk Assessment section.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed to identify open ports and
+exposed services on the organization’s public-facing infrastructure.</p>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>[Target IP]</code></p></li>
+<li><p><strong>Scan Date:</strong> November 22, 2025</p></li>
+</ul>
+<p>The scan identified one open port, which is detailed in Table <a
+href="#tab:scanresults" data-reference-type="ref"
+data-reference="tab:scanresults">2</a>.</p>
+<div id="tab:scanresults">
+<table>
+<caption>Open Port Analysis</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product &amp;
+Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">443/TCP</td>
+<td style="text-align: left;">Open</td>
+<td style="text-align: left;">HTTPS</td>
+<td style="text-align: left;">Nginx 1.18.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="analysis-of-findings">Analysis of Findings</h2>
+<p>The web server is running <strong>Nginx version 1.18.0</strong>,
+which was released in April 2020. This version is considered end-of-life
+and no longer receives security patches from the developer. Running
+outdated software on internet-facing systems is a critical security
+risk, as it exposes the server to a wide range of well-documented
+vulnerabilities that can be easily exploited by automated attack
+tools.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section synthesizes the findings from the security control
+review and the technical scan into a prioritized list of risks. No
+pre-existing vulnerabilities were reported in the input data.</p>
+<div id="tab:risks">
+<table style="width:90%;">
+<caption>Identified Risks</caption>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 25%" />
+<col style="width: 45%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk ID</strong></th>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">RISK-001</td>
+<td style="text-align: left;">Inadequate Access Control for Email</td>
+<td style="text-align: left;">MFA is not enforced for email access,
+increasing the risk of account takeover via phishing or credential
+stuffing. A compromised email account can lead to data exfiltration,
+financial fraud, and further internal network compromise.</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-002</td>
+<td style="text-align: left;">Outdated Web Server Software</td>
+<td style="text-align: left;">The public-facing Nginx server is running
+version 1.18.0, which is outdated and vulnerable to numerous known
+exploits. This could allow an attacker to gain control of the server,
+deface the website, or access sensitive data.</td>
+<td style="text-align: left;">High</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actions are recommended to mitigate the identified
+risks and improve the overall security posture of <strong>[Organization
+Name]</strong>.</p>
+<h2 id="remediation-for-risk-001-inadequate-access-control">Remediation
+for RISK-001: Inadequate Access Control</h2>
+<ul>
+<li><p><strong>Immediate Action:</strong> Implement and enforce
+multi-factor authentication (MFA) for all user accounts on the primary
+email system. This is the single most effective control to prevent
+unauthorized account access and should be prioritized as the
+highest-level remediation activity.</p></li>
+<li><p><strong>Supporting Action:</strong> Conduct a targeted phishing
+awareness campaign to educate employees on the importance of MFA and the
+dangers of credential theft.</p></li>
+</ul>
+<h2
+id="remediation-for-risk-002-outdated-web-server-software">Remediation
+for RISK-002: Outdated Web Server Software</h2>
+<ul>
+<li><p><strong>Immediate Action:</strong> Develop a plan to upgrade the
+Nginx web server on host <code>[Target IP]</code> from version 1.18.0 to
+a current, stable, and supported version (e.g., 1.26.x or newer). This
+plan should include pre-upgrade testing in a staging environment to
+ensure application compatibility.</p></li>
+<li><p><strong>Long-Term Action:</strong> Establish a formal patch
+management policy and program for all internet-facing systems. This
+program should include regular vulnerability scanning and a defined
+schedule for applying security patches to mitigate future risks from
+outdated software.</p></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

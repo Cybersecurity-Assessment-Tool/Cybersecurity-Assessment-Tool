@@ -1,0 +1,152 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmark and cross symbols (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For clickable links and metadata
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % To split long strings in texttt
+\usepackage{xcolor}               % For colors
+
+% Document Metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Cybersecurity, Nmap, Risk Assessment},
+}
+
+% Define check and cross marks for clarity
+\newcommand{\Checkmark}{\ding{51}}
+\newcommand{\Crossmark}{\ding{55}}
+
+\begin{document}
+
+% Title Block
+\title{
+    Cybersecurity Posture Assessment Report \\
+    \large For: \textbf{True Grit}
+}
+\author{Cybersecurity Analyst}
+\date{November 22, 2025}
+\maketitle
+
+\hrule
+\vspace{1em}
+
+% --- Executive Summary ---
+\section*{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{True Grit}, based on a synthesis of network scan data, organizational security controls, and pre-existing risk information. The analysis was conducted on November 22, 2025.
+
+The assessment reveals a mixed security posture. The organization demonstrates strong foundational security in its mandatory implementation of Multi-Factor Authentication (MFA) across email, computers, and sensitive systems. This significantly reduces the risk of unauthorized access via compromised credentials.
+
+However, two critical areas of concern were identified that present a high level of risk:
+\begin{enumerate}
+    \item \textbf{Lack of Security Awareness Training:} The complete absence of a security awareness training program for new or existing employees constitutes a significant vulnerability. The human element is often the weakest link, and without training, staff are highly susceptible to phishing, social engineering, and other common attack vectors.
+    \item \textbf{Outdated Web Server Software:} The external-facing web server is running Nginx version 1.18.0, a release from early 2020. This software is significantly outdated and is likely missing critical security patches for numerous known vulnerabilities, exposing the organization to direct compromise.
+\end{enumerate}
+
+No pre-existing risks were documented. The recommendations in this report focus on immediately addressing these high-risk findings to bolster the organization's defenses against prevalent cyber threats.
+
+% --- Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \textbf{Organization Name:} & \textbf{True Grit} \\
+    \textbf{Email Domain:} & \seqsplit{\texttt{TrueGrit.net}} \\
+    \textbf{Website Domain:} & \seqsplit{\texttt{www.TrueGrit.net}} \\
+    \textbf{External IP Address:} & \seqsplit{\texttt{181.149.102.97}} \\
+\end{tabular}
+
+% --- Security Control Review ---
+\section{Security Control Review}
+This section evaluates the organization's self-reported security controls based on a standard questionnaire. "No" answers indicate significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.6\textwidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\Checkmark} & Best Practice Met \\
+Do you require MFA to log into computers? & \textcolor{green}{\Checkmark} & Best Practice Met \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\Checkmark} & Best Practice Met \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\Checkmark} & Good Governance \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\Crossmark} & \textbf{Critical Gap} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\Crossmark} & \textbf{High Risk} \\
+\bottomrule
+\end{tabular}
+\caption{Organizational Security Control Questionnaire Results.}
+\label{tab:controls}
+\end{table}
+
+% --- Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{192.168.10.5}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+The following table details the findings from the active host.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{c c l l l p{0.3\textwidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} & \textbf{Notes} \\
+\midrule
+443/tcp & Open & https & nginx & 1.18.0 & Outdated version. SSL certificate common name is \texttt{www.acme-corp.com}. \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports and Services Detected on Target Host.}
+\label{tab:nmap}
+\end{table}
+
+% --- Risk Assessment ---
+\section{Risk Assessment}
+The following table summarizes the key risks identified during this assessment, combining findings from the security control review and the technical scan.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.15\textwidth} p{0.55\textwidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of Security Awareness Training} & The absence of a formal training program leaves employees unable to identify and appropriately respond to cyber threats such as phishing and social engineering. This significantly increases the likelihood of a security breach originating from human error. & \textbf{High} \\
+\addlinespace
+\textbf{Outdated Web Server Software} & The public-facing web server runs Nginx 1.18.0, which is over five years old. This version is susceptible to multiple publicly known vulnerabilities (e.g., CVEs) that could be exploited by attackers to gain unauthorized access, exfiltrate data, or disrupt service. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\label{tab:risks}
+\end{table}
+
+% --- Recommendations ---
+\section{Recommendations}
+To mitigate the identified risks and improve the overall security posture, the following actions are recommended with high priority.
+
+\begin{enumerate}
+    \item \textbf{Implement a Comprehensive Security Awareness Program:}
+        \begin{itemize}
+            \item \textbf{Immediate Action:} Enroll all current employees in a foundational security awareness training course covering phishing, password security, and acceptable use policies.
+            \item \textbf{Ongoing Strategy:} Establish a formal policy requiring all new hires to complete this training during onboarding and mandate annual refresher training for all staff. Conduct periodic phishing simulation campaigns to measure effectiveness.
+        \end{itemize}
+
+    \item \textbf{Establish a Patch Management and Upgrade Plan:}
+        \begin{itemize}
+            \item \textbf{Immediate Action:} Plan and execute an upgrade of the Nginx server at \texttt{192.168.10.5} from version 1.18.0 to the latest stable release. This should be done in a staging environment first to ensure no disruption to production services.
+            \item \textbf{Ongoing Strategy:} Implement a formal patch management policy. This policy should include regular vulnerability scanning of all external-facing systems and a defined process for testing and applying security patches in a timely manner.
+        \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

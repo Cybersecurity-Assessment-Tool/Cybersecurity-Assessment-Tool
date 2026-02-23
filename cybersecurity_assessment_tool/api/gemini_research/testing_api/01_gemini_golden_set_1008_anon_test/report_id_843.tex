@@ -1,0 +1,188 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding
+\usepackage{booktabs} % For professional tables (\toprule, \midrule, \bottomrule)
+\usepackage{hyperref} % For clickable links and TOC
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings in \texttt
+\usepackage{xcolor} % For custom colors
+\usepackage{graphicx}
+
+% --- Document Setup ---
+% Define colors for risk levels
+\definecolor{criticalred}{HTML}{D73027}
+\definecolor{highorange}{HTML}{F46D43}
+\definecolor{mediumyellow}{HTML}{FDAE61}
+\definecolor{lowgreen}{HTML}{66BD63}
+
+% Hyperref configuration
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Title Information ---
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Assessment Report} \\
+    \large For \\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% --- Document Start ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{Executive Summary}
+% ==============================================================================
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The assessment combined an external network scan, a review of existing risk documentation, and an analysis of organizational security controls via a questionnaire.
+
+The overall security posture is assessed as \textbf{HIGH RISK}. This is based on the discovery of several critical and high-severity vulnerabilities that expose the organization to significant threats, including data breach, unauthorized access, and service disruption.
+
+\paragraph{Key Findings:}
+\begin{itemize}
+    \item \textbf{Critical Service Exposure:} A MySQL database server (version 5.7.33) is directly exposed to the public internet. This version is officially End-of-Life (EOL) as of October 2023 and no longer receives security updates, making it an easy target for attackers.
+    \item \textbf{Insufficient Access Controls:} Multi-Factor Authentication (MFA) is not enforced for accessing email or other sensitive data systems. This represents a critical gap in identity and access management, significantly increasing the risk of account compromise.
+    \item \textbf{Policy and Procedure Gaps:} The organization lacks a formal employee acceptable use policy and does not conduct mandatory annual security awareness training for all staff. These foundational elements are crucial for establishing a strong security culture and mitigating human-related risks.
+\end{itemize}
+
+Immediate remediation of the identified issues is strongly recommended to reduce the organization's risk profile. Prioritized recommendations are provided in Section \ref{sec:recommendations}.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+
+The following information was used as the basis for this assessment. As some identifying data was not provided, placeholders have been used.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \seqsplit{\texttt{[Domain]}} \\
+    External IP Address Scanned & \seqsplit{\texttt{[Client IP]}} \\
+    \bottomrule
+\end{tabular}
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+
+The following table summarizes the organization's responses to the security controls questionnaire. Items marked with \textcolor{red}{\ding{55}} indicate a control gap that increases risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{8cm}ccp{3cm}@{}}
+    \toprule
+    \textbf{Control Question} & \multicolumn{2}{c}{\textbf{Response}} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{red}{\ding{55}} & (No) & \textbf{Critical Gap} \\
+    Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} & (Yes) & Control in Place \\
+    Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} & (No) & \textbf{Critical Gap} \\
+    Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} & (No) & High Risk \\
+    Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} & (Yes) & Control in Place \\
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} & (No) & High Risk \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+
+An external network scan was performed using Nmap against the target IP address. The scan identified the following open ports and services.
+
+\subsection{Target Information}
+\textbf{Target IP:} \seqsplit{\texttt{[Target IP]}}
+
+\subsection{Open Ports Discovered}
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    3306/tcp & open & mysql & MySQL & 5.7.33 \\
+    \bottomrule
+\end{tabular}
+\caption{Nmap Scan Results}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The scan revealed that port 3306 is open, exposing a \textbf{MySQL 5.7.33} database service directly to the internet. This finding is critical for two primary reasons:
+\begin{enumerate}
+    \item \textbf{Direct Exposure:} Database services should never be directly accessible from the public internet. This configuration allows attackers worldwide to attempt brute-force password attacks, exploit vulnerabilities, or launch Denial-of-Service (DoS) attacks against the database.
+    \item \textbf{End-of-Life (EOL) Software:} MySQL version 5.7 reached its official end of life in October 2023. This means it no longer receives security patches from the vendor. Any new vulnerabilities discovered in this version will remain unpatched, leaving the system perpetually at risk.
+\end{enumerate}
+This technical finding directly corroborates the pre-existing risk documented in Input 3 ("Database Exposure") and elevates its severity due to the EOL status of the software.
+
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+% ==============================================================================
+
+The following table synthesizes findings from the technical scan, control review, and existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{4.5cm}p{7.5cm}l@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    Exposed End-of-Life Database Service & A MySQL 5.7.33 (EOL) database is publicly accessible on port 3306, inviting targeted attacks against a known-vulnerable service. & \textcolor{criticalred}{\textbf{CRITICAL}} \\
+    \addlinespace
+    Insufficient Multi-Factor Authentication & Lack of MFA on email and sensitive systems drastically lowers the barrier for account takeover, which could lead to a full-scale data breach. & \textcolor{criticalred}{\textbf{CRITICAL}} \\
+    \addlinespace
+    Inadequate Security Policies & The absence of an Acceptable Use Policy means there are no formal guidelines for employees on secure behavior, leading to inconsistent and risky practices. & \textcolor{highorange}{\textbf{HIGH}} \\
+    \addlinespace
+    Inconsistent Security Awareness Training & Failing to provide annual security training for all employees allows security knowledge to become stale, making staff more susceptible to phishing and social engineering. & \textcolor{highorange}{\textbf{HIGH}} \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+\label{sec:recommendations}
+% ==============================================================================
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{Priority 1: Critical Risks (Remediate Immediately)}
+\begin{enumerate}
+    \item \textbf{Restrict Database Access:} Immediately implement firewall rules to block all public access to TCP port 3306. Access should be restricted to a whitelist of specific, trusted IP addresses only.
+    \item \textbf{Plan Database Upgrade:} Develop and execute a plan to upgrade the MySQL 5.7.33 instance to a currently supported version (e.g., MySQL 8.x). This is essential to ensure the service receives future security patches.
+    \item \textbf{Enforce MFA Everywhere:} Immediately enable and enforce MFA for all users on all critical systems, starting with email (e.g., Office 365, Google Workspace) and any systems identified as containing sensitive data.
+\end{enumerate}
+
+\subsection{Priority 2: High Risks (Remediate within 30-60 Days)}
+\begin{enumerate}
+    \item \textbf{Develop Acceptable Use Policy (AUP):} Create a formal AUP that clearly defines the rules and expectations for employees when using company technology and data. Ensure all employees read and acknowledge the policy.
+    \item \textbf{Establish Annual Security Training:} Implement a mandatory security awareness training program for all employees to be completed annually. This program should cover topics like phishing, password security, and data handling.
+\end{enumerate}
+
+\subsection{Priority 3: Strategic Improvements (Long-Term)}
+\begin{enumerate}
+    \item \textbf{Implement Secure Remote Access:} For long-term database management, deploy a Virtual Private Network (VPN) solution. This will allow administrators to connect securely to the internal network without exposing services directly to the internet.
+\end{enumerate}
+
+\end{document}
+```

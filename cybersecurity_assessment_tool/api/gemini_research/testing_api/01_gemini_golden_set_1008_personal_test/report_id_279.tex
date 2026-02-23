@@ -1,0 +1,162 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links and better PDF navigation
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in \texttt
+\usepackage{graphicx} % For potential logos
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{Iron Oak Furniture}. The analysis correlates data from a network infrastructure scan, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment identified several high-impact vulnerabilities that require immediate attention. The most critical finding is an externally exposed MySQL database service on an internal server (\texttt{172.16.50.20}). This service is running MySQL version 5.7.33, which is an **End-of-Life (EOL)** product and no longer receives security updates, posing a significant risk of compromise.
+
+Furthermore, significant gaps were identified in the organization's security policies. The lack of mandatory Multi-Factor Authentication (MFA) for email access and the absence of an annual security awareness training program for all employees represent high-risk deficiencies. These policy gaps increase the organization's susceptibility to phishing, business email compromise, and other social engineering attacks.
+
+This report provides a detailed breakdown of these findings and offers actionable recommendations to mitigate the identified risks and improve the overall security posture of \textbf{Iron Oak Furniture}.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Iron Oak Furniture} \\
+    Primary Email Domain & \texttt{IronOakFurniture.com} \\
+    Primary Website & \url{www.IronOakFurniture.com} \\
+    Known External IP & \texttt{120.89.239.139} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses are summarized below. Items marked with \ding{55} indicate a deviation from security best practices and represent a potential risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.8\textwidth}c}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+    Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+    Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+    Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+    Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{MFA for Email (Critical Gap):} The absence of MFA on email is a critical vulnerability. Email accounts are a primary target for attackers seeking to perform credential theft, business email compromise (BEC), and launch further attacks against the organization.
+    \item \textbf{Annual Security Training (High Risk):} Without regular, recurring security awareness training, employees are more likely to fall victim to evolving phishing and social engineering tactics. A one-time training for new hires is insufficient to maintain a high level of security consciousness.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\subsection*{Host Scanned: \texttt{172.16.50.20}}
+The scan revealed the following open port and service:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l l l l p{0.3\textwidth}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Notes} \\
+    \midrule
+    3306/tcp & Open & MySQL & 5.7.33 & \textbf{Critical Finding:} This version is End-of-Life (EOL) as of October 2023 and is no longer supported with security patches. Direct exposure is highly discouraged. \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports on \texttt{172.16.50.20}}
+\label{tab:scanresults}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan confirmed the pre-existing risk of an exposed database. The discovery that the MySQL service is an outdated and unsupported version significantly elevates this risk. EOL software is a prime target for attackers, as known vulnerabilities are not patched by the vendor, providing a reliable method of exploitation.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l p{0.6\textwidth} l}
+    \toprule
+    \textbf{Risk ID} & \textbf{Finding} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & \textbf{Exposed and End-of-Life Database Service:} MySQL port 3306 is open to the network, and the running version (5.7.33) is unsupported. & \textbf{Critical} \\
+    \addlinespace
+    RISK-002 & \textbf{Lack of Multi-Factor Authentication (MFA) on Email:} The primary communication system lacks a critical security control, exposing it to account takeover. & \textbf{High} \\
+    \addlinespace
+    RISK-003 & \textbf{Inadequate Security Awareness Training Program:} The absence of mandatory annual training for all staff increases susceptibility to social engineering. & \textbf{High} \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks.
+
+\subsection*{RISK-001: Exposed and End-of-Life Database Service}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Implement strict firewall rules to block all external access to TCP port 3306 on host \texttt{172.16.50.20}. Access should only be permitted from trusted internal application servers.
+    \item \textbf{Short-Term Action:} Develop and execute a plan to upgrade the MySQL database from the EOL version 5.7 to a currently supported version (e.g., MySQL 8.x).
+    \item \textbf{Long-Term Strategy:} Adopt a policy of network segmentation where database servers are placed in a secure zone, inaccessible from the public internet. All administrative access should require a Virtual Private Network (VPN) connection.
+\end{itemize}
+
+\subsection*{RISK-002: Lack of Multi-Factor Authentication (MFA) on Email}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Procure and enforce MFA for all user accounts on the \texttt{IronOakFurniture.com} email platform. This is the single most effective control to prevent unauthorized account access.
+\end{itemize}
+
+\subsection*{RISK-003: Inadequate Security Awareness Training Program}
+\begin{itemize}
+    \item \textbf{Short-Term Action:} Implement a mandatory annual security awareness training program for all employees. This program should cover key topics such as phishing identification, password hygiene, and acceptable use of company assets.
+\end{itemize}
+
+\end{document}
+```

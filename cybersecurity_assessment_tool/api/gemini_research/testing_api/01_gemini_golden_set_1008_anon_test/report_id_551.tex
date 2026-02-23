@@ -1,0 +1,158 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For check and cross marks
+\usepackage{booktabs} % For professional tables
+\usepackage{xcolor} % For colored text
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without spaces
+\usepackage{graphicx} % For potential logos
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+}
+
+% --- Custom Commands & Colors ---
+% Severity Colors
+\definecolor{crit}{HTML}{FF0000}
+\definecolor{high}{HTML}{FFA500}
+\definecolor{med}{HTML}{FFD700}
+\definecolor{low}{HTML}{008000}
+
+% Yes/No Symbols
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\title{
+    \textbf{Cybersecurity Posture Assessment Report} \\
+    \vspace{0.5cm}
+    \large For: \textbf{[Organization Name]}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive assessment of the cybersecurity posture for \textbf{[Organization Name]}, based on an analysis of organizational security controls, a network vulnerability scan, and a review of pre-existing risks.
+
+The assessment reveals critical deficiencies that require immediate attention. Key findings include the absence of Multi-Factor Authentication (MFA) on email systems, which exposes the organization to a high risk of account compromise and subsequent business email compromise (BEC) attacks. Furthermore, significant gaps in administrative controls, such as the lack of an Acceptable Use Policy and annual security awareness training for all staff, weaken the overall security culture and increase susceptibility to social engineering.
+
+Technical analysis identified an externally exposed Secure Shell (SSH) service. While not inherently a vulnerability, its exposure on the public internet increases the organization's attack surface. This finding, combined with a pre-existing critical risk identified as "Localhost Exposed" with a CVSS score of 10.0, points to significant areas for security hardening.
+
+Urgent remediation is recommended, focusing on the implementation of MFA for email, securing exposed network services, and establishing foundational security policies and training programs.
+
+% --- Section 2: Organizational Information ---
+\section{Assessment Scope and Information}
+This assessment is based on the data provided by the client and technical scans performed by our team. The key details are as follows:
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Detail} & \textbf{Information} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \texttt{[Domain]} \\
+    External IP Scanned & \texttt{[Client IP]} \\
+    Target IP Scanned & \texttt{[Target IP]} \\
+    Assessment Date & \today \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate potential gaps in the security framework.
+
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.25\linewidth}@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Analyst Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \no & \textcolor{crit}{\textbf{Critical Gap.}} Lack of MFA on email is a primary vector for account takeovers. \\
+    \addlinespace
+    Do you require MFA to log into computers? & \yes & Foundational control in place. \\
+    \addlinespace
+    Do you require MFA to access sensitive data systems? & \yes & Good practice for protecting critical assets. \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \no & \textcolor{high}{High Risk.} Absence of a guiding policy for employees. \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & \yes & Good onboarding practice. \\
+    \addlinespace
+    Does your organization do security awareness training for all employees at least once per year? & \no & \textcolor{high}{High Risk.} Security knowledge degrades without regular reinforcement. \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the target IP address \texttt{[Target IP]}. The scan identified the following open ports and services accessible from the public internet.
+
+\subsection{Open Ports}
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\
+    \midrule
+    22/tcp & open & ssh & Not Detected \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Analysis}
+The presence of an open SSH port (22) indicates that a remote administration service is exposed to the internet. If this service is not secured with strong controls—such as key-based authentication, IP address whitelisting, and robust password policies—it presents a significant target for brute-force attacks and unauthorized access attempts.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of identified risks.
+
+\begin{tabular}{@{}p{0.1\linewidth} p{0.3\linewidth} p{0.4\linewidth} p{0.15\linewidth}@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & Localhost Exposed & Pre-existing critical vulnerability with a CVSS score of 10.0. Affected element: \texttt{[Affected System]}. & \textcolor{crit}{\textbf{Critical}} \\
+    \addlinespace
+    RISK-002 & Lack of MFA on Email & The absence of MFA on email accounts allows for simple credential theft to result in a full account compromise. & \textcolor{crit}{\textbf{Critical}} \\
+    \addlinespace
+    RISK-003 & Exposed SSH Service & Port 22/SSH is open to the public internet, increasing the attack surface and risk of unauthorized access. & \textcolor{high}{\textbf{High}} \\
+    \addlinespace
+    RISK-004 & Lack of Annual Security Training & Without recurring training, employees are more likely to fall victim to phishing and other social engineering attacks. & \textcolor{high}{\textbf{High}} \\
+    \addlinespace
+    RISK-005 & Missing Acceptable Use Policy (AUP) & The lack of a formal AUP creates ambiguity regarding secure practices and acceptable use of company assets. & \textcolor{med}{\textbf{Medium}} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the consolidated risk assessment, we provide the following prioritized recommendations to improve the cybersecurity posture of \textbf{[Organization Name]}.
+
+\begin{enumerate}
+    \item \textbf{(Critical) Remediate "Localhost Exposed" Vulnerability:} Immediately investigate and remediate the pre-existing critical finding (RISK-001). Given its CVSS score of 10.0, this should be the top priority for the technical team.
+
+    \item \textbf{(Critical) Enforce MFA on All Email Accounts:} Immediately enable and enforce MFA for all user accounts on the \texttt{[Domain]} email system. This is the single most effective control to mitigate the risk of business email compromise.
+
+    \item \textbf{(High) Secure the Exposed SSH Service:}
+    \begin{itemize}
+        \item Review the business necessity for exposing the SSH service on \texttt{[Target IP]} to the public internet.
+        \item If required, implement a firewall policy to restrict access to only trusted source IP addresses.
+        \item Enforce public key authentication and disable password-based authentication entirely.
+        \item Implement an intrusion detection tool like Fail2ban to block malicious login attempts.
+    \end{itemize}
+
+    \item \textbf{(High) Implement Annual Security Awareness Training:} Establish a mandatory, annual security awareness training program for all employees. The training should cover current threats such as phishing, ransomware, and proper data handling.
+
+    \item \textbf{(Medium) Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP document that all employees must read and acknowledge. This policy should clearly define the rules for using company networks, devices, and data.
+\end{enumerate}
+
+\end{document}
+```

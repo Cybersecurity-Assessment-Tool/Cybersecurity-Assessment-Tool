@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<hr />
+<h1 class="unnumbered" id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive cybersecurity assessment for
+<strong>[Organization Name]</strong>, based on an analysis of network
+scan data, organizational security controls, and pre-existing risk
+information. The assessment identified several critical and high-risk
+vulnerabilities that require immediate attention.</p>
+<p>Key findings include a publicly accessible FTP server running a
+dangerously outdated and vulnerable version of <code>vsftpd</code>,
+which also permits anonymous logins. This configuration poses a severe
+risk of unauthorized data access, modification, or system
+compromise.</p>
+<p>Furthermore, significant gaps were identified in organizational
+security policies. The absence of Multi-Factor Authentication (MFA) for
+email access, a formal Acceptable Use Policy (AUP), and annual security
+awareness training for all employees substantially increases the
+organization’s susceptibility to phishing, business email compromise,
+and insider threats. These policy gaps, combined with the technical
+vulnerabilities, create a high-risk security posture that must be
+addressed urgently.</p>
+<h1 class="unnumbered" id="organizational-information">1. Organizational
+Information</h1>
+<p>The following details were used as the basis for this assessment. Due
+to the anonymized nature of the provided data, placeholders have been
+used where necessary.</p>
+<table>
+<caption>Client and Assessment Scope Details.</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;"><strong>[Organization Name]</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Primary Email Domain</td>
+<td style="text-align: left;"><code>[Domain]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Address (Client)</td>
+<td style="text-align: left;"><code>[Client IP]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Scanned Target IP Address</td>
+<td style="text-align: left;"><code>[Target IP]</code></td>
+</tr>
+</tbody>
+</table>
+<h1 class="unnumbered" id="security-control-review">2. Security Control
+Review</h1>
+<p>A review of the organization’s security controls was conducted via a
+questionnaire. The results highlight critical gaps in identity
+management and employee security governance. A "No" answer indicates a
+deviation from security best practices.</p>
+<table>
+<caption>Security Controls Questionnaire Results.</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<h1 class="unnumbered" id="technical-scan-results">3. Technical Scan
+Results</h1>
+<p>An external network scan was performed on the target IP address
+<code>[Target IP]</code>. The scan revealed one open port with a
+critically vulnerable service.</p>
+<table>
+<caption>Open Ports and Services Detected.</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product / Version</strong></th>
+<th style="text-align: left;"><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">21/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">ftp</td>
+<td style="text-align: left;">vsftpd 2.3.4</td>
+<td style="text-align: left;">Anonymous FTP login allowed</td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered" id="analysis-of-technical-findings">Analysis of
+Technical Findings</h2>
+<p>The presence of <strong>vsftpd version 2.3.4</strong> is a
+<strong>critical security risk</strong>. This specific version is widely
+known to contain a backdoor vulnerability (CVE-2011-2523) that allows an
+attacker to gain a command shell on the server. Compounding this issue,
+the server is configured to allow <strong>Anonymous FTP login</strong>,
+which enables any unauthenticated user on the internet to connect,
+potentially upload malicious files, or exfiltrate sensitive data.</p>
+<h1 class="unnumbered" id="risk-assessment-summary">4. Risk Assessment
+Summary</h1>
+<p>The following table synthesizes findings from the technical scan, the
+security control review, and pre-existing risk data into a consolidated
+list of identified risks.</p>
+<table>
+<caption>Consolidated List of Identified Risks.</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Description</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Vulnerable FTP
+Service</strong></td>
+<td style="text-align: left;">The external FTP server is running vsftpd
+2.3.4, which is known to have a critical backdoor vulnerability.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Anonymous FTP Access</strong></td>
+<td style="text-align: left;">The FTP server allows unauthenticated
+anonymous access, creating a high risk of data breach or malware
+implantation.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>No MFA for Email</strong></td>
+<td style="text-align: left;">Lack of MFA on email exposes the
+organization to a high risk of business email compromise and phishing
+attacks.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>No Acceptable Use
+Policy</strong></td>
+<td style="text-align: left;">The absence of a formal AUP leads to a
+lack of governance and accountability for employee use of company
+assets.</td>
+<td style="text-align: left;"><strong>High</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Inadequate Security
+Training</strong></td>
+<td style="text-align: left;">Failure to conduct annual security
+awareness training for all staff increases susceptibility to social
+engineering.</td>
+<td style="text-align: left;"><strong>High</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Outdated Windows
+Policy</strong></td>
+<td style="text-align: left;">(Pre-existing risk) Workstations are
+running Windows 7, which is end-of-life and no longer receives security
+updates.</td>
+<td style="text-align: left;"><strong>Medium</strong></td>
+</tr>
+</tbody>
+</table>
+<h1 class="unnumbered" id="recommendations">5. Recommendations</h1>
+<p>Based on the assessment, the following actions are recommended,
+prioritized by severity.</p>
+<h2 class="unnumbered"
+id="priority-1-critical-risks-immediate-action-required">Priority 1:
+Critical Risks (Immediate Action Required)</h2>
+<ul>
+<li><p><strong>Remediate FTP Server Immediately:</strong> The FTP
+service on <code>[Target IP]</code> must be taken offline
+immediately.</p>
+<ul>
+<li><p><strong>Short-Term:</strong> Disable the service
+entirely.</p></li>
+<li><p><strong>Long-Term:</strong> If FTP is a business requirement,
+replace it with a modern, secure file transfer protocol like SFTP (SSH
+File Transfer Protocol) and ensure it is fully patched and requires
+strong authentication. Anonymous access must be disabled.</p></li>
+</ul></li>
+<li><p><strong>Enable MFA for Email:</strong> Implement mandatory MFA
+for all user access to the email system (<code>[Domain]</code>). This is
+the single most effective control to prevent account takeovers.</p></li>
+</ul>
+<h2 class="unnumbered"
+id="priority-2-high-risks-action-within-30-60-days">Priority 2: High
+Risks (Action within 30-60 days)</h2>
+<ul>
+<li><p><strong>Develop and Implement an Acceptable Use Policy
+(AUP):</strong> Create a formal AUP that all employees must read and
+sign. This policy should define the rules for using company networks,
+systems, and data.</p></li>
+<li><p><strong>Establish Annual Security Awareness Training:</strong>
+Institute a mandatory security awareness training program for all
+employees to be completed annually. This program should cover topics
+like phishing, password security, and data handling.</p></li>
+</ul>
+<h2 class="unnumbered"
+id="priority-3-medium-risks-action-within-90-days">Priority 3: Medium
+Risks (Action within 90 days)</h2>
+<ul>
+<li><p><strong>Address Outdated Windows Policy:</strong> Continue with
+the planned project to upgrade all Windows 7 workstations to a supported
+operating system, such as Windows 10 or 11, to ensure they receive
+critical security patches.</p></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

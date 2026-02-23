@@ -1,0 +1,162 @@
+```latex
+\documentclass[12pt]{article}
+
+% 1. DOCUMENT SETUP & PACKAGES
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{xcolor} % For colors
+\usepackage{graphicx}
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define custom colors for severity
+\definecolor{sev_critical}{HTML}{990000}
+\definecolor{sev_high}{HTML}{DD4B39}
+\definecolor{sev_medium}{HTML}{F4B400}
+
+% 2. DOCUMENT METADATA
+\title{Cybersecurity Assessment Report \\ \large For: \textbf{Mainframe Managed}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% 3. EXECUTIVE SUMMARY
+\section{Executive Summary}
+This report details the findings of a cybersecurity assessment conducted for \textbf{Mainframe Managed}. The assessment combined an analysis of organizational security controls, a technical network scan, and a review of pre-existing risks to provide a holistic view of the organization's security posture.
+
+The analysis revealed several critical and high-risk gaps that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Control Gaps:} The lack of Multi-Factor Authentication (MFA) on email systems represents a significant exposure to account compromise and Business Email Compromise (BEC) attacks. Furthermore, the complete absence of a security awareness training program and an acceptable use policy leaves the organization vulnerable to human error and insider threats.
+    \item \textbf{Critical Technical Vulnerability:} A pre-existing critical risk, "Localhost Exposed" (CVSS 10.0), was correlated with a technical finding of an open SSH port (22/TCP) on the scanned host (\texttt{127.0.0.1}). This indicates a severe misconfiguration that could be exploited for unauthorized access.
+\end{itemize}
+
+The overall security posture is considered high-risk. The recommendations provided in this report are prioritized to address the most critical vulnerabilities first, with the goal of tangibly improving the organization's resilience against common cyber threats.
+
+% 4. ORGANIZATIONAL INFORMATION
+\section{Organizational Information}
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Mainframe Managed} \\
+    Email Domain & \seqsplit{\texttt{MainframeManaged.org}} \\
+    Website Domain & \seqsplit{\texttt{www.MainframeManaged.org}} \\
+    External IP Address & \seqsplit{\texttt{239.84.60.106}} \\
+    \bottomrule
+\end{tabular}
+
+% 5. SECURITY CONTROL REVIEW (QUESTIONNAIRE)
+\section{Security Control Review}
+An analysis of the organization's administrative and procedural security controls was performed based on a supplied questionnaire. The findings highlight significant gaps in foundational security practices.
+
+\begin{tabular}{@{}p{0.6\linewidth}ccp{0.2\linewidth}@{}}
+    \toprule
+    \textbf{Control Question} & \multicolumn{2}{c}{\textbf{Status}} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{red}{\ding{55}} & (No) & \textbf{Critical Gap.} Increases risk of account compromise. \\
+    Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} & (Yes) & Meets best practice. \\
+    Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} & (Yes) & Meets best practice. \\
+    Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} & (No) & \textbf{High Risk.} Lack of formal policy creates legal and operational risks. \\
+    Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} & (No) & \textbf{High Risk.} New staff are not trained on security threats. \\
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} & (No) & \textbf{High Risk.} Exacerbates susceptibility to phishing and social engineering. \\
+    \bottomrule
+\end{tabular}
+
+% 6. TECHNICAL SCAN RESULTS
+\section{Technical Scan Results}
+A network scan was conducted to identify open ports and services on the target system. The results confirm a pre-existing identified risk.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{127.0.0.1}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{Protocol} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+    \midrule
+    22 & TCP & Open & SSH & Service version was not identified. This finding \\
+    & & & & directly correlates with the "Localhost Exposed" risk. \\
+    \bottomrule
+\end{tabular}
+
+% 7. CONSOLIDATED RISK ASSESSMENT
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a unified list of prioritized risks.
+
+\begin{tabular}{@{}p{0.2\linewidth}p{0.15\linewidth}p{0.4\linewidth}p{0.2\linewidth}@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} & \textbf{Affected Asset(s)} \\
+    \midrule
+    \textbf{Localhost Exposed} & \textcolor{sev_critical}{\textbf{Critical (10.0)}} & A service is exposed on the localhost interface, confirmed by an open SSH port (22/TCP). This could indicate a backdoor or severe misconfiguration. & \seqsplit{\texttt{127.0.0.1}} \\
+    \addlinespace
+    \textbf{No MFA for Email Access} & \textcolor{sev_critical}{\textbf{Critical}} & Lack of Multi-Factor Authentication for email significantly increases the risk of Business Email Compromise (BEC) and unauthorized data access. & \seqsplit{\texttt{MainframeManaged.org}} \\
+    \addlinespace
+    \textbf{Lack of Security Awareness Training} & \textcolor{sev_high}{\textbf{High}} & Employees are not trained on security best practices, making them highly susceptible to phishing and social engineering attacks. & All Employees \\
+    \addlinespace
+    \textbf{No Acceptable Use Policy (AUP)} & \textcolor{sev_high}{\textbf{High}} & Absence of a formal AUP creates ambiguity regarding the acceptable use of company assets, posing legal and operational risks. & Organizational Policy \\
+    \bottomrule
+\end{tabular}
+
+% 8. RECOMMENDATIONS
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{Immediate Priority (Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Remediate "Localhost Exposed" Vulnerability:}
+    \begin{itemize}
+        \item Immediately investigate the purpose of the SSH service running on \texttt{127.0.0.1:22}.
+        \item If the service is not essential for business operations, it must be disabled and removed.
+        \item If the service is required, ensure it is properly configured, firewalled, and bound only to the necessary interface. Access should be restricted to authorized personnel only.
+    \end{itemize}
+    
+    \item \textbf{Implement MFA for Email:}
+    \begin{itemize}
+        \item Enforce MFA across the entire email system (\seqsplit{\texttt{MainframeManaged.org}}) for all users without exception.
+        \item This is the single most effective control to prevent unauthorized account access and should be treated as the highest administrative priority.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Near-Term Priority (High Risks)}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Develop and Implement a Security Awareness Program:}
+    \begin{itemize}
+        \item Procure or develop a security awareness training module that covers, at a minimum, phishing, password hygiene, and data handling.
+        \item Mandate completion of this training for all new hires during their onboarding process.
+        \item Require all existing employees to complete the training annually.
+    \end{itemize}
+
+    \item \textbf{Establish and Enforce an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item Draft a formal AUP that clearly defines the rules and responsibilities for employees using company IT assets, network resources, and data.
+        \item Have the policy reviewed by legal counsel and senior management.
+        \item Communicate the policy to all employees and require them to formally acknowledge it.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

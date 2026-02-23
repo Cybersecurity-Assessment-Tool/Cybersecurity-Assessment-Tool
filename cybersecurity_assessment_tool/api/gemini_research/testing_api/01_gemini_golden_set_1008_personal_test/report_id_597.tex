@@ -1,0 +1,142 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage[utf8]{inputenc}
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% --- SECTION 1: EXECUTIVE OVERVIEW ---
+\section{Executive Overview}
+This report details the findings of a cybersecurity posture assessment for \textbf{Opal Sky Media}. The analysis is based on a correlation of network scan data, organizational security control questionnaires, and a review of pre-existing risk documentation.
+
+The assessment identified several critical and high-risk issues that require immediate attention. The most significant findings include:
+\begin{itemize}
+    \item \textbf{Critical Control Gaps:} Multi-Factor Authentication (MFA) is not enforced for logging into computers or accessing sensitive data systems. This exposes the organization to significant risk from credential compromise.
+    \item \textbf{Exposed Sensitive Service:} A network scan of the internal host \texttt{10.5.5.5} revealed an open service on port 8080 with the title ``TOP SECRET DB''. This suggests a highly sensitive database or administrative interface is accessible on the network without adequate protection.
+    \item \textbf{Inaccurate Risk Management:} The current risk register incorrectly documents the risk associated with port 8080 as a resolved false positive. This finding directly contradicts our technical analysis and points to a potentially flawed risk management process that is leaving critical vulnerabilities unaddressed.
+\end{itemize}
+
+These findings, particularly the combination of weak access controls (no MFA) and an exposed sensitive system, create a high likelihood of a potential data breach. Immediate remediation is strongly advised.
+
+% --- SECTION 2: ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \textbf{Organization Name:} & \textbf{Opal Sky Media} \\
+    \textbf{Email Domain:} & \texttt{OpalSkyMedia.org} \\
+    \textbf{Website Domain:} & \url{www.OpalSkyMedia.org} \\
+    \textbf{External IP Address:} & \texttt{102.209.232.1} \\
+\end{tabular}
+
+% --- SECTION 3: SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+The following table summarizes the organization's self-reported security controls based on the provided questionnaire. Gaps in these controls often represent significant organizational risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & Yes & \ding{51} \\
+Do you require MFA to log into computers? & No & \textbf{\color{red}\ding{55}} \\
+Do you require MFA to access sensitive data systems? & No & \textbf{\color{red}\ding{55}} \\
+Does your organization have an employee acceptable use policy? & Yes & \ding{51} \\
+Does your organization do security awareness training for new employees? & Yes & \ding{51} \\
+\begin{tabular}[c]{@{}l@{}}Does your organization do security awareness training for all \\ employees at least once per year?\end{tabular} & Yes & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The lack of MFA on computer logins and, most critically, on sensitive data systems, are major security gaps. While MFA on email is a good first step, an attacker with compromised credentials could still gain direct access to workstations and potentially pivot to internal sensitive systems, bypassing the email protection entirely.
+
+% --- SECTION 4: TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+A network scan was performed to identify accessible services and potential vulnerabilities on the specified target.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.5.5.5}
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis for Target \texttt{10.5.5.5}}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Details} \\
+\midrule
+8080 & open & \textbf{HTTP Title:} ``TOP SECRET DB'' \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified a single open port, 8080, which is commonly used for web applications, proxies, or administrative interfaces. The HTTP title discovered on this port, ``TOP SECRET DB'', is highly alarming. This strongly indicates the presence of an exposed database management interface or another sensitive application. Its accessibility on the network, combined with the lack of MFA for sensitive systems, represents a critical and immediate threat.
+
+% --- SECTION 5: CORRELATED RISK ASSESSMENT ---
+\section{Correlated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scans, and existing risk documentation to provide a holistic view of the primary risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.1\linewidth}p{0.3\linewidth}p{0.15\linewidth}p{0.35\linewidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+\textbf{RISK-01} & Exposed Sensitive Database Interface & \textbf{Critical} & The service on \texttt{10.5.5.5:8080} appears to be a database or administrative console. Its exposure, combined with the lack of MFA on sensitive systems, makes it a prime target for unauthorized access. \\
+\addlinespace
+\textbf{RISK-02} & Inadequate Access Control for Sensitive Systems & \textbf{Critical} & The policy of not requiring MFA to access sensitive systems directly enables the threat identified in RISK-01. A single compromised password could lead to a major data breach. \\
+\addlinespace
+\textbf{RISK-03} & Flawed Risk Management Process & \textbf{High} & The existing risk register incorrectly states that the port 8080 issue is a resolved false positive. This indicates a failure in the risk validation and management process, which may be hiding other critical risks. \\
+\addlinespace
+\textbf{RISK-04} & Weak Workstation Security & \textbf{High} & The absence of MFA for computer logins makes workstations vulnerable to takeover via stolen credentials. An attacker could use this access to move laterally and attack internal resources like the exposed database. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- SECTION 6: RECOMMENDATIONS ---
+\section{Recommendations}
+Based on the correlated risk assessment, the following remediation actions are recommended, prioritized by severity.
+
+\subsection*{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Isolate Exposed Service:} Immediately investigate the service running on \texttt{10.5.5.5:8080}. If it is a sensitive system, access must be restricted via firewall rules to only authorized personnel and systems. It should not be broadly accessible on the network.
+    \item \textbf{Enforce MFA on Sensitive Systems:} Deploy a mandatory MFA policy for all access to systems classified as sensitive, including the one discovered on port 8080. This is the single most effective control to mitigate RISK-01 and RISK-02.
+\end{enumerate}
+
+\subsection*{High Priority Actions}
+\begin{enumerate}
+    \item \textbf{Review and Correct the Risk Register:} Conduct a full audit of the risk register. Investigate why the Port 8080 risk was incorrectly closed and implement a more robust validation process for closing any future risks.
+    \item \textbf{Deploy MFA for Workstation Logins:} Implement MFA for all employee and privileged user computer logins to mitigate the risk of credential compromise and lateral movement.
+\end{enumerate}
+
+\subsection*{General Recommendations}
+\begin{enumerate}
+    \item \textbf{Conduct Comprehensive Scanning:} Perform a comprehensive, authenticated vulnerability scan across the internal network to identify any other misconfigurations or exposed services that may have been missed.
+\end{enumerate}
+
+% --- DOCUMENT END ---
+\end{document}
+```

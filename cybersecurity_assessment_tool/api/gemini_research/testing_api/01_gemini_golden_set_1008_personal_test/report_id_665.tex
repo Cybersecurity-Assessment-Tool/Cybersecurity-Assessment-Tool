@@ -1,0 +1,201 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- Document Setup ---
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=darkblue,      
+    urlcolor=darkblue,
+    citecolor=darkblue,
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Assessment Report}
+\rhead{Titanium Core}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Body ---
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:} \\
+    \vspace{0.5cm}
+    Titanium Core \\
+    \vspace{2cm}
+    \textbf{Date of Report:} \\
+    \vspace{0.5cm}
+    \today
+    \vfill
+    \large
+    \textit{This report contains sensitive information. Distribution should be limited to authorized personnel only.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a cybersecurity assessment for Titanium Core, based on a combination of network scanning, a security controls questionnaire, and a review of pre-existing risks. The analysis reveals several critical-risk findings that require immediate attention to mitigate the threat of unauthorized access, data breach, and potential ransomware attacks.
+
+The most significant concerns identified are:
+\begin{itemize}
+    \item \textbf{Systemic Remote Desktop Protocol (RDP) Exposure:} An open RDP port (3389) was discovered on a new host (\texttt{10.10.10.51}) during the technical scan. This finding, correlated with a pre-existing risk on another host (\texttt{10.10.10.50}), indicates a systemic and dangerous configuration practice.
+    \item \textbf{Critical Gaps in Multi-Factor Authentication (MFA):} The organization does not enforce MFA for accessing email or for logging into employee computers. This significantly increases the risk of account compromise through phishing or credential theft, which could then be used to access exposed RDP services.
+    \item \textbf{Inadequate Security Onboarding:} New employees do not receive security awareness training upon being hired, creating a window of vulnerability where they are more susceptible to social engineering and policy violations.
+\end{itemize}
+
+Immediate remediation should focus on securing all RDP instances and implementing mandatory MFA across all user accounts for email and computer access. Addressing these vulnerabilities is crucial to strengthening the organization's defense against common and impactful cyber threats.
+
+\newpage
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This section outlines the basic information provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Titanium Core \\
+Email Domain & \texttt{TitaniumCore.net} \\
+Website Domain & \url{www.TitaniumCore.net} \\
+External IP Address & \texttt{2.59.69.226} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. The status indicates whether the control is in place. A (\ding{55}) indicates a gap that often corresponds to an increased security risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}lc}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{darkred}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{darkred}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{teal}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{teal}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{darkred}{\ding{55}} \\
+Does your organization do security awareness training for all employees annually? & \textcolor{teal}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{Lack of MFA for Email and Computers (Critical Risk):} Email is the primary target for phishing attacks aimed at stealing credentials. Without MFA, a compromised password gives an attacker direct access to an employee's mailbox. Similarly, the absence of MFA on computer logins removes a critical layer of defense against unauthorized access should credentials be stolen.
+    \item \textbf{No Security Training for New Employees (High Risk):} New hires are often prime targets for social engineering. Failing to provide immediate security training leaves a significant gap where a new employee may unknowingly violate policy or fall victim to an attack, compromising the entire organization.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An Nmap scan was conducted to identify open ports and services on the target system.
+
+\subsection*{Scan Target: \texttt{10.10.10.51}}
+The scan revealed the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports on \texttt{10.10.10.51}}
+\begin{tabular}{@{}llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Analysis} \\
+\midrule
+3389/tcp & Open & \texttt{ms-wbt-server} & Microsoft Remote Desktop Protocol (RDP) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection*{Finding: Exposed Remote Desktop Protocol (RDP)}
+Port 3389 is the default port for RDP. Exposing RDP, even on an internal network, is highly risky. It is a primary target for attackers who have gained an initial foothold, as it allows them to move laterally across the network. Ransomware groups frequently exploit exposed RDP to deploy their payloads. This finding is especially critical given the lack of MFA for computer logins.
+
+\newpage
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes findings from the security questionnaire, technical scans, and pre-existing risk data to provide a holistic view of the current security posture.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Key Risks}
+\begin{tabular}{@{}p{0.1\linewidth} p{0.2\linewidth} p{0.4\linewidth} p{0.15\linewidth}@{}}
+\toprule
+\textbf{Severity} & \textbf{Risk Name} & \textbf{Description} & \textbf{Affected Assets} \\
+\midrule
+\textbf{\textcolor{darkred}{Critical}} & Systemic RDP Exposure & RDP is exposed on multiple internal servers. This is exacerbated by the lack of MFA on computer logins, creating a direct path for attackers with stolen credentials to gain remote control of systems. & \texttt{10.10.10.50}, \texttt{10.10.10.51}, Employee Workstations \\
+\addlinespace
+\textbf{\textcolor{darkred}{Critical}} & Lack of Foundational MFA & The absence of MFA on email and computer logins makes the organization highly vulnerable to account takeover via phishing and credential stuffing attacks. & All User Accounts, Email System \\
+\addlinespace
+\textbf{\textcolor{orange}{High}} & Inadequate Employee Onboarding Security & New employees are not provided with security awareness training, making them a high-risk group for social engineering and unintentional policy violations. & New Employees, Organizational Data \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity and impact.
+
+\subsection*{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Secure All RDP Instances:}
+    \begin{itemize}
+        \item Immediately close port 3389 on \texttt{10.10.10.51} and \texttt{10.10.10.50} if access is not essential.
+        \item If RDP is required, restrict access to specific, authorized IP addresses via firewall rules.
+        \item The long-term solution is to place all RDP access behind a secure gateway, such as a VPN or a bastion host, that requires MFA.
+    \end{itemize}
+    \item \textbf{Implement Mandatory MFA:}
+    \begin{itemize}
+        \item Enable MFA for all user accounts across the email system (e.g., Office 365, Google Workspace).
+        \item Deploy an MFA solution for all Windows/macOS computer logins (e.g., Windows Hello for Business, Duo, etc.).
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Short-Term Actions (High Priority)}
+\begin{enumerate}
+    \item \textbf{Establish New Employee Security Training:}
+    \begin{itemize}
+        \item Develop or procure a security awareness training module that is a mandatory part of the onboarding process for all new hires.
+        \item This training should occur before the employee is granted access to sensitive systems and should cover topics like phishing, acceptable use, and password hygiene.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Strategic Recommendations}
+\begin{enumerate}
+    \item \textbf{Conduct Comprehensive Vulnerability Scanning:}
+    \begin{itemize}
+        \item Perform authenticated and unauthenticated vulnerability scans across the entire internal network to identify other instances of misconfigurations, insecure services, and missing patches.
+    \end{itemize}
+    \item \textbf{Review and Test Incident Response Plan:}
+    \begin{itemize}
+        \item Update the organization's incident response plan to specifically include playbooks for responding to a ransomware attack originating from a compromised RDP session.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

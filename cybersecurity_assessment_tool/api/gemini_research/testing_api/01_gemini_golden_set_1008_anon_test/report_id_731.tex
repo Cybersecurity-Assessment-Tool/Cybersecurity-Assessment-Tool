@@ -1,0 +1,231 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+%==============================================================================
+% REQUIRED PACKAGES
+%==============================================================================
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmarks and crosses (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{graphicx}             % For logos, etc.
+\usepackage[table]{xcolor}        % For coloring table cells
+\usepackage{hyperref}             % For clickable links and ToC
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % To split long monospaced strings
+\usepackage{parskip}              % Use space between paragraphs instead of indent
+
+%==============================================================================
+% DOCUMENT CONFIGURATION
+%==============================================================================
+\definecolor{tablehead}{gray}{0.9} % Color for table headers
+\newcommand{\yes}{\ding{51}} % Green checkmark
+\newcommand{\no}{\ding{55}}  % Red cross
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Report, Analysis}
+}
+
+%==============================================================================
+% DOCUMENT START
+%==============================================================================
+\begin{document}
+
+%==============================================================================
+% TITLE PAGE
+%==============================================================================
+\begin{titlepage}
+    \centering
+    \vspace*{\stretch{1.0}}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{0.5cm}
+    \Large\textbf{For: \textbf{[Organization Name]}}
+    \vspace{1.5cm}
+    \large
+    \begin{tabular}{ll}
+        \textbf{Date of Report:} & \today \\
+        \textbf{Report ID:} & SEC-2023-Q4-001 \\
+        \textbf{Classification:} & Confidential \\
+    \end{tabular}
+    \vspace*{\stretch{2.0}}
+    \small
+    This document contains sensitive information. Access is restricted to authorized personnel only.
+    Do not distribute without explicit permission.
+    \vfill
+\end{titlepage}
+
+%==============================================================================
+% TABLE OF CONTENTS
+%==============================================================================
+\tableofcontents
+\newpage
+
+%==============================================================================
+% 1. EXECUTIVE OVERVIEW
+%==============================================================================
+\section{Executive Overview}
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{[Organization Name]}. The assessment combined an analysis of organizational security controls, a technical network scan, and a review of pre-existing risks.
+
+The overall security posture is determined to be at a \textbf{high-risk level}. Several critical deficiencies were identified that significantly increase the organization's exposure to cyber threats.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Gap in Access Control:} Multi-Factor Authentication (MFA) is not enforced for computer logins. This exposes the organization to significant risk from compromised credentials, potentially leading to unauthorized system access and lateral movement within the network.
+    \item \textbf{Critical Gap in Security Awareness:} The organization lacks a formal security awareness training program for both new and existing employees. This human-layer vulnerability makes the organization highly susceptible to phishing, social engineering, and other common attack vectors.
+    \item \textbf{Exposed Administrative Services:} A technical scan revealed an open Secure Shell (SSH) port on a target system, making it a potential target for brute-force attacks and unauthorized access attempts.
+    \item \textbf{Pre-existing Critical Vulnerability:} A previously identified risk, "Localhost Exposed," is documented with the highest possible severity score (CVSS 10.0), indicating an urgent need for investigation and remediation.
+\end{itemize}
+
+Immediate action is required to address these findings. Recommendations for remediation are provided in Section \ref{sec:recommendations} of this report.
+
+%==============================================================================
+% 2. ORGANIZATIONAL INFORMATION
+%==============================================================================
+\section{Organizational Information}
+
+This section contains the high-level information used as the basis for this assessment. The data provided was anonymized.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Attribute} & \textbf{Value} \\
+        \midrule
+        Organization Name & \textbf{[Organization Name]} \\
+        Primary Email Domain & \texttt{[Domain]} \\
+        External IP Address & \texttt{[Client IP]} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Client Organizational Data}
+\end{table}
+
+%==============================================================================
+% 3. SECURITY CONTROL REVIEW
+%==============================================================================
+\section{Security Control Review}
+
+A review of administrative and technical security controls was conducted based on a standardized questionnaire. The responses highlight significant gaps in fundamental security practices. A summary of the findings is presented in Table \ref{tab:controls}.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{@{}p{0.6\textwidth} c p{0.2\textwidth}@{}}
+        \toprule
+        \rowcolor{tablehead}
+        \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+        \midrule
+        Do you require MFA to access email? & \yes & Satisfactory \\
+        Do you require MFA to log into computers? & \no & \textbf{Critical Gap} \\
+        Do you require MFA to access sensitive data systems? & \yes & Satisfactory \\
+        Does your organization have an employee acceptable use policy? & \yes & Satisfactory \\
+        Does your organization do security awareness training for new employees? & \no & \textbf{High Risk} \\
+        Does your organization do security awareness training for all employees at least once per year? & \no & \textbf{High Risk} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Security Controls Questionnaire Analysis}
+    \label{tab:controls}
+\end{table}
+
+The absence of MFA on computer logins and the lack of a security awareness training program are critical deficiencies that must be prioritized for remediation.
+
+%==============================================================================
+% 4. TECHNICAL SCAN RESULTS
+%==============================================================================
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the target system. Due to the anonymized input, the target is referenced as \texttt{[Target IP]}.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \textit{Not Provided in Scan Data}
+\end{itemize}
+
+The scan identified one open port, which represents a potential entry point for attackers.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{@{}llll@{}}
+        \toprule
+        \rowcolor{tablehead}
+        \textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+        \midrule
+        22/tcp & Open & SSH (Secure Shell) & Administrative access port. Exposing SSH to the internet is a high-risk configuration. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Open Ports Detected on \texttt{[Target IP]}}
+    \label{tab:scan_results}
+\end{table}
+
+\textbf{Analysis:} The SSH service is a common target for automated brute-force attacks that cycle through common usernames and passwords. Combined with the lack of MFA on computer logins, a successful credential compromise could lead to a full system breach. No service version information was available in the scan data, which prevents analysis for specific known vulnerabilities (e.g., outdated OpenSSH versions).
+
+%==============================================================================
+% 5. CONSOLIDATED RISK ASSESSMENT
+%==============================================================================
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks. Each risk requires a remediation plan.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{@{}lp{0.5\textwidth}l@{}}
+        \toprule
+        \rowcolor{tablehead}
+        \textbf{ID} & \textbf{Finding} & \textbf{Severity} \\
+        \midrule
+        RISK-001 & \textbf{Lack of Endpoint MFA:} MFA is not required for computer logins. & \textbf{Critical} \\
+        \midrule
+        RISK-002 & \textbf{Inadequate Security Training:} No security awareness training program exists for new or current employees. & \textbf{High} \\
+        \midrule
+        RISK-003 & \textbf{Exposed SSH Service:} Port 22 is open on \texttt{[Target IP]}, presenting an attack surface for unauthorized access. & \textbf{High} \\
+        \midrule
+        RISK-004 & \textbf{Pre-existing Critical Vulnerability:} A known risk, "Localhost Exposed," exists with a CVSS score of 10.0. & \textbf{Critical} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Summary of Identified Risks}
+    \label{tab:risks}
+\end{table}
+
+%==============================================================================
+% 6. RECOMMENDATIONS
+%==============================================================================
+\section{Recommendations}
+\label{sec:recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}. Recommendations are prioritized based on severity.
+
+\begin{enumerate}
+    \item \textbf{Remediate Pre-existing Critical Vulnerability (RISK-004):}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately assemble an incident response team to investigate the "Localhost Exposed" vulnerability on the affected system(s). The CVSS 10.0 score indicates a severe and easily exploitable flaw.
+        \item \textbf{Priority:} \textbf{Urgent}. This should be the top priority.
+    \end{itemize}
+
+    \item \textbf{Implement MFA for Endpoint Protection (RISK-001):}
+    \begin{itemize}
+        \item \textbf{Action:} Deploy a robust Multi-Factor Authentication solution for all employee and privileged user computer logins. This is a critical compensating control that significantly reduces the risk of credential compromise.
+        \item \textbf{Priority:} \textbf{Critical}.
+    \end{itemize}
+
+    \item \textbf{Secure the Exposed SSH Service (RISK-003):}
+    \begin{itemize}
+        \item \textbf{Action:} Review the business necessity of the exposed SSH port on \texttt{[Target IP]}. If required, restrict access to trusted IP addresses via a firewall. Enforce key-based authentication and disable password-based logins. Implement an intrusion prevention tool like \texttt{fail2ban}.
+        \item \textbf{Priority:} \textbf{High}.
+    \end{itemize}
+
+    \item \textbf{Establish a Security Awareness Program (RISK-002):}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and implement a mandatory security awareness training program. This program must include initial training for all new hires and at least one annual refresher course for all employees. Topics should cover phishing, password hygiene, and acceptable use policies.
+        \item \textbf{Priority:} \textbf{High}.
+    \end{itemize}
+\end{enumerate}
+
+%==============================================================================
+% DOCUMENT END
+%==============================================================================
+\end{document}
+```

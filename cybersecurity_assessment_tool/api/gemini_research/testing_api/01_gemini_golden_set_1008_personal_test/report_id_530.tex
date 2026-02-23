@@ -1,0 +1,175 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings without breaking
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define custom colors
+\definecolor{darkred}{rgb}{0.5,0,0}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+
+% Custom Commands for Dingbats with color
+\newcommand{\cmark}{\textcolor{darkgreen}{\ding{51}}}%
+\newcommand{\xmark}{\textcolor{darkred}{\ding{55}}}%
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Report}
+    \vspace{1.5cm}
+    \Large\textbf{Prepared for:} \\
+    \vspace{0.5cm}
+    \huge Pioneer Pulse
+    \vfill
+    \large
+    \textbf{Date of Report:} \today \\
+    \vspace{0.5cm}
+    \textbf{Analysis Period:} Based on data provided on \today \\
+    \vspace{0.5cm}
+    \textbf{Author:} Cybersecurity Analyst
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for Pioneer Pulse. The assessment is based on a correlation of network scan data, organizational security controls, and pre-existing risk information.
+
+The analysis reveals several critical and high-risk vulnerabilities that require immediate attention. The most severe finding is a publicly accessible FTP server running a dangerously outdated and vulnerable version of \texttt{vsftpd} (2.3.4), which is known to contain a backdoor. This vulnerability, coupled with the systemic lack of Multi-Factor Authentication (MFA) for email and computer access, exposes the organization to a high likelihood of unauthorized access, data breach, and ransomware.
+
+Furthermore, gaps in the employee security awareness program and the continued use of outdated operating systems (Windows 7) compound these risks. We strongly recommend immediate remediation of the identified critical vulnerabilities, followed by the implementation of foundational security controls outlined in the recommendations section.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} Pioneer Pulse
+    \item \textbf{Email Domain:} \texttt{PioneerPulse.org}
+    \item \textbf{Website Domain:} \url{www.PioneerPulse.org}
+    \item \textbf{External IP Address:} \texttt{66.180.92.28}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+An assessment of organizational security controls was conducted based on the provided questionnaire. The results indicate significant gaps in identity and access management and employee training, which are foundational pillars of a robust security program.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Controls Questionnaire}
+\label{tab:controls}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \xmark \\
+Do you require MFA to log into computers? & \xmark \\
+Do you require MFA to access sensitive data systems? & \cmark \\
+Does your organization have an employee acceptable use policy? & \cmark \\
+Does your organization do security awareness training for new employees? & \cmark \\
+Does your organization do security awareness training for all employees at least once per year? & \xmark \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The lack of MFA on email and computer logins (\textbf{high risk}) significantly increases the potential for account compromise via phishing or password spraying attacks. The absence of mandatory annual security awareness training for all staff (\textbf{high risk}) means that employees may not be equipped to identify and report such attacks, creating a critical human-firewall deficiency.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed on the internal target \texttt{10.0.0.15}. The scan identified one open port with a service containing a critical vulnerability.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis for Target: \texttt{10.0.0.15}}
+\label{tab:nmap}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} & \textbf{Notes} \\ \midrule
+21/tcp & open & ftp & vsftpd 2.3.4 & \begin{tabular}[c]{@{}l@{}}Anonymous FTP login allowed.\\ \textbf{CRITICAL:} Version is vulnerable\\ to a known backdoor (CVE-2011-2523).\end{tabular} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The presence of \texttt{vsftpd version 2.3.4} is a \textbf{critical risk}. This specific version was compromised by an attacker who inserted a backdoor into the source code. If a username is sent that contains the sequence `:)` (a smiley face), the server will open a command shell on port 6200, granting the attacker full remote control over the server. The allowance of anonymous FTP login further lowers the barrier for an attacker to discover and exploit this vulnerability.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of security risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{@{}lp{6cm}l@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name \& Description} & \textbf{Severity} \\ \midrule
+R-01 & \textbf{Vulnerable FTP Server (CVE-2011-2523)} \newline An internet-facing FTP server is running a version with a known remote command execution backdoor. & \textbf{Critical} \\
+\addlinespace
+R-02 & \textbf{Lack of Multi-Factor Authentication} \newline Email and workstation logins are protected only by passwords, leaving them highly susceptible to compromise. & \textbf{High} \\
+\addlinespace
+R-03 & \textbf{Inadequate Security Awareness Training} \newline The absence of a mandatory annual training program for all staff weakens the organization's human firewall. & \textbf{High} \\
+\addlinespace
+R-04 & \textbf{Outdated Windows Operating System} \newline Workstations are running Windows 7, which is end-of-life and no longer receives security updates from Microsoft. & \textbf{Medium} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the consolidated risk assessment, we propose the following prioritized recommendations to mitigate the identified threats and improve the overall security posture of Pioneer Pulse.
+
+\subsection*{Immediate Priority (To be completed within 24-48 hours)}
+\begin{enumerate}
+    \item \textbf{Remediate Vulnerable FTP Server (R-01):}
+    \begin{itemize}
+        \item Immediately take the server at \texttt{10.0.0.15} offline.
+        \item If the FTP service is required, upgrade it to the latest stable version of \texttt{vsftpd} or an alternative secure file transfer solution (e.g., SFTP).
+        \item If it is not required, decommission the service entirely.
+        \item Disable anonymous access permanently.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{High Priority (To be completed within 30 days)}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Implement Multi-Factor Authentication (R-02):}
+    \begin{itemize}
+        \item Enforce mandatory MFA for all user accounts on the email system (e.g., Microsoft 365, Google Workspace).
+        \item Enforce mandatory MFA for all remote access systems (VPN) and local computer logins.
+    \end{itemize}
+    \item \textbf{Establish Annual Security Training (R-03):}
+    \begin{itemize}
+        \item Procure and implement a security awareness training program for all employees.
+        \item Make completion of this training mandatory on an annual basis.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Medium Priority (To be completed within 90 days)}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{Upgrade End-of-Life Systems (R-04):}
+    \begin{itemize}
+        \item Develop and execute a plan to upgrade all workstations from Windows 7 to a supported operating system, such as Windows 10 or 11.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

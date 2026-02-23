@@ -1,0 +1,194 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[hidelinks]{hyperref} % For clickable links without boxes
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long monospaced text
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xcolor}
+
+% --- DOCUMENT SETUP ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{\textbf{Aventine Research}}
+\fancyfoot[C]{Page \thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- COLOR DEFINITIONS FOR SEVERITY ---
+\definecolor{sevCritical}{HTML}{990000}
+\definecolor{sevHigh}{HTML}{DD0000}
+\definecolor{sevMedium}{HTML}{FF8C00}
+\definecolor{sevLow}{HTML}{F0E68C}
+
+% --- COMMANDS ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder logo
+    \vfill
+    \huge\textbf{Cybersecurity Posture and Risk Assessment Report}
+    \vspace{1cm}
+    \Large\textbf{Prepared for: Aventine Research}
+    \vspace{2cm}
+    \normalsize
+    \begin{flushleft}
+    \begin{tabular}{ll}
+        \textbf{Date of Report:} & \today \\
+        \textbf{Scan Date:} & Not Specified in Scan Data \\
+        \textbf{Report Version:} & 1.0 \\
+    \end{tabular}
+    \end{flushleft}
+    \vfill
+    \textit{This document contains sensitive information and is intended for the exclusive use of the recipient.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture of \textbf{Aventine Research}. The assessment is based on a synthesis of network scan data, a review of organizational security controls, and an evaluation of pre-existing risk information.
+
+The analysis identified several areas of concern that require immediate attention. While the organization has implemented some key controls, such as requiring Multi-Factor Authentication (MFA) for email and sensitive systems, there are critical gaps in foundational security practices.
+
+\textbf{Key Findings:}
+\begin{itemize}
+    \item \textbf{Critical Control Gaps:} The absence of mandatory MFA for computer logins and the lack of a formal security awareness training program for employees represent high-impact risks. These gaps significantly increase the organization's susceptibility to credential theft, phishing, and ransomware attacks.
+    \item \textbf{Critical Technical Risk:} A pre-existing critical risk, "Localhost Exposed," was correlated with network scan findings that show an active service on port 22 (SSH) on the localhost interface (\texttt{127.0.0.1}). This configuration is highly unusual and poses a severe risk if misconfigured or exploited.
+\end{itemize}
+
+The overall security posture is considered moderate but is undermined by these fundamental weaknesses. This report outlines specific, actionable recommendations to mitigate the identified risks and strengthen the organization's defenses against common cyber threats.
+
+\newpage
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were provided for the assessment. This information helps establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Aventine Research} \\
+    Email Domain & \texttt{AventineResearch.net} \\
+    Website Domain & \url{www.AventineResearch.net} \\
+    External IP Address & \texttt{167.92.229.66} \\
+    \bottomrule
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate significant gaps in the security framework and are flagged as high-risk findings.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{0.6\linewidth}cc}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & Yes & \yes \\
+    Do you require MFA to log into computers? & No & \no \\
+    Do you require MFA to access sensitive data systems? & Yes & \yes \\
+    Does your organization have an employee acceptable use policy? & Yes & \yes \\
+    Does your organization do security awareness training for new employees? & No & \no \\
+    Does your organization do security awareness training for all employees at least once per year? & No & \no \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{MFA for Computers:} The lack of MFA on workstations is a critical vulnerability. If an employee's password is compromised, an attacker can gain direct access to their computer and, potentially, the entire network. This is a primary vector for ransomware deployment.
+    \item \textbf{Security Awareness Training:} Without initial and recurring training, employees are significantly more likely to fall victim to phishing attacks, inadvertently disclose sensitive information, or misuse company assets. This represents a major human-centric risk to the organization.
+\end{itemize}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and services on the target system. The results provide insight into the external or internal attack surface.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{127.0.0.1}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Scan Details}
+\begin{tabular}{ccccc}
+    \toprule
+    \textbf{Port} & \textbf{Protocol} & \textbf{State} & \textbf{Service} & \textbf{Version} \\
+    \midrule
+    22 & TCP & open & ssh & \textit{Not Detected} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Scan Findings}
+The scan identified that port 22, commonly used for the Secure Shell (SSH) protocol, is open on the localhost interface (\texttt{127.0.0.1}). While SSH is a standard management tool, its presence on a localhost interface is unusual and directly correlates with the "Localhost Exposed" risk identified in the next section. This requires immediate investigation to determine its purpose and ensure it is not an exposed development service or a sign of misconfiguration.
+
+\newpage
+
+% --- CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review, technical scans, and pre-existing risk data into a consolidated list of key risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.35\linewidth} p{0.1\linewidth}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & \textbf{Localhost Exposed} & An SSH service is running and accessible on the localhost interface. This could be an unsecured development service or a misconfiguration that could be exploited by local processes. & \textcolor{sevCritical}{\textbf{Critical}} \\
+    \addlinespace
+    RISK-002 & \textbf{No MFA for Computer Logins} & The absence of a second authentication factor for workstation access allows a compromised password to grant an attacker full access to an employee's system and network resources. & \textcolor{sevHigh}{\textbf{High}} \\
+    \addlinespace
+    RISK-003 & \textbf{Inadequate Security Awareness Training} & The lack of a formal training program leaves employees unprepared to identify and respond to social engineering and phishing attacks, making them the weakest link in the security chain. & \textcolor{sevHigh}{\textbf{High}} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+The following actionable recommendations are provided to address the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{RISK-001: Localhost Exposed (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Investigate the service running on \texttt{127.0.0.1:22}. Determine its business purpose and necessity.
+    \item \textbf{Remediation:} If the service is not required for production operations, it must be disabled immediately. If it is required, ensure it is properly configured with strong authentication, logging is enabled, and access is restricted via host-based firewall rules to only authorized processes.
+\end{itemize}
+
+\subsection*{RISK-002: No MFA for Computer Logins (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Develop a project plan and timeline for the organization-wide rollout of MFA for all computer and laptop logins.
+    \item \textbf{Remediation:} Procure and deploy a robust MFA solution. Options include platform-native tools (e.g., Windows Hello for Business) or third-party identity providers (e.g., Duo, Okta). Enforce this policy for all users, including privileged administrators.
+\end{itemize}
+
+\subsection*{RISK-003: Inadequate Security Awareness Training (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Select and procure a security awareness training platform or program.
+    \item \textbf{Remediation:} Establish a formal training program that includes:
+    \begin{enumerate}
+        \item Mandatory onboarding training for all new hires before they are granted system access.
+        \item Annual, mandatory refresher training for all existing employees.
+        \item Regular phishing simulations to test and reinforce learned behaviors.
+    \end{enumerate}
+\end{itemize}
+
+\end{document}
+```

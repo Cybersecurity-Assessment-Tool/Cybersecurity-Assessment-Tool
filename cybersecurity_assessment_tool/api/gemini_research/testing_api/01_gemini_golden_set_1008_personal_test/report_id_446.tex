@@ -1,0 +1,144 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{seqsplit}
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{Iron Bridge Legal}, synthesizing data from technical network scans, an organizational security questionnaire, and a review of pre-existing risks. The analysis reveals several critical vulnerabilities and policy gaps that expose the organization to significant threats, including data breaches, unauthorized access, and ransomware attacks.
+
+\textbf{Critical findings} include an exposed FTP server (\texttt{10.0.0.15}) running a vulnerable version of \texttt{vsftpd} (2.3.4) with anonymous login enabled. This configuration presents an immediate and severe risk. Furthermore, the lack of Multi-Factor Authentication (MFA) on email accounts is a critical security gap that significantly increases the risk of business email compromise.
+
+\textbf{High-risk findings} stem from organizational policy deficiencies, such as the absence of an employee acceptable use policy and a lack of security awareness training for new hires. These gaps cultivate a high-risk environment where employees may be more susceptible to social engineering or accidental data exposure.
+
+Immediate remediation of the technical vulnerabilities and implementation of the recommended security controls are strongly advised to improve the organization's defensive posture.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Iron Bridge Legal} \\
+Email Domain & \texttt{IronBridgeLegal.com} \\
+Website Domain & \href{http://www.IronBridgeLegal.com}{\texttt{www.IronBridgeLegal.com}} \\
+External IP Address & \texttt{94.142.119.184} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate significant gaps in the security framework and are highlighted for review.
+
+\begin{tabular}{@{}p{0.6\linewidth}cp{0.25\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Analyst Note} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} & \textbf{Critical Risk.} Email is a primary target for attackers. \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} & Good Practice. \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} & Good Practice. \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} & \textbf{High Risk.} Lack of clear policy creates ambiguity. \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} & \textbf{High Risk.} New hires are often targeted by attackers. \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} & Good Practice. \\
+\bottomrule
+\end{tabular}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed on the internal target \texttt{10.0.0.15}. The scan identified one open port with a critically vulnerable service configuration.
+
+\subsection{Open Ports and Services}
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} & \textbf{Notes} \\
+\midrule
+21/tcp & Open & ftp & vsftpd & 2.3.4 & \textbf{CRITICAL:} Anonymous FTP login allowed. \\
+\bottomrule
+\end{tabular}
+
+\subsection{Vulnerability Analysis}
+The FTP service identified on port 21 presents two major security risks:
+\begin{enumerate}
+    \item \textbf{Vulnerable Software Version:} \texttt{vsftpd} version 2.3.4 is known to be vulnerable to a critical backdoor command execution vulnerability (CVE-2011-2523). An attacker can exploit this to gain a shell and execute arbitrary commands on the server.
+    \item \textbf{Insecure Configuration:} The server permits anonymous FTP logins. This allows any unauthenticated user on the network to connect, potentially accessing, uploading, or downloading files. This could lead to a data breach or be used to stage malware for further attacks.
+\end{enumerate}
+
+% --- 5. Overall Risk Assessment ---
+\section{Risk Assessment}
+The following table consolidates findings from the technical scan, control review, and pre-existing risk data into a unified risk register.
+
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Vulnerable FTP Service} & The server at \texttt{10.0.0.15} is running \texttt{vsftpd 2.3.4}, which has a known remote code execution backdoor. & \textbf{Critical} \\
+\addlinespace
+\textbf{Anonymous FTP Access} & The FTP service allows anonymous, unauthenticated access, enabling potential data exfiltration or malware staging. & \textbf{Critical} \\
+\addlinespace
+\textbf{No MFA for Email Access} & Lack of MFA on email accounts makes them highly susceptible to phishing and account takeover attacks. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Acceptable Use Policy} & Without a formal policy, there is no enforceable standard for employee use of company assets, increasing insider risk. & \textbf{High} \\
+\addlinespace
+\textbf{No Security Training for New Hires} & New employees are not trained on security best practices, making them vulnerable to social engineering. & \textbf{High} \\
+\addlinespace
+\textbf{Outdated Windows Policy} & Workstations are running Windows 7, which is End-of-Life and no longer receives security updates. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+Based on the findings, the following prioritized actions are recommended to mitigate the identified risks.
+
+\subsection{Immediate Priority (0-7 Days)}
+\begin{enumerate}
+    \item \textbf{Disable or Remediate FTP Service:} Immediately shut down the FTP service on \texttt{10.0.0.15}. If file transfer is a business requirement, replace it with a secure protocol like SFTP (SSH File Transfer Protocol) and ensure anonymous access is disabled.
+    \item \textbf{Enforce MFA on Email:} Immediately enable and enforce MFA for all user accounts on the \texttt{IronBridgeLegal.com} email domain.
+\end{enumerate}
+
+\subsection{High Priority (1-4 Weeks)}
+\begin{enumerate}
+    \item \textbf{Develop Acceptable Use Policy (AUP):} Create and implement a formal AUP that clearly defines rules for the use of company networks, systems, and data. Require all employees to read and acknowledge the policy.
+    \item \textbf{Implement Onboarding Security Training:} Integrate mandatory security awareness training into the new employee onboarding process. This training should cover phishing, password security, and the new AUP.
+\end{enumerate}
+
+\subsection{Medium Priority (1-3 Months)}
+\begin{enumerate}
+    \item \textbf{Upgrade End-of-Life Systems:} Begin the process of upgrading all workstations running Windows 7 to a modern, supported operating system such as Windows 10 or 11 to ensure they receive critical security patches.
+\end{enumerate}
+
+\end{document}
+```

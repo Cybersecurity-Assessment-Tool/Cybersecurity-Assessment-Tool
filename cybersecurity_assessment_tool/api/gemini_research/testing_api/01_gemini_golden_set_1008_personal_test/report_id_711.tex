@@ -1,0 +1,194 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- DOCUMENT & HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- HEADER & FOOTER ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Report}
+\fancyhead[R]{Blackwood Industries}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- TITLE ---
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture Report} \\
+    \large \textit{Analysis and Recommendations} \\
+    \vspace{1cm}
+    \includegraphics[width=0.3\textwidth]{example-image-a} \\ % Placeholder for company logo
+    \vspace{1cm}
+    \textbf{Prepared for: Blackwood Industries}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for Blackwood Industries, based on a combination of technical network scanning, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment identified several critical and high-risk findings that require immediate attention. The most significant concern is the direct exposure of a MySQL database service to the network. This service is running on an outdated and unsupported version of MySQL (5.7.33), which reached its End-of-Life in October 2023 and no longer receives security updates.
+
+Furthermore, critical gaps were identified in organizational security controls. The lack of mandatory Multi-Factor Authentication (MFA) for email access presents a significant risk of account compromise and subsequent data breaches. This is compounded by the absence of a formal Acceptable Use Policy and a mandatory security awareness training program for new employees, creating a permissive environment for security incidents.
+
+Immediate remediation should focus on isolating the exposed database, implementing MFA for email, and planning the upgrade of the end-of-life database software. Addressing these issues will substantially improve the organization's resilience against common cyber threats.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & Blackwood Industries \\
+Email Domain & \texttt{BlackwoodIndustries.net} \\
+Website Domain & \url{www.BlackwoodIndustries.net} \\
+External IP Address & \texttt{178.64.241.188} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\end{table}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The results highlight key areas of strength and weakness in current policies and procedures. Answers marked with \textcolor{red}{\ding{55}} indicate a significant gap in security posture.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees annually? & \textcolor{green}{\ding{51}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{No MFA for Email:} This is a critical vulnerability. Email accounts are a primary target for attackers. A compromised email account can lead to further network intrusion, data exfiltration, and successful phishing campaigns against partners and clients.
+    \item \textbf{No Acceptable Use Policy (AUP):} The absence of an AUP means there are no formally documented rules for employees regarding the use of company assets. This can lead to risky behavior and creates ambiguity in the event of a security incident.
+    \item \textbf{No Security Training for New Hires:} New employees are often prime targets for social engineering attacks. Failing to provide immediate security training during onboarding leaves the organization vulnerable.
+\end{itemize}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services on the specified target system.
+
+\subsection*{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.50.20}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\subsection*{Open Ports Discovered}
+The following table details the services found to be accessible from the network.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{Service} & \textbf{Product \& Version} & \textbf{Status} \\ \midrule
+3306/tcp & mysql & MySQL 5.7.33 & Open \\ \bottomrule
+\end{tabular}
+\caption{Discovered Network Services}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+\begin{itemize}
+    \item \textbf{Exposed Database Service:} Port 3306 is the default port for MySQL. Exposing a database directly to the network is a critical security risk. It allows attackers to perform reconnaissance, attempt brute-force password attacks, and exploit any known vulnerabilities in the database software.
+    \item \textbf{End-of-Life Software:} The detected version, \textbf{MySQL 5.7.33}, is outdated. The MySQL 5.7 series reached its official End-of-Life (EOL) in October 2023. This means it no longer receives security patches from the vendor, and any newly discovered vulnerabilities will remain unpatched, leaving the system highly susceptible to compromise.
+\end{itemize}
+
+% --- RISK ASSESSMENT ---
+\section{Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\linewidth}p{0.3\linewidth}p{0.15\linewidth}p{0.35\linewidth}@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\ \midrule
+\textbf{RISK-001} & Exposed End-of-Life Database & \textbf{Critical} & A MySQL 5.7.33 database is publicly accessible on port 3306. This software is unsupported and vulnerable to exploitation. \\
+\textbf{RISK-002} & Lack of MFA on Email & \textbf{Critical} & Email accounts, a primary entry point for attackers, are protected only by passwords, making them vulnerable to phishing and credential stuffing. \\
+\textbf{RISK-003} & Missing Foundational Policies & \textbf{High} & The absence of an Acceptable Use Policy and security training for new hires creates an environment where security best practices are not enforced. \\
+\textbf{RISK-004} & Database Exposure (General) & \textbf{High} & The pre-existing risk of an exposed MySQL port (CVSS 7.5) is confirmed by the technical scan. This issue is now elevated to Critical by the EOL software status. \\ \bottomrule
+\end{tabular}
+\caption{Synthesized Risk Summary}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+Based on the analysis, the following actions are recommended to mitigate the identified risks. Recommendations are prioritized to address the most critical issues first.
+
+\subsection*{Critical Priority Recommendations (Immediate Action Required)}
+\begin{enumerate}
+    \item \textbf{Isolate the Database Immediately:}
+    \begin{itemize}
+        \item \textbf{Action:} Implement strict firewall rules to deny all public access to TCP port 3306 on host \texttt{172.16.50.20}. Access should only be permitted from trusted internal IP addresses or via a secure VPN.
+        \item \textbf{Justification:} This is the most effective immediate step to prevent unauthorized access and exploitation of the exposed database.
+    \end{itemize}
+    \item \textbf{Enforce MFA for Email:}
+    \begin{itemize}
+        \item \textbf{Action:} Procure and enforce an MFA solution for all user accounts accessing the \texttt{BlackwoodIndustries.net} email system.
+        \item \textbf{Justification:} Drastically reduces the risk of email account takeovers, which are often the first step in a larger cyberattack.
+    \end{itemize}
+    \item \textbf{Plan Database Upgrade:}
+    \begin{itemize}
+        \item \textbf{Action:} Begin planning the migration from MySQL 5.7 to a currently supported version (e.g., MySQL 8.x). This involves testing for application compatibility and scheduling a maintenance window for the upgrade.
+        \item \textbf{Justification:} Running EOL software is unsustainable. An upgrade is necessary to receive security patches and protect against future vulnerabilities.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{High Priority Recommendations (Action within 30-60 Days)}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item \textbf{Action:} Draft a formal AUP that clearly defines the rules for using company technology and data. Ensure all employees read and acknowledge the policy.
+        \item \textbf{Justification:} Establishes a baseline for secure employee behavior and provides a framework for enforcement.
+    \end{itemize}
+    \item \textbf{Establish New Hire Security Training:}
+    \begin{itemize}
+        \item \textbf{Action:} Integrate a mandatory security awareness training module into the new employee onboarding process. This should cover topics like phishing, password security, and the new AUP.
+        \item \textbf{Justification:} Equips new employees with the knowledge to identify and avoid common security threats from their first day.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

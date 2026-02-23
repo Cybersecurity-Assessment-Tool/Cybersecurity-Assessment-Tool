@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive cybersecurity assessment for
+Clear Path, based on a combination of organizational data, security
+control questionnaires, and external network scanning. The analysis was
+conducted on 2026-01-31.</p>
+<p>Overall, Clear Path has implemented several important security
+controls, including Multi-Factor Authentication (MFA) for computer and
+sensitive data access. However, critical gaps were identified that
+expose the organization to significant risk.</p>
+<p>The most critical findings are the lack of mandatory MFA for email
+access and the absence of annual security awareness training for all
+employees. Email is a primary vector for account takeovers and phishing
+attacks, and its insufficient protection is a major vulnerability.
+Furthermore, an externally facing SSH service was discovered on the IPv6
+address , which requires stringent configuration to prevent unauthorized
+access.</p>
+<p>This report details these findings and provides actionable
+recommendations to mitigate the identified risks and strengthen the
+organization’s overall security posture.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following information was provided by the client and used as a
+baseline for this assessment.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;">Clear Path</td>
+</tr>
+<tr>
+<td style="text-align: left;">Email Domain</td>
+<td style="text-align: left;"><code>ClearPath.org</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Website Domain</td>
+<td style="text-align: left;"><a href="www.ClearPath.org"
+class="uri">www.ClearPath.org</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP (IPv4)</td>
+<td style="text-align: left;"><code>32.46.236.206</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Scanned Target (IPv6)</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>The following table summarizes the organization’s responses to a
+security controls questionnaire. Items marked with a cross () represent
+significant gaps in the security framework and are discussed in the Risk
+Assessment section.</p>
+<table>
+<caption>Organizational Security Control Status</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Security Control
+Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed on the target IP address . The
+scan identified the following open port.</p>
+<table>
+<caption>Open Ports on </caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service (Probable)</strong></th>
+<th style="text-align: left;"><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">22/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">SSH</td>
+<td style="text-align: left;">Secure Shell for remote
+administration.</td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered" id="analysis">Analysis</h2>
+<p>The presence of an open SSH port (22) is common for systems requiring
+remote administration. However, it is a high-value target for attackers
+who use brute-force and credential-stuffing techniques to gain access.
+The security of this service is entirely dependent on its configuration.
+Detailed version information was not available from this scan, which
+prevents automated vulnerability correlation. Manual verification of the
+SSH server’s configuration and patch level is strongly recommended.</p>
+<h1 id="consolidated-risk-assessment">Consolidated Risk Assessment</h1>
+<p>This section correlates findings from the security control review and
+the technical scan. No pre-existing vulnerabilities were reported.</p>
+<table>
+<caption>Summary of Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Title</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>No MFA on Email</strong></td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+<td style="text-align: left;">Email accounts are a primary target for
+phishing and account takeover attacks. Without MFA, a single compromised
+password grants an attacker full access to an employee’s mailbox, which
+can be used to pivot to other systems, access sensitive data, and launch
+further attacks against partners and clients.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Inadequate Security Awareness
+Training</strong></td>
+<td style="text-align: left;"><strong>High</strong></td>
+<td style="text-align: left;">The lack of mandatory, annual security
+training for all employees significantly increases the organization’s
+susceptibility to social engineering and phishing attacks. A
+well-trained workforce is the first line of defense, and this gap leaves
+the organization vulnerable to human error.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Exposed SSH Service</strong></td>
+<td style="text-align: left;"><strong>Medium</strong></td>
+<td style="text-align: left;">The SSH service on is exposed to the
+public internet. If not securely configured (e.g., allows password-based
+authentication with weak passwords, permits root login), it can be
+compromised via automated brute-force attacks, providing a foothold into
+the internal network.</td>
+</tr>
+</tbody>
+</table>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actions are recommended to mitigate the identified
+risks and improve the overall security posture of Clear Path.
+Recommendations are prioritized based on the severity of the associated
+risk.</p>
+<dl>
+<dt><strong>Priority: Immediate</strong></dt>
+<dd>
+<p><br />
+<strong>Enforce MFA on All Email Accounts:</strong></p>
+<ul>
+<li><p>Immediately enable and enforce MFA for all user accounts
+accessing the <code>ClearPath.org</code> email system.</p></li>
+<li><p>Provide clear instructions and support to all employees to ensure
+a smooth transition.</p></li>
+</ul>
+</dd>
+<dt><strong>Priority: High</strong></dt>
+<dd>
+<p><br />
+<strong>Implement Annual Security Awareness Training:</strong></p>
+<ul>
+<li><p>Procure and deploy a security awareness training program for all
+employees.</p></li>
+<li><p>Make the training mandatory on an annual basis.</p></li>
+<li><p>Include modules on phishing identification, password security,
+and acceptable use policies.</p></li>
+</ul>
+</dd>
+<dt><strong>Priority: Medium</strong></dt>
+<dd>
+<p><br />
+<strong>Harden Exposed SSH Service:</strong></p>
+<ul>
+<li><p>Audit the SSH configuration on the server at .</p></li>
+<li><p>Disable direct root login
+(<code>PermitRootLogin no</code>).</p></li>
+<li><p>Strongly prefer key-based authentication over passwords. If
+passwords must be used, enforce a strong complexity policy.</p></li>
+<li><p>Implement an intrusion prevention tool like <code>fail2ban</code>
+to automatically block IPs that exhibit malicious behavior (e.g.,
+multiple failed login attempts).</p></li>
+<li><p>Restrict SSH access to only trusted source IP addresses if
+possible.</p></li>
+</ul>
+</dd>
+</dl>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

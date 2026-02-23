@@ -1,0 +1,191 @@
+```latex
+\documentclass[12pt]{article}
+
+% -----------------------------------------------------------------------------
+% --- PREAMBLE ---
+% -----------------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and TOC
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings like IPs
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+
+% --- Color Definitions for Severity ---
+\definecolor{sevcritical}{HTML}{D10000}
+\definecolor{sevhigh}{HTML}{E97400}
+\definecolor{sevmedium}{HTML}{F5C300}
+\definecolor{sevlow}{HTML}{82B800}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Document Information ---
+\title{Cybersecurity Posture Assessment Report \\ \large For: Willow Creek Health}
+\author{Cybersecurity Analyst Group}
+\date{\today}
+
+% -----------------------------------------------------------------------------
+% --- DOCUMENT START ---
+% -----------------------------------------------------------------------------
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% -----------------------------------------------------------------------------
+% --- 1. EXECUTIVE SUMMARY ---
+% -----------------------------------------------------------------------------
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity posture assessment for Willow Creek Health, conducted on \today. The analysis is based on a synthesis of network scan data, a security controls questionnaire, and a review of previously documented risks.
+
+The assessment reveals a \textbf{critical risk posture} due to a complete absence of fundamental security controls. The organization has not implemented Multi-Factor Authentication (MFA) for any system, including email, computer logins, or access to sensitive data. Furthermore, there is a lack of foundational governance, with no employee acceptable use policy or security awareness training program in place.
+
+Technical scans identified an externally accessible Secure Shell (SSH) service on the IPv6 address \seqsplit{\texttt{2001:db8::1}}. The combination of an exposed management service (SSH) and the lack of MFA creates a significant and immediate risk of unauthorized access and system compromise.
+
+Immediate remediation is required to address these critical deficiencies. The highest priority should be the swift implementation of MFA across all systems, securing the exposed SSH service, and establishing a baseline of security policies and training.
+
+% -----------------------------------------------------------------------------
+% --- 2. ORGANIZATIONAL INFORMATION ---
+% -----------------------------------------------------------------------------
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Item}                 & \textbf{Value} \\ \midrule
+Organization Name             & Willow Creek Health \\
+Email Domain                  & \texttt{WillowCreekHealth.net} \\
+Website Domain                & \texttt{www.WillowCreekHealth.net} \\
+Primary External IP (IPv4)    & \texttt{8.105.114.178} \\
+Scanned Target IP (IPv6)      & \seqsplit{\texttt{2001:db8::1}} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\label{tab:org_info}
+\end{table}
+
+% -----------------------------------------------------------------------------
+% --- 3. SECURITY CONTROL REVIEW ---
+% -----------------------------------------------------------------------------
+\section{Security Control Review}
+
+A security questionnaire was completed to evaluate the implementation of essential administrative and technical controls. The results, detailed in Table \ref{tab:controls}, indicate critical gaps in the organization's security framework. Each "No" response represents a significant deviation from industry best practices and introduces substantial risk.
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{55} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees annually? & \ding{55} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results (\ding{51}=Yes, \ding{55}=No)}
+\label{tab:controls}
+\end{table}
+
+The complete lack of MFA is the most severe finding. MFA is a non-negotiable baseline control for protecting against credential theft and unauthorized access. The absence of security policies and training programs creates an environment where employees are more likely to make errors that lead to security incidents.
+
+% -----------------------------------------------------------------------------
+% --- 4. TECHNICAL SCAN RESULTS ---
+% -----------------------------------------------------------------------------
+\section{Technical Scan Results}
+
+An external network scan was performed against the target IP address \seqsplit{\texttt{2001:db8::1}}. The scan identified the following open port.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+22/tcp & open & ssh & \textit{n/a} & \textit{n/a} \\ \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \seqsplit{\texttt{2001:db8::1}}}
+\label{tab:scan_results}
+\end{table}
+
+\subsection{Analysis of Findings}
+The scan confirmed that port 22, the standard port for the Secure Shell (SSH) protocol, is open to the internet. SSH is a powerful administrative tool that provides encrypted, command-line access to a server. While essential for remote management, its public exposure is a significant security risk. Attackers routinely scan the internet for open SSH ports to launch brute-force or credential-stuffing attacks.
+
+The risk is critically amplified by the findings from the security control review, which confirmed that no MFA is enforced. An attacker who successfully guesses or acquires a valid username and password could gain direct administrative access to this system without any secondary challenge.
+
+% -----------------------------------------------------------------------------
+% --- 5. CONSOLIDATED RISK ASSESSMENT ---
+% -----------------------------------------------------------------------------
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scans, and pre-existing risk data. No pre-existing vulnerabilities were provided for this assessment. The following new risks have been identified.
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{@{}p{0.05\textwidth} p{0.3\textwidth} p{0.15\textwidth} p{0.4\textwidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\ \midrule
+\textbf{R-01} & Absence of Multi-Factor Authentication (MFA) & \cellcolor{sevcritical!25}\textbf{Critical} & The organization does not enforce MFA for any system. This allows an attacker with stolen credentials to gain unauthorized access to email, workstations, and sensitive data systems. \\
+\addlinespace
+\textbf{R-02} & Exposed SSH Service without Hardening & \cellcolor{sevcritical!25}\textbf{Critical} & An SSH service is publicly accessible. Combined with the lack of MFA (R-01), this creates a direct and high-impact vector for a complete system compromise via brute-force or credential theft attacks. \\
+\addlinespace
+\textbf{R-03} & Lack of Security Policies and Training & \cellcolor{sevhigh!25}\textbf{High} & The absence of an Acceptable Use Policy and a security awareness training program means employees are unaware of their security responsibilities, making them highly susceptible to phishing and social engineering attacks. \\ \bottomrule
+\end{tabular}
+\caption{Identified Cybersecurity Risks}
+\label{tab:risks}
+\end{table}
+
+% -----------------------------------------------------------------------------
+% --- 6. RECOMMENDATIONS ---
+% -----------------------------------------------------------------------------
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement Multi-Factor Authentication (MFA) Immediately:}
+    \begin{itemize}
+        \item \textbf{Action:} Procure and deploy an MFA solution across the entire organization.
+        \item \textbf{Priority Targets:} Prioritize enforcement on all external-facing services (e.g., SSH, VPN, email), followed by administrator accounts, and then all employee accounts for computer and sensitive data access.
+        \item \textbf{Mitigates:} R-01, R-02
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{[Critical] Secure the Exposed SSH Service:}
+    \begin{itemize}
+        \item \textbf{Action:} If remote access is required, restrict access to the SSH port (22) using firewall rules to only allow connections from trusted IP addresses.
+        \item \textbf{Action:} Configure the SSH service to disallow password-based authentication and require public key authentication only.
+        \item \textbf{Action:} Ensure the SSH service is patched to the latest stable version to protect against known vulnerabilities.
+        \item \textbf{Mitigates:} R-02
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{[High] Establish Foundational Security Governance:}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and implement a formal Acceptable Use Policy (AUP) that all employees must read and acknowledge.
+        \item \textbf{Action:} Establish a mandatory security awareness training program for all new hires and conduct annual refresher training for all staff. Training should cover topics such as phishing, password hygiene, and data handling.
+        \item \textbf{Mitigates:} R-03
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+% -----------------------------------------------------------------------------
+% --- DOCUMENT END ---
+% -----------------------------------------------------------------------------
+```

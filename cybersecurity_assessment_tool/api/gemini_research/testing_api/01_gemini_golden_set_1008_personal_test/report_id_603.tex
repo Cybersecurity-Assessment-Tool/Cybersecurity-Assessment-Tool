@@ -1,0 +1,155 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long text strings to prevent overflow
+
+% Document Metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Analysis},
+}
+
+\begin{document}
+
+% --- Title Page ---
+\title{
+    Cybersecurity Posture Report \\
+    \large For: \textbf{Fable \& Lore}
+}
+\author{Cybersecurity Analyst}
+\date{\today}
+\maketitle
+
+\hrule
+\vspace{1em}
+\begin{abstract}
+This report provides a comprehensive analysis of the cybersecurity posture for Fable \& Lore. The assessment is based on a synthesis of external network scan data, a review of organizational security controls via a questionnaire, and an evaluation of pre-existing risk documentation. The findings indicate critical vulnerabilities, including an exposed, end-of-life database service, and significant gaps in administrative controls such as multi-factor authentication (MFA) and employee security policies. Immediate remediation is required to mitigate the high likelihood of a security incident.
+\end{abstract}
+\vspace{1em}
+\hrule
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Organizational Information ---
+\section{Organizational Information}
+This section provides the baseline information used for this assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Fable \& Lore} \\
+    Email Domain & \texttt{FableLore.org} \\
+    Website Domain & \seqsplit{\url{www.FableLore.org}} \\
+    External IP Address & \texttt{37.22.58.108} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 2: Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+The following table summarizes the organization's responses to a security controls questionnaire. Gaps in these controls often represent significant organizational risk. A \textcolor{red}{\ding{55}} indicates a negative response that requires attention.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\linewidth}cc@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & Yes & \ding{51} \\
+    Do you require MFA to log into computers? & Yes & \ding{51} \\
+    Do you require MFA to access sensitive data systems? & No & \textcolor{red}{\ding{55}} \\
+    Does your organization have an employee acceptable use policy? & No & \textcolor{red}{\ding{55}} \\
+    Does your organization do security awareness training for new employees? & Yes & \ding{51} \\
+    Does your organization do security awareness training for all employees at least once per year? & No & \textcolor{red}{\ding{55}} \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{MFA for Sensitive Systems:} The absence of MFA on sensitive data systems is a critical vulnerability. Should an attacker compromise a user's credentials, they would have direct access to the organization's most valuable data.
+    \item \textbf{Acceptable Use Policy (AUP):} Lacking a formal AUP creates ambiguity regarding safe and acceptable use of company resources, increasing the risk of insider threat and accidental data exposure.
+    \item \textbf{Annual Security Training:} Security knowledge is perishable. Without annual refresher training, employees are more likely to fall victim to evolving phishing and social engineering attacks.
+\end{itemize}
+
+% --- Section 3: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the target system to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.50.20}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    3306/tcp & open & mysql & MySQL & 5.7.33 \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on Target System}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified one critically exposed service:
+\begin{itemize}
+    \item \textbf{Exposed MySQL Database (Port 3306):} Exposing a database port directly to the network is highly dangerous. It allows attackers to perform reconnaissance, attempt brute-force password attacks, and exploit potential vulnerabilities in the database service itself.
+    \item \textbf{End-of-Life (EOL) Software:} The detected version, \textbf{MySQL 5.7.33}, reached its official End of Life in October 2023. This means it no longer receives security patches from the vendor, and known vulnerabilities will remain unpatched, making it an easy target for exploitation.
+\end{itemize}
+
+% --- Section 4: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes the findings from the security control review, technical scan, and pre-existing risk data to provide a holistic view of the primary risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\linewidth}p{0.15\linewidth}p{0.45\linewidth}@{}}
+    \toprule
+    \textbf{Risk Title} & \textbf{Severity} & \textbf{Description} \\
+    \midrule
+    \textbf{Exposed End-of-Life Database} & \textbf{Critical} & The MySQL database (v5.7.33) is publicly accessible and no longer receives security updates. This is a direct and severe threat, inviting data breach and system compromise. This finding confirms the pre-existing risk titled "Database Exposure". \\
+    \addlinespace
+    \textbf{Lack of MFA on Sensitive Systems} & \textbf{Critical} & The absence of MFA on critical systems, such as the exposed database, removes a vital layer of security. A single compromised password could lead to a catastrophic data breach. \\
+    \addlinespace
+    \textbf{Inadequate Policy \& Training Framework} & \textbf{High} & The lack of an Acceptable Use Policy and mandatory annual security training creates a high-risk environment where employees are more susceptible to social engineering and mishandling of data. \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Key Risks}
+\end{table}
+
+% --- Section 5: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Restrict Database Access:} Immediately implement firewall rules to block all public access to TCP port 3306. Access should be restricted to a whitelist of trusted IP addresses only. The long-term solution should involve placing the database behind a VPN.
+    \item \textbf{Upgrade End-of-Life Software:} Plan and execute an urgent migration from MySQL 5.7 to a currently supported version (e.g., MySQL 8.x). This is essential to receive security patches for any future vulnerabilities.
+\end{enumerate}
+
+\subsection*{High Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Implement Comprehensive MFA:} Enforce MFA across all sensitive data systems, applications, and administrative interfaces without exception. This is the single most effective control to prevent unauthorized access.
+    \item \textbf{Develop and Enforce an AUP:} Draft and implement a formal Employee Acceptable Use Policy. This policy must be read and acknowledged by all new and existing employees.
+    \item \textbf{Establish Annual Security Training:} Institute a mandatory security awareness training program for all employees to be completed annually. This program should cover topics like phishing, password hygiene, and data handling.
+\end{enumerate}
+
+\end{document}
+```

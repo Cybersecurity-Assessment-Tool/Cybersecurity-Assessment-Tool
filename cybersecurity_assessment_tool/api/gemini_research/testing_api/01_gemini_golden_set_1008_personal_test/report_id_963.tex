@@ -1,0 +1,179 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages and Document Setup
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding{51}, \ding{55})
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{xcolor} % For colors
+\usepackage{fancyhdr} % For headers/footers
+\usepackage{graphicx} % For images (e.g., logo)
+
+% Define colors for severity
+\definecolor{criticalred}{HTML}{D73B3E}
+\definecolor{highorange}{HTML}{F08C00}
+\definecolor{mediumyellow}{HTML}{F0E68C}
+\definecolor{lowblue}{HTML}{3498DB}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{For: Clear Path}
+\fancyfoot[C]{\thepage}
+
+% Document Title
+\title{Cybersecurity Posture Assessment Report \\ \large For: Clear Path}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Overview ---
+\section{Executive Overview}
+
+This report details the findings of a cybersecurity posture assessment for \textbf{Clear Path}, conducted on \today. The assessment combined a technical network scan, a review of existing risks, and an analysis of organizational security controls based on a questionnaire.
+
+The overall security posture is assessed as \textbf{High-Risk}. Several critical vulnerabilities and control gaps were identified that expose the organization to significant threats, including data breaches, unauthorized access, and service disruption.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Database Exposure:} A MySQL database (\texttt{172.16.50.20:3306}) is directly exposed to the network. The service is running MySQL version 5.7.33, which is an \textbf{End-of-Life (EOL)} product and no longer receives security updates. This finding from the technical scan directly corroborates a pre-existing known risk.
+    \item \textbf{Insufficient Access Controls:} Multi-Factor Authentication (MFA) is not enforced for accessing email or sensitive data systems. This significantly increases the risk of account compromise and subsequent unauthorized data access.
+    \item \textbf{Foundational Policy Gaps:} The organization lacks a formal Acceptable Use Policy (AUP) and does not provide security awareness training for new employees, indicating gaps in security governance and culture.
+\end{itemize}
+
+Immediate remediation is required to address these findings. Recommendations are provided in Section \ref{sec:recommendations} to mitigate the identified risks and improve the organization's overall security posture.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Clear Path} \\
+    Email Domain & \texttt{ClearPath.org} \\
+    Website Domain & \url{www.ClearPath.org} \\
+    External IP Address & \texttt{211.90.90.117} \\
+    Internal Target IP & \texttt{172.16.50.20} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+
+An analysis of the security questionnaire reveals significant gaps in fundamental security controls. "No" answers indicate a lack of a necessary control and are flagged as high-impact risks.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}p{0.7\linewidth} c c}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & No & \ding{55} \\
+    Do you require MFA to log into computers? & Yes & \ding{51} \\
+    Do you require MFA to access sensitive data systems? & No & \ding{55} \\
+    Does your organization have an employee acceptable use policy? & No & \ding{55} \\
+    Does your organization do security awareness training for new employees? & No & \ding{55} \\
+    Does your organization do security awareness training for all employees at least once per year? & Yes & \ding{51} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The lack of MFA on email and sensitive systems is a critical vulnerability. Email is a primary target for phishing attacks, and a compromised account can be a gateway to the entire organization. The absence of an Acceptable Use Policy and new-hire training indicates a reactive, rather than proactive, approach to security.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed on the target IP address \texttt{172.16.50.20}. The scan identified one open port with a publicly exposed service.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Scan Results for \texttt{172.16.50.20}}
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    3306/tcp & open & mysql & MySQL & 5.7.33 \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan confirms that a MySQL database is directly accessible on port 3306. This configuration is highly discouraged as it exposes the database to brute-force attacks, credential stuffing, and exploitation of vulnerabilities.
+
+Furthermore, the detected version, \textbf{MySQL 5.7.33}, reached its official End-of-Life (EOL) in October 2023. EOL software no longer receives security patches from the vendor, meaning any newly discovered vulnerabilities will remain unpatched, posing a severe and unmitigable risk to the data stored within.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the technical scan, the control review, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.15\linewidth} p{0.55\linewidth} p{0.2\linewidth}@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    Exposed \& Outdated Database Service & MySQL port 3306 is open to the network, and the service (v5.7.33) is End-of-Life, making it vulnerable to unpatched exploits. This directly confirms a known risk. & \colorbox{criticalred}{\color{white}\textbf{CRITICAL (9.8)}} \\
+    \addlinespace
+    Lack of Critical MFA Enforcement & MFA is not required for email or sensitive data systems. This exposes the organization to account takeovers and subsequent data breaches. & \colorbox{criticalred}{\color{white}\textbf{CRITICAL (9.1)}} \\
+    \addlinespace
+    Insufficient Security Policies \& Training & The absence of an Acceptable Use Policy and security training for new hires creates an environment where employees are more likely to engage in risky behavior. & \colorbox{highorange}{\color{white}\textbf{HIGH (7.2)}} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+\label{sec:recommendations}
+
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity and ease of implementation.
+
+\subsection{Risk: Exposed \& Outdated Database Service}
+\begin{itemize}
+    \item \textbf{Immediate (Containment):} Implement strict firewall rules to deny all public access to TCP port 3306. Access should be restricted to a limited set of trusted internal IP addresses only.
+    \item \textbf{Short-Term (Remediation):} Plan and execute an upgrade of the MySQL 5.7 database to a currently supported version (e.g., MySQL 8.x). This is critical to ensure security patches are available.
+    \item \textbf{Long-Term (Architectural):} Re-architect the network so that the database server resides in a private, non-internet-facing network segment. Access should only be permitted through a secure bastion host or a VPN connection.
+\end{itemize}
+
+\subsection{Risk: Lack of Critical MFA Enforcement}
+\begin{itemize}
+    \item \textbf{Immediate (Remediation):} Procure and enforce an MFA solution for the organization's email system (\texttt{ClearPath.org}).
+    \item \textbf{Short-Term (Remediation):} Identify all systems classified as containing sensitive data and enforce MFA for all user access, both privileged and standard.
+\end{itemize}
+
+\subsection{Risk: Insufficient Security Policies \& Training}
+\begin{itemize}
+    \item \textbf{Immediate (Foundation):} Develop and implement a mandatory security awareness training module as part of the new employee onboarding process.
+    \item \textbf{Short-Term (Governance):} Draft, approve, and disseminate a formal Acceptable Use Policy (AUP) that all employees must read and acknowledge. This policy should clearly define the rules for using company IT assets.
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,141 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage[T1]{fontenc}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{November 22, 2025}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% --- 1. Executive Overview ---
+\section{Executive Overview}
+This report provides a comprehensive assessment of the cybersecurity posture for \textbf{[Organization Name]}, conducted on November 22, 2025. The analysis is based on a correlation of external network scan data, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment identified several critical and high-risk security gaps that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Control Gap:} Multi-Factor Authentication (MFA) is not enforced for employee computer logins, exposing the organization to significant risk from compromised credentials.
+    \item \textbf{High-Risk Technical Finding:} The external-facing web server is running an outdated version of nginx (1.18.0), which is known to have publicly disclosed vulnerabilities. This presents a direct vector for external attack.
+    \item \textbf{High-Risk Policy Gaps:} The organization lacks a formal Acceptable Use Policy and does not conduct mandatory annual security awareness training for all employees. These deficiencies weaken the human element of security, increasing susceptibility to social engineering and insider threats.
+\end{itemize}
+
+These findings, when combined, indicate a reactive security posture that could be exploited by threat actors. This report outlines actionable recommendations to mitigate these risks and strengthen the overall security framework.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+This section details the organizational information used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \texttt{[Domain]} \\
+    Scanned External IP & \texttt{[Client IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. Items marked with \ding{55} represent significant gaps in the current security posture.
+
+\begin{tabular}{@{}p{0.7\linewidth}cc@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & Yes & \ding{51} \\
+    Do you require MFA to log into computers? & No & \ding{55} \\
+    Do you require MFA to access sensitive data systems? & Yes & \ding{51} \\
+    Does your organization have an employee acceptable use policy? & No & \ding{55} \\
+    Does your organization do security awareness training for new employees? & Yes & \ding{51} \\
+    Does your organization do security awareness training for all employees at least once per year? & No & \ding{55} \\
+    \bottomrule
+\end{tabular}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the target IP address to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} November 22, 2025
+\end{itemize}
+
+\subsection{Open Ports}
+The following table details the services discovered during the scan.
+
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    443/tcp & open & https & nginx & 1.18.0 \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Analysis of Findings}
+The scan identified an nginx web server, version 1.18.0, exposed to the internet. This version was released in April 2020 and is now considered outdated. It is susceptible to multiple known vulnerabilities, including but not limited to CVE-2021-23017. Running outdated software on internet-facing systems poses a high risk of compromise, as attackers can exploit these known flaws to gain unauthorized access.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review and the technical scan. No pre-existing vulnerabilities were provided for this assessment. The following new risks have been identified and prioritized.
+
+\begin{tabular}{@{}p{0.1\linewidth}p{0.5\linewidth}p{0.15\linewidth}p{0.15\linewidth}@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Description} & \textbf{Severity} & \textbf{Source} \\
+    \midrule
+    RISK-001 & Lack of MFA for endpoint logins allows an attacker with stolen credentials to gain direct access to an employee's computer and the internal network. & \textbf{Critical} & Questionnaire \\
+    \addlinespace
+    RISK-002 & The external web server runs an outdated and vulnerable version of nginx, which could be exploited to compromise the server and gain a foothold in the network. & High & Network Scan \\
+    \addlinespace
+    RISK-003 & The absence of mandatory annual security awareness training for all staff increases the likelihood of successful phishing and social engineering attacks. & High & Questionnaire \\
+    \addlinespace
+    RISK-004 & The lack of a formal Acceptable Use Policy (AUP) creates ambiguity regarding secure employee behavior and complicates enforcement of security standards. & Medium & Questionnaire \\
+    \bottomrule
+\end{tabular}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+Based on the consolidated risk assessment, the following actions are recommended to mitigate the identified vulnerabilities and improve the overall security posture of \textbf{[Organization Name]}.
+
+\begin{itemize}
+    \item \textbf{Remediate RISK-001 (Critical):}
+    \begin{itemize}
+        \item Immediately develop a plan to deploy Multi-Factor Authentication (MFA) for all employee computer and remote access logins.
+        \item Prioritize deployment for privileged users (e.g., administrators) and executives.
+        \item Set a deadline for mandatory MFA enrollment for all users within the next quarter.
+    \end{itemize}
+    \item \textbf{Remediate RISK-002 (High):}
+    \begin{itemize}
+        \item Upgrade the nginx server on \texttt{[Target IP]} to the latest stable version immediately to patch known vulnerabilities.
+        \item Implement a formal patch management policy that includes regular vulnerability scanning and timely application of security updates for all internet-facing systems.
+    \end{itemize}
+    \item \textbf{Remediate RISK-003 (High):}
+    \begin{itemize}
+        \item Procure or develop a security awareness training program and make it mandatory for all employees to complete annually.
+        \item Track completion rates to ensure full compliance.
+        \item Supplement annual training with periodic phishing simulations to test and reinforce learning.
+    \end{itemize}
+    \item \textbf{Remediate RISK-004 (Medium):}
+    \begin{itemize}
+        \item Draft a comprehensive Acceptable Use Policy (AUP) that clearly defines the rules for using company IT assets, data, and internet access.
+        \item Require all employees to read and formally acknowledge the policy upon hire and annually thereafter.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

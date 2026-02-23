@@ -1,0 +1,155 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For proper URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Risk Assessment Report \\ \large For: \textbf{Foresight Strategies}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ==============================================================================
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Foresight Strategies}, based on network scan data, organizational security controls, and known risks. The analysis reveals a high-risk security posture primarily driven by the direct network exposure of a critical database system.
+
+Key findings indicate that while some foundational security controls like Multi-Factor Authentication (MFA) for email are in place, critical gaps exist. A MySQL database was found to be publicly accessible, a finding which is significantly compounded by the lack of MFA for sensitive data systems. Furthermore, procedural gaps, such as the absence of security awareness training for new employees, increase the organization's susceptibility to credential compromise and social engineering attacks.
+
+Immediate remediation is required to restrict access to the exposed database. Strategic initiatives must be undertaken to enforce stronger access controls and enhance employee security awareness to mitigate the substantial risk of a data breach.
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context for the technical and procedural findings.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Foresight Strategies
+    \item \textbf{Primary Email Domain:} \texttt{ForesightStrategies.org}
+    \item \textbf{Primary Website:} \url{www.ForesightStrategies.org}
+    \item \textbf{Known External IP:} \texttt{21.42.230.125}
+\end{itemize}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A review of the organization's self-reported security controls was conducted. The following table summarizes the responses to the security questionnaire. Items marked with \ding{55} represent significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.75\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{51} \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textbf{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textbf{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+Two critical control gaps were identified:
+\begin{enumerate}
+    \item \textbf{No MFA for Sensitive Systems:} The absence of MFA on sensitive data systems is a critical vulnerability. In the event of a credential compromise, an attacker would have direct access to the organization's most valuable data. This directly elevates the risk associated with any exposed service.
+    \item \textbf{No Security Training for New Hires:} New employees are a common target for phishing and social engineering attacks. The lack of initial security training leaves the organization vulnerable, as a new hire could inadvertently compromise credentials or introduce malware.
+\end{enumerate}
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+A network scan was performed on the specified target to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.50.20}
+\end{itemize}
+
+The following table details the services discovered to be accessible from the network.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services Detected on \texttt{172.16.50.20}}
+\begin{tabular}{l l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+3306/tcp & Open & mysql & MySQL & 5.7.33 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan confirms that a MySQL database server is directly exposed to the network on port \texttt{3306}. Exposing a database directly is a highly dangerous practice, as it allows attackers to perform brute-force attacks, exploit potential vulnerabilities in the database software, or leverage stolen credentials to access data. The version detected, MySQL 5.7.33, is also several years old and may lack patches for recently discovered vulnerabilities. This finding validates the pre-existing risk documented in \texttt{Input\_3\_Current\_Risks\_JSON}.
+
+% ==============================================================================
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+
+This section synthesizes the findings from the security control review, technical scan, and pre-existing risk data to provide a holistic view of the primary risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.2\linewidth} p{0.55\linewidth} p{0.15\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Database Exposure} & The MySQL database on \texttt{172.16.50.20} is directly accessible from the network. This was confirmed by the technical scan and aligns with pre-existing risk data (CVSS 7.5). & \textbf{High} \\
+\addlinespace
+\textbf{Insufficient Access Control} & The lack of MFA on sensitive systems, such as the exposed database, means that a single compromised password could lead to a catastrophic data breach. This gap critically elevates the severity of the database exposure. & \textbf{Critical} \\
+\addlinespace
+\textbf{Inadequate Employee Onboarding} & New employees do not receive security training, making them prime targets for attacks designed to steal credentials. This procedural gap creates a viable pathway for an attacker to gain the credentials needed to access the exposed database. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and the potential for impact.
+
+\subsection*{Immediate Actions (To be completed within 24-48 hours)}
+\begin{enumerate}
+    \item \textbf{Restrict Database Access:} Immediately implement firewall rules to block all public access to port \texttt{3306} on the server at \texttt{172.16.50.20}. Access should only be permitted from specific, trusted internal IP addresses.
+\end{enumerate}
+
+\subsection*{High-Priority Actions (To be completed within 30 days)}
+\begin{enumerate}
+    \item \textbf{Enforce MFA on Sensitive Systems:} Procure and deploy an MFA solution for all sensitive data systems, with the highest priority on databases and administrative interfaces. This is the single most effective control to mitigate the risk of credential compromise.
+    \item \textbf{Implement New Hire Security Training:} Develop a mandatory security awareness training module that is a required part of the onboarding process for all new employees and contractors. This training should cover phishing, password hygiene, and acceptable use policies.
+\end{enumerate}
+
+\subsection*{Strategic Long-Term Actions (To be completed within 6-12 months)}
+\begin{enumerate}
+    \item \textbf{Deploy Secure Remote Access:} For administrative access to critical systems like databases, implement a Virtual Private Network (VPN) or Zero Trust Network Access (ZTNA) solution. This eliminates the need for any direct public exposure of sensitive services.
+    \item \textbf{Establish a Vulnerability Management Program:} Implement a program for regular, automated vulnerability scanning of all internal and external assets. This will help proactively identify and remediate exposures before they can be exploited.
+\end{enumerate}
+
+\end{document}
+```

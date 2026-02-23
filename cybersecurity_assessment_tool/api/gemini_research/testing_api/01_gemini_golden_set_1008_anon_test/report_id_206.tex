@@ -1,0 +1,192 @@
+```latex
+\documentclass[12pt]{article}
+
+% === PACKAGES ===
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmark and cross symbols (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For clickable links and document metadata
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % To split long strings without breaking words
+\usepackage{graphicx}             % For including images (e.g., logo)
+\usepackage{xcolor}               % For custom colors
+\usepackage{fancyhdr}             % For custom headers and footers
+\usepackage{lastpage}             % To get the total number of pages
+
+% === DOCUMENT SETUP ===
+
+% Define severity colors for the report
+\definecolor{sevcritical}{HTML}{990000}
+\definecolor{sevhigh}{HTML}{D14302}
+\definecolor{sevmedium}{HTML}{E89803}
+\definecolor{sevlow}{HTML}{339900}
+
+% Hyperref configuration
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Analysis, Report},
+    pdftoolbar=true,
+    pdfmenubar=true,
+    pdffitwindow=false,
+    pdfstartview={FitH},
+    pdfcreator={LaTeX with hyperref},
+    pdfproducer={Cybersecurity Analyst AI}
+}
+
+% Header and Footer configuration
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{Page \thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% === DOCUMENT START ===
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Huge \textbf{Cybersecurity Posture Assessment Report}\par}
+    \vspace{1.5cm}
+    
+    {\Large \textbf{Prepared for:}\\ \vspace{0.5cm} \textbf{[Organization Name]}}\par
+    
+    \vspace{2cm}
+    
+    \includegraphics[width=0.3\textwidth]{example-image-a} % Placeholder for a logo
+    
+    \vfill
+    
+    {\large \textbf{Date of Report:} \today\par}
+    {\large \textbf{Analysis by:} Cybersecurity Analysis Division\par}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section*{1.0 Executive Summary}
+This report provides a comprehensive assessment of the cybersecurity posture for \textbf{[Organization Name]}. The analysis is based on a correlation of network scan data, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals several critical and high-severity risks that require immediate attention. The most significant findings include:
+\begin{itemize}
+    \item \textbf{Critically Vulnerable External Service:} An externally facing FTP server running \texttt{vsftpd 2.3.4} was identified. This specific version contains a well-known, critical backdoor vulnerability (CVE-2011-2523) that could allow an attacker to gain complete control of the server.
+    \item \textbf{Weak Access Controls:} Multi-Factor Authentication (MFA) is not enforced for email access. This represents a critical gap, as a compromised password could lead to a full email account takeover, data breaches, and further internal compromise via phishing.
+    \item \textbf{Inadequate Security Policies:} The organization lacks a formal Acceptable Use Policy (AUP) and does not conduct mandatory annual security awareness training for all employees. These policy gaps increase the risk of insider threats and susceptibility to social engineering attacks.
+\end{itemize}
+
+Overall, the current security posture presents a significant risk of compromise. This report details these findings and provides prioritized, actionable recommendations to mitigate the identified vulnerabilities and strengthen the organization's defenses.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section*{2.0 Organizational Information}
+This section contains the high-level information used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders are used.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \texttt{[Domain]} \\
+    External IP Address Scanned & \texttt{[Client IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section*{3.0 Security Control Review}
+The following table summarizes the organization's responses to the security controls questionnaire. A "No" response indicates a potential control gap that increases risk.
+
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.25\linewidth}@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Analyst Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \ding{55} & \textcolor{sevcritical}{\textbf{Critical Gap.}} Lack of MFA on email is a primary vector for account compromise. \\
+    \addlinespace
+    Do you require MFA to log into computers? & \ding{51} & Control in place. \\
+    \addlinespace
+    Do you require MFA to access sensitive data systems? & \ding{51} & Control in place. \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \ding{55} & \textcolor{sevhigh}{High Risk.} Absence of a formal policy creates ambiguity and legal exposure. \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & \ding{51} & Good practice for onboarding. \\
+    \addlinespace
+    Does your organization do security awareness training for all employees at least once per year? & \ding{55} & \textcolor{sevhigh}{High Risk.} Security knowledge degrades over time, increasing susceptibility to phishing. \\
+    \bottomrule
+\end{tabular}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section*{4.0 Technical Scan Results}
+An Nmap scan was conducted against the target IP address \texttt{[Target IP]}. The scan identified the following open ports and services.
+
+\subsection*{4.1 Open Ports and Services}
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{Protocol} & \textbf{Service} & \textbf{Version} & \textbf{Details} \\
+    \midrule
+    21 & TCP & ftp & vsftpd 2.3.4 & Anonymous FTP login allowed. \\
+    \bottomrule
+\end{tabular}
+
+\subsection*{4.2 Technical Analysis}
+The scan revealed a single, but critically dangerous, finding:
+\begin{itemize}
+    \item \textbf{vsftpd 2.3.4 Backdoor (CVE-2011-2523):} The version of the FTP server detected, \texttt{vsftpd 2.3.4}, is extremely outdated and contains a publicly known backdoor. An attacker can send a specific sequence of characters to a listening port to gain a remote command shell with system-level privileges. This is a \textbf{critical severity} finding.
+    \item \textbf{Anonymous FTP Login:} The server is configured to allow anonymous logins. This allows any user on the internet to connect to the server without authentication, which can be abused for data exfiltration or to upload malicious files. This is a \textbf{high severity} finding.
+\end{itemize}
+
+% --- CONSOLIDATED RISK ASSESSMENT ---
+\section*{5.0 Consolidated Risk Assessment}
+This section synthesizes all findings from the questionnaire, technical scan, and pre-existing risk data into a single, prioritized list.
+
+\begin{tabular}{@{}p{0.15\linewidth} p{0.25\linewidth} p{0.55\linewidth}@{}}
+    \toprule
+    \textbf{Severity} & \textbf{Risk Title} & \textbf{Description \& Impact} \\
+    \midrule
+    \colorbox{sevcritical}{\textcolor{white}{\textbf{CRITICAL}}} & \textbf{Vulnerable FTP Server} & The public-facing FTP server (\texttt{vsftpd 2.3.4}) has a known backdoor (CVE-2011-2523), allowing for remote code execution and full system compromise. \\
+    \addlinespace
+    \colorbox{sevcritical}{\textcolor{white}{\textbf{CRITICAL}}} & \textbf{No MFA on Email} & Lack of MFA on email accounts makes them highly susceptible to takeover via password guessing, phishing, or credential stuffing. A compromised email account is a gateway to the entire organization. \\
+    \addlinespace
+    \colorbox{sevhigh}{\textcolor{white}{\textbf{HIGH}}} & \textbf{Anonymous FTP Access} & Allowing unauthenticated access to the FTP server facilitates unauthorized data access and can be used as a drop point for malware by attackers. \\
+    \addlinespace
+    \colorbox{sevhigh}{\textcolor{white}{\textbf{HIGH}}} & \textbf{Lack of Annual Security Training} & Without regular reinforcement, employees are more likely to fall victim to phishing and other social engineering attacks, leading to credential theft and malware infections. \\
+    \addlinespace
+    \colorbox{sevhigh}{\textcolor{white}{\textbf{HIGH}}} & \textbf{No Acceptable Use Policy} & The absence of a formal AUP means there are no clear rules for employees regarding the use of company assets, increasing the risk of insider threat and misuse. \\
+    \addlinespace
+    \colorbox{sevmedium}{\textcolor{white}{\textbf{MEDIUM}}} & \textbf{Outdated Windows Policy} & As per existing risk data, workstations are running Windows 7. This OS is end-of-life and no longer receives security updates, leaving it vulnerable to exploitation. \\
+    \bottomrule
+\end{tabular}
+
+% --- RECOMMENDATIONS ---
+\section*{6.0 Recommendations}
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{6.1 Immediate Actions (Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Decommission or Isolate the FTP Server:} The FTP server at \texttt{[Target IP]} must be taken offline immediately. If the service is business-critical, it must be upgraded to a modern, patched version of FTP software (e.g., a recent version of vsftpd or ProFTPD) or replaced with a more secure file transfer solution like SFTP.
+    \item \textbf{Enforce MFA for Email:} Implement mandatory MFA for all user and administrative email accounts without delay. This is the single most effective control to prevent account takeovers.
+\end{enumerate}
+
+\subsection*{6.2 High-Priority Actions}
+\begin{enumerate}
+    \item \textbf{Disable Anonymous FTP:} If the FTP server is rebuilt, ensure anonymous access is disabled. All access should require strong, unique user credentials.
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP that all employees must read and sign. This policy should clearly define the rules for using company computers, networks, and data.
+    \item \textbf{Establish an Annual Security Training Program:} Institute a mandatory security awareness training program for all employees to be completed at least once per year. This program should cover phishing, password security, and social engineering.
+\end{enumerate}
+
+\subsection*{6.3 Medium-Priority Actions}
+\begin{enumerate}
+    \item \textbf{Accelerate Windows 7 Upgrade Plan:} Continue with the plan to upgrade all remaining Windows 7 workstations to a supported operating system (e.g., Windows 10/11) to ensure they receive critical security patches.
+\end{enumerate}
+
+\end{document}
+```

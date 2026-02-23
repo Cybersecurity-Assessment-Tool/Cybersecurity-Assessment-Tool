@@ -1,0 +1,198 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long monospaced text
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- Document Setup ---
+% Define colors for severity levels
+\definecolor{criticalred}{HTML}{D73027}
+\definecolor{highorange}{HTML}{F46D43}
+\definecolor{mediumyellow}{HTML}{FEE08B}
+\definecolor{lowblue}{HTML}{4575B4}
+
+% Hyperref setup for better PDF metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Cybersecurity, Pentest, Nmap, Risk Assessment},
+    bookmarks=true
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{\textbf{North Star Education}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Assessment Report}}
+    \vspace{0.5cm}
+    \Large{Prepared for:}
+    \vspace{0.5cm}
+    \huge{\textbf{North Star Education}}
+    
+    \vspace{2cm}
+    \large{
+    \begin{tabular}{ll}
+    \textbf{Date of Report:} & \today \\
+    \textbf{Analysis Period:} & \today \\
+    \textbf{Classification:} & Confidential \\
+    \end{tabular}
+    }
+    
+    \vfill
+    
+    \large{\textit{This report contains sensitive information regarding the security posture of the organization. Access and distribution should be limited to authorized personnel only.}}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the current cybersecurity posture of \textbf{North Star Education}. The assessment is based on a synthesis of network scan data, a review of existing security controls via a questionnaire, and an analysis of pre-existing risk documentation.
+
+The analysis revealed two critical-priority risks that require immediate attention. Firstly, a significant gap exists in the organization's access control policy: \textbf{Multi-Factor Authentication (MFA) is not enforced for email access}. This exposes the organization to a high risk of business email compromise, phishing attacks, and subsequent data breaches.
+
+Secondly, the technical network scan identified an open Remote Desktop Protocol (RDP) port on an internal system (\texttt{10.10.10.51}). This finding corroborates a pre-existing documented risk of RDP exposure on another host (\texttt{10.10.10.50}), indicating a potential systemic misconfiguration issue within the network. Exposed RDP services are a primary target for ransomware and other malicious actors.
+
+While the organization has several positive security controls in place, such as MFA for computer logins and regular security awareness training, the identified critical risks substantially elevate the organization's overall risk profile. Immediate remediation of these vulnerabilities is strongly recommended to protect sensitive data and ensure operational continuity.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment scope.
+\begin{itemize}
+    \item \textbf{Organization Name:} North Star Education
+    \item \textbf{Email Domain:} \texttt{NorthStarEducation.org}
+    \item \textbf{Website Domain:} \seqsplit{\url{www.NorthStarEducation.org}}
+    \item \textbf{External IP Address:} \texttt{166.151.3.8}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of organizational security controls was conducted based on a questionnaire. The responses are summarized below. A "No" response indicates a potential control gap that increases risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\begin{tabular}{p{8cm} c p{3cm}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \textcolor{criticalred}{\ding{55}} & \textbf{Critical Gap} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} & Control in Place \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} & Control in Place \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} & Control in Place \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} & Control in Place \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} & Control in Place \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The most significant finding from this review is the \textbf{lack of MFA for email}. Email is a primary vector for initial access in cyberattacks. Without MFA, a compromised password is all an attacker needs to gain access to an employee's mailbox, which can lead to data exfiltration, internal phishing, and further network compromise.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An internal network scan was performed to identify active services and potential vulnerabilities.
+
+\subsection{Host Scan: \texttt{10.10.10.51}}
+A network scan of the host at \texttt{10.10.10.51} revealed the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports on \texttt{10.10.10.51}}
+\label{tab:nmap}
+\begin{tabular}{c c l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Description} \\
+\midrule
+3389/tcp & open & \texttt{ms-wbt-server} & Microsoft Remote Desktop Protocol (RDP) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The scan confirmed that port 3389 is open, which is used for Microsoft's Remote Desktop Protocol (RDP). RDP is a common vector for unauthorized access if not properly secured. Attackers frequently scan for open RDP ports to perform brute-force password attacks or exploit known vulnerabilities (e.g., BlueKeep). This finding is of high concern, especially as it points to a pattern of RDP exposure within the organization.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk documentation into a prioritized list of risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{3.5cm} p{6.5cm} p{2cm} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Affected Systems} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Email} & The absence of MFA on the primary email system (\texttt{NorthStarEducation.org}) allows for account takeover with only a compromised password. & All Employees & \textcolor{criticalred}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Systemic RDP Exposure} & Multiple systems have been identified with exposed RDP services. The new finding on \texttt{10.10.10.51} confirms a pattern previously noted on \texttt{10.10.10.50}. This indicates a systemic weakness in server hardening or network segmentation. & \texttt{10.10.10.50}, \texttt{10.10.10.51} & \textcolor{criticalred}{\textbf{Critical}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity.
+
+\subsection{Priority 1: Critical Risks}
+\subsubsection{Implement MFA for All Email Accounts}
+\begin{itemize}
+    \item \textbf{Action:} Immediately begin a project to enable and enforce MFA for all user accounts on the \texttt{NorthStarEducation.org} email platform.
+    \item \textbf{Justification:} This is the single most effective control to prevent business email compromise and unauthorized access to sensitive communications and data.
+    \item \textbf{Timeline:} Urgent (Target completion within 30 days).
+\end{itemize}
+
+\subsubsection{Remediate Widespread RDP Exposure}
+\begin{itemize}
+    \item \textbf{Action:}
+    \begin{enumerate}
+        \item For each affected host (\texttt{10.10.10.50}, \texttt{10.10.10.51}), validate the business requirement for RDP access.
+        \item If RDP is not required, disable the service immediately.
+        \item If RDP is required, implement compensating controls such as placing the systems behind a VPN with MFA, or restricting access to a limited set of administrative IP addresses using host-based or network firewalls.
+    \end{enumerate}
+    \item \textbf{Justification:} Securing RDP is critical to preventing ransomware attacks and unauthorized remote access to the internal network.
+    \item \textbf{Timeline:} Immediate (Target completion within 7 days).
+\end{itemize}
+
+\subsection{Priority 2: Strategic Improvements}
+\subsubsection{Establish a Vulnerability Management Program}
+\begin{itemize}
+    \item \textbf{Action:} Implement a recurring, authenticated vulnerability scanning process for the internal network. Review scan results quarterly and track remediation efforts.
+    \item \textbf{Justification:} Proactive scanning will help identify and fix misconfigurations like open RDP ports before they can be exploited, moving the organization from a reactive to a proactive security posture.
+\end{itemize}
+
+\subsubsection{Review and Enforce Hardening Standards}
+\begin{itemize}
+    \item \textbf{Action:} Develop or review server build standards that include disabling unnecessary services and ports by default. Ensure that all new systems deployed on the network adhere to these standards.
+    \item \textbf{Justification:} A secure baseline configuration prevents systemic issues and reduces the organization's attack surface over the long term.
+\end{itemize}
+
+\end{document}
+```

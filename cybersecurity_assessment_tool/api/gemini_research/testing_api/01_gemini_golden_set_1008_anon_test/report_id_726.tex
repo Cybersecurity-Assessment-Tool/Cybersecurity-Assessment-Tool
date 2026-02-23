@@ -1,0 +1,204 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings without breaking
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For logo
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Cell},
+    pdfsubject={Security Report},
+    pdfkeywords={Cybersecurity, Nmap, Risk Assessment},
+    bookmarks=true,
+    breaklinks=true
+}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\newcommand{\riskcritical}[1]{\textcolor{red}{\textbf{#1}}}
+\newcommand{\riskhigh}[1]{\textcolor{orange}{\textbf{#1}}}
+\newcommand{\riskmedium}[1]{\textcolor{yellow!80!black}{\textbf{#1}}}
+\newcommand{\riskinformational}[1]{\textcolor{blue}{\textbf{#1}}}
+
+% ----------------------------------------------------------------------
+% DOCUMENT START
+% ----------------------------------------------------------------------
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vfill
+    \Huge{\textbf{Cybersecurity Posture Assessment Report}}
+    \vspace{1.5cm}
+    \Large{\textbf{Prepared for:}} \\
+    \vspace{0.5cm}
+    \huge{\textbf{[Organization Name]}}
+    \vfill
+    \large{
+        \textbf{Date of Report:} \today \\
+        \textbf{Report ID:} CYBER-2023-001
+    }
+    \vspace{1cm}
+    \rule{\textwidth}{0.4pt}
+    \vspace{0.2cm}
+    \textit{This document contains sensitive information. Distribution is restricted.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% SECTION 1: EXECUTIVE OVERVIEW
+% ----------------------------------------------------------------------
+\section{Executive Overview}
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{[Organization Name]}, based on the correlation of self-reported security controls, an external network scan, and a review of pre-existing risk data.
+
+The assessment identified several critical and high-risk procedural gaps that significantly increase the organization's vulnerability to cyber threats. The most pressing issues are the lack of Multi-Factor Authentication (MFA) for email access and the absence of a formal security awareness training program for employees. These weaknesses expose the organization to a high risk of phishing, business email compromise, and other social engineering attacks.
+
+On a positive note, the external network scan of the target IP address revealed a strong perimeter security posture. No open ports or vulnerable services were detected. This finding directly contradicts a previously identified risk concerning an unencrypted web server on Port 80. Our analysis indicates this risk has been successfully mitigated.
+
+In summary, while the technical external-facing infrastructure appears secure, the primary risks to the organization are currently human and policy-centric. Immediate action is required to address the identified gaps in access control and employee security training to prevent potential breaches.
+
+% ----------------------------------------------------------------------
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+
+This section details the information provided for the scope of this assessment. Due to the anonymized nature of the input data, placeholders have been used.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{Client External IP:} \texttt{[Client IP]}
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% SECTION 3: SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate significant gaps in the security framework and are flagged as areas of concern.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.6\linewidth} c c}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & No & \riskcritical{\no} \\
+Do you require MFA to log into computers? & Yes & \yes \\
+Do you require MFA to access sensitive data systems? & Yes & \yes \\
+Does your organization have an employee acceptable use policy? & Yes & \yes \\
+Does your organization do security awareness training for new employees? & No & \riskhigh{\no} \\
+Does your organization do security awareness training for all employees at least once per year? & No & \riskhigh{\no} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Controls}
+The questionnaire reveals two major areas of weakness:
+\begin{enumerate}
+    \item \textbf{Access Control:} The absence of MFA on email is a critical vulnerability. Email accounts are a primary target for attackers seeking to gain an initial foothold in an organization for data theft, financial fraud, or further network intrusion.
+    \item \textbf{Human Factor:} The complete lack of a security awareness training program means employees are likely unprepared to identify and respond to common threats like phishing and social engineering. This elevates the risk posed by the lack of email MFA.
+\end{enumerate}
+
+% ----------------------------------------------------------------------
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+
+An external network scan was performed to identify exposed services and potential vulnerabilities on the organization's public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Data not available in scan metadata. Report generated on \today.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Nmap Scan Port Summary}
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\
+\midrule
+80/tcp & closed & http & N/A \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Scan Results}
+The scan results are positive. The target host is responsive, but all scanned ports, including the commonly exposed Port 80 (HTTP), were found to be closed. This indicates a well-configured firewall and a minimal attack surface from an external network perspective.
+
+\textbf{Crucially, this finding contradicts a pre-existing risk entry that stated Port 80 was open.} This suggests that the previously identified vulnerability has been remediated.
+
+% ----------------------------------------------------------------------
+% SECTION 5: CORRELATED RISK ASSESSMENT
+% ----------------------------------------------------------------------
+\section{Correlated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a unified risk posture.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.45\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Email Account Compromise} & Lack of MFA on email accounts creates a high probability of account takeover via phishing or credential stuffing attacks. & \riskcritical{Critical} \\
+\addlinespace
+\textbf{Untrained Workforce} & The absence of security awareness training makes employees highly susceptible to social engineering, malware, and policy violations. & \riskhigh{High} \\
+\addlinespace
+\textbf{Unencrypted Web Server (Mitigated)} & A previously identified risk of an open Port 80 is now considered mitigated, as confirmed by the recent network scan showing the port is closed. & \riskinformational{Informational} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ----------------------------------------------------------------------
+% SECTION 6: RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+
+The following actionable recommendations are prioritized based on the severity of the identified risks.
+
+\subsection{Immediate Priority: Remediate Critical Risks}
+\begin{itemize}
+    \item \textbf{Action:} Enforce mandatory Multi-Factor Authentication (MFA) across all email accounts immediately.
+    \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access to email, which is a gateway to sensitive company data and further network compromise.
+\end{itemize}
+
+\subsection{High Priority: Remediate High-Risk Gaps}
+\begin{itemize}
+    \item \textbf{Action:} Implement a formal Security Awareness Training program. This program should be mandatory for all new hires and include annual refresher training for all staff.
+    \item \textbf{Justification:} A well-trained workforce is the first line of defense against phishing and social engineering. This control directly reduces human-factor risk and builds a stronger security culture.
+\end{itemize}
+
+\subsection{Administrative Actions}
+\begin{itemize}
+    \item \textbf{Action:} Update the official risk register to mark the "Unencrypted Web Server" vulnerability as resolved.
+    \item \textbf{Justification:} Maintaining an accurate risk register is essential for effective security management, resource allocation, and demonstrating due diligence.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% DOCUMENT END
+% ----------------------------------------------------------------------
+\end{document}
+```

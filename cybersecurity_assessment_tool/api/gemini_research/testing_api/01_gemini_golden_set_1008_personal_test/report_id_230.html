@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="titlepage">
+<p><strong>Cybersecurity Assessment Report</strong> <strong>Prepared
+for:</strong><br />
+<span>Pioneer Pulse</span> <strong>Date of Report:</strong><br />
+<span>2026-01-31</span> <em>This report contains sensitive information
+and should be handled with care.</em></p>
+</div>
+<h1 id="executive-overview">Executive Overview</h1>
+<p>This report provides a comprehensive cybersecurity assessment for
+<strong>Pioneer Pulse</strong>, based on an analysis of network scan
+data, organizational security controls, and pre-existing risk
+information. The assessment was conducted to identify vulnerabilities,
+evaluate the current security posture, and provide actionable
+recommendations for risk mitigation.</p>
+<p>The analysis revealed several critical and high-severity risks that
+require immediate attention. Key findings include a publicly accessible
+and highly vulnerable FTP service (<code>vsftpd 2.3.4</code>), a
+complete absence of Multi-Factor Authentication (MFA) across all
+critical systems, and significant gaps in foundational security policies
+and employee training.</p>
+<p>Collectively, these findings indicate a security posture with a high
+level of exposure to common cyber threats such as unauthorized access,
+data breach, and malware infection. Prioritized recommendations are
+provided in Section <a href="#sec:recommendations"
+data-reference-type="ref" data-reference="sec:recommendations">6</a> to
+address these issues systematically.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following details were provided for the assessment scope.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> Pioneer Pulse</p></li>
+<li><p><strong>Email Domain:</strong>
+<code>PioneerPulse.org</code></p></li>
+<li><p><strong>Website Domain:</strong> <a href="www.PioneerPulse.org"
+class="uri">www.PioneerPulse.org</a></p></li>
+<li><p><strong>External IP Address:</strong>
+<code>231.175.128.160</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of organizational security controls was conducted via a
+questionnaire. The responses highlight significant gaps in access
+control and employee governance, which are foundational elements of a
+robust security program.</p>
+<div id="tab:controls">
+<table>
+<caption>Organizational Security Control Questionnaire</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Analysis:</strong> The lack of MFA for email, computers, and
+sensitive data systems represents a <strong>critical risk</strong>. The
+absence of an acceptable use policy and security training for new hires
+constitutes a <strong>high risk</strong>, as it fails to establish a
+baseline for secure employee behavior.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed to identify open ports and exposed
+services on the target system.</p>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>10.0.0.15</code></p></li>
+</ul>
+<div id="tab:nmap">
+<table>
+<caption>Open Port Analysis</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+<th style="text-align: left;"><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">21/tcp</td>
+<td style="text-align: left;">Open</td>
+<td style="text-align: left;">ftp</td>
+<td style="text-align: left;">vsftpd 2.3.4</td>
+<td style="text-align: left;">Anonymous FTP login is allowed. This
+version is known to be vulnerable to a critical backdoor
+(CVE-2011-2523).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Analysis:</strong> The presence of an open FTP port with
+version <code>vsftpd 2.3.4</code> is a <strong>critical
+vulnerability</strong>. This specific version contains a well-documented
+backdoor that allows an attacker to gain remote command execution.
+Furthermore, allowing anonymous FTP login creates a high-risk channel
+for unauthorized data access or for attackers to stage malicious
+files.</p>
+<h1 id="synthesized-risk-assessment">Synthesized Risk Assessment</h1>
+<p>The following table correlates findings from the security control
+review, technical scan, and pre-existing risk data to provide a unified
+view of the organization’s risk profile.</p>
+<div id="tab:risks">
+<table>
+<caption>Summary of Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Description</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Vulnerable FTP Service
+(CVE-2011-2523)</td>
+<td style="text-align: left;">The FTP server is running a version with a
+known remote code execution backdoor.</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Absence of Multi-Factor
+Authentication</td>
+<td style="text-align: left;">Lack of MFA on email, computers, and
+sensitive systems makes accounts highly susceptible to compromise via
+stolen credentials.</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Insecure Protocol and Configuration</td>
+<td style="text-align: left;">Use of unencrypted FTP protocol and
+allowing anonymous login exposes data and credentials to interception
+and abuse.</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Weak Policy and Training Framework</td>
+<td style="text-align: left;">No acceptable use policy or new hire
+training program leads to inconsistent and insecure employee
+practices.</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Outdated Windows Policy</td>
+<td style="text-align: left;">Workstations are running Windows 7, an
+unsupported operating system that no longer receives security
+updates.</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="sec:recommendations">Recommendations</h1>
+<p>The following actions are recommended to mitigate the identified
+risks. They are prioritized based on severity and potential impact.</p>
+<h2 id="immediate-priority-critical-risks">Immediate Priority (Critical
+Risks)</h2>
+<ol>
+<li><p><strong>Remediate Vulnerable FTP Service:</strong> Immediately
+take the server at <code>10.0.0.15</code> offline. Patch or upgrade the
+<code>vsftpd</code> service to the latest stable version. If FTP is not
+a business requirement, the service should be disabled
+entirely.</p></li>
+<li><p><strong>Replace FTP with Secure Alternative:</strong>
+Decommission the use of FTP and replace it with a secure file transfer
+protocol such as SFTP (SSH File Transfer Protocol) or FTPS (FTP over
+SSL/TLS).</p></li>
+<li><p><strong>Implement Multi-Factor Authentication (MFA):</strong>
+Begin a phased rollout of MFA across the organization.</p>
+<ul>
+<li><p><strong>Phase 1:</strong> Enforce MFA for email access and all
+administrative accounts.</p></li>
+<li><p><strong>Phase 2:</strong> Enforce MFA for access to all systems
+containing sensitive data.</p></li>
+<li><p><strong>Phase 3:</strong> Enforce MFA for all standard user
+computer logins.</p></li>
+</ul></li>
+</ol>
+<h2 id="high-priority-high-risks">High Priority (High Risks)</h2>
+<ol start="4">
+<li><p><strong>Develop Foundational Security Policies:</strong> Draft
+and implement an official Acceptable Use Policy (AUP) that all employees
+must read and sign. This policy should govern the use of company assets,
+data handling, and internet usage.</p></li>
+<li><p><strong>Establish a Security Training Program:</strong> Institute
+a mandatory security awareness training module for all new employees as
+part of their onboarding process. Continue the existing annual training
+for all staff.</p></li>
+</ol>
+<h2 id="medium-priority-medium-risks">Medium Priority (Medium
+Risks)</h2>
+<ol start="6">
+<li><p><strong>Plan Operating System Upgrades:</strong> Develop a
+project plan to upgrade all workstations from Windows 7 to a modern,
+supported operating system such as Windows 10 or Windows 11 to ensure
+the continued receipt of security patches.</p></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

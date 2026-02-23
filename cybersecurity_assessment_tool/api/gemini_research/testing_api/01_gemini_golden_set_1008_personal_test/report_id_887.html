@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-overview">Executive Overview</h1>
+<p>This report details the findings of a cybersecurity posture
+assessment conducted for <strong>Hidden Gem</strong>. The assessment
+synthesizes data from a network infrastructure scan, a security controls
+questionnaire, and a review of pre-existing documented risks.</p>
+<p>The analysis reveals a mixed security posture. While foundational
+controls like Multi-Factor Authentication (MFA) are implemented for
+email and computer access, several critical gaps exist that
+significantly elevate the organization’s risk profile.</p>
+<p><strong>Key Findings Include:</strong></p>
+<ul>
+<li><p><strong>Critical Control Gaps:</strong> The organization does not
+enforce MFA for sensitive data systems, lacks a formal Acceptable Use
+Policy (AUP), and does not provide mandatory annual security awareness
+training for all employees. These gaps present a high risk of
+unauthorized access, insider threat, and susceptibility to social
+engineering.</p></li>
+<li><p><strong>Technical Vulnerability Confirmation:</strong> The
+network scan confirmed a pre-existing critical risk related to a service
+exposed on the local loopback interface (<code>127.0.0.1</code>). While
+this service is not directly exposed to the internet, its presence and
+critical severity rating warrant immediate investigation.</p></li>
+</ul>
+<p>Immediate remediation of the identified policy and MFA-related gaps
+is strongly recommended to reduce the attack surface and strengthen the
+overall security posture. A detailed breakdown of findings and
+actionable recommendations is provided in the subsequent sections.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following information was provided for the assessment. This data
+forms the baseline for understanding the organization’s digital
+footprint.</p>
+<div id="tab:org_info">
+<table>
+<caption>Client Organizational Details</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;"><strong>Hidden Gem</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Email Domain</td>
+<td style="text-align: left;"><code>HiddenGem.org</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Website Domain</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Address</td>
+<td style="text-align: left;"><code>170.60.5.216</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>This section evaluates the organization’s security policies and
+procedures based on the provided questionnaire. "No" answers indicate
+significant control gaps that require immediate attention.</p>
+<div id="tab:controls">
+<table>
+<caption>Security Controls Questionnaire Analysis</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Do you require MFA to access
+sensitive data systems?</strong></td>
+<td style="text-align: center;"><span style="color: red"> No</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Does your organization have an
+employee acceptable use policy?</strong></td>
+<td style="text-align: center;"><span style="color: red"> No</span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Does your organization do security
+awareness training for all employees at least once per
+year?</strong></td>
+<td style="text-align: center;"><span style="color: red"> No</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis-of-control-gaps">Analysis of Control
+Gaps</h2>
+<p>The questionnaire reveals three primary areas of concern:</p>
+<ol>
+<li><p><strong>MFA on Sensitive Systems:</strong> The absence of MFA on
+systems containing sensitive data is a critical vulnerability. Should an
+attacker compromise a user’s credentials, they would have direct access
+to the organization’s most valuable information.</p></li>
+<li><p><strong>Acceptable Use Policy (AUP):</strong> Lacking an AUP
+creates ambiguity regarding how employees should securely use company
+assets. This can lead to unintentional data exposure and makes it
+difficult to enforce security standards.</p></li>
+<li><p><strong>Annual Security Training:</strong> While new hires
+receive training, the lack of an annual refresher course for all staff
+means that awareness of evolving threats (like new phishing techniques)
+diminishes over time, increasing the likelihood of a successful social
+engineering attack.</p></li>
+</ol>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed to identify open ports and services on
+the specified target. The results corroborate a known risk.</p>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>127.0.0.1</code></p></li>
+<li><p><strong>Scan Tool:</strong> Nmap</p></li>
+</ul>
+<div id="tab:scan_results">
+<table>
+<caption>Open Port Analysis</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service (Inferred)</strong></th>
+<th style="text-align: left;"><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">22/tcp</td>
+<td style="text-align: left;">Open</td>
+<td style="text-align: left;">SSH</td>
+<td style="text-align: left;">The service is running on the local
+loopback interface.</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">No version information was retrieved. This
+finding</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">confirms the presence of the "Localhost
+Exposed" risk.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="consolidated-risk-assessment">Consolidated Risk Assessment</h1>
+<p>This table synthesizes findings from the security questionnaire, the
+technical scan, and pre-existing risk documentation into a prioritized
+list.</p>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actions are recommended to mitigate the identified
+risks and improve the overall security posture of <strong>Hidden
+Gem</strong>. Recommendations are prioritized based on severity.</p>
+<ol>
+<li><p><strong>[Critical] Implement MFA for Sensitive Systems
+(RISK-002):</strong></p>
+<ul>
+<li><p>Immediately prioritize and deploy a robust MFA solution across
+all applications and systems classified as containing sensitive data.
+This is the single most effective control to prevent unauthorized access
+and should be treated as the top priority.</p></li>
+</ul></li>
+<li><p><strong>[Critical] Investigate Exposed Localhost Service
+(RISK-001):</strong></p>
+<ul>
+<li><p>Conduct an immediate investigation into the service running on
+<code>127.0.0.1:22</code>.</p></li>
+<li><p>Determine the business purpose of this service. If it is not
+required, disable it immediately.</p></li>
+<li><p>If the service is required, ensure it is configured securely
+according to best practices, uses strong authentication, and is not
+unintentionally accessible from other network segments.</p></li>
+</ul></li>
+<li><p><strong>[High] Establish an Annual Security Training Program
+(RISK-003):</strong></p>
+<ul>
+<li><p>Develop and mandate an annual security awareness training program
+for all employees, contractors, and relevant third parties.</p></li>
+<li><p>Training modules should cover modern threats, including phishing,
+ransomware, social engineering, and proper data handling.</p></li>
+</ul></li>
+<li><p><strong>[High] Develop and Implement an Acceptable Use Policy
+(RISK-004):</strong></p>
+<ul>
+<li><p>Draft a comprehensive AUP that clearly defines the rules and
+expectations for using company networks, devices, and data.</p></li>
+<li><p>Require all employees to read and formally acknowledge the policy
+upon its implementation and during onboarding. Integrate AUP training
+into the security awareness program.</p></li>
+</ul></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

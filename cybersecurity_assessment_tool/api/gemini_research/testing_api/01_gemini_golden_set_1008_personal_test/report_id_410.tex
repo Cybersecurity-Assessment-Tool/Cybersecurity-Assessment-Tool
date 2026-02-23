@@ -1,0 +1,182 @@
+```latex
+\documentclass[12pt]{article}
+
+% -----------------------------------------------------------------------------
+% PREAMBLE
+% -----------------------------------------------------------------------------
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage[utf8]{inputenc}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Report},
+    pdfkeywords={Security, Assessment, Nmap, Risk}
+}
+
+% Custom command for table checkmarks/crosses
+\newcommand{\yessymbol}{\ding{51}}
+\newcommand{\nosymbol}{\ding{55}}
+
+% -----------------------------------------------------------------------------
+% DOCUMENT START
+% -----------------------------------------------------------------------------
+\begin{document}
+
+\title{
+    Cybersecurity Posture Assessment Report \\
+    \large For: \textbf{Apex Legends Group}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+\hrule
+\vspace{1em}
+\begin{abstract}
+This report provides a comprehensive cybersecurity assessment for Apex Legends Group. The analysis is based on a correlation of technical network scan data, a review of organizational security controls via a questionnaire, and an evaluation of pre-existing documented risks. The assessment identifies critical vulnerabilities and procedural gaps that require immediate attention to mitigate potential threats to the organization's data and infrastructure. Key findings include a critically misconfigured public-facing service, a significant gap in endpoint access controls, and the continued use of an unsupported operating system.
+\end{abstract}
+\hrule
+\vspace{2em}
+
+\tableofcontents
+
+\newpage
+
+% -----------------------------------------------------------------------------
+% SECTION 1: OVERVIEW
+% -----------------------------------------------------------------------------
+\section{Executive Summary}
+The purpose of this assessment was to evaluate the current security posture of Apex Legends Group by synthesizing technical findings with organizational policies. 
+
+Our analysis revealed several areas of significant concern. The most critical finding is a publicly accessible FTP server running a severely outdated and vulnerable version of \texttt{vsftpd} (2.3.4), which permits anonymous logins. This configuration represents a direct and immediate threat, potentially allowing unauthorized actors to exfiltrate data or use the server as a foothold for further network intrusion.
+
+Furthermore, a critical gap was identified in the organization's access control policies: the absence of Multi-Factor Authentication (MFA) for computer logins. This weakness, combined with the pre-existing risk of workstations running the end-of-life Windows 7 operating system, substantially increases the risk of a successful breach via compromised credentials.
+
+While the organization has implemented several positive security controls, such as MFA for email and regular security training, the identified critical risks must be remediated urgently to establish a defensible security posture.
+
+% -----------------------------------------------------------------------------
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% -----------------------------------------------------------------------------
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Apex Legends Group} \\
+    Email Domain & \texttt{ApexLegendsGroup.org} \\
+    Website Domain & \url{www.ApexLegendsGroup.org} \\
+    External IP Address & \texttt{124.21.74.42} \\
+    \bottomrule
+\end{tabular}
+
+% -----------------------------------------------------------------------------
+% SECTION 3: SECURITY CONTROL REVIEW
+% -----------------------------------------------------------------------------
+\section{Security Control Review (Questionnaire Analysis)}
+A review of the organization's security controls was conducted based on a standardized questionnaire. The responses indicate a solid foundation in policy and training, but a critical weakness in endpoint access control.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Responses}
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \yessymbol \\
+    Do you require MFA to log into computers? & \nosymbol \\
+    Do you require MFA to access sensitive data systems? & \yessymbol \\
+    Does your organization have an employee acceptable use policy? & \yessymbol \\
+    Does your organization do security awareness training for new employees? & \yessymbol \\
+    Does your organization do security awareness training for all employees at least once per year? & \yessymbol \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The lack of MFA for computer logins is a critical security gap. Should an employee's credentials be compromised through phishing or other means, an attacker could gain direct access to their workstation and, consequently, the internal network. This significantly lowers the barrier for lateral movement and privilege escalation within the environment.
+
+% -----------------------------------------------------------------------------
+% SECTION 4: TECHNICAL SCAN RESULTS
+% -----------------------------------------------------------------------------
+\section{Technical Scan Results}
+An external network scan was performed on the target host to identify open ports and exposed services.
+
+\subsection{Host: \texttt{10.0.0.15}}
+The scan identified the following open port and service.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services for \texttt{10.0.0.15}}
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\
+    \midrule
+    21/tcp & open & ftp & \seqsplit{\texttt{vsftpd 2.3.4}} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection*{Detailed Findings}
+\begin{itemize}
+    \item \textbf{Anonymous FTP Login Allowed:} The FTP service is configured to allow anonymous logins. This is a severe misconfiguration that permits any user on the internet to connect and potentially access, upload, or download files without authentication.
+    \item \textbf{Vulnerable Software Version:} The identified version, \texttt{vsftpd 2.3.4}, is dangerously outdated (released in 2011) and is known to contain a critical backdoor vulnerability (CVE-2011-2523). An attacker can exploit this vulnerability to gain a command shell on the underlying server, leading to a full system compromise.
+\end{itemize}
+
+% -----------------------------------------------------------------------------
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% -----------------------------------------------------------------------------
+\section{Consolidated Risk Assessment}
+The following table summarizes the correlated risks identified through technical scanning, policy review, and pre-existing risk documentation.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.15\linewidth}p{0.55\linewidth}p{0.2\linewidth}@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    Vulnerable FTP Server & An outdated FTP service (\texttt{vsftpd 2.3.4}) allows anonymous login and is susceptible to a known remote code execution vulnerability. & \textbf{Critical} \\
+    \addlinespace
+    Lack of MFA on Workstations & The absence of Multi-Factor Authentication for computer logins exposes the network to takeover via compromised credentials. & \textbf{Critical} \\
+    \addlinespace
+    Outdated Windows Policy & Workstations are running Windows 7, an end-of-life operating system that no longer receives security updates, making them highly vulnerable to malware and exploits. & High \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% -----------------------------------------------------------------------------
+% SECTION 6: RECOMMENDATIONS
+% -----------------------------------------------------------------------------
+\section{Recommendations}
+Based on the findings, the following prioritized actions are recommended to mitigate the identified risks.
+
+\begin{enumerate}
+    \item \textbf{[Priority: Critical] Remediate the Vulnerable FTP Server:}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Disable anonymous login on the FTP server immediately. If the FTP service is not essential for business operations, shut down the service entirely and block port 21 at the firewall.
+        \item \textbf{Short-Term Action:} If the service is required, upgrade \texttt{vsftpd} to the latest stable version to patch the known backdoor vulnerability. Ensure access is restricted via a firewall whitelist to only trusted IP addresses.
+    \end{itemize}
+    
+    \item \textbf{[Priority: Critical] Implement MFA for Workstation Logins:}
+    \begin{itemize}
+        \item \textbf{Action:} Deploy a robust MFA solution (e.g., authenticator app, hardware token, or biometrics) for all user logins to company workstations and laptops. This is a critical compensating control that protects against credential theft, especially given the presence of outdated operating systems.
+    \end{itemize}
+    
+    \item \textbf{[Priority: High] Accelerate Operating System Upgrade Plan:}
+    \begin{itemize}
+        \item \textbf{Action:} Expedite the existing plan to migrate all remaining Windows 7 workstations to a modern, supported operating system such as Windows 10 or Windows 11. This will eliminate a large class of vulnerabilities that cannot be patched.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

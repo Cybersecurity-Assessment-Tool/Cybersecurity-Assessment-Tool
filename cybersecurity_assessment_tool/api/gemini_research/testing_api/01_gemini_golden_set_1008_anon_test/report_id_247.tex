@@ -1,0 +1,160 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks and metadata
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage[T1]{fontenc}
+
+% Document Metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Cybersecurity, Risk Assessment, Network Scan}
+}
+
+% Define custom commands for status indicators
+\newcommand{\yes}{\ding{51}} % Green checkmark
+\newcommand{\no}{\ding{55}}  % Red X
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    {\Huge \textbf{Cybersecurity Assessment Report}\par}
+    \vspace{1.5cm}
+    {\Large Prepared for: \textbf{[Organization Name]}}\par
+    \vspace{2cm}
+    \rule{\linewidth}{0.5mm}
+    \vspace{0.5cm}
+    {\large \textit{An analysis of organizational controls and technical vulnerabilities based on provided data.}}\par
+    \vspace{0.5cm}
+    \rule{\linewidth}{0.5mm}
+    \vfill
+    {\large \textbf{Date of Report:} \today\par}
+    {\large \textbf{Author:} Cybersecurity Analyst\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, synthesizing data from a network scan, a security controls questionnaire, and a list of pre-existing risks. The analysis reveals several critical and high-risk gaps in the current security posture that require immediate attention.
+
+Key findings indicate significant deficiencies in identity and access management, particularly the lack of Multi-Factor Authentication (MFA) for email and computer access. Furthermore, a technical scan identified an exposed Secure Shell (SSH) service on the network perimeter, presenting a direct vector for brute-force and credential-based attacks. These technical vulnerabilities are compounded by organizational weaknesses, including the absence of a formal Acceptable Use Policy and a recurring security awareness training program for all staff.
+
+While the organization has implemented some positive controls, such as MFA for sensitive data systems, the identified gaps create a substantial risk of account compromise, unauthorized access, and potential data breach. This report outlines these risks in detail and provides a prioritized list of actionable recommendations to mitigate them and strengthen the overall security posture.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This assessment is based on data provided by the client. The following details have been recorded for this engagement.
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Address Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. A \yes\ indicates a positive control is in place, while a \no\ signifies a potential gap in security.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \no \\
+Do you require MFA to log into computers? & \no \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \no \\
+Does your organization do security awareness training for new employees? & \yes \\
+Does your organization do security awareness training for all employees at least once per year? & \no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The review highlights critical gaps in access control and policy governance. The absence of MFA for email and general computer access is a primary concern, as these are common entry points for attackers. The lack of an acceptable use policy and annual security training for all employees indicates a weakness in the "human firewall," increasing susceptibility to phishing and social engineering attacks.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed on the client's external infrastructure to identify open ports and exposed services.
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Information not available in scan data.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\begin{tabular}{l l l p{0.5\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+\midrule
+22/tcp & open & SSH & The Secure Shell service is exposed to the public internet. No version or product information was available in the provided scan data. This service is a common target for automated brute-force attacks. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+This section correlates the findings from the security control review and the technical scan. The pre-existing risk register was empty, so all risks listed below are newly identified during this assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.15\linewidth} p{0.4\linewidth}}
+\toprule
+\textbf{Risk ID} & \textbf{Finding} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+RISK-001 & Inadequate Multi-Factor Authentication (MFA) Coverage & \textbf{Critical} & The lack of MFA on email and computer logins exposes the organization to a high risk of account compromise via credential theft or phishing. This could lead to data breaches, financial fraud, and further system compromise. \\
+\noalign{\vspace{2mm}}
+RISK-002 & Exposed Secure Shell (SSH) Service & \textbf{High} & Port 22 (SSH) is open to the internet, making it a target for brute-force and password-spraying attacks. A successful compromise could grant an attacker remote administrative access to a critical system. \\
+\noalign{\vspace{2mm}}
+RISK-003 & Deficient Security Policies and Training & \textbf{High} & The absence of an Acceptable Use Policy and mandatory annual security training increases the likelihood of human error. This elevates the risk of malware infections, policy violations, and successful social engineering attacks. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following prioritized recommendations are provided to address the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{Priority 1: Remediate Critical Risks}
+\begin{itemize}
+    \item \textbf{Implement Comprehensive MFA (RISK-001):}
+    \begin{itemize}
+        \item Immediately enforce MFA for all user accounts, especially for email access (e.g., Office 365, Google Workspace) and remote access VPNs.
+        \item Develop a plan to roll out MFA for all computer logins to strengthen endpoint security and prevent unauthorized local access.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Priority 2: Remediate High Risks}
+\begin{itemize}
+    \item \textbf{Secure the Exposed SSH Service (RISK-002):}
+    \begin{itemize}
+        \item \textbf{Assess Business Need:} Determine if public access to SSH on this host is necessary. If not, block port 22 at the network firewall immediately.
+        \item \textbf{Restrict Access:} If access is required, implement a firewall rule to whitelist only trusted source IP addresses.
+        \item \textbf{Harden Configuration:} Enforce the use of public key authentication and disable password-based authentication for SSH to mitigate brute-force attacks. Ensure the SSH server software is fully patched.
+    \end{itemize}
+    \item \textbf{Establish Security Governance (RISK-003):}
+    \begin{itemize}
+        \item \textbf{Develop Policies:} Create and implement a formal Acceptable Use Policy (AUP) that all employees must read and acknowledge.
+        \item \textbf{Implement Training:} Institute a mandatory, annual security awareness training program for all employees. This program should cover topics such as phishing, password hygiene, and incident reporting.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

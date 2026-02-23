@@ -1,0 +1,179 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+\setcounter{page}{1}
+
+% ==============================================================================
+\section{Executive Summary}
+% ==============================================================================
+
+This report provides a cybersecurity assessment for \textbf{Titanium Core}. The analysis is based on a combination of technical network scanning, a review of organizational security controls, and an evaluation of pre-existing risks.
+
+The assessment has identified several high-risk and critical vulnerabilities that require immediate attention. The most significant findings include:
+
+\begin{itemize}
+    \item \textbf{Critical - Lack of Multi-Factor Authentication (MFA) for Email:} The absence of MFA on email accounts (\texttt{TitaniumCore.net}) presents a severe risk of business email compromise (BEC), phishing, and unauthorized access to sensitive corporate data.
+    \item \textbf{Critical - Insecure Service Exposure:} The technical scan identified an open Remote Desktop Protocol (RDP) port (3389) on an internal server (\texttt{10.10.10.51}). This finding, correlated with a pre-existing risk of RDP exposure on another host, indicates a systemic pattern of insecure configuration. RDP is a primary target for ransomware and other network-based attacks.
+    \item \textbf{High - Deficient Security Awareness Program:} The organization does not provide security awareness training for new or existing employees. This significantly increases the organization's susceptibility to social engineering and phishing attacks, which are the root cause of most security breaches.
+\end{itemize}
+
+The combination of these vulnerabilities places the organization at a high risk of a significant security incident. This report outlines detailed findings and provides actionable recommendations to mitigate these risks and improve the overall security posture.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Titanium Core} \\
+Email Domain & \texttt{TitaniumCore.net} \\
+Website Domain & \url{www.TitaniumCore.net} \\
+External IP Address & \texttt{237.58.15.7} \\
+\bottomrule
+\end{tabular}
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+
+A review of administrative and policy-based security controls was conducted via a questionnaire. The responses reveal critical gaps in the organization's defense-in-depth strategy. A checkmark (\ding{51}) indicates a positive control, while a cross (\ding{55}) indicates a gap.
+
+\begin{tabular}{@{}p{0.6\linewidth}cp{0.25\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Analyst Notes} \\
+\midrule
+Do you require MFA to access email? & \ding{55} & \textcolor{red}{\textbf{Critical Gap.}} Email is a primary target for attackers. Lack of MFA significantly increases risk of account takeover. \\
+\addlinespace
+Do you require MFA to log into computers? & \ding{51} & Positive control in place. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \ding{51} & Positive control in place. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \ding{51} & Positive control in place. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \ding{55} & \textcolor{orange}{\textbf{High Risk.}} New employees are often targeted. Lack of initial training leaves a window of vulnerability. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} & \textcolor{orange}{\textbf{High Risk.}} Without ongoing training, the workforce is more susceptible to evolving phishing and social engineering tactics. \\
+\bottomrule
+\end{tabular}
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+
+A network scan was performed on the specified target to identify open ports and exposed services.
+
+\subsection{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{10.10.10.51}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Target Status:} Up
+\end{itemize}
+
+\subsection{Open Ports Discovered}
+The following open port was identified on the target system.
+
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Description} \\
+\midrule
+3389/tcp & open & \texttt{ms-wbt-server} & Microsoft Remote Desktop Protocol (RDP) \\
+\bottomrule
+\end{tabular}
+
+\subsection{Technical Analysis}
+The scan confirms that port 3389 is open, which is used for Microsoft's Remote Desktop Protocol (RDP). While RDP is a useful administrative tool, its exposure is a significant security risk. It is a frequent target for brute-force password attacks and exploitation of vulnerabilities (e.g., BlueKeep, DejaBlue). This finding is especially concerning when correlated with the pre-existing risk of RDP exposure on another host (\texttt{10.10.10.50}), suggesting a potential lack of network segmentation or insecure default server configurations.
+
+% ==============================================================================
+\section{Correlated Risk Assessment}
+% ==============================================================================
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of key risks.
+
+\begin{tabular}{@{}p{0.1\linewidth}p{0.25\linewidth}p{0.4\linewidth}p{0.15\linewidth}@{}}
+\toprule
+\textbf{Severity} & \textbf{Risk Name} & \textbf{Description} & \textbf{Affected Systems} \\
+\midrule
+\textcolor{red}{\textbf{Critical}} & Lack of MFA for Email & The absence of MFA on email accounts allows for account takeover with only a compromised password, leading to data breaches and BEC. & \texttt{TitaniumCore.net} email system \\
+\addlinespace
+\textcolor{red}{\textbf{Critical}} & Systemic RDP Exposure & RDP is exposed on multiple internal servers. This service is a high-value target for attackers seeking to gain remote control of systems for lateral movement or ransomware deployment. & \texttt{10.10.10.50}, \texttt{10.10.10.51} \\
+\addlinespace
+\textcolor{orange}{\textbf{High}} & Lack of Security Awareness Training & Employees are not trained to recognize or report phishing and social engineering attempts, making them the weakest link in the security chain. & All Employees \\
+\bottomrule
+\end{tabular}
+
+% ==============================================================================
+\section{Recommendations}
+% ==============================================================================
+
+The following actions are recommended to mitigate the identified risks and strengthen the organization's security posture. Recommendations are prioritized based on severity.
+
+\subsection{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Enforce MFA on All Email Accounts:} Immediately enable and enforce MFA for all user accounts on the \texttt{TitaniumCore.net} email platform. This is the single most effective control to prevent unauthorized account access.
+    \item \textbf{Remediate RDP Exposure:}
+        \begin{itemize}
+            \item For hosts \texttt{10.10.10.50} and \texttt{10.10.10.51}, determine if RDP access is necessary.
+            \item If not necessary, disable the service and/or block port 3389 via a host-based or network firewall.
+            \item If necessary, restrict access to authorized personnel only via a bastion host or require access through a secure VPN with MFA. Do not expose RDP directly on the network.
+        \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Implement a Security Awareness Training Program:}
+        \begin{itemize}
+            \item Procure and deploy a security awareness training solution for all employees.
+            \item Integrate this training into the onboarding process for all new hires.
+            \item Conduct annual refresher training and periodic phishing simulations to maintain a high level of security consciousness.
+        \end{itemize}
+\end{enumerate}
+
+\subsection{Strategic Recommendations}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{Conduct a Comprehensive Internal Vulnerability Scan:} The discovery of similar insecure configurations on multiple hosts suggests this may be a widespread issue. A comprehensive authenticated scan of the internal network should be performed to identify and remediate other instances of exposed services, weak configurations, and unpatched systems.
+    \item \textbf{Develop a Secure Server Build Standard:} Create a documented, hardened server configuration baseline that is used for all new server deployments. This standard should include disabling unnecessary services and ports by default.
+\end{enumerate}
+
+\end{document}
+```

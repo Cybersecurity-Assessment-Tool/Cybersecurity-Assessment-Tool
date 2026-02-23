@@ -1,0 +1,208 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% Document Information
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Cell},
+    pdfsubject={Security Report},
+    pdfkeywords={Cybersecurity, Nmap, Risk Assessment},
+}
+
+% Define colors
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textbf{Cybersecurity Posture Assessment}}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    \Huge \textbf{Cybersecurity Posture Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large \textbf{Prepared for:} \\
+    \vspace{0.5cm}
+    \huge \textbf{[Organization Name]}
+    
+    \vfill
+    
+    \large \textbf{Date of Report:} \\
+    \vspace{0.2cm}
+    \today
+    
+    \vspace{1.5cm}
+    
+    \large \textit{This report contains sensitive information and should be handled with care.}
+    
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+% --- Executive Summary ---
+\section*{Executive Summary}
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, organizational security controls, and known risks. The assessment was conducted to identify vulnerabilities, policy gaps, and technical misconfigurations that could expose the organization to cyber threats.
+
+The analysis revealed several critical and high-severity risks that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Gaps in Access Control:} Multi-Factor Authentication (MFA) is not enforced for computer logins or access to sensitive data systems. This significantly increases the risk of unauthorized access via compromised credentials.
+    \item \textbf{Deficient Security Policies:} The organization lacks a formal Acceptable Use Policy (AUP) and does not provide security awareness training for new employees, creating a vulnerable human element.
+    \item \textbf{Exposed Management Services:} The network scan identified an open SSH port (22) on an external-facing system, presenting a direct target for brute-force attacks and potential exploitation.
+\end{itemize}
+
+These findings indicate a reactive security posture. We strongly recommend prioritizing the implementation of robust access controls, formalizing security policies, and reducing the external attack surface. Detailed recommendations are provided in the final section of this report.
+
+% --- Organizational Information ---
+\section*{Organizational Information}
+
+This section details the information provided by the client organization.
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Security Control Review ---
+\section*{Security Control Review (Questionnaire Analysis)}
+
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate significant gaps in the current security framework and are correlated with identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{8cm} c p{4cm}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{51} Yes & Best Practice Met \\
+\addlinespace
+Do you require MFA to log into computers? & {\color{darkred}\ding{55} No} & \textbf{Critical Gap} \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & {\color{darkred}\ding{55} No} & \textbf{Critical Gap} \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & {\color{darkred}\ding{55} No} & \textbf{High Risk} \\
+\addlinespace
+Does your organization do security awareness training for new employees? & {\color{darkred}\ding{55} No} & \textbf{High Risk} \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} Yes & Best Practice Met \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Technical Scan Results ---
+\section*{Technical Scan Results}
+
+An external network scan was performed on the target IP address to identify open ports and exposed services.
+
+\subsection*{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Recent (as of \today)
+    \item \textbf{Scanner Used:} Nmap
+\end{itemize}
+
+\subsection*{Open Ports Discovered}
+The following table details the ports found to be open and accessible from the public internet.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{l l l p{7cm}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/tcp & Open & SSH & Secure Shell (SSH) is a management protocol. Exposing this service to the internet makes it a prime target for automated brute-force attacks and exploitation of any underlying software vulnerabilities. Access should be strictly controlled. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Risk Assessment ---
+\section*{Risk Assessment Summary}
+
+The following table synthesizes findings from the security control review and the technical scan into a prioritized list of risks. These risks represent the most significant threats to the organization's security posture.
+
+\begin{table}[h!]
+\centering
+\caption{Synthesized Risk Register}
+\begin{tabular}{p{2cm} p{4cm} l p{6cm}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+RISK-001 & Lack of Comprehensive MFA Enforcement & \textbf{Critical} & The absence of MFA on computer logins and sensitive data systems exposes the organization to severe risk from credential theft, leading to potential data breaches and unauthorized system access. \\
+\addlinespace
+RISK-002 & Inadequate Security Policies and Onboarding & \textbf{High} & The lack of a formal Acceptable Use Policy and security training for new hires creates an environment where employees are more susceptible to social engineering and accidental data exposure. \\
+\addlinespace
+RISK-003 & Exposed SSH Management Port & \textbf{High} & The publicly accessible SSH service on port 22 provides a direct vector for attackers to attempt unauthorized access through brute-force attacks or by exploiting vulnerabilities in the SSH server software. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Recommendations ---
+\section*{Recommendations}
+
+Based on the identified risks, we provide the following actionable recommendations to improve the security posture of \textbf{[Organization Name]}.
+
+\subsection*{Immediate Actions (To Address Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Implement MFA on All Critical Systems (RISK-001):}
+    \begin{itemize}
+        \item Immediately deploy and enforce MFA for all user logins to company computers (endpoints).
+        \item Enforce MFA for access to all applications and databases containing sensitive or regulated data.
+        \item Prioritize implementation for privileged accounts (e.g., administrators, IT staff).
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{High-Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Develop and Implement Foundational Security Policies (RISK-002):}
+    \begin{itemize}
+        \item Create a formal Acceptable Use Policy (AUP) that all employees must read and sign.
+        \item Integrate mandatory cybersecurity awareness training into the new employee onboarding process to establish a security-first mindset from day one.
+    \end{itemize}
+    \item \textbf{Secure the External Attack Surface (RISK-003):}
+    \begin{itemize}
+        \item Restrict access to the SSH service (port 22) to only trusted IP addresses via firewall rules.
+        \item If public access is unavoidable, ensure it is hardened by disabling password-based authentication in favor of public key cryptography and, if possible, protected by an MFA solution.
+    \end{itemize}
+\end{enumerate}
+
+% --- Conclusion ---
+\section*{Conclusion}
+
+The assessment has identified significant and actionable weaknesses in the current security posture of \textbf{[Organization Name]}. The combination of policy gaps, particularly around MFA and employee training, and a technically exposed management service creates a high-risk environment.
+
+By implementing the recommendations outlined in this report, the organization can substantially reduce its attack surface, mitigate the risk of a security breach, and build a more resilient and defensible security foundation. We advise a swift and prioritized approach to remediation.
+
+\end{document}
+```

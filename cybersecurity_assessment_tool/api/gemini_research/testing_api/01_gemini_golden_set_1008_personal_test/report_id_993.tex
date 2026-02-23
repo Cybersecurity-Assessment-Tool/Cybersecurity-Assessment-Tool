@@ -1,0 +1,218 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Define Colors ---
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\definecolor{darkorange}{rgb}{0.8, 0.33, 0.0}
+\definecolor{darkgreen}{rgb}{0.0, 0.39, 0.0}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\textcolor{darkgreen}{\ding{51}}}
+\newcommand{\no}{\textcolor{darkred}{\ding{55}}}
+
+% ----------------------------------------------------------------------
+% DOCUMENT START
+% ----------------------------------------------------------------------
+\begin{document}
+
+% ----------------------------------------------------------------------
+% TITLE PAGE
+% ----------------------------------------------------------------------
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Cybersecurity Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{Golden Gate Gaming}
+    
+    \vspace{2cm}
+    
+    \large
+    \textbf{Date of Report:} \today \\
+    \textbf{Scan Date:} 2023-10-27
+    
+    \vfill
+    
+    \large
+    \textit{This report contains sensitive information and should be handled with care. Distribution is restricted to authorized personnel only.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% 1. EXECUTIVE SUMMARY
+% ----------------------------------------------------------------------
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Golden Gate Gaming}, synthesizing findings from a technical network scan, a review of organizational security controls, and an analysis of pre-existing risk documentation.
+
+The assessment has identified several critical and high-severity risks that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Lack of Multi-Factor Authentication (MFA):} The organization does not enforce MFA for accessing email or for logging into computers. This represents a significant security gap, leaving critical assets vulnerable to compromise through credential theft.
+    
+    \item \textbf{Critical Exposed Internal Service:} A technical scan of the internal network discovered a service running on host \texttt{10.5.5.5} on port \texttt{8080}. The service's title, \textbf{"TOP SECRET DB"}, strongly suggests it is an exposed database or sensitive application interface. This finding directly contradicts a previous risk assessment which incorrectly classified this port as secure.
+    
+    \item \textbf{Invalidated Risk Assessment:} The discovery of the exposed service on port 8080 invalidates the existing risk entry ("Port 8080 Secured"), which had classified it as a non-threatening false positive. This indicates a potential failure in the risk validation process that must be addressed.
+\end{itemize}
+
+While the organization has implemented foundational security controls, such as employee security training and an acceptable use policy, the identified gaps in access control and the newly discovered exposed service present an unacceptable level of risk. Immediate remediation is strongly recommended to protect sensitive data and prevent unauthorized access.
+
+% ----------------------------------------------------------------------
+% 2. ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name  & \textbf{Golden Gate Gaming} \\
+Email Domain       & \seqsplit{\texttt{GoldenGateGaming.net}} \\
+Website Domain     & \seqsplit{\url{www.GoldenGateGaming.net}} \\
+External IP Address & \texttt{212.139.82.31} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\end{table}
+
+% ----------------------------------------------------------------------
+% 3. SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. Each "No" response indicates a significant gap in the security posture.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{8cm}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\ \midrule
+Do you require MFA to access email? & \no & \textbf{Critical Gap} \\
+Do you require MFA to log into computers? & \no & \textbf{High Risk} \\
+Do you require MFA to access sensitive data systems? & \yes & Control in Place \\
+Does your organization have an employee acceptable use policy? & \yes & Control in Place \\
+Does your organization do security awareness training for new employees? & \yes & Control in Place \\
+\begin{tabular}[t]{@{}p{8cm}@{}}Does your organization do security awareness training for all employees at least once per year?\end{tabular} & \yes & Control in Place \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis.}
+\end{table}
+
+% ----------------------------------------------------------------------
+% 4. TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+
+An internal network scan was performed to identify active services and potential vulnerabilities.
+
+\subsection{Target Host}
+\textbf{IP Address:} \texttt{10.5.5.5}
+
+\subsection{Open Ports and Services}
+The scan revealed the following open port on the target host.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Details} \\ \midrule
+8080/tcp & Open & http-proxy & HTTP Title: \textbf{TOP SECRET DB} \\ \bottomrule
+\end{tabular}
+\caption{Open Ports on Host 10.5.5.5.}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The most critical finding is the open port \texttt{8080} on host \texttt{10.5.5.5}. The HTTP title "TOP SECRET DB" strongly implies that this port provides access to a sensitive, and likely unauthenticated, database or application backend. This represents a severe internal data exposure risk.
+
+Crucially, this finding contradicts the information provided in the existing risk documentation (\textit{Input\_3\_Current\_Risks\_JSON}), which stated this port was secure and a false positive. The current, active scan confirms this is an active, high-risk service.
+
+% ----------------------------------------------------------------------
+% 5. RISK ASSESSMENT & CORRELATION
+% ----------------------------------------------------------------------
+\section{Risk Assessment \& Correlation}
+
+This section correlates the findings from the security control review and the technical scan to provide a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}p{3.5cm}p{6cm}p{2cm}p{3.5cm}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} & \textbf{Source / Correlation} \\ \midrule
+\textbf{Exposed Internal Database Service} & An internal service on \texttt{10.5.5.5:8080} is exposed with a title suggesting it is a sensitive database. & \textbf{Critical} & Technical Scan. This finding invalidates a previous risk assessment which marked this as a false positive. \\
+\addlinespace
+\textbf{Lack of MFA for Email Access} & Email accounts are protected only by passwords, making them highly susceptible to phishing and credential stuffing attacks. & \textbf{Critical} & Questionnaire. A compromised email account is a primary vector for further network compromise. \\
+\addlinespace
+\textbf{Lack of MFA for Endpoint Login} & Employee computers do not require MFA for login. A compromised password could grant an attacker full access to an endpoint and the internal network. & \textbf{High} & Questionnaire. This significantly weakens endpoint security and lateral movement defenses. \\
+\addlinespace
+\textbf{Inaccurate Risk Register} & The existing risk register incorrectly identified a critical vulnerability (Port 8080) as a non-issue. & \textbf{Medium} & Correlation of Technical Scan and Existing Risks. This points to a flaw in the risk management and validation process. \\ \bottomrule
+\end{tabular}%
+}
+\caption{Summary of Identified Risks.}
+\end{table}
+
+% ----------------------------------------------------------------------
+% 6. RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity.
+
+\subsection{Remediation for Exposed Internal Database (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Apply a host-based or network firewall rule to immediately block all access to port \texttt{8080} on host \texttt{10.5.5.5}.
+    \item \textbf{Investigation:} Conduct an urgent investigation to identify the purpose of this service, the type of data it contains, and whether it has already been accessed by unauthorized parties.
+    \item \textbf{Long-Term Fix:} If the service is required, it must be properly secured. This includes implementing strong authentication, encrypting traffic with TLS/SSL (HTTPS), and placing it in a secured network segment. If the service is not required, it should be decommissioned.
+\end{itemize}
+
+\subsection{Remediation for Lack of MFA for Email (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Procure and implement an MFA solution for the organization's email system (e.g., Microsoft 365, Google Workspace).
+    \item \textbf{Phased Rollout:} Begin enforcement immediately for all administrative and privileged accounts. Follow with a mandatory, organization-wide rollout for all users within 30 days.
+\end{itemize}
+
+\subsection{Remediation for Lack of MFA for Endpoints (High)}
+\begin{itemize}
+    \item \textbf{Short-Term Action:} Develop a project plan to implement MFA for all Windows, macOS, and Linux computer logins. Solutions like Windows Hello for Business, Duo, or other third-party tools should be evaluated.
+    \item \textbf{Long-Term Fix:} Enforce MFA for all endpoint logins, especially for remote and administrative users, to prevent lateral movement resulting from compromised credentials.
+\end{itemize}
+
+\subsection{Process Improvement for Risk Management (Medium)}
+\begin{itemize}
+    \item \textbf{Action:} Review and improve the vulnerability validation and risk assessment process. Ensure that technical findings are never dismissed as "false positives" without thorough, documented technical validation.
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,194 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- CUSTOM COMMANDS & SETTINGS ---
+\newcommand{\yes}{\ding{51}} % Checkmark
+\newcommand{\no}{\ding{55}}  % Cross
+\definecolor{criticalred}{HTML}{D7263D}
+\definecolor{highorange}{HTML}{F49D40}
+\definecolor{mediumyellow}{HTML}{F4D440}
+\definecolor{lowblue}{HTML}{5486F3}
+\definecolor{infogray}{HTML}{808080}
+
+% --- HEADER & FOOTER ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{Page \thepage\ of \pageref{LastPage}}
+\fancyfoot[R]{\today}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- START OF DOCUMENT ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+\section{Executive Summary}
+% ===================================================================
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{[Organization Name]}. The assessment combines an analysis of organizational security controls, a technical network scan of the external perimeter, and a review of pre-existing risk documentation.
+
+\paragraph{Key Findings:} The assessment identified critical gaps in the enforcement of Multi-Factor Authentication (MFA). The lack of mandatory MFA for accessing email and sensitive data systems represents a significant and immediate risk to the organization. These control failures expose the organization to a high likelihood of account compromise, business email compromise (BEC), and potential data breaches.
+
+\paragraph{Positive Observations:} On a positive note, the organization demonstrates a solid foundation in security policy and employee awareness training. Furthermore, a technical scan of the designated external target (\texttt{[Target IP]}) revealed a minimal attack surface. A previously documented risk concerning an unencrypted web server on Port 80 appears to have been remediated, as the scan confirmed this port is now closed.
+
+\paragraph{Overall Posture:} While the organization has implemented commendable administrative controls, the critical deficiencies in access control (MFA) significantly weaken its overall security posture. Immediate remediation of these high-risk gaps is strongly recommended to protect critical assets and communications.
+
+% ===================================================================
+\section{Organizational Information}
+% ===================================================================
+
+The following information was used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{Assessed External IP:} \texttt{[Client IP]}
+\end{itemize}
+
+% ===================================================================
+\section{Security Control Review}
+% ===================================================================
+
+An analysis of the organization's security questionnaire responses was performed to evaluate the implementation of key administrative and technical controls. "No" answers indicate significant gaps that increase organizational risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Questionnaire Analysis}
+\label{tab:questionnaire}
+\begin{tabular}{p{0.6\linewidth} c p{0.2\linewidth}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \no & \textcolor{highorange}{\textbf{High Risk}} \\
+Do you require MFA to log into computers? & \yes & Good Practice \\
+Do you require MFA to access sensitive data systems? & \no & \textcolor{criticalred}{\textbf{Critical Gap}} \\
+Does your organization have an employee acceptable use policy? & \yes & Good Practice \\
+Does your organization do security awareness training for new employees? & \yes & Good Practice \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Good Practice \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The findings from this review are the most critical in this report. The absence of MFA on email and sensitive systems are primary targets for attackers and must be addressed with urgency.
+
+% ===================================================================
+\section{Technical Scan Results}
+% ===================================================================
+
+A network port scan was conducted against the target system to identify exposed services on the external perimeter.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} [Scan Date]
+\end{itemize}
+
+The scan revealed a very limited and secure external footprint. No open ports were discovered. The status of a key port is detailed below.
+
+\begin{table}[h!]
+\centering
+\caption{Nmap Scan Results for \texttt{[Target IP]}}
+\label{tab:nmap}
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\
+\midrule
+80/tcp & closed & http & N/A \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The scan indicates a strong network perimeter configuration for the assessed target. The fact that Port 80 is closed is a positive finding, as it directly contradicts a pre-existing risk entry (see Section 5), suggesting that the risk has been successfully mitigated.
+
+% ===================================================================
+\section{Consolidated Risk Assessment}
+% ===================================================================
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of current risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{0.05\linewidth} p{0.3\linewidth} p{0.15\linewidth} p{0.4\linewidth}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+\textbf{R-01} & MFA Not Enforced for Sensitive Data Access & \textcolor{criticalred}{\textbf{Critical}} & The failure to protect systems containing sensitive data with MFA presents a critical risk of a data breach from a compromised account. \\
+\addlinespace
+\textbf{R-02} & MFA Not Enforced for Email & \textcolor{highorange}{\textbf{High}} & Email accounts without MFA are primary targets for phishing and Business Email Compromise (BEC) attacks, which can lead to financial loss and further system compromise. \\
+\addlinespace
+\textbf{R-03} & Unencrypted Web Server (Pre-existing) & \textcolor{infogray}{\textbf{Mitigated}} & A pre-existing risk noted an open Port 80. Our technical scan found this port to be \textbf{closed}. This risk appears to be resolved and the risk register should be updated. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+\section{Recommendations}
+% ===================================================================
+
+The following actionable recommendations are provided to address the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{Immediate Priority (0-30 Days)}
+
+\begin{description}
+    \item[\textbf{Risk R-01:}] \textbf{Enforce MFA on Sensitive Systems.}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately deploy and enforce a non-phishable Multi-Factor Authentication solution (e.g., FIDO2/WebAuthn, authenticator apps) for all user and administrator access to systems classified as containing sensitive data.
+        \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access to the organization's most valuable data.
+    \end{itemize}
+    
+    \item[\textbf{Risk R-02:}] \textbf{Enforce MFA on All Email Accounts.}
+    \begin{itemize}
+        \item \textbf{Action:} Enable and enforce MFA for all email accounts across the organization (\texttt{[Domain]}).
+        \item \textbf{Justification:} Securing email is critical to preventing account takeovers, which are the starting point for Business Email Compromise, phishing campaigns, and lateral movement within the network.
+    \end{itemize}
+\end{description}
+
+\subsection{Administrative Priority (30-60 Days)}
+
+\begin{description}
+    \item[\textbf{Risk R-03:}] \textbf{Update Internal Risk Register.}
+    \begin{itemize}
+        \item \textbf{Action:} Mark the risk associated with the "Unencrypted Web Server" (Port 80) as Mitigated or Closed in the organization's internal risk tracking system.
+        \item \textbf{Justification:} Maintaining an accurate risk register is essential for focusing resources on current, relevant threats and for demonstrating due diligence in risk management.
+    \end{itemize}
+\end{description}
+
+\end{document}
+```

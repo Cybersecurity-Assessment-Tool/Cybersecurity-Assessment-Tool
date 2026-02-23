@@ -1,0 +1,161 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{graphicx} % For potential logos
+\usepackage{xcolor} % For colors
+
+% Document Metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Cybersecurity, Risk, Assessment},
+}
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Assessment Report}
+    \vspace{1.5cm}
+    \vfill
+    \large
+    \textbf{Prepared for:} \\
+    \vspace{0.5cm}
+    \huge \textbf{[Organization Name]}
+    \vspace{2cm}
+    \vfill
+    \large
+    \textbf{Date of Report:} \today \\
+    \textbf{Author:} Cybersecurity Analyst
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The analysis is based on a synthesis of three data sources: an external network scan, a security controls questionnaire, and a list of pre-existing risks.
+
+The overall security posture reveals a mixed landscape. The organization demonstrates a solid foundation in policy and security awareness training. However, the assessment identified \textbf{critical gaps in access control mechanisms}. The absence of Multi-Factor Authentication (MFA) for computer logins and, more importantly, for access to sensitive data systems, represents a significant and immediate risk. An attacker with compromised credentials could potentially gain broad access to internal systems and critical data unimpeded.
+
+On a positive note, the external network scan of the target host did not identify any open ports. This suggests that a well-configured firewall may be in place, reducing the external attack surface. No other pre-existing vulnerabilities were reported.
+
+This report provides a detailed breakdown of these findings and concludes with prioritized, actionable recommendations to mitigate the identified risks and strengthen the organization's overall security posture.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational and Assessment Information}
+
+The following details were used as the basis for this assessment. In cases where information was not provided, placeholders have been used.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{Client External IP:} \texttt{[Client IP]}
+    \item \textbf{Target Host for Scan:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Data Not Available in Scan
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to the security controls questionnaire. Each response is assessed against industry best practices. "No" answers indicate significant gaps that increase organizational risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\begin{tabular}{p{0.6\linewidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{51} & Best Practice Met \\
+Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} & \textbf{Critical Gap} \\
+Do you require MFA to access sensitive data systems? & \textbf{\color{red}\ding{55}} & \textbf{Critical Gap} \\
+Does your organization have an employee acceptable use policy? & \ding{51} & Best Practice Met \\
+Does your organization do security awareness training for new employees? & \ding{51} & Best Practice Met \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Best Practice Met \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The analysis highlights a critical deficiency in the implementation of Multi-Factor Authentication. While email access is protected, the failure to secure computer and sensitive data system access with MFA leaves the organization highly vulnerable to credential theft and subsequent unauthorized access.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network vulnerability scan was performed on the designated target host.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+\end{itemize}
+
+\subsection{Summary of Findings}
+The network scan conducted on the target did not detect any open TCP or UDP ports. 
+
+\textbf{Conclusion:} This result is positive and indicates that the host is likely protected by a firewall that is properly configured to deny external connections. This significantly reduces the external attack surface. However, this finding does not preclude the existence of vulnerabilities on the host that could be exploited from within the network or if the firewall configuration were to change.
+
+% --- Section 5: Risk Assessment Summary ---
+\section{Risk Assessment Summary}
+
+This section consolidates risks identified from the security control review, technical scan, and pre-existing vulnerability data. The risks are prioritized based on their potential impact on the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Consolidated Risk Register}
+\label{tab:risks}
+\begin{tabular}{p{0.1\linewidth} p{0.5\linewidth} l l}
+\toprule
+\textbf{Risk ID} & \textbf{Description} & \textbf{Severity} & \textbf{Source} \\
+\midrule
+RISK-001 & Lack of MFA for sensitive data systems allows an attacker with stolen credentials to directly access and exfiltrate critical information. & \textbf{Critical} & Questionnaire \\
+\addlinespace
+RISK-002 & Lack of MFA for computer logins allows an attacker with stolen credentials to establish a foothold on the internal network, facilitating lateral movement. & \textbf{High} & Questionnaire \\
+\addlinespace
+\multicolumn{4}{c}{\textit{No risks were identified from the technical scan or pre-existing data.}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following actionable recommendations are provided to address the identified risks. They are prioritized to ensure that the most critical vulnerabilities are remediated first.
+
+\subsection{Priority 1: Critical}
+\begin{description}
+    \item[RISK-001: Implement MFA for Sensitive Data Systems]
+    \item[Justification:] The organization's most valuable data is currently protected only by a single factor (a password). In the event of a credential compromise, this data is directly exposed to theft or manipulation.
+    \item[Action:] \textbf{Immediately deploy a mandatory Multi-Factor Authentication policy for all users, including administrators, who access systems containing sensitive or critical data.} This includes databases, file servers, financial applications, and customer relationship management (CRM) systems.
+\end{description}
+
+\subsection{Priority 2: High}
+\begin{description}
+    \item[RISK-002: Enforce MFA for Endpoint Logins]
+    \item[Justification:] Compromised workstations are a primary vector for attackers to gain initial access and move laterally across a network. Securing logins with MFA drastically increases the difficulty for an attacker to leverage stolen credentials.
+    \item[Action:] \textbf{Roll out and enforce MFA for all user logins to company-managed computers, including both desktops and laptops.} Prioritize implementation for privileged users and remote workers.
+\end{description}
+
+\subsection{Priority 3: Informational}
+\begin{description}
+    \item[Validate Firewall Configuration]
+    \item[Justification:] The network scan showed no open ports, which is a strong security posture. However, it is prudent to confirm that this is the result of an intentional and well-documented firewall policy.
+    \item[Action:] \textbf{Conduct an internal review of the firewall rule set for the scanned host (\texttt{[Target IP]}) to ensure the configuration aligns with the principle of least privilege and business requirements.} Ensure that any-any rules are not present and that all allowed traffic is justified.
+\end{description}
+
+\end{document}
+```

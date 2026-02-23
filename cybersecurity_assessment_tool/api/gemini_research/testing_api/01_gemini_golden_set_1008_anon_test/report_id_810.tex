@@ -1,0 +1,204 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long monospaced strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata and Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Security, Report, Analysis},
+}
+
+% Define colors for severity
+\definecolor{critseverity}{HTML}{6B0504}
+\definecolor{highseverity}{HTML}{A40606}
+\definecolor{medseverity}{HTML}{D76A03}
+\definecolor{lowseverity}{HTML}{F6C800}
+\definecolor{infoseverity}{HTML}{005F99}
+
+% Helper command for severity text
+\newcommand{\severity}[2]{\colorbox{#1}{\textcolor{white}{\textbf{\phantom{M}#2\phantom{M}}}}}
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge \textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \
+    \large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+    
+    \vspace{2cm}
+    
+    \large
+    \textbf{Date of Report:} \today
+    
+    \vfill
+    
+    \large
+    \textbf{CONFIDENTIAL} \\
+    \textit{This document contains sensitive information. Distribution is restricted.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section*{1. Executive Overview}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}. The assessment is based on a correlation of network scan data, a security controls questionnaire, and a review of pre-existing risk documentation.
+
+The analysis revealed critical gaps in organizational security controls, primarily related to user authentication and security awareness. Specifically, the absence of Multi-Factor Authentication (MFA) on employee computers and the lack of a formal security awareness training program present a high level of risk. These gaps significantly increase the organization's susceptibility to credential theft, phishing attacks, and subsequent unauthorized access to internal systems.
+
+On a positive note, the technical network scan of the target asset did not confirm a previously identified risk. The scan found that Port 80 (HTTP) was closed, indicating that the "Unencrypted Web Server" risk has likely been remediated for this specific asset.
+
+Immediate action should be focused on implementing the high-priority recommendations outlined in Section 6 to mitigate the identified control gaps and strengthen the overall security posture.
+
+% --- Section 2: Organizational Information ---
+\section*{2. Organizational Information}
+
+This section details the organizational context used for this assessment. The data has been anonymized as per client request.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section*{3. Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. The assessment column highlights areas that deviate from established security best practices and represent significant control gaps.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{8cm} c p{4cm}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{51} & Control Met \\
+\addlinespace
+Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} & \textbf{Critical Gap}. Lack of endpoint MFA is a high-risk vulnerability. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \ding{51} & Control Met \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \ding{51} & Control Met \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \textbf{\color{red}\ding{55}} & \textbf{High Risk}. New hires are a primary target for social engineering. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \textbf{\color{red}\ding{55}} & \textbf{High Risk}. Lack of ongoing training increases susceptibility to phishing. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The most critical findings from the review are:
+\begin{itemize}
+    \item \textbf{Lack of Endpoint MFA:} A compromised password could grant an attacker direct access to an employee's computer, facilitating lateral movement and deeper network compromise.
+    \item \textbf{No Security Awareness Training:} Employees are the first line of defense. Without initial and recurring training, the organization is highly vulnerable to phishing, malware, and other social engineering tactics.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section*{4. Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scanner Used:} Nmap
+\end{itemize}
+
+\subsection*{Port Scan Findings}
+The scan results for the target host are summarized below.
+
+\begin{table}[h!]
+\centering
+\caption{Nmap Port Scan Results for \texttt{[Target IP]}}
+\begin{tabular}{l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} \\
+\midrule
+80/tcp & Closed & http \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Technical Analysis}
+The scan revealed that the target host is online, but Port 80 (HTTP) is \textbf{closed}. This is a positive security finding. It directly contradicts the pre-existing risk titled "Unencrypted Web Server," which stated that Port 80 was open. This suggests that the previously identified risk has been successfully remediated or was a false positive for this specific asset. No other open ports or vulnerable services were identified on this target during the scan.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section*{5. Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{4.5cm} p{7cm} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of Endpoint MFA} & User computers do not require Multi-Factor Authentication for login. A compromised password provides direct endpoint access. & \severity{highseverity}{High} \\
+\addlinespace
+\textbf{Inadequate Security Awareness Program} & The organization does not provide security training to new or existing employees, increasing susceptibility to phishing and social engineering. & \severity{highseverity}{High} \\
+\addlinespace
+\textbf{Unencrypted Web Server} & \textit{(From Input 3)} Port 80 was believed to be open, exposing unencrypted traffic. \textbf{Status: Not Confirmed.} The scan shows this port is closed. & \severity{infoseverity}{Info} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section*{6. Recommendations}
+
+The following actions are recommended to address the identified risks and improve the overall security posture of \textbf{[Organization Name]}. Recommendations are prioritized based on risk severity.
+
+\subsection*{Priority 1: High-Risk Items}
+
+\subsubsection*{Implement MFA for Endpoint Logon}
+\begin{itemize}
+    \item \textbf{Action:} Deploy and enforce a Multi-Factor Authentication solution for all employee computer logins (Windows, macOS, etc.).
+    \item \textbf{Rationale:} This creates a critical defense layer against credential theft. Even if an attacker obtains a user's password, they cannot log in to the machine without the second factor.
+    \item \textbf{Suggested Tools:} Windows Hello for Business, Duo Security, Okta.
+\end{itemize}
+
+\subsubsection*{Establish a Security Awareness Training Program}
+\begin{itemize}
+    \item \textbf{Action:} Develop and implement a mandatory security awareness training program. This program must include:
+    \begin{enumerate}
+        \item Onboarding training for all new employees before they are granted system access.
+        \item Annual refresher training for all staff covering current threats like phishing, ransomware, and proper data handling.
+        \item Periodic phishing simulations to test and reinforce training.
+    \end{enumerate}
+    \item \textbf{Rationale:} A well-trained workforce is significantly less likely to fall victim to common cyberattacks, reducing the organization's overall risk profile.
+\end{itemize}
+
+\subsection*{Priority 2: Risk Management}
+
+\subsubsection*{Review and Close Remediated Risk}
+\begin{itemize}
+    \item \textbf{Action:} Formally review the "Unencrypted Web Server" risk in your risk register. Based on the technical scan results, this risk appears to be remediated for the target \texttt{[Target IP]}.
+    \item \textbf{Rationale:} Maintaining an accurate risk register is crucial for focusing resources on current, relevant threats. Closing remediated risks ensures that security efforts are not wasted on non-existent issues.
+\end{itemize}
+
+\end{document}
+```

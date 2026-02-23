@@ -1,0 +1,141 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+
+% Document Metadata
+\title{Cybersecurity Assessment Report \\ \large For: Silent Spring}
+\author{Cybersecurity Analyst Group}
+\date{November 22, 2025}
+
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+
+% --- 1. Executive Summary ---
+\section*{1. Executive Summary}
+This report details the findings of a cybersecurity assessment for \textbf{Silent Spring}, conducted on November 22, 2025. The assessment incorporated an analysis of organizational security controls via a questionnaire, a technical network scan of a key asset, and a review of pre-existing risks.
+
+The overall security posture reveals a mix of sound foundational policies and critical, high-impact vulnerabilities that require immediate attention. While the organization has implemented an acceptable use policy and initial security training for new hires, there are significant gaps in authentication security and ongoing employee education.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Authentication Gaps:} Multi-Factor Authentication (MFA) is not enforced for accessing email or for computer logins. This exposes the organization to a high risk of account compromise and unauthorized access.
+    \item \textbf{Vulnerable External Service:} The external-facing web server is running an outdated version of nginx (1.18.0), which has multiple known vulnerabilities. This could allow an attacker to compromise the server.
+    \item \textbf{Inadequate Security Training:} Security awareness training is not conducted annually for all employees, increasing the organization's susceptibility to social engineering attacks like phishing.
+    \item \textbf{System Misconfiguration:} The SSL certificate on the web server does not match the organization's domain, which can erode user trust and may indicate a configuration oversight.
+\end{itemize}
+
+This report provides a detailed breakdown of these findings and offers actionable recommendations to mitigate the identified risks and strengthen the organization's overall security posture.
+
+% --- 2. Organizational Information ---
+\section*{2. Organizational Information}
+The following information was provided for the assessment.
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Silent Spring} \\
+Email Domain & \texttt{SilentSpring.com} \\
+Website Domain & \url{www.SilentSpring.com} \\
+External IP Scanned & \texttt{216.244.226.3} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% --- 3. Security Control Review ---
+\section*{3. Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. Items marked with \ding{55} (No) indicate significant gaps in the security framework.
+
+\begin{center}
+\begin{tabular}{p{0.7\textwidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis}
+The lack of MFA for email and computer access represents a critical vulnerability. Email is a primary target for attackers seeking to conduct Business Email Compromise (BEC) or gain a foothold in the network. Similarly, the absence of mandatory annual security training for all staff leaves the organization vulnerable to evolving phishing and social engineering tactics.
+
+% --- 4. Technical Scan Results ---
+\section*{4. Technical Scan Results}
+A network scan was performed to identify open ports and services on the specified target system.
+
+\subsection*{Scan Metadata}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{192.168.10.5}
+    \item \textbf{Scan Date:} 2025-11-22 10:00:00 UTC
+\end{itemize}
+
+\subsection*{Open Ports and Services}
+The following table details the services discovered on the target system.
+\begin{center}
+\begin{tabular}{l l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & open & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Technical Observations}
+\begin{itemize}
+    \item \textbf{Outdated Software:} The web server is running nginx version 1.18.0, which was released in 2020. This version is no longer supported and has several publicly disclosed vulnerabilities (CVEs) of varying severity. An attacker could exploit these vulnerabilities to gain unauthorized access or cause a denial of service.
+    \item \textbf{SSL Certificate Mismatch:} The scan revealed that the SSL certificate presented by the server has a Common Name of \texttt{www.acme-corp.com}. This does not match the organization's domain (\texttt{www.SilentSpring.com}). This misconfiguration can lead to browser trust warnings for visitors and may be indicative of a larger issue with the server's setup.
+\end{itemize}
+
+% --- 5. Risk Assessment Summary ---
+\section*{5. Risk Assessment Summary}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data.
+
+\begin{center}
+\begin{tabular}{p{0.1\textwidth} p{0.3\textwidth} p{0.4\textwidth} p{0.1\textwidth}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & Inadequate Multi-Factor Authentication & Lack of MFA on email and computer logins exposes the organization to account takeovers and unauthorized access. & \textbf{Critical} \\
+\addlinespace
+RISK-002 & Outdated Web Server Software & The public-facing nginx server is running an old version with known vulnerabilities, making it a prime target for exploitation. & High \\
+\addlinespace
+RISK-003 & Insufficient Security Awareness Training & Without mandatory annual training, employees are less prepared to identify and report modern security threats like phishing. & High \\
+\addlinespace
+RISK-004 & SSL Certificate Mismatch & The server's SSL certificate does not match the company domain, indicating a misconfiguration that harms user trust and security. & Medium \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textit{Note: No pre-existing vulnerabilities were reported in the input data.}
+
+% --- 6. Recommendations ---
+\section*{6. Recommendations}
+Based on the risks identified, the following actions are recommended to improve the security posture of \textbf{Silent Spring}.
+
+\begin{enumerate}
+    \item \textbf{Implement Comprehensive MFA (RISK-001):} Immediately enforce MFA for all users across all critical systems. Prioritize email (e.g., Office 365, Google Workspace), VPN access, and administrative accounts. Extend this requirement to all computer logins.
+    
+    \item \textbf{Upgrade Web Server Software (RISK-002):} Plan and execute an upgrade of the nginx server from version 1.18.0 to the latest stable version. Before upgrading, test the new version in a staging environment to ensure application compatibility. Regularly schedule patch and update cycles for all internet-facing systems.
+    
+    \item \textbf{Establish Annual Security Training (RISK-003):} Develop and mandate an annual security awareness training program for all employees. The training should cover current threats such as phishing, ransomware, and proper data handling.
+    
+    \item \textbf{Correct SSL Certificate Configuration (RISK-004):} Replace the current SSL certificate on the web server with a valid certificate that correctly identifies \texttt{www.SilentSpring.com}. Ensure that certificates are monitored for expiration and renewed in a timely manner.
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,172 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For dingbats (checkmarks and crosses)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url}      % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{xcolor}   % For custom colors
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+}
+
+% Custom commands for clarity
+\newcommand{\yes}{\textcolor{green}{\ding{51}}}
+\newcommand{\no}{\textcolor{red}{\ding{55}}}
+
+% --- Document Start ---
+\begin{document}
+
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+\maketitle
+
+\hrule\vspace{1em}
+
+% ===================================================================
+% 1. Executive Summary
+% ===================================================================
+\section*{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, organizational security controls, and pre-existing risk information. The assessment identified several critical and high-risk vulnerabilities that require immediate attention.
+
+Key findings include a publicly accessible FTP server running a dangerously outdated and vulnerable version of \texttt{vsftpd}, which also permits anonymous logins. This configuration poses a severe risk of unauthorized data access, modification, or system compromise.
+
+Furthermore, significant gaps were identified in organizational security policies. The absence of Multi-Factor Authentication (MFA) for email access, a formal Acceptable Use Policy (AUP), and annual security awareness training for all employees substantially increases the organization's susceptibility to phishing, business email compromise, and insider threats. These policy gaps, combined with the technical vulnerabilities, create a high-risk security posture that must be addressed urgently.
+
+% ===================================================================
+% 2. Organizational Information
+% ===================================================================
+\section*{1. Organizational Information}
+
+The following details were used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+External IP Address (Client) & \texttt{[Client IP]} \\
+Scanned Target IP Address & \texttt{[Target IP]} \\
+\bottomrule
+\end{tabular}
+\caption{Client and Assessment Scope Details.}
+\end{table}
+
+% ===================================================================
+% 3. Security Control Review (from Questionnaire)
+% ===================================================================
+\section*{2. Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The results highlight critical gaps in identity management and employee security governance. A "No" answer indicates a deviation from security best practices.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.75\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \no \\
+Do you require MFA to log into computers? & \yes \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \no \\
+Does your organization do security awareness training for new employees? & \yes \\
+Does your organization do security awareness training for all employees at least once per year? & \no \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results.}
+\end{table}
+
+% ===================================================================
+% 4. Technical Scan Results (from Nmap)
+% ===================================================================
+\section*{3. Technical Scan Results}
+
+An external network scan was performed on the target IP address \texttt{[Target IP]}. The scan revealed one open port with a critically vulnerable service.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} & \textbf{Notes} \\
+\midrule
+21/tcp & open & ftp & vsftpd 2.3.4 & Anonymous FTP login allowed \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports and Services Detected.}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The presence of \textbf{vsftpd version 2.3.4} is a \textbf{critical security risk}. This specific version is widely known to contain a backdoor vulnerability (CVE-2011-2523) that allows an attacker to gain a command shell on the server. Compounding this issue, the server is configured to allow \textbf{Anonymous FTP login}, which enables any unauthenticated user on the internet to connect, potentially upload malicious files, or exfiltrate sensitive data.
+
+% ===================================================================
+% 5. Consolidated Risk Assessment
+% ===================================================================
+\section*{4. Risk Assessment Summary}
+
+The following table synthesizes findings from the technical scan, the security control review, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\textwidth}p{0.5\textwidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Vulnerable FTP Service} & The external FTP server is running vsftpd 2.3.4, which is known to have a critical backdoor vulnerability. & \textbf{Critical} \\
+\addlinespace
+\textbf{Anonymous FTP Access} & The FTP server allows unauthenticated anonymous access, creating a high risk of data breach or malware implantation. & \textbf{Critical} \\
+\addlinespace
+\textbf{No MFA for Email} & Lack of MFA on email exposes the organization to a high risk of business email compromise and phishing attacks. & \textbf{Critical} \\
+\addlinespace
+\textbf{No Acceptable Use Policy} & The absence of a formal AUP leads to a lack of governance and accountability for employee use of company assets. & \textbf{High} \\
+\addlinespace
+\textbf{Inadequate Security Training} & Failure to conduct annual security awareness training for all staff increases susceptibility to social engineering. & \textbf{High} \\
+\addlinespace
+\textbf{Outdated Windows Policy} & (Pre-existing risk) Workstations are running Windows 7, which is end-of-life and no longer receives security updates. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\caption{Consolidated List of Identified Risks.}
+\end{table}
+
+% ===================================================================
+% 6. Recommendations
+% ===================================================================
+\section*{5. Recommendations}
+
+Based on the assessment, the following actions are recommended, prioritized by severity.
+
+\subsection*{Priority 1: Critical Risks (Immediate Action Required)}
+\begin{itemize}
+    \item \textbf{Remediate FTP Server Immediately:} The FTP service on \texttt{[Target IP]} must be taken offline immediately.
+    \begin{itemize}
+        \item \textbf{Short-Term:} Disable the service entirely.
+        \item \textbf{Long-Term:} If FTP is a business requirement, replace it with a modern, secure file transfer protocol like SFTP (SSH File Transfer Protocol) and ensure it is fully patched and requires strong authentication. Anonymous access must be disabled.
+    \end{itemize}
+    \item \textbf{Enable MFA for Email:} Implement mandatory MFA for all user access to the email system (\texttt{[Domain]}). This is the single most effective control to prevent account takeovers.
+\end{itemize}
+
+\subsection*{Priority 2: High Risks (Action within 30-60 days)}
+\begin{itemize}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP that all employees must read and sign. This policy should define the rules for using company networks, systems, and data.
+    \item \textbf{Establish Annual Security Awareness Training:} Institute a mandatory security awareness training program for all employees to be completed annually. This program should cover topics like phishing, password security, and data handling.
+\end{itemize}
+
+\subsection*{Priority 3: Medium Risks (Action within 90 days)}
+\begin{itemize}
+    \item \textbf{Address Outdated Windows Policy:} Continue with the planned project to upgrade all Windows 7 workstations to a supported operating system, such as Windows 10 or 11, to ensure they receive critical security patches.
+\end{itemize}
+
+\end{document}
+```

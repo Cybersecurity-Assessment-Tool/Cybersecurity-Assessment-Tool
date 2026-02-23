@@ -1,0 +1,151 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]} on November 22, 2025. The assessment combined an external network scan, a review of existing security risks, and an analysis of organizational security controls based on a questionnaire.
+
+The analysis revealed several critical and high-risk security gaps that require immediate attention. A key technical finding is the presence of an outdated and unsupported Nginx web server (\texttt{1.18.0}) exposed to the internet. This version is past its end-of-life and is susceptible to numerous known vulnerabilities, posing a significant risk of compromise.
+
+From a policy and procedural standpoint, the organization has critical deficiencies in access control. The absence of Multi-Factor Authentication (MFA) for computer logins and, most importantly, for access to sensitive data systems, dramatically increases the risk of unauthorized access and data breaches. Furthermore, the lack of a formal Acceptable Use Policy and mandatory annual security training for all staff weakens the organization's human firewall, leaving it more vulnerable to social engineering and insider threats.
+
+Immediate remediation should focus on upgrading the public-facing web server and implementing a comprehensive MFA policy across all critical assets.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following information was used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+An analysis of the security questionnaire reveals the current state of administrative and policy-based controls. While some foundational practices are in place, such as MFA for email and security training for new hires, there are significant gaps in critical areas. The following table summarizes the responses and provides a high-level assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Summary}
+\label{tab:controls}
+\begin{tabular}{p{0.6\linewidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{51} & Best Practice Met \\
+Do you require MFA to log into computers? & \ding{55} & \textbf{High Risk Gap} \\
+Do you require MFA to access sensitive data systems? & \ding{55} & \textbf{Critical Risk Gap} \\
+Does your organization have an employee acceptable use policy? & \ding{55} & \textbf{High Risk Gap} \\
+Does your organization do security awareness training for new employees? & \ding{51} & Best Practice Met \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} & \textbf{High Risk Gap} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The lack of MFA on endpoints and sensitive systems, combined with missing foundational policies and training, indicates a reactive rather than proactive security posture.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed against the target IP address \texttt{[Target IP]} to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+\end{itemize}
+
+The scan identified the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\label{tab:ports}
+\begin{tabular}{l l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/TCP & Open & HTTPS & Nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Findings}
+The primary finding is the version of the Nginx web server: \textbf{1.18.0}. This version was released in April 2020 and reached its official End of Life (EOL) in April 2022. Running unsupported, EOL software on an internet-facing system is a critical security risk. It no longer receives security patches from the vendor, leaving it exposed to a wide range of publicly known vulnerabilities (CVEs) that could be exploited by attackers to gain unauthorized access, exfiltrate data, or compromise the server.
+
+% --- Section 5: Overall Risk Assessment ---
+\section{Overall Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data. Since no pre-existing vulnerabilities were reported, all risks listed below are new findings from this assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Consolidated Risk Register}
+\label{tab:risks}
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.45\linewidth} l}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & Outdated Web Server Software & The public-facing web server is running Nginx 1.18.0, which is unsupported and has known vulnerabilities. & \textbf{Critical} \\
+\addlinespace
+RISK-002 & Lack of MFA for Sensitive Systems & Access to systems containing sensitive data is not protected by Multi-Factor Authentication, increasing risk of data breach. & \textbf{Critical} \\
+\addlinespace
+RISK-003 & Lack of MFA for Endpoint Logins & Employee computers are not protected by MFA, weakening defenses against credential theft and lateral movement. & \textbf{High} \\
+\addlinespace
+RISK-004 & Missing Acceptable Use Policy & The absence of a formal AUP means there are no clear rules for employees regarding the use of company assets. & \textbf{High} \\
+\addlinespace
+RISK-005 & Inadequate Annual Security Training & Failure to provide annual security training for all staff increases susceptibility to phishing and social engineering attacks. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the identified risks, the following prioritized actions are recommended to improve the security posture of \textbf{[Organization Name]}.
+
+\begin{enumerate}
+    \item \textbf{Upgrade Nginx Server (RISK-001 - Critical):} Immediately plan and execute the upgrade of the Nginx server from version 1.18.0 to a current, stable, and supported version. Establish a patch management policy to ensure all internet-facing systems are kept up-to-date.
+
+    \item \textbf{Implement MFA for Sensitive Systems (RISK-002 - Critical):} Deploy a mandatory MFA solution for all user accounts (including administrative and service accounts) that have access to sensitive data systems. This is the single most effective control to prevent unauthorized access.
+
+    \item \textbf{Enforce MFA on Endpoints (RISK-003 - High):} Roll out MFA for all employee computer logins. This adds a crucial layer of security to prevent unauthorized use of a compromised device or user account.
+
+    \item \textbf{Develop and Implement an AUP (RISK-004 - High):} Create a comprehensive Acceptable Use Policy (AUP) that clearly defines the rules and responsibilities for all employees when using company technology and data. Ensure all employees read and acknowledge the policy.
+
+    \item \textbf{Establish Annual Security Training (RISK-005 - High):} Institute a mandatory security awareness training program for all employees, to be completed annually. The training should cover current threats such as phishing, malware, and social engineering.
+\end{enumerate}
+
+\end{document}
+```

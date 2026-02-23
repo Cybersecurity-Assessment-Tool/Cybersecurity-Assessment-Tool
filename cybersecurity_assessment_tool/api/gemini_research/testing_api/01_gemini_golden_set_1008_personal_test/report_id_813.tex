@@ -1,0 +1,163 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- TITLE ---
+\title{Cybersecurity Posture Assessment Report \\ \large For: Cinder & Ash}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive assessment of the cybersecurity posture for Cinder \& Ash, based on a combination of technical network scanning, a review of organizational security controls, and an analysis of pre-existing risk documentation.
+
+The assessment has identified a \textbf{critical risk}: a potentially sensitive database, labeled "TOP SECRET DB", is exposed to the internal network on port 8080. This finding directly contradicts previous risk assessments which incorrectly classified this port as secure. This exposure presents a significant and immediate threat of data compromise.
+
+Furthermore, a \textbf{high-risk gap} was identified in the organization's security practices: the absence of mandatory annual security awareness training for all employees. This deficiency heightens the organization's susceptibility to social engineering, phishing, and insider threats, directly impacting the overall security culture.
+
+Immediate remediation is required to address the exposed system. Strategic improvements to the security training program are also essential to fortify the organization's human firewall and mitigate future risks.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Cinder \& Ash \\
+Email Domain & \seqsplit{\texttt{CinderAsh.com}} \\
+Website Domain & \seqsplit{\url{www.CinderAsh.com}} \\
+External IP Address & \texttt{121.244.224.224} \\
+\bottomrule
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The results indicate a strong implementation of multi-factor authentication (MFA) but reveal a significant weakness in the security training program.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \yes \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \yes \\
+Does your organization do security awareness training for new employees? & \yes \\
+\textcolor{red}{Does your organization do security awareness training for all employees at least once per year?} & \textcolor{red}{\no} \\
+\bottomrule
+\end{tabular}
+\caption{Security Control Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis of Findings}
+The lack of annual, recurring security awareness training for all staff is a high-risk finding. While training new hires is a good first step, the threat landscape evolves continuously. Without regular reinforcement, employees are more likely to fall victim to phishing attacks, mishandle sensitive data, or be unaware of new security policies, undermining other technical controls in place.
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+An internal network scan was performed to identify open ports and exposed services.
+
+\subsection*{Nmap Scan: \texttt{10.5.5.5}}
+The scan identified one host as active and revealed a critical service exposure.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{10.5.5.5}
+    \item \textbf{Status:} Up
+    \item \textbf{Open Ports Found:}
+        \begin{itemize}
+            \item \textbf{Port:} \texttt{8080/tcp}
+            \item \textbf{State:} open
+            \item \textbf{Service Information:} The HTTP service running on this port returned a title of \textbf{\texttt{"TOP SECRET DB"}}.
+        \end{itemize}
+\end{itemize}
+
+\subsection*{Analysis of Findings}
+The discovery of an open port with a title explicitly suggesting it is a "TOP SECRET DB" is a critical vulnerability. This indicates that a sensitive data system may be directly accessible on the network without adequate access controls. This finding directly contradicts the information from the pre-existing risk documentation (Input 3), which incorrectly stated this port was secure. This discrepancy suggests a failure in the risk management or change control process.
+
+% --- RISK ASSESSMENT ---
+\section{Risk Assessment}
+The following table synthesizes the findings from the security control review and the technical scan into a prioritized list of risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.2\linewidth}p{0.15\linewidth}p{0.5\linewidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+\textbf{RISK-001} & Exposed Sensitive Database & \textbf{Critical} & A service on port 8080 of host \texttt{10.5.5.5} is publicly titled "TOP SECRET DB". This implies direct, unauthorized access to highly sensitive data is possible. Previous risk assessments are outdated and inaccurate. \\
+\addlinespace
+\textbf{RISK-002} & Inadequate Security Training Program & \textbf{High} & The lack of annual security awareness training for all employees significantly increases the organization's susceptibility to phishing, social engineering, and insider threats. \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks.
+
+\subsection*{RISK-001: Exposed Sensitive Database (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action (0-24 hours):}
+    \begin{enumerate}
+        \item Immediately apply a firewall rule to block all access to port 8080 on host \texttt{10.5.5.5} from unauthorized sources.
+        \item Launch an investigation to identify the system owner, the type of data it contains, and review access logs for any signs of compromise.
+    \end{enumerate}
+    \item \textbf{Long-Term Action (1-3 months):}
+    \begin{enumerate}
+        \item If the service is required, ensure it is placed behind an authentication layer and proper access controls are enforced (e.g., MFA, IP whitelisting).
+        \item Decommission the service if it is not business-critical.
+        \item Review and improve the organization's change management and vulnerability scanning processes to prevent such exposures in the future.
+    \end{enumerate}
+\end{itemize}
+
+\subsection*{RISK-002: Inadequate Security Training Program (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action (0-2 weeks):}
+    \begin{enumerate}
+        \item Procure and schedule mandatory security awareness training for all current employees.
+        \item Communicate the importance of this training to all staff, emphasizing current threats like phishing.
+    \end{enumerate}
+    \item \textbf{Long-Term Action (Ongoing):}
+    \begin{enumerate}
+        \item Establish a formal, ongoing security awareness program that requires all employees to complete training at least annually.
+        \item Incorporate periodic phishing simulations to test and reinforce the training's effectiveness.
+    \end{enumerate}
+\end{itemize}
+
+\end{document}
+```

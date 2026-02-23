@@ -1,0 +1,173 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmarks and crosses (dingbats)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage[hidelinks]{hyperref}  % For hyperlinks without ugly boxes
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % For splitting long strings in texttt
+\usepackage{graphicx}             % For logos, etc.
+\usepackage{fancyhdr}             % For headers and footers
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report \\ \large For: \textbf{Blackwood Industries}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HEADER & FOOTER ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{Blackwood Industries}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section*{1.0 Executive Summary}
+
+This report provides a cybersecurity posture assessment for \textbf{Blackwood Industries}, based on an analysis of network scan data, organizational security controls, and a review of pre-existing risk information. The assessment was conducted on \today.
+
+The analysis revealed several critical and high-risk findings that require immediate attention. A significant discrepancy was identified between the current technical findings and the organization's existing risk register, indicating a potential flaw in the risk management process.
+
+\textbf{Key Critical Findings:}
+\begin{itemize}
+    \item \textbf{Exposed Sensitive System:} A network scan identified an open service on internal IP \texttt{10.5.5.5} at port \texttt{8080}. The service's title is publicly advertised as \textbf{"TOP SECRET DB"}, which represents a critical information disclosure vulnerability.
+    \item \textbf{Lack of Multi-Factor Authentication (MFA):} The organization does not enforce MFA for accessing email or sensitive data systems. This gap, combined with the exposed database, creates a high-impact scenario for potential data breaches.
+    \item \textbf{Inaccurate Risk Assessment:} The existing risk register incorrectly classifies port \texttt{8080} as a "confirmed secure" false positive. This new finding directly contradicts that assessment, suggesting the risk management process is not accurately reflecting the current security posture.
+\end{itemize}
+
+This report outlines these findings in detail and provides prioritized, actionable recommendations to mitigate the identified risks and strengthen the overall security posture of \textbf{Blackwood Industries}.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section*{2.0 Organizational Information}
+
+This section details the organizational data provided for the assessment. This information is used to establish the context for the technical and procedural analysis.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Blackwood Industries} \\
+Email Domain & \texttt{BlackwoodIndustries.net} \\
+Website Domain & \texttt{www.BlackwoodIndustries.net} \\
+External IP Address & \texttt{93.70.249.236} \\
+\bottomrule
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section*{3.0 Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate significant gaps in the security framework and are correlated with other findings in this report.
+
+\begin{tabular}{@{}p{0.7\linewidth}cc}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & No & \ding{55} \\
+Do you require MFA to log into computers? & Yes & \ding{51} \\
+Do you require MFA to access sensitive data systems? & No & \ding{55} \\
+Does your organization have an employee acceptable use policy? & Yes & \ding{51} \\
+Does your organization do security awareness training for new employees? & No & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & Yes & \ding{51} \\
+\bottomrule
+\end{tabular}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{No MFA for Email/Sensitive Systems:} This is a critical deficiency. Email is a primary vector for phishing and account compromise. Lack of MFA on sensitive systems removes a crucial layer of defense against unauthorized access, especially relevant given the findings in Section 4.0.
+    \item \textbf{No Security Training for New Employees:} New hires are often more susceptible to social engineering. Failing to provide security training upon onboarding creates a persistent window of vulnerability.
+\end{itemize}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section*{4.0 Technical Scan Results}
+
+A network scan was performed to identify active services and potential vulnerabilities on the specified target system.
+
+\subsection*{Scan Target}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.5.5.5}
+\end{itemize}
+
+\subsection*{Open Ports and Service Information}
+The scan revealed the following open port.
+
+\begin{tabular}{@{}llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service/Script} & \textbf{Output / Notes} \\
+\midrule
+8080/tcp & open & http-title & \textbf{TOP SECRET DB} \\
+\bottomrule
+\end{tabular}
+
+\subsection*{Technical Findings Analysis}
+The discovery of port \texttt{8080} with the HTTP title \textbf{"TOP SECRET DB"} is a \textbf{CRITICAL} finding.
+\begin{enumerate}
+    \item \textbf{Information Disclosure:} The title explicitly advertises the system as containing highly sensitive information ("TOP SECRET"). This makes it a high-value target for any malicious actor with internal network access.
+    \item \textbf{Poor Configuration:} Such a descriptive title is a severe operational security failure. System banners and titles should be generic and non-descriptive.
+    \item \textbf{Contradiction of Existing Data:} This finding directly invalidates the pre-existing risk entry which stated, "Port 8080 is confirmed secure and false positive." The system is neither secure nor a false positive.
+\end{enumerate}
+
+% --- RISK ASSESSMENT ---
+\section*{5.0 Consolidated Risk Assessment}
+
+This section synthesizes the findings from the security control review and the technical scan to provide a consolidated view of the primary risks facing the organization.
+
+\begin{tabular}{@{}p{0.2\linewidth}p{0.6\linewidth}l}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Exposed Sensitive Data System} & A system on \texttt{10.5.5.5:8080} is titled "TOP SECRET DB", indicating high sensitivity. It is exposed on the internal network without adequate access controls or obfuscation, creating a direct path to a potential data breach. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of MFA on Critical Systems} & MFA is not enforced on email or sensitive data systems. This weakness dramatically increases the risk of account takeover and unauthorized access to critical assets, including the exposed database. & \textbf{High} \\
+\addlinespace
+\textbf{Inadequate Employee Onboarding} & New employees do not receive security awareness training, leaving a gap in the human firewall. This makes the organization more susceptible to phishing and social engineering attacks. & \textbf{Medium} \\
+\addlinespace
+\textbf{Flawed Risk Management Process} & The existing risk register contains critically inaccurate information, providing a false sense of security. This indicates the process for identifying, assessing, and tracking risks is unreliable. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+
+% --- RECOMMENDATIONS ---
+\section*{6.0 Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{Priority 1: Immediate Actions}
+\begin{enumerate}
+    \item \textbf{Isolate and Investigate Exposed System:} Immediately investigate the system at \texttt{10.5.5.5:8080}.
+    \begin{itemize}
+        \item Restrict all network access to the system except for essential administrative personnel.
+        \item Identify the owner, purpose, and sensitivity of the data it contains.
+        \item Change the HTTP title to a generic, non-descriptive value.
+    \end{itemize}
+    \item \textbf{Implement Access Controls:} Place the system behind a firewall and enforce strict Access Control Lists (ACLs), ensuring only authorized users and systems can connect to it.
+\end{enumerate}
+
+\subsection*{Priority 2: High-Impact Remediations}
+\begin{enumerate}
+    \item \textbf{Enforce Mandatory MFA:} Deploy and enforce MFA across all email accounts and any system classified as containing sensitive data. This is the single most effective control to prevent unauthorized access.
+    \item \textbf{Implement Onboarding Security Training:} Integrate mandatory security awareness training into the new employee onboarding process. This training should occur within the first week of employment.
+\end{enumerate}
+
+\subsection*{Priority 3: Process Improvement}
+\begin{enumerate}
+    \item \textbf{Overhaul Risk Management Process:} Conduct a full review of the risk assessment and management lifecycle.
+    \begin{itemize}
+        \item Ensure that technical scan results are regularly used to validate and update the risk register.
+        \item Decommission any risk tracking data that is proven to be inaccurate.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

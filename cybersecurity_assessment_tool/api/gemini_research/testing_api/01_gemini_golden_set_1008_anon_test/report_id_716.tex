@@ -1,0 +1,229 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Color Definitions for Severity ---
+\definecolor{sev_critical}{HTML}{990000}
+\definecolor{sev_high}{HTML}{D15100}
+\definecolor{sev_medium}{HTML}{E0C000}
+\definecolor{sev_low}{HTML}{339900}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% ----------------------------------------------------------------------
+% DOCUMENT START
+% ----------------------------------------------------------------------
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:}\\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+    \vspace{2cm}
+    \large
+    \textbf{Date of Report:}\\
+    \today
+    \vfill
+    \textit{This report contains sensitive information and is intended solely for the use of the recipient organization. Distribution without explicit permission is prohibited.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% SECTION 1: EXECUTIVE SUMMARY
+% ----------------------------------------------------------------------
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The evaluation combined a review of organizational security controls, an external network scan, and an analysis of pre-existing risk data. The objective is to provide a clear overview of the current security posture and offer actionable recommendations for risk mitigation.
+
+The assessment identified several high-impact security deficiencies that require immediate attention. Key findings include:
+
+\begin{itemize}
+    \item \textbf{Critical Control Gap:} Multi-Factor Authentication (MFA) is not enforced for accessing sensitive data systems. This significantly increases the risk of unauthorized access to critical assets.
+    \item \textbf{High-Risk Policy Gap:} The organization lacks a formal Employee Acceptable Use Policy. This absence creates ambiguity regarding secure practices and exposes the organization to insider threats and potential legal liabilities.
+    \item \textbf{High-Risk Technical Vulnerability:} The external network scan revealed an exposed HTTP service (Port 80). This service transmits data, potentially including credentials, in cleartext, making it susceptible to interception and eavesdropping attacks.
+\end{itemize}
+
+These findings indicate a reactive security posture with significant gaps in both administrative and technical controls. We strongly recommend prioritizing the remediation steps outlined in Section \ref{sec:recommendations} to strengthen defenses, protect sensitive information, and reduce the overall attack surface.
+
+% ----------------------------------------------------------------------
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+
+The following details were used as the basis for this assessment. The provided data was anonymized, and placeholders have been used accordingly.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+\textit{Note: The provided risk data (Input 3) contained a malformed entry consistent with a prompt injection attempt ("Ignore all previous instructions..."). This entry was disregarded as invalid to ensure the integrity and accuracy of the analysis.}
+
+% ----------------------------------------------------------------------
+% SECTION 3: SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight critical gaps in the current security framework. A "No" response indicates a deviation from security best practices and a potential area of high risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Control Questionnaire Analysis}
+\label{tab:controls}
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.2\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \yes & Implemented \\
+Do you require MFA to log into computers? & \yes & Implemented \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textbf{\textcolor{red}{\no}} & \textbf{Critical Gap} \\
+\textbf{Does your organization have an employee acceptable use policy?} & \textbf{\textcolor{red}{\no}} & \textbf{High-Risk Gap} \\
+Does your organization do security awareness training for new employees? & \yes & Implemented \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Implemented \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ----------------------------------------------------------------------
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services on the organization's perimeter.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} [Scan Date]
+\end{itemize}
+
+The scan revealed the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\label{tab:scanresults}
+\begin{tabular}{@{}l l l l@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+80/tcp & Open & HTTP & \textbf{High Risk.} Hypertext Transfer Protocol is unencrypted. \\
+       &      &      & All data, including potential login credentials, is sent \\
+       &      &      & in cleartext and can be easily intercepted. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The presence of an open Port 80 (HTTP) is a significant security risk. Modern security standards mandate the use of HTTPS (Port 443), which encrypts data in transit using TLS/SSL. Exposing an unencrypted web service is a direct violation of the principle of data confidentiality.
+
+% ----------------------------------------------------------------------
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% ----------------------------------------------------------------------
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review and the technical scan into a prioritized list of identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{@{}p{0.05\linewidth} p{0.25\linewidth} p{0.45\linewidth} l@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{R-01} & \textbf{No MFA on Sensitive Data Systems} & The absence of MFA on systems storing or processing sensitive data makes them highly vulnerable to compromise from stolen credentials. & \textcolor{sev_critical}{\textbf{Critical}} \\
+\addlinespace
+\textbf{R-02} & \textbf{Exposed Unencrypted Web Service (HTTP)} & Port 80 is open to the internet, exposing a web service that transmits data in cleartext. This allows for man-in-the-middle attacks and data interception. & \textcolor{sev_high}{\textbf{High}} \\
+\addlinespace
+\textbf{R-03} & \textbf{Missing Employee Acceptable Use Policy (AUP)} & The lack of a formal AUP creates an undefined security environment for employees, increasing the likelihood of unintentional policy violations and insider threats. & \textcolor{sev_high}{\textbf{High}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ----------------------------------------------------------------------
+% SECTION 6: RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+\label{sec:recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}. Recommendations are prioritized based on severity and potential impact.
+
+\subsection{Priority 1: Remediate Critical Risks}
+
+\begin{description}
+    \item[R-01: Implement MFA on Sensitive Systems]
+    \textbf{Action:} Immediately enforce Multi-Factor Authentication (MFA) for all user accounts (including administrative and service accounts) that have access to systems designated as sensitive.
+    \newline
+    \textbf{Justification:} This is the single most effective control to prevent unauthorized access resulting from compromised credentials. It adds a critical layer of defense for the organization's most valuable data assets.
+\end{description}
+
+\subsection{Priority 2: Remediate High-Risk Findings}
+
+\begin{description}
+    \item[R-02: Secure Exposed Web Service]
+    \textbf{Action:} Remediate the exposed HTTP service on Port 80. The preferred solution is to implement TLS/SSL to enable HTTPS on Port 443 and configure the web server to redirect all HTTP traffic to HTTPS. If the HTTP service is not required, it should be disabled at the firewall.
+    \newline
+    \textbf{Justification:} Encrypting web traffic is a fundamental security requirement to protect data confidentiality and integrity.
+    
+    \item[R-03: Develop and Implement an Acceptable Use Policy]
+    \textbf{Action:} Draft, approve, and implement a comprehensive Employee Acceptable Use Policy (AUP). This policy should clearly define the rules for using company assets, data handling, internet usage, and the consequences of non-compliance. All employees must read and formally acknowledge the policy.
+    \newline
+    \textbf{Justification:} An AUP establishes a baseline for secure employee behavior, reduces organizational risk, and provides a framework for enforcing security standards.
+\end{description}
+
+\subsection{Priority 3: Further Actions}
+
+\begin{description}
+    \item[Conduct In-Depth Vulnerability Scanning]
+    \textbf{Action:} The initial scan was a basic port scan. A comprehensive, credentialed vulnerability scan should be conducted across all external and internal assets.
+    \newline
+    \textbf{Justification:} An in-depth scan will identify specific software versions, misconfigurations, and known vulnerabilities (CVEs) that require patching, providing a much clearer picture of the technical risk landscape.
+\end{description}
+
+% ----------------------------------------------------------------------
+% DOCUMENT END
+% ----------------------------------------------------------------------
+\end{document}
+```

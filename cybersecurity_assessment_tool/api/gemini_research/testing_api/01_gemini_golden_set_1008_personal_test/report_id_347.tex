@@ -1,0 +1,167 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmarks and crosses (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For clickable links and metadata
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % For splitting long strings in \texttt
+\usepackage{graphicx}             % For including logos (optional)
+\usepackage{xcolor}               % For custom colors
+
+% --- Document Metadata ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Automated Security Analysis System},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment, Scan},
+}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:} \\
+    \vspace{0.5cm}
+    \textbf{Terraform Global}
+    \vspace{2cm}
+    \rule{\linewidth}{0.5mm}
+    \vspace{0.5cm}
+    \begin{center}
+        \large
+        This report provides a consolidated analysis of organizational security controls, technical network scan results, and pre-existing risk data. It is intended to provide a snapshot of the current security posture and offer actionable recommendations for risk mitigation.
+    \end{center}
+    \vspace{0.5cm}
+    \rule{\linewidth}{0.5mm}
+    \vfill
+    \large
+    \textbf{Date of Report:} \today
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+This assessment synthesizes data from a security controls questionnaire, an external network scan, and a list of current risks to evaluate the security posture of \textbf{Terraform Global}.
+
+The analysis reveals a mixed security posture. The organization has implemented several positive security controls, including mandatory Multi-Factor Authentication (MFA) for computer and sensitive system access, as well as a robust security awareness training program.
+
+However, two critical-risk findings have been identified that require immediate attention:
+\begin{enumerate}
+    \item \textbf{Lack of MFA on Email:} The absence of mandatory MFA for email access (\texttt{TerraformGlobal.net}) represents a significant vulnerability. Email is a primary target for threat actors, and a compromised account can lead to data breaches, financial fraud, and further system infiltration.
+    \item \textbf{Exposed Network Service:} A technical scan confirmed an open SSH port (22) on host \texttt{127.0.0.1}, correlating directly with a pre-existing high-severity risk, "Localhost Exposed". This indicates a potentially misconfigured service that could be exploited.
+\end{enumerate}
+
+Immediate remediation of these issues is strongly recommended to reduce the organization's attack surface and mitigate the risk of a significant security incident.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for this assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} Terraform Global
+    \item \textbf{Primary Email Domain:} \texttt{TerraformGlobal.net}
+    \item \textbf{External IP Address:} \texttt{28.192.55.19}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. A green checkmark (\ding{51}) indicates a positive control is in place, while a red cross (\ding{55}) indicates a potential security gap.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+The primary gap identified is the \textbf{lack of MFA on email}. Business Email Compromise (BEC) and phishing attacks are leading causes of security breaches. Without MFA, a single compromised password is all an attacker needs to gain access to an employee's mailbox, which can be used to impersonate staff, access sensitive data, and launch further attacks against the organization and its partners. This is classified as a \textbf{Critical Risk}.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and services visible on the target system.
+
+\subsection*{Scan Target: \texttt{127.0.0.1}}
+The scan revealed the following open ports on the host.
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{127.0.0.1}}
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product/Version} \\
+\midrule
+22/tcp & open & ssh & Not Detected \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Findings}
+The scan confirms that port 22, commonly used for the Secure Shell (SSH) protocol, is open. This finding directly corroborates the pre-existing risk titled "Localhost Exposed". While SSH is a secure protocol, its exposure must be intentional and strictly controlled. An unintentionally exposed SSH service can be a target for brute-force password attacks and exploitation of potential software vulnerabilities. The lack of version information in the scan prevents a detailed vulnerability analysis, highlighting a need for more comprehensive scanning techniques.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+This section correlates findings from the security control review, technical scan, and pre-existing risk data into a unified list of key risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.55\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Email} & The absence of Multi-Factor Authentication on the \texttt{TerraformGlobal.net} email domain exposes the organization to account takeover, phishing, and data exfiltration. & \textbf{Critical} \\
+\addlinespace
+\textbf{Localhost Exposed (SSH Service)} & The SSH service (port 22) is open on \texttt{127.0.0.1}, confirming a known risk. This could serve as an entry point for unauthorized access if not properly configured and monitored. & \textbf{Critical} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the consolidated risk assessment, the following actions are recommended to improve the security posture of \textbf{Terraform Global}.
+
+\begin{enumerate}
+    \item \textbf{CRITICAL: Implement MFA for Email Immediately.}
+    \begin{itemize}
+        \item \textbf{Action:} Enforce mandatory Multi-Factor Authentication (MFA) for all user accounts on the \texttt{TerraformGlobal.net} email service.
+        \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access to email accounts, mitigating the risk of Business Email Compromise and phishing-related data breaches.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{CRITICAL: Remediate Exposed SSH Service.}
+    \begin{itemize}
+        \item \textbf{Action:} Conduct an immediate investigation into the SSH service running on \texttt{127.0.0.1}. If the service is not essential, it should be disabled. If it is required, access should be restricted via firewall rules to only authorized IP addresses, and it should be configured with strong authentication (e.g., key-based auth) and monitored.
+        \item \textbf{Justification:} Unnecessary services increase the attack surface. Securing or disabling this service removes a potential vector for compromise.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{HIGH: Enhance Network Scanning Capabilities.}
+    \begin{itemize}
+        \item \textbf{Action:} Augment future network scans to include service and version detection (e.g., using the \texttt{-sV} flag in Nmap).
+        \item \textbf{Justification:} Identifying the specific versions of running software allows for proactive vulnerability management by cross-referencing findings with public vulnerability databases (CVEs). This enables patching before an exploit occurs.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

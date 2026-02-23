@@ -1,0 +1,204 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and metadata
+\usepackage{url}      % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx} % For logo (placeholder)
+\usepackage{xcolor}   % For colors
+
+% --- DOCUMENT METADATA & STYLING ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Risk, Assessment},
+    bookmarks=true
+}
+
+\newcommand{\yes}{\ding{51}} % Checkmark
+\newcommand{\no}{\ding{55}}  % Cross
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for:
+    
+    \vspace{0.5cm}
+    
+    \textbf{Binary Star}
+    
+    \vspace{2cm}
+    
+    \large
+    \textbf{Date:} \today \\
+    \textbf{Report ID:} CSR-2023-4815
+    
+    \vfill
+    
+    \normalsize
+    \textit{This report contains sensitive information and is intended solely for the use of the recipient organization. Unauthorized distribution is prohibited.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE OVERVIEW ---
+\section{Executive Overview}
+
+This report provides a comprehensive assessment of the cybersecurity posture for \textbf{Binary Star}. The analysis is based on a correlation of data from three sources: a technical network scan, a self-reported organizational security questionnaire, and a review of pre-existing documented risks.
+
+The assessment reveals several critical and high-risk vulnerabilities that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Service Exposure:} A publicly accessible FTP server was identified running a dangerously outdated and vulnerable version of vsftpd (2.3.4), with anonymous login enabled. This represents a significant and immediate threat of unauthorized access and potential system compromise.
+    \item \textbf{Identity and Access Management Gaps:} Multi-Factor Authentication (MFA) is not enforced for critical access points, including employee email accounts and computer logins. This substantially increases the risk of account takeover via credential theft.
+    \item \textbf{Policy and Training Deficiencies:} The organization lacks a formal Acceptable Use Policy and does not conduct annual security awareness training for all employees. These gaps in administrative controls weaken the overall security culture and increase susceptibility to social engineering attacks.
+    \item \textbf{Known Endpoint Vulnerabilities:} A pre-existing risk concerning outdated Windows 7 workstations remains a concern, as these systems are no longer supported and do not receive security updates.
+\end{itemize}
+
+The combination of these findings indicates a reactive security posture with significant gaps in fundamental controls. The recommendations provided in this report are prioritized to address the most critical risks first and establish a stronger security foundation.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name    & \textbf{Binary Star} \\
+Email Domain         & \texttt{BinaryStar.com} \\
+Website Domain       & \url{www.BinaryStar.com} \\
+External IP Address  & \texttt{139.56.34.58} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_data}
+\end{table}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review (Questionnaire Analysis)}
+The following table summarizes the organization's responses to a security controls questionnaire. Each "No" response highlights a significant gap in the security framework and has been assessed accordingly.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.25\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\ \midrule
+Do you require MFA to access email? & \textcolor{red}{\no} & \textbf{Critical Gap.} Email is a primary target for attackers. Lack of MFA makes accounts highly vulnerable to phishing and credential stuffing. \\
+\addlinespace
+Do you require MFA to log into computers? & \textcolor{red}{\no} & \textbf{High Risk.} Compromised credentials could lead directly to endpoint access, facilitating lateral movement and data theft. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\yes} & \textbf{Strength.} This is a positive control that protects the organization's most critical data assets. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\no} & \textbf{High Risk.} Lack of a formal policy creates ambiguity regarding security responsibilities and acceptable user behavior, increasing insider risk. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \textcolor{green}{\yes} & \textbf{Strength.} Onboarding new hires with security training is a foundational best practice. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\no} & \textbf{High Risk.} Security threats evolve constantly. Without recurring training, employee knowledge becomes outdated, increasing susceptibility to attacks. \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls_review}
+\end{table}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+A network scan was performed on the target host \texttt{10.0.0.15}. The results identified one open port with a critically vulnerable service.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{Service} & \textbf{Version} & \textbf{Finding / Notes} \\ \midrule
+21/tcp & FTP & vsftpd 2.3.4 & \begin{tabular}[t]{@{}l@{}}\textbf{CRITICAL.} Anonymous FTP login is allowed. \\ This version is extremely outdated (c. 2011) and \\ is publicly known to be vulnerable to a backdoor \\ (CVE-2011-2523), allowing remote command execution.\end{tabular} \\ \bottomrule
+\end{tabular}
+\caption{Network Scan Findings for Host 10.0.0.15}
+\label{tab:scan_results}
+\end{table}
+
+% --- CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes all identified risks from the questionnaire, technical scan, and pre-existing risk documentation into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Description} & \textbf{Source} & \textbf{Severity} \\ \midrule
+RISK-001 & Vulnerable Anonymous FTP Server & Network Scan & \textbf{Critical} \\
+RISK-002 & Lack of MFA on Email Accounts & Questionnaire & \textbf{Critical} \\
+RISK-003 & Lack of Employee Acceptable Use Policy & Questionnaire & \textbf{High} \\
+RISK-004 & Lack of Annual Security Awareness Training & Questionnaire & \textbf{High} \\
+RISK-005 & Lack of MFA on Workstation Logins & Questionnaire & \textbf{High} \\
+RISK-006 & Outdated Windows 7 Workstations & Existing Risks & \textbf{Medium} \\ \bottomrule
+\end{tabular}
+\caption{Prioritized Risk Register}
+\label{tab:risk_register}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks. They are prioritized based on severity.
+
+\subsection*{Immediate Actions (Critical Risks)}
+\begin{description}
+    \item[RISK-001: Vulnerable FTP Server]
+    \begin{itemize}
+        \item \textbf{Immediate:} Take the FTP server offline immediately to prevent exploitation.
+        \item \textbf{Short-Term:} If FTP is a business necessity, migrate to a secure file transfer protocol like SFTP or FTPS. If vsftpd must be used, upgrade to the latest stable version, disable anonymous access, and configure it securely behind a firewall.
+    \end{itemize}
+    
+    \item[RISK-002: Lack of MFA on Email]
+    \begin{itemize}
+        \item \textbf{Immediate:} Procure and enforce an MFA solution for all email accounts (e.g., Microsoft 365, Google Workspace). This is the single most effective control to prevent email account takeovers.
+    \end{itemize}
+\end{description}
+
+\subsection*{High-Priority Actions}
+\begin{description}
+    \item[RISK-003: Acceptable Use Policy]
+    \begin{itemize}
+        \item \textbf{Short-Term:} Develop and implement a formal Acceptable Use Policy (AUP) that clearly defines rules for using company assets, data handling, and internet usage. Require all employees to read and acknowledge the policy.
+    \end{itemize}
+
+    \item[RISK-004: Security Awareness Training]
+    \begin{itemize}
+        \item \textbf{Short-Term:} Establish a mandatory, annual security awareness training program for all employees. The training should cover current threats such as phishing, social engineering, and password hygiene.
+    \end{itemize}
+
+    \item[RISK-005: MFA on Workstations]
+    \begin{itemize}
+        \item \textbf{Medium-Term:} Plan and deploy an MFA solution for all workstation and laptop logins to enhance endpoint security.
+    \end{itemize}
+\end{description}
+
+\subsection*{Medium-Priority Actions}
+\begin{description}
+    \item[RISK-006: Outdated Windows 7]
+    \begin{itemize}
+        \item \textbf{Ongoing:} Accelerate the existing project to upgrade or replace all Windows 7 workstations. These devices pose a significant risk as they no longer receive security patches from Microsoft.
+    \end{itemize}
+\end{description}
+
+\end{document}
+```

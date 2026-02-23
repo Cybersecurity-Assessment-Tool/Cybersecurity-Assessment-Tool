@@ -1,0 +1,201 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings without spaces
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For logo (placeholder)
+\usepackage{fancyhdr} % For header/footer
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define severity colors
+\definecolor{sev_critical}{HTML}{940000}
+\definecolor{sev_high}{HTML}{D14000}
+\definecolor{sev_medium}{HTML}{E09100}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Report}
+\fancyhead[R]{True Grit}
+\fancyfoot[C]{\thepage}
+
+% --- Document Body ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for:
+    
+    \vspace{0.5cm}
+    
+    \textbf{True Grit}
+    
+    \vspace{2cm}
+    
+    \large
+    Date: \today
+    
+    \vfill
+    
+    \normalsize
+    This report contains a summary of findings from a recent security assessment. It includes an analysis of organizational security controls, technical network scan results, and a correlated risk assessment with actionable recommendations.
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report details the cybersecurity posture of \textbf{True Grit} based on a review of organizational security controls, a network vulnerability scan, and an analysis of pre-existing risks.
+
+The assessment identified several critical areas of concern that require immediate attention. A new instance of \textbf{Remote Desktop Protocol (RDP) exposure} was discovered on an internal host (\texttt{10.10.10.51}), which mirrors a previously identified critical risk on another machine. This suggests a systemic issue with server configuration and network segmentation.
+
+Furthermore, the organizational review revealed two significant policy and procedure gaps:
+\begin{itemize}
+    \item \textbf{Lack of Multi-Factor Authentication (MFA) for computer logins}: This is a critical control failure that dramatically increases the risk of unauthorized access should user credentials be compromised.
+    \item \textbf{Absence of an employee Acceptable Use Policy (AUP)}: This governance gap can lead to inconsistent security practices and increases insider threat risk.
+\end{itemize}
+
+The combination of exposed RDP and the lack of endpoint MFA creates a high-impact attack vector. An adversary with compromised credentials could gain direct, privileged access to internal systems. Recommendations in this report are prioritized to address these critical findings first.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & True Grit \\
+    Email Domain & \texttt{TrueGrit.com} \\
+    Website Domain & \url{www.TrueGrit.com} \\
+    External IP Address & \texttt{136.90.100.53} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of organizational security controls was conducted based on a standard questionnaire. The results below highlight key strengths and critical gaps in the current security posture. Gaps are marked with \ding{55} and represent areas for immediate improvement.
+
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.2\linewidth}@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} & Best Practice Met \\
+    \addlinespace
+    Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} & \textbf{Critical Gap} \\
+    \addlinespace
+    Do you require MFA to access sensitive data systems? & \ding{51} & Best Practice Met \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \textbf{\color{red}\ding{55}} & \textbf{High Risk Gap} \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & \ding{51} & Best Practice Met \\
+    \addlinespace
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Best Practice Met \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and services on designated targets.
+
+\subsection{Scan Summary}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{10.10.10.51}
+    \item \textbf{Target Status:} Up
+\end{itemize}
+
+\subsection{Open Ports and Services}
+The following open port was identified on the target system.
+
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Analysis} \\
+    \midrule
+    3389/tcp & Open & \texttt{ms-wbt-server} & Microsoft Remote Desktop Protocol (RDP) \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Detailed Findings}
+The scan confirmed that port \textbf{3389 (RDP)} is open on \texttt{10.10.10.51}. RDP is a frequent target for attackers who use brute-force password guessing or exploit known vulnerabilities (e.g., BlueKeep, DejaBlue) to gain unauthorized control over a system. This finding, combined with the lack of MFA on computer logins, represents a critical security risk.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data. Risks are prioritized based on their potential impact and likelihood.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\linewidth} p{0.2\linewidth} p{0.4\linewidth} p{0.15\linewidth}@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    \addlinespace
+    RISK-001 & \textbf{New RDP Exposure} & Port 3389 (RDP) is open on \texttt{10.10.10.51}. This allows direct remote access attempts to the server, creating a vector for brute-force or exploit-based attacks. & \textbf{\color{sev_critical}Critical (9.8)} \\
+    \addlinespace
+    RISK-002 & \textbf{No Endpoint MFA} & The lack of MFA for computer logins means a compromised password is all an attacker needs to gain access to an employee's workstation or a server via RDP. & \textbf{\color{sev_critical}Critical (9.1)} \\
+    \addlinespace
+    RISK-003 & \textbf{Missing Acceptable Use Policy} & The absence of a formal AUP creates ambiguity around security responsibilities and acceptable system usage, increasing the likelihood of insider threats and misconfigurations. & \textbf{\color{sev_high}High (7.5)} \\
+    \addlinespace
+    \textit{PRE-001} & \textit{Existing RDP Exposure} & \textit{From previous findings: RDP was found exposed on host \texttt{10.10.10.50}. This indicates a recurring configuration weakness.} & \textit{\textbf{\color{sev_critical}Critical (9.0)}} \\
+    \addlinespace
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified and Correlated Risks}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized to address critical findings first.
+
+\subsection{Priority 1: Remediate RDP Exposure (RISK-001 \& PRE-001)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} For both \texttt{10.10.10.51} and \texttt{10.10.10.50}, if RDP access is not essential, disable the service immediately. If it is required, use a host-based firewall to restrict access to only trusted IP addresses.
+    \item \textbf{Long-Term Solution:} Implement a secure remote access solution, such as a Virtual Private Network (VPN) or a Remote Desktop Gateway, that requires MFA. All RDP access from the general network should be blocked in favor of this secure solution.
+\end{itemize}
+
+\subsection{Priority 2: Implement Endpoint MFA (RISK-002)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Begin a project to deploy an MFA solution for all Windows/macOS/Linux computer logins. Solutions like Windows Hello for Business, Duo Security, or other third-party tools can fulfill this requirement.
+    \item \textbf{Long-Term Solution:} Integrate endpoint MFA into the standard build and onboarding process for all new employees and devices.
+\end{itemize}
+
+\subsection{Priority 3: Establish Governance Policies (RISK-003)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Draft, approve, and publish an organization-wide Acceptable Use Policy (AUP). This policy should clearly define rules for using company assets, data handling, and security responsibilities.
+    \item \textbf{Long-Term Solution:} Ensure all new and existing employees read and formally acknowledge the AUP. Review and update the policy annually.
+\end{itemize}
+
+% --- Section 7: Conclusion ---
+\section{Conclusion}
+The assessment reveals that while \textbf{True Grit} has implemented some key security controls, such as MFA for email, critical vulnerabilities exist that expose the organization to significant risk. The pattern of insecure RDP configurations, coupled with the absence of MFA on endpoints, creates a direct path for attackers to compromise internal systems.
+
+We strongly recommend that the leadership team prioritizes the remediation steps outlined in this report, focusing first on securing all RDP services and deploying a robust MFA solution for computer access. Addressing these issues will substantially improve the organization's resilience against common cyberattacks.
+
+\end{document}
+```

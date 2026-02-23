@@ -1,0 +1,187 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- TITLE ---
+\title{Cybersecurity Posture Assessment Report \\ \large For \textbf{[Organization Name]}}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+% 1. EXECUTIVE SUMMARY
+% ===================================================================
+\section{Executive Summary}
+
+This report details a cybersecurity posture assessment for \textbf{[Organization Name]}, conducted by correlating data from a network scan, an organizational security questionnaire, and a list of pre-existing risks.
+
+The assessment reveals critical gaps in identity and access management controls. The lack of Multi-Factor Authentication (MFA) for email and computer access represents an immediate and significant threat, exposing the organization to risks of account takeover, data breaches, and ransomware. Furthermore, the absence of a formal Acceptable Use Policy indicates a foundational gap in security governance.
+
+On the technical front, an external network scan of the target IP address \texttt{[Target IP]} did not identify any open ports. This is a positive finding; however, it directly contradicts a pre-existing risk report indicating an open and unencrypted web server on Port 80. This suggests the risk may have been remediated or was a false positive.
+
+Immediate remediation should focus on implementing MFA across all critical systems, starting with email. Concurrently, developing and implementing core security policies is essential to establishing a baseline for secure operations.
+
+% ===================================================================
+% 2. ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+The following information was used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Email Domain & \texttt{[Domain]} \\
+    External IP Scanned & \texttt{[Client IP]} \\
+    Target of Technical Scan & \texttt{[Target IP]} \\
+    \bottomrule
+\end{tabular}
+
+% ===================================================================
+% 3. SECURITY CONTROL REVIEW (QUESTIONNAIRE)
+% ===================================================================
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight significant areas for improvement, particularly in access control and policy enforcement. "No" answers indicate a failure to meet baseline security best practices.
+
+\begin{table}[h!]
+\centering
+\caption{Security Questionnaire Analysis}
+\begin{tabular}{@{}p{0.7\linewidth}cc@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & No & \no \\
+    Do you require MFA to log into computers? & No & \no \\
+    Do you require MFA to access sensitive data systems? & Yes & \yes \\
+    Does your organization have an employee acceptable use policy? & No & \no \\
+    Does your organization do security awareness training for new employees? & Yes & \yes \\
+    Does your organization do security awareness training for all employees at least once per year? & Yes & \yes \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Key Findings:} The lack of MFA for email and computer logins, combined with the absence of an Acceptable Use Policy, constitutes three high-impact security gaps that significantly increase organizational risk.
+
+% ===================================================================
+% 4. TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+An external network vulnerability scan was performed on the target system to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Not specified in scan data.
+    \item \textbf{Scanner:} Nmap
+\end{itemize}
+
+\subsection{Scan Summary}
+The scan revealed that the target host is online but did not identify any open TCP ports. The status of a common port is detailed below.
+
+\begin{table}[h!]
+\centering
+\caption{Nmap Port Scan Details}
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version/Product} \\
+    \midrule
+    80/tcp & closed & http & N/A \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The scan indicates a strong external network posture for the target system, with no services exposed to the public internet. This finding is critical as it contradicts the pre-existing risk documented in the following section. It is possible the risk has been remediated since it was last identified.
+
+% ===================================================================
+% 5. CORRELATED RISK ASSESSMENT
+% ===================================================================
+\section{Correlated Risk Assessment}
+
+This section synthesizes findings from the security control review, the technical scan, and pre-existing risk data to provide a holistic view of the organization's current risk profile.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+    \midrule
+    \textbf{No MFA on Email} & The absence of MFA on email accounts allows for account takeover with only a compromised password, leading to data exfiltration, phishing, and business email compromise. & \textbf{Critical} \\
+    \addlinespace
+    \textbf{No MFA on Endpoints} & Lack of MFA for computer logins means a stolen password provides direct access to an employee's machine and any connected network resources. & High \\
+    \addlinespace
+    \textbf{No Acceptable Use Policy} & Without a formal policy, there is no enforceable standard for employee behavior regarding company assets, data handling, and internet usage, increasing insider risk. & High \\
+    \addlinespace
+    \textbf{Unencrypted Web Server (Unverified)} & A pre-existing risk stated Port 80 was open. Our scan found this port to be \textbf{closed}. This risk is likely remediated but requires internal verification. & Medium \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+% 6. RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+Based on the risk assessment, the following actions are recommended to improve the security posture of \textbf{[Organization Name]}.
+
+\subsection{Immediate Priority (0-30 Days)}
+\begin{enumerate}
+    \item \textbf{Implement MFA for Email:} Enforce MFA for all user accounts accessing the email system (\texttt{[Domain]}). This is the single most effective control to prevent unauthorized access and business email compromise.
+\end{enumerate}
+
+\subsection{High Priority (30-90 Days)}
+\begin{enumerate}
+    \item \textbf{Implement MFA for Endpoint Login:} Deploy MFA for all employees logging into company computers. This adds a critical layer of defense against credential theft and unauthorized access to the internal network.
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP that defines the rules for using company IT assets. Ensure all employees read and acknowledge the policy as part of their ongoing employment.
+\end{enumerate}
+
+\subsection{Verification and Housekeeping}
+\begin{enumerate}
+    \item \textbf{Verify Port 80 Status:} The team responsible for the asset at \texttt{[Target IP]} should internally confirm that no web service is running on Port 80. If confirmed, the "Unencrypted Web Server" risk should be formally closed in the risk register.
+\end{enumerate}
+
+% ===================================================================
+% 7. CONCLUSION
+% ===================================================================
+\section{Conclusion}
+
+While the external technical scan of \texttt{[Target IP]} showed a secure configuration, the organizational review revealed critical deficiencies in fundamental security controls. The lack of MFA and foundational policies exposes \textbf{[Organization Name]} to severe and immediate threats.
+
+We strongly urge the organization to prioritize the implementation of the recommendations outlined in this report to mitigate these risks and establish a more resilient security posture.
+
+\end{document}
+```

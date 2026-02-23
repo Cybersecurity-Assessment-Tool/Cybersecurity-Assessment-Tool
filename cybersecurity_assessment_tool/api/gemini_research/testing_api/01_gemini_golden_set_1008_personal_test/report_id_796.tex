@@ -1,0 +1,184 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long text strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% --- Document Setup ---
+
+% Define colors for risk levels
+\definecolor{critical}{HTML}{990000}
+\definecolor{high}{HTML}{D14343}
+\definecolor{medium}{HTML}{EFAF4E}
+\definecolor{low}{HTML}{5DADE2}
+\definecolor{info}{HTML}{82E0AA}
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Report}
+\fancyhead[R]{Apex Legends Group}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Body ---
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vfill
+    {\Huge\bfseries Cybersecurity Posture Report\par}
+    \vspace{1cm}
+    {\Large Prepared for: \textbf{Apex Legends Group}\par}
+    \vspace{2cm}
+    {\large \today\par}
+    \vfill
+    \hrule
+    \vspace{0.5cm}
+    \textit{This report contains sensitive information and should be handled with care. Distribution is restricted to authorized personnel only.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture of \textbf{Apex Legends Group}, based on a combination of network scanning, organizational data review, and an assessment of existing risks. The evaluation was conducted on \today.
+
+The key findings indicate a mixed security posture. On a positive note, the technical network scan of the target host (\texttt{192.168.1.100}) revealed no open ports, suggesting a well-hardened system with a minimal external attack surface. This is a significant strength.
+
+However, the organizational security control review identified two critical gaps that introduce substantial risk:
+\begin{itemize}
+    \item \textbf{High Risk:} The absence of Multi-Factor Authentication (MFA) for computer logins. This significantly increases the risk of unauthorized access via compromised credentials.
+    \item \textbf{Medium Risk:} The lack of a formal Employee Acceptable Use Policy (AUP). This creates ambiguity regarding employee responsibilities for securing company assets and data.
+\end{itemize}
+
+No pre-existing vulnerabilities were reported. Recommendations in this report focus on addressing the identified policy and access control weaknesses to bolster the organization's overall defense-in-depth strategy.
+
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Client Organizational Data}
+\label{tab:orgdata}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name    & \textbf{Apex Legends Group} \\
+Email Domain         & \texttt{ApexLegendsGroup.net} \\
+Website Domain       & \url{www.ApexLegendsGroup.net} \\
+External IP Address  & \texttt{94.214.246.71} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{Security Control Review}
+
+A review of internal security controls was conducted based on a standardized questionnaire. The results highlight areas of strength and identify significant gaps requiring immediate attention. A "No" response indicates a deviation from security best practices.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\begin{tabular}{@{}p{0.7\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{192.168.1.100}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Scanner Used:} Nmap
+\end{itemize}
+
+\subsection{Key Findings}
+The scan confirmed that the host is online and responsive. However, \textbf{no open ports were detected}. All 1000 scanned TCP ports were found to be in a "closed" state.
+
+\textbf{Conclusion:} This is a positive security finding. A host with no open ports presents a minimal attack surface to the network, significantly reducing the risk of remote exploitation. This indicates effective firewalling or host-based security configurations.
+
+\section{Risk Assessment}
+
+This section synthesizes findings from the security control review and technical scans to provide a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{@{}p{0.25\textwidth}p{0.1\textwidth}p{0.55\textwidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Overview} \\ \midrule
+\addlinespace[0.3em]
+Lack of Endpoint MFA & \colorbox{high}{\color{white}\textbf{High}} & The absence of MFA on computer logins means a compromised password is all an attacker needs for initial access to an employee's workstation and potentially the internal network. \\
+\addlinespace[0.3em]
+Missing Acceptable Use Policy (AUP) & \colorbox{medium}{\color{white}\textbf{Medium}} & Without a formal AUP, employees may be unaware of their security responsibilities. This increases the risk of unintentional data exposure, malware infections, and non-compliance with regulations. \\
+\addlinespace[0.3em]
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Recommendations}
+
+The following actionable recommendations are provided to mitigate the identified risks and improve the overall security posture of \textbf{Apex Legends Group}.
+
+\subsection{High Priority Recommendations}
+
+\begin{itemize}
+    \item \textbf{Risk Addressed:} Lack of Endpoint MFA
+    \item \textbf{Recommendation:} Implement and enforce mandatory Multi-Factor Authentication for all user logins to company computers (desktops and laptops). This is one of the most effective controls for preventing unauthorized access.
+    \item \textbf{Actionable Steps:}
+    \begin{enumerate}
+        \item Evaluate MFA solutions compatible with your existing operating systems (e.g., Windows Hello for Business, Duo Security, Okta).
+        \item Develop a phased rollout plan, starting with privileged users (administrators) and expanding to all employees.
+        \item Provide clear instructions and support to users during the transition.
+    \end{enumerate}
+\end{itemize}
+
+\subsection{Medium Priority Recommendations}
+
+\begin{itemize}
+    \item \textbf{Risk Addressed:} Missing Acceptable Use Policy (AUP)
+    \item \textbf{Recommendation:} Develop, approve, and implement a formal Acceptable Use Policy for all employees and contractors.
+    \item \textbf{Actionable Steps:}
+    \begin{enumerate}
+        \item Draft an AUP that clearly defines rules for the use of company equipment, network access, email, and data handling.
+        \item Include sections on prohibited activities, password security, and incident reporting procedures.
+        \item Distribute the policy to all staff and require a signed acknowledgement of receipt and understanding.
+        \item Review and update the policy annually or as significant organizational changes occur.
+    \end{enumerate}
+\end{itemize}
+
+\end{document}
+```

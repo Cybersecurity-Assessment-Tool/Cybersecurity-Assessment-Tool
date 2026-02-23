@@ -1,0 +1,205 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long monospaced text
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For potential logos or graphics
+\usepackage{fancyhdr} % For headers and footers
+
+% --- Document Setup ---
+
+% Define colors for risk levels
+\definecolor{critical}{HTML}{990000}
+\definecolor{high}{HTML}{D14302}
+\definecolor{medium}{HTML}{E5A50A}
+\definecolor{low}{HTML}{3E8E41}
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyhead[L]{\textbf{Cybersecurity Assessment Report}}
+\fancyhead[R]{Hearth \& Home}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Assessment Report}}
+    \vspace{1.5cm}
+    \Large{\textbf{Prepared for: Hearth \& Home}}
+    \vspace{2.5cm}
+    \begin{figure}[h]
+        \centering
+        % Placeholder for a logo
+        % \includegraphics[width=0.4\textwidth]{logo.png} 
+    \end{figure}
+    \vfill
+    \large{
+        \textbf{Date of Report:} \today \\
+        \textbf{Author:} Cybersecurity Analyst
+    }
+    \vspace{1cm}
+    \small{\textit{This document contains sensitive information and is intended for internal use only.}}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity assessment conducted for Hearth \& Home. The assessment combined an analysis of organizational security controls, a technical network scan, and a review of pre-existing risks to provide a holistic view of the organization's security posture.
+
+The assessment identified several critical and high-risk vulnerabilities that require immediate attention. A key technical finding is an externally facing FTP server running a dangerously outdated version of \texttt{vsftpd} (2.3.4), which is known to contain a critical backdoor vulnerability (CVE-2011-2523). This is compounded by the server's configuration, which permits anonymous, unauthenticated access.
+
+Furthermore, a review of organizational security controls revealed significant gaps. The absence of multi-factor authentication (MFA) on sensitive data systems, the lack of a formal Acceptable Use Policy, and the failure to conduct annual security awareness training for all employees represent major procedural weaknesses. These gaps, combined with the technical vulnerabilities, create a high-risk environment susceptible to data breaches, unauthorized access, and malware infections.
+
+Immediate remediation should focus on securing the vulnerable FTP server. Subsequent efforts must address the identified policy and procedure gaps to build a more resilient and defensible security posture.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Hearth \& Home \\
+Email Domain & \texttt{HearthHome.org} \\
+Website Domain & \url{www.HearthHome.org} \\
+External IP Address & \texttt{39.178.246.211} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+An internal questionnaire was reviewed to assess the current state of administrative and technical security controls. The responses are summarized below. Items marked with \ding{55} indicate a significant gap in security controls and are discussed further in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.75\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\caption{Organizational Security Control Status}
+\end{label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The review highlights three primary areas of concern:
+\begin{itemize}
+    \item \textbf{MFA on Sensitive Systems:} The lack of MFA on systems containing sensitive data is a critical oversight. This control is a fundamental defense against credential theft and unauthorized access.
+    \item \textbf{Acceptable Use Policy (AUP):} Without a formal AUP, there is no documented standard for how employees should use company assets, which can lead to risky behavior and create legal ambiguities.
+    \item \textbf{Annual Security Training:} Security knowledge degrades over time. Failing to provide annual refresher training for all employees means the workforce is less prepared to identify and respond to evolving threats like phishing and social engineering.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed against the target host to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.0.0.15}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} & \textbf{Notes} \\
+\midrule
+21/tcp & Open & ftp & vsftpd 2.3.4 & \textbf{Critical Vulnerability.} \\
+& & & & Anonymous FTP login allowed. \\
+\bottomrule
+\end{tabular}
+\caption{Open Port and Service Information}
+\label{tab:scan}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified one open port with a service that presents a critical risk to the organization:
+\begin{itemize}
+    \item \textbf{vsftpd 2.3.4 (Critical):} This version of vsftpd, released in 2011, contains a well-known and severe backdoor vulnerability (\textbf{CVE-2011-2523}). An attacker can exploit this flaw to gain a command shell on the underlying server, leading to a complete system compromise.
+    \item \textbf{Anonymous FTP Login (High):} The server is configured to allow any user to log in without a password. This configuration can be abused to exfiltrate sensitive data or to host malicious files, making the server a potential distribution point for malware.
+\end{itemize}
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.5\linewidth}p{0.2\linewidth}p{0.2\linewidth}@{}}
+\toprule
+\textbf{Risk Description} & \textbf{Severity} & \textbf{Source} \\
+\midrule
+Outdated FTP server (vsftpd 2.3.4) with a known remote code execution backdoor (CVE-2011-2523). & \textcolor{critical}{\textbf{Critical}} & Technical Scan \\
+\addlinespace
+Anonymous FTP login is enabled, allowing unauthenticated file access. & \textcolor{high}{\textbf{High}} & Technical Scan \\
+\addlinespace
+No Multi-Factor Authentication (MFA) is enforced on sensitive data systems. & \textcolor{high}{\textbf{High}} & Questionnaire \\
+\addlinespace
+Security awareness training is not conducted annually for all employees. & \textcolor{high}{\textbf{High}} & Questionnaire \\
+\addlinespace
+Workstations are running an unsupported OS (Windows 7), as noted in the outdated Windows policy. & \textcolor{medium}{\textbf{Medium}} & Existing Risks \\
+\addlinespace
+The organization lacks a formal employee Acceptable Use Policy (AUP). & \textcolor{medium}{\textbf{Medium}} & Questionnaire \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks, prioritized by severity.
+
+\subsection*{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Remediate Vulnerable FTP Server:} Take the server at \texttt{10.0.0.15} offline immediately. If the FTP service is business-critical, it must be migrated to a new, fully patched server running a modern FTP daemon (e.g., modern vsftpd, ProFTPD) before being brought back online.
+\end{enumerate}
+
+\subsection*{High Priority Actions}
+\begin{enumerate}
+    \item \textbf{Disable Anonymous FTP:} Once the FTP server is patched and back online, ensure that anonymous login is permanently disabled. All access should require authentication with strong, unique credentials. Evaluate if a more secure file transfer protocol, such as SFTP (SSH File Transfer Protocol), can be used instead.
+    \item \textbf{Implement MFA on Sensitive Systems:} Prioritize the deployment of an MFA solution for all access to sensitive data systems, including databases, administrative portals, and financial applications.
+    \item \textbf{Establish Annual Security Training:} Develop and deploy a mandatory annual security awareness training program for all employees. The training should cover current threats such as phishing, ransomware, and proper data handling.
+\end{enumerate}
+
+\subsection*{Medium Priority Actions}
+\begin{enumerate}
+    \item \textbf{Upgrade End-of-Life Systems:} Execute the plan to upgrade all workstations from Windows 7 to a modern, supported operating system like Windows 10 or 11. This will address the "Outdated Windows Policy" risk.
+    \item \textbf{Develop an Acceptable Use Policy (AUP):} Draft a formal AUP that clearly defines the rules and expectations for using company technology and data. This policy should be communicated to all employees and acknowledged via signature.
+\end{enumerate}
+
+\end{document}
+```

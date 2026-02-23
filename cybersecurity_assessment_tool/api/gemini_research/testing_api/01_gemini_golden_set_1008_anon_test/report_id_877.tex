@@ -1,0 +1,172 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGE IMPORTS ---
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmarks and crosses (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For hyperlinks
+\usepackage{url}                  % For URL formatting
+\usepackage{seqsplit}             % For splitting long strings in texttt
+\usepackage[T1]{fontenc}          % For proper font encoding
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Nmap, Risk, Analysis}
+}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ==============================================================================
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, conducted on November 22, 2025. The analysis is based on a combination of network scanning, a review of organizational security controls, and an evaluation of pre-existing risks.
+
+The assessment identified several areas of significant concern that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Control Gap:} Multi-Factor Authentication (MFA) is not enforced for accessing sensitive data systems. This represents a critical vulnerability, as a single compromised password could lead to a major data breach.
+    \item \textbf{High-Risk Technical Finding:} The external-facing web server at \texttt{[Client IP]} is running an outdated version of Nginx (1.18.0). This software version is several years old and is known to have multiple publicly disclosed vulnerabilities, exposing the organization to potential compromise.
+    \item \textbf{High-Risk Procedural Gap:} There is no mandatory security awareness training for new employees. This oversight leaves the organization vulnerable to social engineering attacks, as new hires may be unaware of internal security policies and common threats.
+\end{itemize}
+
+The overall security posture is considered weak due to these fundamental gaps in technical and administrative controls. This report outlines specific, actionable recommendations to mitigate these risks and strengthen the organization's defenses.
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+This section details the information provided by the organization. The placeholders indicate that this data was not available at the time of the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Email Domain & \texttt{[Domain]} \\
+    External IP Address & \texttt{[Client IP]} \\
+    \bottomrule
+\end{tabular}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A review of administrative security controls was conducted based on a standardized questionnaire. The results below highlight the current state of implemented policies and procedures. A checkmark (\ding{51}) indicates a positive response (control in place), while a cross (\ding{55}) indicates a negative response (control gap).
+
+\subsection{Questionnaire Results}
+
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} \\
+    Do you require MFA to log into computers? & \ding{51} \\
+    \textbf{Do you require MFA to access sensitive data systems?} & \textbf{\ding{55}} \\
+    Does your organization have an employee acceptable use policy? & \ding{51} \\
+    \textbf{Does your organization do security awareness training for new employees?} & \textbf{\ding{55}} \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Analysis of Control Gaps}
+Two critical gaps were identified from the questionnaire:
+\begin{itemize}
+    \item \textbf{Lack of MFA for Sensitive Systems:} The absence of MFA on systems containing sensitive data is a severe security flaw. Credential theft, a common attack vector, could grant an adversary direct access to the organization's most valuable information.
+    \item \textbf{No Onboarding Security Training:} Failing to train new employees on security best practices and company policies from day one significantly increases risk. New hires are often targeted by phishing and other social engineering attacks.
+\end{itemize}
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+\subsection{Open Ports and Services}
+The following table details the services discovered on the target system.
+
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    443/tcp & open & https & nginx & 1.18.0 \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Technical Analysis}
+The scan revealed a single open port (443/tcp) running an Nginx web server, version \textbf{1.18.0}. This version was released in April 2020 and is now considered outdated. The Nginx project maintains a list of security advisories, and versions prior to more recent stable releases are known to be vulnerable to various attacks, including request smuggling, denial-of-service, and information disclosure (e.g., CVE-2021-23017). Running unsupported and unpatched software on an internet-facing server presents a high risk of compromise.
+
+% ==============================================================================
+% SECTION 5: RISK ASSESSMENT SUMMARY
+% ==============================================================================
+\section{Risk Assessment Summary}
+
+This section synthesizes findings from the security control review and technical scan. The pre-existing risk register was empty; therefore, all identified risks are new findings.
+
+\begin{tabular}{@{}p{0.1\linewidth}p{0.3\linewidth}p{0.4\linewidth}l@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & Lack of MFA on Sensitive Systems & A single compromised password could grant an attacker access to critical organizational data, as no second factor of authentication is required. & \textbf{Critical} \\
+    \addlinespace
+    RISK-002 & Outdated Web Server Software & The public-facing Nginx server is running an old version (1.18.0) with known vulnerabilities, making it a prime target for automated attacks. & \textbf{High} \\
+    \addlinespace
+    RISK-003 & Inadequate Employee Onboarding Security & New employees are not provided with security awareness training, making them highly susceptible to phishing and social engineering attacks. & \textbf{High} \\
+    \bottomrule
+\end{tabular}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\begin{itemize}
+    \item \textbf{To address RISK-001 (Critical):}
+    \begin{itemize}
+        \item Immediately develop and execute a plan to enforce MFA across all systems that store, process, or transmit sensitive data. This should be the highest priority remediation effort.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{To address RISK-002 (High):}
+    \begin{itemize}
+        \item Upgrade the Nginx web server on \texttt{[Target IP]} to the latest stable version.
+        \item Implement a patch management policy to ensure all internet-facing systems are regularly updated and patched against new vulnerabilities.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{To address RISK-003 (High):}
+    \begin{itemize}
+        \item Develop and implement a mandatory security awareness training module as part of the new employee onboarding process.
+        \item This training should cover, at a minimum: acceptable use policies, phishing and malware recognition, password hygiene, and incident reporting procedures.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

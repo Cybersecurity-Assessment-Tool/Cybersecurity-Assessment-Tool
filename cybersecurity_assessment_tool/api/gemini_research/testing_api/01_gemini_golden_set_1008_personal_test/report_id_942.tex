@@ -1,0 +1,167 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For check and cross marks
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long monospaced text
+\usepackage{xcolor} % For color-coding severity
+\usepackage{graphicx} % For potential logos or diagrams
+\usepackage{fancyhdr} % For headers and footers
+
+% --- Document Metadata ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Header and Footer Configuration ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment for \textbf{Phoenix Rising}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Phoenix Rising}, based on an analysis of network scan data, organizational security controls, and pre-existing risk information. The objective is to identify critical vulnerabilities, correlate technical findings with procedural gaps, and provide actionable recommendations to enhance the organization's security posture.
+
+\paragraph{Key Findings:} The assessment revealed a mixed security posture. While technical controls show evidence of recent remediation, significant procedural and policy gaps present an immediate threat to the organization.
+
+\begin{itemize}
+    \item \textbf{Critical Risk - Lack of Email MFA:} The absence of Multi-Factor Authentication (MFA) for email access is a critical vulnerability. This exposes \textbf{Phoenix Rising} to a high risk of Business Email Compromise (BEC), phishing attacks, and subsequent data breaches.
+    
+    \item \textbf{High Risk - Inadequate Employee Onboarding:} New employees do not receive security awareness training upon joining the organization. This creates a window of vulnerability where new staff are more susceptible to social engineering and policy violations.
+    
+    \item \textbf{Positive Finding - Risk Remediation:} A previously identified risk, an "Unencrypted Web Server" on Port 80, appears to have been successfully remediated. Our technical scan found this port to be closed, contradicting the historical risk data and indicating positive security momentum.
+\end{itemize}
+
+\paragraph{Overall Assessment:} The primary threats to \textbf{Phoenix Rising} currently stem from gaps in security policy and process rather than external-facing technical vulnerabilities. Immediate action should be focused on implementing foundational security controls for user access and training.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Phoenix Rising} \\
+Email Domain & \texttt{PhoenixRising.net} \\
+Website Domain & \href{http://www.PhoenixRising.net}{\texttt{www.PhoenixRising.net}} \\
+External IP Address & \texttt{62.125.29.15} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+
+An analysis of the organization's security questionnaire reveals several key strengths and weaknesses in its current procedural controls. "No" answers indicate significant gaps that require immediate attention.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.2\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to log into computers? & \ding{51} & Best Practice Met \\
+Do you require MFA to access sensitive data systems? & \ding{51} & Best Practice Met \\
+Does your organization have an employee acceptable use policy? & \ding{51} & Best Practice Met \\
+Does your organization do security awareness training for new employees? & \ding{55} & \textcolor{orange}{\textbf{High Risk}} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Best Practice Met \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed to identify active services and potential vulnerabilities on the specified target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.0.5}
+    \item \textbf{Scan Date:} Data reflects state at time of report generation.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Nmap Scan Port Summary for \texttt{192.168.0.5}}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+80/tcp & closed & http & N/A & N/A \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The scan results are positive, indicating a hardened host with no exposed services. The most significant finding is that Port 80 (HTTP) is \textbf{closed}. This directly contradicts the pre-existing risk data (see Section 5), suggesting that the vulnerability has been successfully remediated. No other open ports were detected.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+
+This section synthesizes findings from the security questionnaire, technical scans, and pre-existing risk data into a unified risk landscape.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.25\linewidth} p{0.45\linewidth} l l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} & \textbf{Status} \\
+\midrule
+\textbf{Lack of MFA on Email} & Email accounts are secured only by passwords, making them highly vulnerable to phishing, credential stuffing, and unauthorized access. & \textcolor{red}{Critical} & \textbf{Active} \\
+\addlinespace
+\textbf{Inadequate New Hire Training} & New employees are not trained on security policies and threat awareness upon hiring, creating a significant human-based vulnerability. & \textcolor{orange}{High} & \textbf{Active} \\
+\addlinespace
+\textbf{Unencrypted Web Server (Historical)} & Port 80 was previously identified as open, exposing the organization to unencrypted web traffic interception. & Medium & \textbf{Remediated} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and strengthen the overall security posture of \textbf{Phoenix Rising}.
+
+\subsection{Immediate Priority (Critical)}
+
+\subsubsection{Enforce MFA for All Email Accounts}
+\begin{itemize}
+    \item \textbf{Action:} Immediately enable and enforce Multi-Factor Authentication (MFA) for all user accounts on the \texttt{PhoenixRising.net} email platform.
+    \item \textbf{Justification:} This is the single most effective control to prevent Business Email Compromise (BEC) and protect against account takeovers resulting from stolen credentials. It mitigates the most critical risk identified in this assessment.
+\end{itemize}
+
+\subsection{High Priority}
+
+\subsubsection{Implement a Security Module in New Hire Onboarding}
+\begin{itemize}
+    \item \textbf{Action:} Develop and integrate a mandatory security awareness training module into the onboarding process for all new employees, to be completed within their first week.
+    \item \textbf{Justification:} This closes a critical window of vulnerability by ensuring that new staff understand acceptable use policies, how to identify phishing attempts, and their role in protecting organizational data from day one.
+\end{itemize}
+
+\subsection{Administrative Recommendations}
+
+\subsubsection{Update Internal Risk Register}
+\begin{itemize}
+    \item \textbf{Action:} Formally update the internal risk register to mark the "Unencrypted Web Server" risk as "Remediated" or "Closed".
+    \item \textbf{Justification:} Accurate risk documentation is crucial for focusing resources on current threats. This action ensures that security efforts are not wasted on issues that have already been resolved.
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,176 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:} \\
+    \vspace{0.5cm}
+    \textbf{Paper Plane Publishing}
+    \vspace{2cm}
+    \large
+    \textbf{Date of Assessment:} \\
+    \today
+    \vfill
+    \large
+    \textit{This report contains sensitive information and should be handled with the utmost confidentiality.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture of \textbf{Paper Plane Publishing}. The assessment combines a review of organizational security controls, an external network scan, and an evaluation of pre-existing risks.
+
+The analysis revealed several critical and high-risk vulnerabilities that require immediate attention. A key finding is an externally exposed FTP server (\texttt{10.0.0.15}) running a critically outdated version of \texttt{vsftpd (2.3.4)}, which is known to contain a backdoor vulnerability (CVE-2011-2523). This service also permits anonymous login, presenting a direct and immediate threat to the network.
+
+Furthermore, significant gaps were identified in access control policies. The lack of Multi-Factor Authentication (MFA) for computer and sensitive data system access drastically increases the risk of unauthorized access should credentials be compromised. This is compounded by the absence of annual security awareness training for all staff, leaving the organization more susceptible to social engineering and phishing attacks.
+
+Immediate remediation of the vulnerable FTP server is paramount. Following this, a phased rollout of MFA and the implementation of a recurring security training program are strongly recommended to mitigate the identified risks and improve the organization's overall security resilience.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Paper Plane Publishing
+    \item \textbf{Email Domain:} \seqsplit{\texttt{PaperPlanePublishing.com}}
+    \item \textbf{Website Domain:} \url{www.PaperPlanePublishing.com}
+    \item \textbf{External IP Address:} \texttt{18.193.169.53}
+\end{itemize}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+A review of administrative security controls was conducted via a questionnaire. The responses highlight significant gaps in access control and employee security training. A summary of the findings is presented in Table \ref{tab:controls}.
+
+\begin{table}[h!]
+    \centering
+    \caption{Security Controls Questionnaire Results}
+    \label{tab:controls}
+    \begin{tabular}{p{0.75\textwidth} c}
+        \toprule
+        \textbf{Control Question} & \textbf{Response} \\
+        \midrule
+        Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+        Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+        Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+        Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+        Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+        Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The absence of MFA for computer and sensitive system access is a high-risk issue. Similarly, the lack of recurring annual security training for all employees is a critical oversight, as the threat landscape evolves continuously.
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+An Nmap scan was performed on the target IP address \texttt{10.0.0.15}. The scan identified one open port with a critically vulnerable service.
+
+\begin{table}[h!]
+    \centering
+    \caption{Open Port Analysis}
+    \label{tab:ports}
+    \begin{tabular}{l l l l p{0.3\textwidth}}
+        \toprule
+        \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Notes} \\
+        \midrule
+        21/tcp & open & ftp & vsftpd 2.3.4 & \textbf{Critical Vulnerability.} Anonymous FTP login is allowed. This version is associated with a known backdoor (CVE-2011-2523). \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The presence of \texttt{vsftpd 2.3.4} is a severe security risk. This specific version was compromised in 2011, and a malicious backdoor was inserted into the source code. An attacker can gain a root shell on the server by sending a specific sequence of characters as the username. Combined with anonymous access, this represents a trivial entry point for an attacker.
+
+% --- RISK ASSESSMENT SUMMARY ---
+\section{Risk Assessment Summary}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+    \centering
+    \caption{Aggregated Risk Summary}
+    \label{tab:risks}
+    \begin{tabular}{p{0.3\textwidth} p{0.5\textwidth} l}
+        \toprule
+        \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+        \midrule
+        Vulnerable Public FTP Server & An FTP server running vsftpd 2.3.4 with a known backdoor (CVE-2011-2523) and anonymous login is exposed to the internet. & \textbf{Critical} \\
+        \addlinespace
+        Lack of Multi-Factor Authentication & MFA is not enforced for computer logins or access to sensitive data systems, increasing the risk of unauthorized access from compromised credentials. & High \\
+        \addlinespace
+        Insufficient Security Training & Security awareness training is not conducted annually for all employees, increasing susceptibility to phishing and social engineering attacks. & High \\
+        \addlinespace
+        Outdated Windows Policy & Workstations are running Windows 7, an unsupported operating system that no longer receives security updates. & Medium \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+Based on the assessment, the following actions are recommended to mitigate the identified risks. Recommendations are prioritized by severity.
+
+\subsection{Immediate Priority (Critical Risk)}
+\begin{itemize}
+    \item \textbf{Remediate Vulnerable FTP Server:}
+    \begin{enumerate}
+        \item Immediately take the server at \texttt{10.0.0.15} offline or firewall port 21 to prevent exploitation.
+        \item Investigate the server for signs of existing compromise.
+        \item If FTP is a business requirement, upgrade to a modern, patched version of an FTP server and immediately disable anonymous access.
+        \item If possible, migrate from FTP to a more secure protocol like SFTP (SSH File Transfer Protocol).
+    \end{enumerate}
+\end{itemize}
+
+\subsection{High Priority}
+\begin{itemize}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+    \begin{enumerate}
+        \item Develop a project plan to roll out MFA for all computer logins (e.g., via Windows Hello, Duo, or similar).
+        \item Identify all systems storing sensitive data and enforce MFA for access.
+    \end{enumerate}
+    \item \textbf{Establish Annual Security Training:}
+    \begin{enumerate}
+        \item Procure and implement a security awareness training platform.
+        \item Mandate that all employees complete security awareness training annually.
+        \item Conduct regular phishing simulations to test and reinforce training.
+    \end{enumerate}
+\end{itemize}
+
+\subsection{Medium Priority}
+\begin{itemize}
+    \item \textbf{Address Outdated Windows Policy:}
+    \begin{enumerate}
+        \item Continue with the existing recommendation to upgrade all Windows 7 workstations to a supported operating system, such as Windows 10 or 11.
+        \item Develop a hardware refresh cycle to ensure systems can support modern, secure operating systems.
+    \end{enumerate}
+\end{itemize}
+
+\end{document}
+```

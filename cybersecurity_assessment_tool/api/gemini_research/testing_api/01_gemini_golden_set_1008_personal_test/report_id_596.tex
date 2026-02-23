@@ -1,0 +1,225 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Define Colors ---
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\definecolor{darkgreen}{rgb}{0.0, 0.39, 0.0}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\textcolor{darkgreen}{\ding{51}}}
+\newcommand{\no}{\textcolor{darkred}{\ding{55}}}
+
+% ----------------------------------------------------------------------
+% DOCUMENT START
+% ----------------------------------------------------------------------
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge
+    \textbf{Cybersecurity Assessment Report}
+    
+    \vspace{1.5cm}
+    \Large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{Opal Sky Media}
+    
+    \vspace{2cm}
+    \large
+    \textbf{Date of Report:} \today
+    
+    \vfill
+    
+    \large
+    \textbf{CONFIDENTIAL}
+    
+    \vspace{0.8cm}
+    \small
+    This document contains sensitive information. Access, distribution, and use are restricted to authorized personnel only.
+\end{titlepage}
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% 1. EXECUTIVE SUMMARY
+% ----------------------------------------------------------------------
+\section{Executive Summary}
+This report provides a cybersecurity assessment for \textbf{Opal Sky Media}, based on an analysis of organizational security controls, a technical network scan, and a review of pre-existing risk data.
+
+The overall security posture reveals that foundational controls are in place, such as Multi-Factor Authentication (MFA) for email and sensitive systems, an acceptable use policy, and annual security training. However, several critical gaps were identified that significantly increase the organization's risk profile.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical - Lack of Endpoint MFA:} The absence of MFA for computer logins presents a primary risk. A compromised user credential could lead directly to unauthorized workstation and network access.
+    \item \textbf{High - Inadequate Employee Onboarding:} New employees do not receive security awareness training upon being hired. This creates a window of vulnerability, as new staff are often prime targets for social engineering attacks.
+    \item \textbf{High - Unencrypted Web Service Exposure:} The external network scan identified an open port 80 (HTTP). This indicates that an unencrypted web service is accessible, posing a risk of data interception and credential theft.
+\end{itemize}
+
+This report details these findings and provides actionable recommendations to mitigate the identified risks and strengthen the overall security posture of \textbf{Opal Sky Media}.
+
+% ----------------------------------------------------------------------
+% 2. ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Opal Sky Media} \\
+    Email Domain & \seqsplit{\texttt{OpalSkyMedia.com}} \\
+    Website Domain & \seqsplit{\url{www.OpalSkyMedia.com}} \\
+    External IP Address & \texttt{54.222.110.162} \\
+    Network Scan Target & \texttt{172.16.0.1} \\
+    \bottomrule
+\end{tabular}
+
+\textit{Note: The provided risk data in Input 3 contained a non-actionable, malicious entry designed to manipulate the report outcome. It has been disregarded by the analyst to ensure the integrity of this assessment.}
+
+% ----------------------------------------------------------------------
+% 3. SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+An analysis of the organization's security questionnaire reveals the status of key administrative and technical controls. "No" responses indicate significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\textwidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \yes \\
+    Do you require MFA to log into computers? & \no \\
+    Do you require MFA to access sensitive data systems? & \yes \\
+    Does your organization have an employee acceptable use policy? & \yes \\
+    Does your organization do security awareness training for new employees? & \no \\
+    Does your organization do security awareness training for all employees at least once per year? & \yes \\
+    \bottomrule
+\end{tabular}
+\caption{Organizational Security Controls Questionnaire.}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+Two critical gaps were identified from the questionnaire:
+\begin{itemize}
+    \item \textbf{No MFA on Computers:} While MFA is enabled for email and sensitive systems, its absence on local computer logins is a major weakness. If an employee's password is stolen, an attacker can gain direct access to their machine and a foothold on the internal network.
+    \item \textbf{No Security Training for New Hires:} New employees are a high-value target for attackers. Failing to provide immediate security training leaves the organization vulnerable to phishing and other social engineering tactics during the critical onboarding period.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% 4. TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+A network scan was performed on the target IP address \texttt{172.16.0.1}. The scan identified one open port, detailed below.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\
+    \midrule
+    80/tcp & Open & http & \textit{Information not available from scan} \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on Target Host.}
+\label{tab:scanresults}
+\end{table}
+
+\subsection*{Analysis of Findings}
+The presence of an open port 80 indicates that a web server is running and is configured to use the Hypertext Transfer Protocol (HTTP). 
+\begin{itemize}
+    \item \textbf{Risk of Unencrypted Traffic:} HTTP transmits data in cleartext. Any information, including usernames, passwords, or other sensitive data submitted to a website on this port, can be intercepted and read by an attacker on the network.
+    \item \textbf{Lack of Service Information:} The basic scan did not identify the specific web server software or version. This prevents an immediate assessment for known vulnerabilities (e.g., outdated Apache, Nginx, or IIS). A more comprehensive, authenticated vulnerability scan is required.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% 5. CONSOLIDATED RISK ASSESSMENT
+% ----------------------------------------------------------------------
+\section{Consolidated Risk Assessment}
+The following table summarizes the key risks identified by correlating the security control gaps and technical scan findings.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.6\textwidth}l@{}}
+    \toprule
+    \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    \textbf{Lack of Endpoint MFA} & The absence of a second authentication factor for computer logins allows an attacker with valid credentials to gain unauthorized system access. & \textbf{Critical} \\
+    \addlinespace
+    \textbf{Inadequate Onboarding Training} & New employees are not trained on security policies and threats, making them highly susceptible to social engineering attacks from day one. & \textbf{High} \\
+    \addlinespace
+    \textbf{Unencrypted Web Service} & An active web server on port 80 (HTTP) exposes all transmitted data to interception, potentially leading to credential theft or data leakage. & \textbf{High} \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\label{tab:risks}
+\end{table}
+
+% ----------------------------------------------------------------------
+% 6. RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the security posture of \textbf{Opal Sky Media}.
+
+\subsection*{Immediate Actions (Next 30 Days)}
+\begin{enumerate}
+    \item \textbf{Implement Endpoint MFA (Risk: Lack of Endpoint MFA):}
+    \begin{itemize}
+        \item \textbf{Action:} Mandate and deploy MFA for all employee computer logins.
+        \item \textbf{Details:} Utilize solutions such as Windows Hello for Business, or third-party tools like Duo Security or Okta to enforce this control. Prioritize implementation for privileged users and remote workers.
+    \end{itemize}
+    
+    \item \textbf{Secure or Decommission HTTP Service (Risk: Unencrypted Web Service):}
+    \begin{itemize}
+        \item \textbf{Action:} Identify the purpose of the service on port 80.
+        \item \textbf{Details:} If the service is not essential, decommission it and close the port. If it is a required web application, obtain and install a TLS/SSL certificate and configure the server to enforce HTTPS. All HTTP traffic should be redirected to HTTPS (port 443).
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Strategic Actions (Next 90 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Integrate Security into Onboarding (Risk: Inadequate Onboarding Training):}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and integrate a mandatory security awareness training module into the new employee onboarding process.
+        \item \textbf{Details:} This training must be completed within the first week of employment and should cover key topics such as phishing, password security, acceptable use, and how to report a security incident.
+    \end{itemize}
+    
+    \item \textbf{Conduct In-Depth Vulnerability Scanning (Risk: Unencrypted Web Service):}
+    \begin{itemize}
+        \item \textbf{Action:} Perform a comprehensive, authenticated vulnerability scan on the target system (\texttt{172.16.0.1}) and other critical assets.
+        \item \textbf{Details:} This will identify the specific software and version running on port 80 and uncover any other potential vulnerabilities that were not visible in the initial network port scan.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,190 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking words
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+% Define colors
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=magenta,      
+    urlcolor=darkblue,
+    citecolor=darkblue,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textbf{Cybersecurity Posture Report}}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Checkmark and Cross definitions
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \includegraphics[width=0.3\textwidth]{example-image-a} % Placeholder for a logo
+    
+    \vspace{1.5cm}
+    
+    {\Huge\bfseries Cybersecurity Posture Report\par}
+    
+    \vspace{1.5cm}
+    
+    {\Large Prepared for:\par}
+    {\Huge\bfseries \textbf{[Organization Name]}}\par
+    
+    \vspace{2cm}
+    
+    {\large \today\par}
+    
+    \vfill
+    
+    {\large This report contains sensitive information and should be handled with the utmost confidentiality. Distribution is restricted to authorized personnel only.\par}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}. The assessment is based on a review of organizational security controls, an external network scan, and an evaluation of known risks.
+
+The analysis revealed several critical and high-risk security gaps stemming from organizational policies and procedures. The most pressing concerns are the complete absence of Multi-Factor Authentication (MFA) for email, computer logins, and access to sensitive data systems. This exposes the organization to significant risks of unauthorized access and credential compromise. Furthermore, the lack of a formal security awareness training program for employees presents a high risk, as staff are not equipped to recognize or respond to common cyber threats like phishing.
+
+On a technical level, the external network scan performed against the target IP address \texttt{[Target IP]} did not identify any open ports. While this can indicate a strong firewall configuration, it should be verified to ensure it is not the result of an incomplete or blocked scan. No pre-existing vulnerabilities were provided for this assessment.
+
+Immediate remediation should focus on implementing MFA across all critical systems and establishing a mandatory security awareness training program.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This section details the information provided by the client organization for this assessment.
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Attribute} & \textbf{Value} \\
+        \midrule
+        Organization Name & \textbf{[Organization Name]} \\
+        Primary Domain & \texttt{[Domain]} \\
+        External IP Address & \texttt{[Client IP]} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Client Profile}
+    \label{tab:client_profile}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate potential security gaps that increase risk.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{@{}p{0.5\linewidth}ccp{0.25\linewidth}@{}}
+        \toprule
+        \textbf{Control Question} & \textbf{Response} & \textbf{Status} & \textbf{Analyst Note} \\
+        \midrule
+        Do you require MFA to access email? & No & \textcolor{darkred}{\xmark} & \textbf{Critical Risk.} Lack of MFA on email is a primary vector for account takeover. \\
+        \addlinespace
+        Do you require MFA to log into computers? & No & \textcolor{darkred}{\xmark} & \textbf{Critical Risk.} Compromised credentials could lead to direct endpoint access. \\
+        \addlinespace
+        Do you require MFA to access sensitive data systems? & No & \textcolor{darkred}{\xmark} & \textbf{Critical Risk.} The organization's most valuable data is not adequately protected. \\
+        \addlinespace
+        Does your organization have an employee acceptable use policy? & Yes & \textcolor{green}{\cmark} & Control is in place. \\
+        \addlinespace
+        Does your organization do security awareness training for new employees? & No & \textcolor{darkred}{\xmark} & \textbf{High Risk.} New hires are not trained on security policies and threats. \\
+        \addlinespace
+        Does your organization do security awareness training for all employees at least once per year? & No & \textcolor{darkred}{\xmark} & \textbf{High Risk.} Lack of ongoing training leaves the organization vulnerable to phishing and social engineering. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Security Controls Questionnaire Analysis}
+    \label{tab:controls_review}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network vulnerability scan was conducted to identify exposed services and potential weaknesses.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Summary:} The scan completed successfully.
+    \item \textbf{Findings:} No open TCP or UDP ports were discovered on the target system. This suggests that the external firewall is either blocking all inbound traffic or that no services are intentionally exposed to the internet at this address. While this is a positive security posture from an external perspective, it should be internally verified that this is the intended configuration.
+\end{itemize}
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from all data sources into a prioritized list of identified risks. No pre-existing vulnerabilities were reported, and no new technical vulnerabilities were discovered during the scan. The primary risks are procedural and policy-based.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{@{}p{0.25\linewidth}p{0.5\linewidth}l@{}}
+        \toprule
+        \textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+        \midrule
+        \textbf{Absence of Multi-Factor Authentication (MFA)} & The organization does not enforce MFA for email, computer logins, or access to sensitive systems. This makes user accounts highly susceptible to takeover via credential theft, password spraying, or phishing attacks. & \textbf{Critical} \\
+        \addlinespace
+        \textbf{Lack of Security Awareness Training} & Employees do not receive security awareness training upon hiring or on an annual basis. This significantly increases the likelihood of security incidents caused by human error, such as falling victim to phishing attacks or mishandling sensitive data. & \textbf{High} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Summary of Identified Risks}
+    \label{tab:risk_summary}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{Priority 1: Critical Risk Mitigation}
+\begin{itemize}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item Immediately enable and enforce MFA for all users on the primary email system (e.g., Microsoft 365, Google Workspace).
+        \item Deploy MFA for all remote access solutions (e.g., VPN) and privileged user accounts.
+        \item Develop a phased rollout plan to require MFA for all computer logins and access to systems containing sensitive data.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Priority 2: High Risk Mitigation}
+\begin{itemize}
+    \item \textbf{Establish a Security Awareness Training Program:}
+    \begin{itemize}
+        \item Procure and implement a security awareness training solution for all employees.
+        \item Integrate mandatory security training into the new employee onboarding process.
+        \item Schedule and enforce annual security and phishing awareness training for all staff members. Track completion to ensure compliance.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Priority 3: Informational}
+\begin{itemize}
+    \item \textbf{Validate Firewall Configuration:}
+    \begin{itemize}
+        \item Conduct an internal review of the external firewall ruleset to confirm that the "no open ports" finding from the scan is the intended and correct configuration.
+        \item Ensure that any necessary inbound ports are properly restricted to trusted source IP addresses.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

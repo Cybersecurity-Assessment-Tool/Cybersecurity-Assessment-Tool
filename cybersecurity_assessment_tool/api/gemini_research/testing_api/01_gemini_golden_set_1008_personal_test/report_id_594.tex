@@ -1,0 +1,164 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % Required for checkmark and cross symbols (\ding)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{xcolor}   % For custom colors
+\usepackage{graphicx}
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in texttt
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Color Definitions for Severity ---
+\definecolor{criticalred}{rgb}{0.7, 0.0, 0.0}
+\definecolor{highorange}{rgb}{1.0, 0.5, 0.0}
+\definecolor{mediumyellow}{rgb}{0.8, 0.8, 0.0}
+\definecolor{lowgreen}{rgb}{0.0, 0.5, 0.0}
+\definecolor{infoblue}{rgb}{0.2, 0.2, 0.8}
+
+% --- Document Information ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% ----------------------------------------------------------------------
+% DOCUMENT BODY
+% ----------------------------------------------------------------------
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{Cinder \& Ash}. The analysis is based on a review of organizational security controls, a technical network scan, and a correlation with pre-existing risk data.
+
+The assessment identified several critical and high-risk security gaps. The most significant finding is the complete absence of Multi-Factor Authentication (MFA) for accessing email, computer systems, and sensitive data. This represents a critical vulnerability that substantially increases the risk of unauthorized access and account compromise.
+
+Furthermore, the lack of a mandatory annual security awareness training program for all employees is a high-risk finding. This gap can lead to a decreased vigilance against social engineering attacks, such as phishing.
+
+A technical network scan was performed on the target system \seqsplit{\texttt{192.168.0.5}}. The scan found no open ports, indicating a secure perimeter at the time of testing. Notably, this finding contradicts a pre-existing risk entry regarding an unencrypted web server on port 80. This suggests the risk may have been remediated, and the risk register requires updating.
+
+Immediate recommendations focus on the enterprise-wide deployment of MFA and the establishment of a recurring security training program to mitigate these pressing risks.
+
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{description}
+    \item[Organization Name:] Cinder \& Ash
+    \item[Email Domain:] \texttt{CinderAsh.net}
+    \item[Website Domain:] \url{www.CinderAsh.net}
+    \item[External IP Address:] \seqsplit{\texttt{224.228.243.247}}
+\end{description}
+
+\section{Security Control Review}
+
+A review of administrative and organizational security controls was conducted via a questionnaire. The results below highlight key areas of strength and weakness. A checkmark (\ding{51}) indicates a positive control is in place, while a cross (\ding{55}) indicates a control gap.
+
+\begin{center}
+\begin{tabular}{p{0.8\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+\midrule
+Do you require MFA to access email? & \textbf{\textcolor{criticalred}{\ding{55}}} \\
+Do you require MFA to log into computers? & \textbf{\textcolor{criticalred}{\ding{55}}} \\
+Do you require MFA to access sensitive data systems? & \textbf{\textcolor{criticalred}{\ding{55}}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textbf{\textcolor{highorange}{\ding{55}}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Analysis:} The absence of MFA for critical access points (email, computers, data systems) is a critical deficiency. The lack of annual security training for all staff is a high-risk gap that undermines the organization's resilience to human-targeted attacks.
+
+\section{Technical Scan Results}
+
+A network scan was performed to identify potentially vulnerable services exposed on the target system.
+
+\begin{description}
+    \item[Target IP Address:] \seqsplit{\texttt{192.168.0.5}}
+    \item[Scanner Used:] Nmap
+\end{description}
+
+\subsection*{Port Scan Findings}
+The scan results indicate a minimal attack surface on the target system at the time of the assessment.
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Port / Protocol} & \textbf{State} & \textbf{Service} \\
+\midrule
+80/tcp & Closed & http \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Analysis:} The scan confirmed that port 80 (HTTP) was closed. No other open ports were detected. This is a positive security finding, as it limits the avenues for external attack. However, this result conflicts with data from the current risk register, which lists an open port 80 as an active vulnerability. This discrepancy is addressed in the following section.
+
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of prioritized risks.
+
+\begin{center}
+\begin{tabular}{p{0.22\linewidth} p{0.58\linewidth} p{0.12\linewidth}}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Absence of MFA} & No MFA is enforced for email, computer logins, or sensitive data systems. This allows an attacker with stolen credentials to gain full access, bypassing a fundamental security layer. & \textcolor{criticalred}{Critical} \\
+\midrule
+\textbf{Inadequate Security Training Program} & While new hires are trained, the lack of mandatory annual training for all staff allows security knowledge to become outdated, increasing susceptibility to phishing and other social engineering tactics. & \textcolor{highorange}{High} \\
+\midrule
+\textbf{Discrepancy in Risk Register} & The current risk register lists "Unencrypted Web Server" on Port 80 as an active risk. Our technical scan found this port to be \textbf{closed}. This indicates the risk register may be outdated and not accurately reflecting the current security posture. & \textcolor{infoblue}{Informational} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Recommendations}
+
+The following actionable recommendations are provided to address the identified risks. They are prioritized based on severity.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement Multi-Factor Authentication (MFA) Immediately:}
+    \begin{itemize}
+        \item Prioritize the deployment of a robust MFA solution for all employees and contractors.
+        \item \textbf{Phase 1:} Enforce MFA on all external-facing services, including email (e.g., Office 365, Google Workspace) and VPN access. This should be completed as a top priority.
+        \item \textbf{Phase 2:} Extend MFA enforcement to all computer logins and access to systems containing sensitive or critical data.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{[High] Establish a Mandatory Annual Security Training Program:}
+    \begin{itemize}
+        \item Procure or develop a security awareness training module that covers modern threats like phishing, ransomware, and business email compromise.
+        \item Make this training mandatory for all employees on an annual basis, with tracking and reporting to ensure completion.
+        \item Supplement annual training with periodic phishing simulation campaigns to test and reinforce employee awareness.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{[Low] Reconcile and Maintain the Risk Register:}
+    \begin{itemize}
+        \item Conduct an internal verification to confirm that the service on port 80 has been decommissioned or secured.
+        \item Update the risk register to formally close the "Unencrypted Web Server" risk, including details of the remediation action.
+        \item Implement a process for regularly reviewing and updating the risk register to ensure it remains an accurate tool for managing cybersecurity risk.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

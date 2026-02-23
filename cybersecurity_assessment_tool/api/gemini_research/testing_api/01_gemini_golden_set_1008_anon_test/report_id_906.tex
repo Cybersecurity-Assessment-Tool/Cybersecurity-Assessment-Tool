@@ -1,0 +1,196 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks and metadata
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata and Styling
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Analysis, Report},
+    bookmarks=true
+}
+
+% Define colors for severity
+\definecolor{criticalred}{HTML}{D12727}
+\definecolor{highorange}{HTML}{E97405}
+\definecolor{mediumyellow}{HTML}{E9C505}
+\definecolor{lowblue}{HTML}{2778D1}
+\definecolor{infogray}{HTML}{808080}
+\definecolor{remediatedgreen}{HTML}{008000}
+
+\newcommand{\severitycritical}[1]{\textcolor{criticalred}{\textbf{#1}}}
+\newcommand{\severityhigh}[1]{\textcolor{highorange}{\textbf{#1}}}
+\newcommand{\severitymedium}[1]{\textcolor{mediumyellow}{\textbf{#1}}}
+\newcommand{\severityremediated}[1]{\textcolor{remediatedgreen}{\textbf{#1}}}
+
+% Check and Cross symbols
+\newcommand{\yess}{\ding{51}}
+\newcommand{\noo}{\ding{55}}
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:}\\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+    \vspace{2cm}
+    \large
+    \textbf{Date of Report:}\\
+    \vspace{0.5cm}
+    \today
+    \vfill
+    \large
+    \textit{This report contains sensitive information and should be handled with care.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Executive Summary ---
+\section*{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, synthesizing data from a technical network scan, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals a critical disparity between the organization's technical and procedural security controls. While the external network scan of \texttt{[Target IP]} showed a positive security posture with no exposed services, the organizational controls exhibit significant weaknesses. The complete absence of Multi-Factor Authentication (MFA) across email, computers, and sensitive systems, combined with a lack of employee security awareness training, constitutes a \severitycritical{Critical} risk. These gaps leave the organization highly susceptible to credential theft, phishing, and social engineering attacks.
+
+A key finding is that the previously documented risk, "Unencrypted Web Server," appears to be remediated, as the associated port (80/tcp) was found to be closed during the scan.
+
+Immediate remediation should focus on implementing MFA and establishing a baseline security awareness training program. Addressing these foundational controls will drastically reduce the organization's most significant avenues of compromise.
+
+% --- Organizational Information ---
+\section*{Organizational Information}
+
+The following details were used as the basis for this assessment. The data has been anonymized as per the engagement requirements.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Security Control Review ---
+\section*{Security Control Review}
+
+The following table details the responses from the organizational security questionnaire. "No" answers indicate significant gaps in the security framework and are correlated with the risks identified in Section \ref{sec:risk-assessment}.
+
+\begin{table}[h!]
+    \centering
+    \caption{Security Controls Questionnaire Analysis}
+    \begin{tabular}{p{0.55\textwidth} c p{0.25\textwidth}}
+        \toprule
+        \textbf{Control Question} & \textbf{Response} & \textbf{Analyst Assessment} \\
+        \midrule
+        Do you require MFA to access email? & \noo & \severitycritical{Critical Gap} \\
+        Do you require MFA to log into computers? & \noo & \severityhigh{High Risk} \\
+        Do you require MFA to access sensitive data systems? & \noo & \severitycritical{Critical Gap} \\
+        Does your organization have an employee acceptable use policy? & \yess & Good Foundation \\
+        Does your organization do security awareness training for new employees? & \noo & \severityhigh{High Risk} \\
+        Does your organization do security awareness training for all employees at least once per year? & \noo & \severityhigh{High Risk} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Analysis of Controls}
+The lack of MFA is the most severe weakness identified. Email is a primary target for attackers, and without MFA, a single compromised password can lead to a full account takeover. Similarly, the absence of security awareness training means that even with policies in place, employees are not equipped to recognize or respond to common threats like phishing, significantly increasing organizational risk.
+
+% --- Technical Scan Results ---
+\section*{Technical Scan Results}
+
+An external network scan was performed to identify exposed services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Scan data processed on \today
+\end{itemize}
+
+The scan revealed no open ports on the target system. This indicates a strong network perimeter defense, likely due to a well-configured firewall.
+
+\begin{table}[h!]
+    \centering
+    \caption{Nmap Scan Port Summary}
+    \begin{tabular}{l l l l}
+        \toprule
+        \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} \\
+        \midrule
+        80/tcp & closed & http & N/A \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Correlation with Existing Risks}
+The pre-existing risk register listed a vulnerability, "Unencrypted Web Server," based on Port 80 being open. Our scan confirms this port is now \textbf{closed}. This is a positive finding, suggesting that the risk has been successfully remediated. This should be formally updated in the organization's risk register.
+
+% --- Risk Assessment ---
+\section{Risk Assessment}
+\label{sec:risk-assessment}
+
+The following table summarizes the identified risks, combining findings from all data sources. Risks are prioritized by severity to guide remediation efforts.
+
+\begin{table}[h!]
+    \centering
+    \caption{Summary of Identified Risks}
+    \begin{tabular}{p{0.3\textwidth} p{0.5\textwidth} l}
+        \toprule
+        \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+        \midrule
+        \textbf{Lack of Multi-Factor Authentication (MFA)} & The absence of MFA on email, endpoints, and sensitive systems exposes the organization to account takeovers via credential theft. & \severitycritical{Critical} \\
+        \addlinespace
+        \textbf{Insufficient Security Awareness Training} & Employees are not trained to identify or report security threats, making the organization highly vulnerable to phishing and social engineering. & \severityhigh{High} \\
+        \addlinespace
+        \textbf{Unencrypted Web Server} & \textit{(From Input 3)} Port 80 was believed to be open. The current scan shows this port is closed, mitigating the immediate risk. & \severityremediated{Remediated} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+% --- Recommendations ---
+\section*{Recommendations}
+
+The following actionable recommendations are provided in order of priority to address the identified risks.
+
+\subsection*{Priority 1: Implement Multi-Factor Authentication (Critical)}
+This is the single most effective control to prevent unauthorized access.
+\begin{itemize}
+    \item \textbf{Immediate Action:} Enforce MFA on all externally-facing services, with the highest priority on email (\texttt{[Domain]}).
+    \item \textbf{Long-Term Strategy:} Phase in MFA for all employee computer logins and access to all systems containing sensitive data.
+\end{itemize}
+
+\subsection*{Priority 2: Establish Security Awareness Program (High)}
+An aware workforce is a critical layer of defense.
+\begin{itemize}
+    \item \textbf{Immediate Action:} Provide foundational security awareness training to all current employees and integrate it into the onboarding process for new hires.
+    \item \textbf{Long-Term Strategy:} Implement a continuous security training program, including mandatory annual refreshers and periodic phishing simulation exercises to measure effectiveness.
+\end{itemize}
+
+\subsection*{Priority 3: Validate and Update Risk Register (Informational)}
+Maintain accurate and current risk documentation.
+\begin{itemize}
+    \item \textbf{Action:} Formally document the finding that Port 80 is closed and update the status of the "Unencrypted Web Server" risk to "Remediated" in the internal risk register.
+\end{itemize}
+
+% --- Conclusion ---
+\section*{Conclusion}
+The current cybersecurity posture of \textbf{[Organization Name]} is characterized by a strong external network perimeter but critical internal and procedural weaknesses. The lack of MFA and security training presents an unacceptable level of risk. By focusing resources on the prioritized recommendations in this report, the organization can significantly and rapidly improve its resilience against the most prevalent cyber threats.
+
+\end{document}
+```

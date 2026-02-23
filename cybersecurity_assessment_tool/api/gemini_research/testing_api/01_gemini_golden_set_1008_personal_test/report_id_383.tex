@@ -1,0 +1,166 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Verve \& Vigor}, based on the analysis of network scan data, organizational security controls, and pre-existing risk information. The assessment synthesizes technical findings with procedural and policy-based controls to offer a holistic view of the organization's security posture.
+
+\paragraph{Key Findings:} The analysis revealed several areas of concern that require immediate attention. While the organization has implemented important controls such as Multi-Factor Authentication (MFA) for email and sensitive systems, critical gaps exist. 
+
+Two high-risk procedural gaps were identified:
+\begin{itemize}
+    \item \textbf{Lack of MFA for computer logins:} This significantly increases the risk of unauthorized access and lateral movement within the network should credentials be compromised.
+    \item \textbf{Absence of security awareness training for new employees:} New hires are not equipped with the necessary knowledge to defend against common threats like phishing, making them a primary target for attackers.
+\end{itemize}
+
+A technical network scan confirmed a pre-existing critical risk: an open SSH port (22) on the local loopback interface (\texttt{127.0.0.1}). This misconfiguration could be exploited by malicious software already on the system for privilege escalation or persistence.
+
+\paragraph{Conclusion:} Verve \& Vigor has a foundational security framework but is exposed to significant risk due to these specific control gaps. The recommendations outlined in this report are designed to address these vulnerabilities directly and should be prioritized to enhance the organization's defensive capabilities.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context for the technical and procedural analysis.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Verve \& Vigor} \\
+    Email Domain & \texttt{VerveVigor.org} \\
+    Website Domain & \url{www.VerveVigor.org} \\
+    External IP Address & \texttt{183.184.15.36} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight both strengths and weaknesses in the current security policies and procedures. "No" answers indicate significant gaps that increase organizational risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{@{}lp{6.5cm}cc@{}}
+    \toprule
+    \textbf{Control Area} & \textbf{Question} & \textbf{Response} & \textbf{Status} \\
+    \midrule
+    Access Control & Do you require MFA to access email? & Yes & \ding{51} \\
+    \textbf{Access Control} & \textbf{Do you require MFA to log into computers?} & \textbf{No} & \textbf{\color{red}\ding{55}} \\
+    Access Control & Do you require MFA to access sensitive data systems? & Yes & \ding{51} \\
+    \addlinespace
+    Policy & Does your organization have an employee acceptable use policy? & Yes & \ding{51} \\
+    \addlinespace
+    Training & \textbf{Does your organization do security awareness training for new employees?} & \textbf{No} & \textbf{\color{red}\ding{55}} \\
+    Training & Does your organization do security awareness training for all employees at least once per year? & Yes & \ding{51} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed on the target system to identify open ports and exposed services. The scan provides a technical snapshot of the system's external-facing posture.
+
+\paragraph{Scan Target:} The scan was executed against the IP address \texttt{127.0.0.1}. This is the local loopback interface, meaning the findings are relevant to services accessible only from the machine itself.
+
+\paragraph{Findings:} The scan identified one open port. The results are detailed in the table below.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis for Target: 127.0.0.1}
+\begin{tabular}{@{}ccccc@{}}
+    \toprule
+    \textbf{Port} & \textbf{Protocol} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Version} \\
+    \midrule
+    22 & TCP & open & ssh & Not Detected \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The presence of an open SSH port (22) on the localhost interface directly confirms the pre-existing risk "Localhost Exposed". While not externally accessible, this service could be leveraged by malware or an attacker who has already gained initial, low-privilege access to the machine to escalate privileges or establish a persistent backdoor. The scan did not retrieve version information, so it is not possible to determine if the running SSH service has any known vulnerabilities.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+
+This section correlates the findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of vulnerabilities.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.5cm}p{3.5cm}p{6.5cm}l@{}}
+    \toprule
+    \textbf{ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    \textbf{R-01} & \textbf{Exposed Local Service (SSH)} & An SSH service is accessible on the local loopback interface (\texttt{127.0.0.1}), confirming a known issue. This poses a risk for local privilege escalation. & \textbf{Critical} \\
+    \addlinespace
+    \textbf{R-02} & \textbf{Lack of Endpoint MFA} & The absence of MFA on computer logins exposes the organization to significant risk from credential theft, enabling unauthorized access and lateral movement. & \textbf{High} \\
+    \addlinespace
+    \textbf{R-03} & \textbf{Inadequate Employee Onboarding} & New employees do not receive security awareness training, making them highly susceptible to phishing and social engineering attacks from day one. & \textbf{High} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+The following actionable recommendations are provided to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{R-01: Remediate Exposed Local Service (Critical)}
+\begin{itemize}
+    \item \textbf{Action:} Immediately investigate the purpose of the SSH service running on \texttt{127.0.0.1}. If this service is not essential for a documented business or system function, it must be disabled and removed.
+    \item \textbf{Impact:} Eliminates a vector for local privilege escalation and removes an unnecessary attack surface.
+    \item \textbf{Priority:} \textbf{Critical}
+\end{itemize}
+
+\subsection{R-02: Implement Endpoint MFA (High)}
+\begin{itemize}
+    \item \textbf{Action:} Procure and deploy a solution to enforce Multi-Factor Authentication (MFA) for all user logins to company workstations and laptops. This should apply to both local and remote access.
+    \item \textbf{Impact:} Drastically reduces the risk of account compromise via stolen credentials and prevents unauthorized system access.
+    \item \textbf{Priority:} \textbf{High}
+\end{itemize}
+
+\subsection{R-03: Mandate Onboarding Security Training (High)}
+\begin{itemize}
+    \item \textbf{Action:} Develop and integrate a mandatory security awareness training module into the standard new employee onboarding process. This module should cover phishing, acceptable use, password hygiene, and incident reporting.
+    \item \textbf{Impact:} Reduces the human-based attack surface by equipping new staff with the knowledge to identify and report security threats.
+    \item \textbf{Priority:} \textbf{High}
+\end{itemize}
+
+\end{document}
+```

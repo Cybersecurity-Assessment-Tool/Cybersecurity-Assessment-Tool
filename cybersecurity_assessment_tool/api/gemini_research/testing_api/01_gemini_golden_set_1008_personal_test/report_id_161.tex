@@ -1,0 +1,204 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding
+\usepackage{booktabs} % For professional tables
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{seqsplit} % For breaking long text strings
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- CUSTOM COMMANDS & SETTINGS ---
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Postuasion Assessment}
+\rhead{\textbf{Zenith Point}}
+\cfoot{\thepage}
+
+\newcommand{\yes}{\ding{51}} % Checkmark
+\newcommand{\no}{\ding{55}}  % X mark
+
+% Define severity colors
+\definecolor{critical}{HTML}{990000}
+\definecolor{high}{HTML}{DD4B39}
+\definecolor{medium}{HTML}{F4B400}
+\definecolor{low}{HTML}{4285F4}
+
+\newcommand{\severity}[2]{
+  \ifstrequal{#1}{Critical}{\colorbox{critical}{\textcolor{white}{\textbf{\strut #2}}}}{}
+  \ifstrequal{#1}{High}{\colorbox{high}{\textcolor{white}{\textbf{\strut #2}}}}{}
+  \ifstrequal{#1}{Medium}{\colorbox{medium}{\textcolor{black}{\textbf{\strut #2}}}}{}
+  \ifstrequal{#1}{Low}{\colorbox{low}{\textcolor{white}{\textbf{\strut #2}}}}{}
+}
+
+% Simple string comparison
+\newcommand\ifstrequal[3]{\ifx#1#2#3\fi}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for:
+    
+    \vspace{0.5cm}
+    
+    \textbf{Zenith Point}
+    
+    \vfill
+    
+    \large
+    Date of Report: \today
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a cybersecurity posture assessment for \textbf{Zenith Point}, based on an analysis of network scan data, organizational security controls, and pre-existing risk information.
+
+The assessment reveals a mixed security posture. The organization demonstrates strong foundational controls in identity and access management, with Multi-Factor Authentication (MFA) widely implemented. However, two significant areas of concern were identified that require immediate attention:
+
+\begin{itemize}
+    \item \textbf{Critical Network Vulnerability:} The network scan identified a server with an exposed Remote Desktop Protocol (RDP) port. This finding is particularly concerning as it represents a new instance of a previously identified critical risk, indicating a potential systemic issue in network configuration management. Exposed RDP is a primary vector for ransomware attacks.
+    \item \textbf{High-Risk Policy Gap:} The security questionnaire revealed a lack of mandatory, annual security awareness training for all employees. This gap significantly increases the organization's susceptibility to social engineering attacks, such as phishing, which can bypass even strong technical controls.
+\end{itemize}
+
+This report details these findings and provides actionable recommendations to mitigate the identified risks and strengthen the overall security posture of \textbf{Zenith Point}.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Zenith Point} \\
+    Email Domain & \seqsplit{\texttt{ZenithPoint.net}} \\
+    Website Domain & \seqsplit{\texttt{www.ZenithPoint.net}} \\
+    External IP Address & \seqsplit{\texttt{200.156.57.3}} \\
+    \bottomrule
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The responses indicate a strong commitment to MFA but highlight a critical gap in ongoing employee security education.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}lc}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \yes \\
+    Do you require MFA to log into computers? & \yes \\
+    Do you require MFA to access sensitive data systems? & \yes \\
+    Does your organization have an employee acceptable use policy? & \yes \\
+    Does your organization do security awareness training for new employees? & \yes \\
+    Does your organization do security awareness training for all employees at least once per year? & \textbf{\no} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The lack of annual security awareness training for all staff is a significant finding. While training new hires is a good first step, the threat landscape evolves continuously. Without regular, recurring training, employees are more likely to fall victim to sophisticated phishing and social engineering attacks, potentially negating the security benefits of other controls like MFA.
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{10.10.10.51}}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Scan Findings for \seqsplit{\texttt{10.10.10.51}}}
+\begin{tabular}{@{}llll}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Product / Version} \\
+    \midrule
+    3389/tcp & open & ms-wbt-server & Not Detected \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified that port \textbf{3389/tcp}, used for Microsoft's Remote Desktop Protocol (RDP), is open. Exposing RDP directly to the internet is extremely dangerous and is a common attack vector for ransomware gangs and other threat actors. Attackers can exploit weak credentials, unpatched vulnerabilities, or brute-force attacks to gain full control over the server.
+
+This finding is of particular concern as it correlates with a pre-existing risk regarding RDP exposure on another host (\seqsplit{\texttt{10.10.10.50}}), suggesting a pattern of insecure network configurations.
+
+% --- RISK ASSESSMENT ---
+\section{Risk Assessment Summary}
+The following table synthesizes findings from the technical scan, control review, and existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\caption{Synthesized Risk Register}
+\begin{tabular}{@{}p{0.1\linewidth}p{0.25\linewidth}p{0.3\linewidth}p{0.15\linewidth}@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Description} & \textbf{Affected Asset(s)} & \textbf{Severity} \\
+    \midrule
+    \textbf{RDP Exposure (New)} & Port 3389 (RDP) is open on a server, allowing direct remote access attempts from the internet. & \seqsplit{\texttt{10.10.10.51}} & \severity{Critical}{Critical} \\
+    \addlinespace
+    \textbf{Insufficient Security Training} & Lack of annual security awareness training for all employees increases susceptibility to phishing and social engineering. & All Employees & \severity{High}{High} \\
+    \addlinespace
+    \textbf{RDP Exposure (Existing)} & Pre-existing risk of an exposed RDP port on a different server, indicating a recurring issue. & \seqsplit{\texttt{10.10.10.50}} & \severity{Critical}{Critical} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the security posture of \textbf{Zenith Point}.
+
+\subsection{Immediate Priority: Remediate RDP Exposure}
+\begin{itemize}
+    \item \textbf{Short-Term Action:} Immediately implement a firewall rule to block all inbound traffic to TCP port 3389 on hosts \seqsplit{\texttt{10.10.10.51}} and \seqsplit{\texttt{10.10.10.50}} from any untrusted network.
+    \item \textbf{Long-Term Action:} For necessary remote administration, deploy a secure remote access solution such as a Virtual Private Network (VPN) or a Zero Trust Network Access (ZTNA) solution. All RDP traffic should be routed exclusively through this secure channel.
+    \item \textbf{Priority:} \textbf{Critical}. This vulnerability presents a clear and present danger to the organization.
+\end{itemize}
+
+\subsection{High Priority: Implement Annual Security Training Program}
+\begin{itemize}
+    \item \textbf{Action:} Establish a formal, mandatory security awareness training program for all employees, to be conducted at least annually. This program should cover key topics such as phishing identification, password hygiene, and acceptable use policies.
+    \item \textbf{Justification:} A well-trained workforce is the first line of defense against cyberattacks. Regular training hardens the "human firewall" and reduces the likelihood of a breach resulting from human error.
+    \item \textbf{Priority:} \textbf{High}.
+\end{itemize}
+
+\subsection{Ongoing: Review Network Security Policies}
+\begin{itemize}
+    \item \textbf{Action:} Conduct a comprehensive review of network firewall and server configuration policies. The recurrence of exposed RDP suggests a potential gap in change management or baseline security configuration processes.
+    \item \textbf{Justification:} Establishing and enforcing secure configuration standards will prevent similar vulnerabilities from being introduced in the future.
+    \item \textbf{Priority:} Medium.
+\end{itemize}
+
+\end{document}
+```

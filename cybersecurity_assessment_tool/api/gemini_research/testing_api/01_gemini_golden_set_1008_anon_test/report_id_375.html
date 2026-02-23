@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report details the findings of a cybersecurity posture
+assessment conducted for <strong>[Organization Name]</strong>. The
+assessment combined an analysis of organizational security controls, an
+external network scan, and a review of pre-existing risks to provide a
+holistic view of the current security landscape.</p>
+<p>The analysis reveals a mixed security posture. While foundational
+controls such as Multi-Factor Authentication (MFA) for email are in
+place, several critical vulnerabilities and procedural gaps were
+identified that expose the organization to significant risk.</p>
+<p>Key findings include:</p>
+<ul>
+<li><p><strong>Critical Service Exposure:</strong> A MySQL database
+(version 5.7.33) is directly exposed to the network. This version is
+officially End-of-Life (EOL) as of October 2023 and no longer receives
+security updates, making it a prime target for exploitation.</p></li>
+<li><p><strong>Insufficient Access Controls:</strong> Multi-Factor
+Authentication (MFA) is not enforced for workstation logins or access to
+sensitive data systems. This gap severely undermines account security
+and increases the risk of unauthorized access and lateral movement
+within the network.</p></li>
+<li><p><strong>Inadequate Employee Onboarding:</strong> The lack of
+mandatory security awareness training for new employees creates a window
+of vulnerability, as new hires are often targeted by social engineering
+and phishing attacks.</p></li>
+</ul>
+<p>These findings indicate a high probability of a security incident if
+not remediated promptly. This report provides a detailed breakdown of
+each risk and offers actionable recommendations prioritized by urgency
+to strengthen the organization’s defensive capabilities.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following details were used as the basis for this assessment. Due
+to the anonymized nature of the provided data, placeholders have been
+used where necessary.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Primary Email Domain:</strong>
+<code>[Domain]</code></p></li>
+<li><p><strong>Assessed External IP:</strong>
+<code>[Client IP]</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>An assessment of internal security controls was conducted via a
+standardized questionnaire. The responses highlight gaps in critical
+areas, particularly concerning access control and employee training. A
+"No" response indicates a deviation from security best practices and
+represents a potential risk.</p>
+<div id="tab:controls">
+<table style="width:75%;">
+<caption>Organizational Security Control Questionnaire</caption>
+<colgroup>
+<col style="width: 75%" />
+<col />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed to identify open ports and
+exposed services. The scan confirmed the presence of a publicly
+accessible database service.</p>
+<ul>
+<li><p><strong>Scan Target:</strong> <code>[Target IP]</code></p></li>
+<li><p><strong>Scan Date:</strong> <strong>[Scan Date]</strong></p></li>
+</ul>
+<div id="tab:nmap">
+<table>
+<caption>Open Port Analysis</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+<th style="text-align: left;"><strong>Analyst Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3306/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">mysql</td>
+<td style="text-align: left;">MySQL 5.7.33</td>
+<td style="text-align: left;"><strong>Critical Finding:</strong> Service
+is exposed. Version 5.7 is End-of-Life (EOL) and unpatched.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="synthesized-risk-assessment">Synthesized Risk Assessment</h1>
+<p>This section correlates findings from the security control review,
+technical scan, and pre-existing risk data. Each identified risk is
+assigned a severity level to aid in prioritization.</p>
+<div id="tab:risks">
+<table style="width:90%;">
+<caption>Summary of Identified Risks</caption>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 20%" />
+<col style="width: 10%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk ID</strong></th>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+<th style="text-align: left;"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">RISK-001</td>
+<td style="text-align: left;">Exposed &amp; EOL Database Service</td>
+<td style="text-align: left;"><strong><span
+style="color: critical">CRITICAL</span></strong></td>
+<td style="text-align: left;">A MySQL database on an End-of-Life version
+(5.7.33) is publicly exposed on port 3306. EOL software does not receive
+security updates, making it highly susceptible to known exploits.</td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-002</td>
+<td style="text-align: left;">No MFA on Sensitive Systems</td>
+<td style="text-align: left;"><strong><span
+style="color: critical">CRITICAL</span></strong></td>
+<td style="text-align: left;">The lack of MFA on systems containing
+sensitive data means that a single compromised password could lead
+directly to a major data breach.</td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-003</td>
+<td style="text-align: left;">No MFA on Workstations</td>
+<td style="text-align: left;"><strong><span
+style="color: high">HIGH</span></strong></td>
+<td style="text-align: left;">The absence of MFA for computer logins
+allows an attacker with stolen credentials to easily gain a foothold in
+the network and move laterally to access other resources.</td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-004</td>
+<td style="text-align: left;">Inadequate New Hire Training</td>
+<td style="text-align: left;"><strong><span
+style="color: high">HIGH</span></strong></td>
+<td style="text-align: left;">Failing to provide security awareness
+training during employee onboarding leaves a critical window where new
+staff are highly vulnerable to phishing and social engineering
+attacks.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actionable recommendations are provided to mitigate the
+identified risks. They are prioritized to address the most critical
+vulnerabilities first.</p>
+<div id="tab:recommendations">
+<table style="width:95%;">
+<caption>Prioritized Remediation Plan</caption>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 70%" />
+<col style="width: 15%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk ID</strong></th>
+<th style="text-align: left;"><strong>Recommendation</strong></th>
+<th style="text-align: left;"><strong>Priority</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">RISK-001</td>
+<td style="text-align: left;"><strong>Immediate:</strong> Implement
+strict firewall rules to restrict access to port 3306 to only known,
+trusted IP addresses.<br />
+<strong>Short-Term:</strong> Plan and execute an urgent upgrade of the
+MySQL database from the EOL 5.7 version to a currently supported major
+version (e.g., 8.x).</td>
+<td style="text-align: left;"><strong>CRITICAL</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-002</td>
+<td style="text-align: left;"><strong>Immediate:</strong> Identify all
+systems classified as containing sensitive data and enforce MFA for all
+user access immediately.</td>
+<td style="text-align: left;"><strong>CRITICAL</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-003</td>
+<td style="text-align: left;"><strong>Short-Term:</strong> Procure and
+deploy an MFA solution for all employee workstation and laptop logins
+(e.g., Windows Hello for Business, Duo, etc.).</td>
+<td style="text-align: left;"><strong>HIGH</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-004</td>
+<td style="text-align: left;"><strong>Immediate:</strong> Develop and
+integrate a mandatory security awareness training module into the
+standard new employee onboarding process.</td>
+<td style="text-align: left;"><strong>HIGH</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

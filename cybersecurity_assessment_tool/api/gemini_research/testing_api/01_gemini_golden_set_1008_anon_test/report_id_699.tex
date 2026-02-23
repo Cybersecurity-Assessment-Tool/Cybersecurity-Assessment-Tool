@@ -1,0 +1,170 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and ToC
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long text sequences without breaking
+\usepackage{xcolor} % For custom colors
+\usepackage{graphicx} % For potential logos or images
+\usepackage{datetime} % For \today
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment},
+    pdfpagemode=FullScreen,
+}
+
+% Define colors for risk levels
+\definecolor{severitycritical}{HTML}{990000}
+\definecolor{severityhigh}{HTML}{D2691E}
+\definecolor{severitymedium}{HTML}{FFA500}
+\definecolor{severitylow}{HTML}{32CD32}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{\fill}
+    \Huge{\textbf{Cybersecurity Posture Assessment Report}}
+    \vspace{1.5cm}
+    \Large{\textbf{Prepared for:}} \\
+    \vspace{0.5cm}
+    \huge{\textbf{[Organization Name]}}
+    \vspace{2cm}
+    \large{\textbf{Date of Report:}} \\
+    \vspace{0.2cm}
+    \large{\today}
+    \vspace*{\fill}
+    \textit{This report is confidential and intended solely for the use of the recipient.}
+\end{titlepage}
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on a review of organizational security controls, an external network scan, and an assessment of pre-existing risks.
+
+The assessment reveals a notable contrast in the organization's security maturity. On one hand, the security questionnaire indicates a strong foundation of administrative controls. Policies such as mandatory Multi-Factor Authentication (MFA) for critical systems and consistent security awareness training are in place, demonstrating a commendable commitment to user-level security.
+
+However, the technical scan identified a critical-risk vulnerability that overshadows these positive aspects. A MySQL database service (port 3306) was found to be publicly exposed on the target system \texttt{[Target IP]}. This direct exposure creates a significant attack surface for threat actors. Compounding this issue, the detected MySQL version (5.7.33) is now End-of-Life (EOL) as of October 2023 and no longer receives security updates from the vendor.
+
+The primary recommendation is to take immediate action to restrict all public access to the database service. Following this, a plan must be developed to migrate the database to a currently supported version to mitigate risks from unpatched vulnerabilities.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were used as the basis for this assessment. Where information was not provided, placeholders have been used.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{Client External IP:} \texttt{[Client IP]}
+    \item \textbf{Scan Target:} \texttt{[Target IP]}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A security questionnaire was completed to evaluate the administrative and policy-based controls within the organization. The responses, summarized in Table \ref{tab:controls}, indicate a strong adherence to foundational security best practices.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+\seqsplit{Do you require MFA to access email?} & \textcolor{green}{\ding{51}} \\
+\seqsplit{Do you require MFA to log into computers?} & \textcolor{green}{\ding{51}} \\
+\seqsplit{Do you require MFA to access sensitive data systems?} & \textcolor{green}{\ding{51}} \\
+\seqsplit{Does your organization have an employee acceptable use policy?} & \textcolor{green}{\ding{51}} \\
+\seqsplit{Does your organization do security awareness training for new employees?} & \textcolor{green}{\ding{51}} \\
+\seqsplit{Does your organization do security awareness training for all employees at least once per year?} & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent All provided answers were affirmative (\textcolor{green}{\ding{51}}), indicating that the organization has successfully implemented key security controls related to access management and employee awareness. No policy-based gaps were identified from this review.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed against the target IP address to identify open ports and exposed services.
+
+\subsection{Scan Results for \texttt{[Target IP]}}
+The scan revealed one open port, detailed in Table \ref{tab:scanresults}.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services Detected}
+\label{tab:scanresults}
+\begin{tabular}{llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product \& Version} \\
+\midrule
+3306/tcp & open & mysql & MySQL 5.7.33 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Analysis of Findings}
+The discovery of port 3306 open to the public internet is a significant security concern. This port is the default for the MySQL database protocol. Exposing a database server directly to the internet is highly discouraged as it allows attackers to:
+\begin{itemize}
+    \item Perform brute-force attacks to guess credentials.
+    \item Exploit known vulnerabilities in the database software.
+    \item Potentially exfiltrate, modify, or destroy sensitive data.
+\end{itemize}
+Furthermore, the identified version, MySQL 5.7.33, belongs to the 5.7 series which reached its official End-of-Life (EOL) in October 2023. EOL software no longer receives security patches, meaning any vulnerabilities discovered after this date will remain unpatched and exploitable.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+The following table synthesizes findings from the technical scan and pre-existing risk data. The correlation of these items provides a clear view of the most pressing threats.
+
+\begin{table}[h!]
+\centering
+\caption{Consolidated Risk Summary}
+\label{tab:risks}
+\begin{tabular}{p{0.25\linewidth} p{0.1\linewidth} p{0.35\linewidth} p{0.2\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Overview} & \textbf{Affected Elements} \\
+\midrule
+\textbf{End-of-Life (EOL) Database Software} & \textcolor{severitycritical}{\textbf{Critical}} & The MySQL 5.7.33 software is EOL and no longer receives security updates, leaving it perpetually vulnerable to new exploits. & MySQL 5.7.33 on \texttt{[Target IP]} \\
+\addlinespace
+\textbf{Publicly Exposed Database Service} & \textcolor{severityhigh}{\textbf{High}} & The MySQL database port (3306) is open to the internet, creating a direct attack vector for unauthorized access and exploitation. This finding validates a known risk. & Port 3306 on \texttt{[Target IP]} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are prioritized to address the identified risks effectively.
+
+\subsection{Immediate Priority (Urgent)}
+\begin{enumerate}
+    \item \textbf{Restrict Access to Port 3306:} Immediately implement firewall rules to block all public internet traffic to TCP port 3306 on \texttt{[Target IP]}. Access should be restricted to a whitelist of trusted IP addresses only. If no external access is required, the port should be closed to the internet entirely. This directly mitigates the \textit{Publicly Exposed Database Service} risk.
+\end{enumerate}
+
+\subsection{High Priority (Within 3 Months)}
+\begin{enumerate}
+    \item \textbf{Plan and Execute Database Migration:} Develop a migration plan to upgrade the MySQL 5.7 database to a fully supported version (e.g., MySQL 8.x or a managed cloud database service). This is the only effective long-term solution to the \textit{End-of-Life Software} risk and is critical for maintaining a secure environment.
+\end{enumerate}
+
+\subsection{Strategic Recommendations}
+\begin{enumerate}
+    \item \textbf{Implement a Secure Remote Access Solution:} For any legitimate need for remote database administration, establish a Virtual Private Network (VPN) or a zero-trust network access (ZTNA) solution. This provides an encrypted and authenticated channel for administrators without exposing the database service directly to the internet.
+    \item \textbf{Establish a Vulnerability Management Program:} Proactively identify risks by implementing a regular schedule of internal and external vulnerability scanning. This practice helps detect outdated software, misconfigurations, and other security weaknesses before they can be exploited.
+\end{enumerate}
+
+% --- Document End ---
+\end{document}
+```

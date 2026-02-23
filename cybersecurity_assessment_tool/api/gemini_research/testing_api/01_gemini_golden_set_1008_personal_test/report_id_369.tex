@@ -1,0 +1,153 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding symbols (checkmark/cross)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{seqsplit} % For breaking long, unbreakable strings
+\usepackage{xcolor}   % For colors
+
+% Hyperref and Color Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue
+}
+
+% Define custom colors for severity
+\definecolor{criticalred}{HTML}{D7263D}
+\definecolor{highorange}{HTML}{F49D40}
+\definecolor{mediumyellow}{HTML}{F4D440}
+\definecolor{lowblue}{HTML}{5C9EAD}
+\definecolor{inforgray}{HTML}{808080}
+
+% Document Start
+\begin{document}
+
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+\hrule
+\vspace{1em}
+\begin{center}
+    \textbf{Report for: Willow Creek Health}
+\end{center}
+\vspace{1em}
+\hrule
+
+\section*{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for Willow Creek Health, based on a combination of network scanning, organizational questionnaires, and a review of pre-existing risk data.
+
+The assessment has identified several critical and high-severity risks that require immediate attention. The most significant finding is an exposed web interface on port \texttt{8080/tcp} on an internal system (\texttt{10.5.5.5}), which presents itself as a ``TOP SECRET DB''. This finding directly contradicts previous risk assessments that marked this port as a secure false positive.
+
+Furthermore, a systemic lack of Multi-Factor Authentication (MFA) across all key access points—including email, computer logins, and sensitive data systems—constitutes a critical security gap. This weakness, combined with the absence of mandatory annual security awareness training for all employees, significantly elevates the risk of a successful cyberattack through credential compromise or social engineering.
+
+Immediate remediation of the exposed database interface and the phased implementation of MFA are the highest priorities.
+
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{ll}
+    \textbf{Organization Name:} & Willow Creek Health \\
+    \textbf{Email Domain:} & \texttt{WillowCreekHealth.com} \\
+    \textbf{Website Domain:} & \seqsplit{\url{www.WillowCreekHealth.com}} \\
+    \textbf{External IP Address:} & \texttt{152.94.117.186} \\
+\end{tabular}
+
+\section{Security Control Review}
+
+The following table summarizes the organization's self-reported security controls based on the provided questionnaire. Gaps in these controls are a primary source of organizational risk. A red cross (\ding{55}) indicates a negative response and a potential security weakness.
+
+\begin{center}
+\begin{tabular}{p{0.8\linewidth}c}
+    \toprule
+    \textbf{Control Question} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{criticalred}{\ding{55}} \\
+    Do you require MFA to log into computers? & \textcolor{criticalred}{\ding{55}} \\
+    Do you require MFA to access sensitive data systems? & \textcolor{criticalred}{\ding{55}} \\
+    Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+    Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{highorange}{\ding{55}} \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{10.5.5.5}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+The scan revealed the following significant finding:
+
+\begin{center}
+\begin{tabular}{llll}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Details} \\
+    \midrule
+    8080/tcp & open & http & \textbf{HTTP Title:} ``TOP SECRET DB'' \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis of Technical Findings}
+The discovery of an open port with an HTTP title of ``TOP SECRET DB'' is a critical information disclosure and a potential access vector to a sensitive database. This finding is particularly alarming as it directly contradicts the pre-existing risk data (\textit{Input\_3\_Current\_Risks\_JSON}), which incorrectly classified this port as a secure false positive. This discrepancy suggests a potential failure in the vulnerability validation process. The lack of MFA for sensitive systems, as identified in the Security Control Review, drastically increases the risk associated with this exposed interface.
+
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the technical scan, security control review, and pre-existing data into a prioritized list of risks.
+
+\begin{center}
+\begin{tabular}{p{0.25\linewidth}p{0.55\linewidth}l}
+    \toprule
+    \textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+    \midrule
+    \textbf{Exposed Database Interface} & An internal system at \texttt{10.5.5.5} has an open web interface on port 8080 with the title ``TOP SECRET DB''. This indicates a highly sensitive system is exposed on the network without adequate access controls. & \textcolor{criticalred}{\textbf{Critical}} \\
+    \addlinespace
+    \textbf{Lack of Multi-Factor Authentication (MFA)} & MFA is not enforced for email, computer logins, or access to sensitive data systems. This creates a single point of failure (passwords) for protecting critical assets and makes the organization highly vulnerable to credential theft and phishing attacks. & \textcolor{criticalred}{\textbf{Critical}} \\
+    \addlinespace
+    \textbf{Insufficient Security Awareness Training} & While new employees receive training, there is no mandatory annual training for all staff. This leads to knowledge decay and increases susceptibility to evolving social engineering and phishing tactics. & \textcolor{highorange}{\textbf{High}} \\
+    \addlinespace
+    \textbf{Incorrect Prior Risk Assessment} & Previous risk data incorrectly identified port 8080 as a secure false positive. This points to a potential gap in the vulnerability management and validation lifecycle that could allow other critical risks to go unaddressed. & \textcolor{lowblue}{\textbf{Informational}} \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{Immediate Actions (0-7 Days)}
+\begin{itemize}
+    \item \textbf{Remediate Exposed Database:} Immediately investigate the service running on \texttt{10.5.5.5:8080}. If this system is not intended for broad network access, apply strict firewall rules to restrict access to only authorized personnel and systems. If it is a required service, ensure robust authentication and access controls are implemented.
+\end{itemize}
+
+\subsection*{Short-Term Actions (1-3 Months)}
+\begin{itemize}
+    \item \textbf{Deploy MFA:} Begin a phased rollout of MFA across the organization. Prioritize the following systems in order:
+    \begin{enumerate}
+        \item All sensitive data systems (correlating to the exposed DB).
+        \item Email access for all users.
+        \item Endpoint logins (computers/laptops).
+    \end{enumerate}
+\end{itemize}
+
+\subsection*{Long-Term Actions (3-12 Months)}
+\begin{itemize}
+    \item \textbf{Establish Annual Security Training:} Implement a mandatory security awareness training program for all employees to be completed annually. This program should cover phishing, password hygiene, acceptable use, and incident reporting.
+    \item \textbf{Review Vulnerability Management Process:} Conduct a thorough review of the internal process for identifying, validating, and remediating vulnerabilities to ensure that critical findings, such as the one on port 8080, are not misclassified in the future.
+\end{itemize}
+
+\end{document}
+```

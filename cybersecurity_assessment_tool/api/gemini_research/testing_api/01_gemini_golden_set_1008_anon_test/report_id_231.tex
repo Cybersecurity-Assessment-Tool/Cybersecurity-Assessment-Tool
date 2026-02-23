@@ -1,0 +1,201 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages and Document Setup
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables (\toprule, \midrule, \bottomrule)
+\usepackage{hyperref} % For clickable links and table of contents
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings without spaces
+\usepackage{graphicx} % For logos, etc.
+\usepackage{xcolor} % For custom colors
+\usepackage{fancyhdr} % For custom headers/footers
+\usepackage{lastpage} % To get the total number of pages
+
+% --- Document Metadata and Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Report},
+    pdfkeywords={Security, Analysis, Nmap, Risk},
+    bookmarks=true
+}
+
+% --- Custom Color Definitions for Severity ---
+\definecolor{criticalred}{HTML}{990000}
+\definecolor{highorange}{HTML}{E69138}
+\definecolor{mediumyellow}{HTML}{F1C232}
+\definecolor{lowblue}{HTML}{3D85C6}
+
+% --- Custom Commands for Severity Labels ---
+\newcommand{\severitycritical}{\textcolor{criticalred}{\textbf{Critical}}}
+\newcommand{\severityhigh}{\textcolor{highorange}{\textbf{High}}}
+\newcommand{\severitymedium}{\textcolor{mediumyellow}{\textbf{Medium}}}
+\newcommand{\severitylow}{\textcolor{lowblue}{\textbf{Low}}}
+
+% --- Header and Footer Configuration ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Title Page Information ---
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture Assessment Report}\\
+    \large \today
+}
+\author{Cybersecurity Analysis Division}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% Section 1: Executive Summary
+% ==============================================================================
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{[Organization Name]}. The assessment combined an external network scan, a review of existing risk documentation, and an analysis of the organization's security controls via a questionnaire.
+
+The overall security posture is assessed as \textbf{High Risk}. Two critical issues were identified that require immediate attention:
+
+\begin{enumerate}
+    \item \textbf{Critical Database Exposure:} A MySQL database server was found to be directly exposed to the network. More alarmingly, the database version (MySQL 5.7.33) is \textbf{End-of-Life (EOL)} as of October 2023 and no longer receives security updates, making it a prime target for exploitation.
+    \item \textbf{Organizational Security Gap:} The organization does not conduct mandatory annual security awareness training for all employees. This represents a significant gap in defending against common cyber threats such as phishing and social engineering, which are primary vectors for initial compromise.
+\end{enumerate}
+
+This report provides a detailed breakdown of these findings and offers actionable recommendations to mitigate the identified risks and improve the overall security posture.
+
+% ==============================================================================
+% Section 2: Organizational Information
+% ==============================================================================
+\section{Organizational Information}
+
+The following information was used as the basis for this assessment. As per the provided data, placeholders have been used where specific details were not available.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \texttt{[Domain]} \\
+External IP Address Scanned & \texttt{[Client IP]} \\
+Target of Technical Scan & \texttt{[Target IP]} \\
+Assessment Date & \today \\ \bottomrule
+\end{tabular}
+\caption{Subject Organization Details.}
+\label{tab:org_info}
+\end{table}
+
+% ==============================================================================
+% Section 3: Security Control Review
+% ==============================================================================
+\section{Security Control Review}
+
+A review of the organization's security policies and procedures was conducted based on a standardized questionnaire. The results are summarized in Table \ref{tab:controls}. A response of "No" indicates a potential gap in the security framework.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+\textbf{Does your organization do security awareness training for all employees at least once per year?} & \textbf{\color{red}\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results (\ding{51}=Yes, \ding{55}=No).}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis}
+The organization has implemented several crucial security controls, including Multi-Factor Authentication (MFA) across key systems and security training for new hires. However, the lack of \textbf{annual, recurring security awareness training for all employees} is a significant deficiency. Cyber threats evolve rapidly, and without continuous education, employees are more susceptible to phishing, ransomware, and other social engineering attacks. This gap significantly increases the organization's risk profile.
+
+% ==============================================================================
+% Section 4: Technical Scan Results
+% ==============================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed on the target IP address \texttt{[Target IP]} to identify open ports and exposed services.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+3306/tcp & open & mysql & MySQL & 5.7.33 \\ \bottomrule
+\end{tabular}
+\caption{Open Ports Identified by Nmap Scan.}
+\label{tab:nmap_results}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified one open port, 3306, which corresponds to the MySQL database service. This finding presents two immediate and severe risks:
+\begin{enumerate}
+    \item \textbf{Direct Service Exposure:} Exposing a database port directly to the network is a highly dangerous practice. It allows attackers to directly target the database with brute-force attacks, credential stuffing, and exploits for known vulnerabilities without needing to compromise another system first.
+    \item \textbf{End-of-Life (EOL) Software:} The identified version, MySQL 5.7.33, reached its official End-of-Life in October 2023. This means the vendor no longer provides security patches for this version. Any vulnerabilities discovered after this date will remain unpatched, leaving the system perpetually vulnerable to exploitation.
+\end{enumerate}
+
+This technical finding directly corroborates and elevates the severity of the pre-existing risk documented as "Database Exposure."
+
+% ==============================================================================
+% Section 5: Consolidated Risk Assessment
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security questionnaire, technical scan, and pre-existing risk data into a prioritized list of security risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{4.5cm}cp{5.5cm}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\ \midrule
+\textbf{RISK-001} & Publicly Exposed End-of-Life Database & \severitycritical & An outdated MySQL 5.7.33 database is directly accessible via port 3306. As EOL software, it is unpatched against new vulnerabilities, making it an easy target for compromise, data exfiltration, or ransomware. \\
+\addlinespace
+\textbf{RISK-002} & Lack of Annual Security Awareness Training & \severityhigh & The absence of recurring security training for all staff weakens the human firewall. This increases the likelihood of a successful phishing or social engineering attack, which could serve as the initial entry point for a larger breach. \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Security Risks.}
+\label{tab:risk_summary}
+\end{table}
+
+% ==============================================================================
+% Section 6: Recommendations
+% ==============================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. Recommendations are categorized by priority.
+
+\subsection*{RISK-001: Publicly Exposed End-of-Life Database (\severitycritical)}
+\begin{itemize}
+    \item \textbf{Immediate (Remediation):} Implement strict firewall rules to block all public access to TCP port 3306. Access should be restricted to a minimal set of trusted internal IP addresses only. This is the most critical first step.
+    \item \textbf{Short-Term (Mitigation):} Develop and execute a plan to upgrade the MySQL 5.7 database to a currently supported version (e.g., MySQL 8.x). This will ensure the system receives critical security patches.
+    \item \textbf{Long-Term (Strategy):} If direct database access is required, it must be enforced over a secure, authenticated channel such as a Virtual Private Network (VPN). The best practice is to re-architect systems so that applications communicate with the database on a private network, eliminating any need for public exposure.
+\end{itemize}
+
+\subsection*{RISK-002: Lack of Annual Security Awareness Training (\severityhigh)}
+\begin{itemize}
+    \item \textbf{Immediate (Remediation):} Procure and schedule mandatory security awareness training for all current employees. This training should cover modern threats, including phishing, ransomware, password hygiene, and acceptable use policies.
+    \item \textbf{Long-Term (Strategy):} Establish a continuous security culture program. This program should include mandatory annual training as a baseline, supplemented with regular phishing simulation campaigns and security-focused communications to keep staff vigilant against evolving threats.
+\end{itemize}
+
+\end{document}
+```

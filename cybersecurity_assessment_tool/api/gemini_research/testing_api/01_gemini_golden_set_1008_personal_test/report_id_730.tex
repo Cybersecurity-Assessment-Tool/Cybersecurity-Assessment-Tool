@@ -1,0 +1,147 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx} % For potential logos
+\usepackage{fancyhdr} % For headers and footers
+
+% Document Metadata
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Header and Footer Configuration
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{Prism Logic}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{Prism Logic}, based on a review of organizational security controls, an external network scan, and an analysis of pre-existing risks.
+
+The assessment reveals a mixed security posture. On the one hand, the external network scan of the target IP address (\texttt{[Target IP]}) did not identify any open ports, which suggests a strong perimeter firewall configuration or a minimal external attack surface for that specific asset. Additionally, the organization has implemented Multi-Factor Authentication (MFA) for email access and conducts annual security awareness training for all staff, which are commendable foundational controls.
+
+However, several critical and high-risk gaps were identified in the organization's internal security policies and procedures. The most significant concerns are the absence of MFA for computer logins and access to sensitive data systems. These gaps expose the organization to substantial risk from credential theft and unauthorized access. Furthermore, the lack of a formal Acceptable Use Policy and mandatory security training for new employees creates an environment where the risk of insider threats—both accidental and malicious—is significantly elevated.
+
+This report details these findings and provides prioritized, actionable recommendations to mitigate the identified risks and strengthen the overall security posture of \textbf{Prism Logic}.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Prism Logic} \\
+Email Domain & \texttt{PrismLogic.org} \\
+Website Domain & \url{www.PrismLogic.org} \\
+External IP Address & \texttt{180.19.0.139} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The responses indicate key areas of strength and weakness in the current security framework. A "Yes" response (\ding{51}) indicates a control is in place, while a "No" response (\ding{55}) indicates a control gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{55} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\caption{Organizational Security Control Status}
+\end{label{tab:controls}
+\end{table}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network vulnerability scan was performed to identify potential weaknesses in the organization's internet-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Not provided in scan data.
+\end{itemize}
+
+\subsection{Summary of Findings}
+The network scan completed successfully against the specified target. \textbf{No open TCP or UDP ports were discovered.}
+
+\subsection{Analysis}
+This result is a positive security finding. It indicates that the target system has a robust firewall policy that denies unsolicited inbound traffic, significantly reducing its external attack surface. This could mean either no services are intentionally hosted on this IP address or they are correctly firewalled from public access.
+
+\textit{Note: While no open ports were found, this does not rule out the possibility of sophisticated firewall evasion techniques or protections (like an Intrusion Prevention System) that may have blocked the scan. Continuous and varied testing is recommended.}
+
+% --- 5. Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data. The primary risks identified are related to internal policies and access controls rather than technical vulnerabilities on the scanned perimeter. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth}p{0.5\linewidth}p{0.15\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of Endpoint MFA} & User accounts are protected only by passwords for computer logins. A compromised password could lead to direct endpoint compromise and lateral movement within the network. & \textbf{Critical} \\
+\addlinespace
+\textbf{Inadequate MFA for Sensitive Data} & Access to systems containing sensitive data is not protected by MFA. This creates a direct path for an attacker with stolen credentials to access and exfiltrate critical information. & \textbf{Critical} \\
+\addlinespace
+\textbf{No Acceptable Use Policy (AUP)} & Without a formal AUP, employees lack clear guidelines on the secure and acceptable use of company assets. This increases the risk of accidental data exposure and insider threats. & \textbf{High} \\
+\addlinespace
+\textbf{No New Hire Security Training} & New employees are not provided with security awareness training during onboarding. This makes them a prime target for social engineering and phishing attacks before they are familiar with company security policies. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following prioritized recommendations are provided to address the identified risks and improve the overall security posture of \textbf{Prism Logic}.
+
+\subsection{Priority 1: Critical Risks}
+\begin{enumerate}
+    \item \textbf{Implement Comprehensive MFA:} Deploy Multi-Factor Authentication immediately for all employee computer logins (endpoints) and for access to all applications and systems containing sensitive or critical data. This is the single most effective control to mitigate the risk of credential compromise.
+\end{enumerate}
+
+\subsection{Priority 2: High Risks}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Continue numbering
+    \item \textbf{Develop and Enforce an Acceptable Use Policy (AUP):} Create a formal AUP that clearly defines the rules and responsibilities for all employees when using company networks, systems, and data. Require all employees to read and acknowledge the policy.
+    \item \textbf{Integrate Security into Employee Onboarding:} Institute a mandatory security awareness training module for all new hires. This training should occur during the first week of employment and cover key topics such as phishing, password security, and the new AUP.
+\end{enumerate}
+
+\subsection{Priority 3: Informational}
+\begin{enumerate}
+    \setcounter{enumi}{3} % Continue numbering
+    \item \textbf{Expand Vulnerability Scanning Program:} While the initial scan was positive, a comprehensive vulnerability management program should be established. This includes conducting regular, authenticated internal scans (to find vulnerabilities behind the firewall) and periodic external scans against all company IP ranges.
+\end{enumerate}
+
+\end{document}
+```

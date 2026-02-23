@@ -1,0 +1,159 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings like IPs
+\usepackage{graphicx} % For potential logos/images
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{White Label}, based on a technical network scan, a review of organizational security controls, and an analysis of pre-existing risks. The assessment was conducted to identify vulnerabilities, evaluate the current security posture, and provide actionable recommendations to mitigate identified risks.
+
+The analysis revealed several critical and high-risk gaps in the organization's security controls. Key findings include the absence of Multi-Factor Authentication (MFA) for email and computer access, the lack of a formal Acceptable Use Policy, and incomplete security awareness training. These policy and procedural weaknesses significantly elevate the risk of unauthorized access and data compromise.
+
+A technical scan identified an exposed management port (SSH) on an external-facing IPv6 address. When correlated with the lack of MFA, this finding presents a tangible and immediate threat that could be exploited by malicious actors.
+
+This report outlines specific, prioritized recommendations to address these findings, focusing on strengthening access controls, formalizing security policies, and enhancing employee security awareness.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{White Label} \\
+Email Domain & \texttt{WhiteLabel.org} \\
+Website Domain & \url{www.WhiteLabel.org} \\
+External IP Address & \texttt{29.241.223.67} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of administrative and procedural security controls was conducted based on a standardized questionnaire. The results highlight significant gaps in foundational security practices. A "No" response indicates a deviation from best practices and a potential risk to the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{@{}p{0.6\linewidth}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{55} & \textcolor{red}{\textbf{High Risk}} \\
+Do you require MFA to log into computers? & \ding{55} & \textcolor{red}{\textbf{High Risk}} \\
+Do you require MFA to access sensitive data systems? & \ding{51} & Implemented \\
+Does your organization have an employee acceptable use policy? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+Does your organization do security awareness training for new employees? & \ding{51} & Implemented \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} & \textcolor{red}{\textbf{High Risk}} \\
+\bottomrule
+\end{tabular}
+\\
+\vspace{0.1in}
+\textit{\small Legend: \ding{51} = Yes (Control in place), \ding{55} = No (Control is missing)}
+\end{table}
+
+% --- 4. Technical Network Scan Results ---
+\section{Technical Network Scan Results}
+
+An external network scan was performed to identify exposed services on the organization's perimeter. The scan provides insight into the technical attack surface visible to external adversaries.
+
+\subsection{Scan Summary}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+    \item \textbf{Host Status:} Up
+    \item \textbf{Key Finding:} One open port was identified.
+\end{itemize}
+
+\subsection{Open Ports Details}
+The following table details the service discovered during the scan.
+
+\begin{table}[h!]
+\centering
+\caption{Discovered Open Ports}
+\begin{tabular}{@{}cccl@{}}
+\toprule
+\textbf{Port} & \textbf{Protocol} & \textbf{State} & \textbf{Common Service} \\
+\midrule
+22 & TCP & Open & SSH (Secure Shell) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The presence of an open SSH port on an external-facing system represents a significant risk. SSH is a common vector for brute-force attacks, where attackers attempt to guess credentials to gain remote administrative access. This risk is severely amplified by the organizational lack of MFA for computer access.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review and the technical scan. No pre-existing vulnerabilities were reported. The following new risks have been identified and prioritized.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.25\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Critical Systems} & The absence of MFA for email and computer logins exposes the organization to account compromise through phishing, credential stuffing, and password spraying attacks. & \textcolor{red}{\textbf{High}} \\
+\addlinespace
+\textbf{Exposed SSH Service} & The SSH management port is open to the internet on \seqsplit{\texttt{2001:db8::1}}. This service is a primary target for automated brute-force attacks, especially without MFA protection. & \textcolor{orange}{\textbf{Medium}} \\
+\addlinespace
+\textbf{Inadequate Security Awareness Program} & While new hires receive training, the lack of a mandatory annual program for all employees leads to knowledge decay, making staff more susceptible to evolving social engineering tactics. & \textcolor{orange}{\textbf{Medium}} \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy (AUP)} & Without a formal AUP, there are no clear, enforceable rules for employees regarding the use of company assets, data handling, and security responsibilities. This creates legal and operational risks. & \textcolor{orange}{\textbf{Medium}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{White Label}.
+
+\begin{enumerate}
+    \item \textbf{Implement Comprehensive MFA (Immediate Priority):}
+    \begin{itemize}
+        \item Enforce MFA for all user accounts across all systems, prioritizing email (e.g., Office 365, Google Workspace) and remote access solutions (e.g., VPN, SSH).
+        \item This single control is the most effective measure to prevent account compromise and directly mitigates the highest-rated risk.
+    \end{itemize}
+    \item \textbf{Secure the Exposed SSH Service (High Priority):}
+    \begin{itemize}
+        \item If remote access via SSH is required, restrict access to a whitelist of trusted source IP addresses.
+        \item Disable password-based authentication and enforce the use of public-key cryptography (SSH keys) for all SSH connections.
+        \item If the service is not required for external access, it should be blocked at the network firewall.
+    \end{itemize}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (High Priority):}
+    \begin{itemize}
+        \item Create a formal AUP that defines the rules for using company technology and data.
+        \item The policy should be reviewed by legal counsel, communicated to all employees, and require a signed acknowledgment of receipt.
+    \end{itemize}
+    \item \textbf{Establish a Mandatory Annual Security Awareness Program (Medium Priority):}
+    \begin{itemize}
+        \item Institute a recurring, mandatory security awareness training program for all employees.
+        \item Training should cover current threats such as phishing, ransomware, and social engineering, reinforcing concepts introduced during onboarding.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

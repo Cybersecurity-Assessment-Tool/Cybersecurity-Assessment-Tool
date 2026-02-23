@@ -1,0 +1,164 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{November 22, 2025}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ------------------------------------------------------------------
+% Section 1: Executive Summary
+% ------------------------------------------------------------------
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Solid State}, conducted on November 22, 2025. The analysis is based on a combination of technical network scanning, a review of organizational security controls, and an evaluation of existing risks.
+
+The assessment reveals a mixed security posture. The organization has implemented several positive security controls, including Multi-Factor Authentication (MFA) for email and sensitive data systems, as well as a robust security awareness training program. These measures significantly strengthen the organization's defense against common cyber threats like phishing and account takeovers.
+
+However, two critical risks were identified that require immediate attention. Firstly, the absence of MFA for computer logins represents a significant gap in endpoint security, increasing the risk of unauthorized access and lateral movement within the network. Secondly, the external-facing web server is running an outdated version of Nginx (1.18.0), which contains known vulnerabilities. This exposes the organization to potential exploitation, data breaches, or service disruption.
+
+This report details these findings and provides actionable recommendations to mitigate the identified risks and improve the overall security posture of \textbf{Solid State}.
+
+% ------------------------------------------------------------------
+% Section 2: Organizational Information
+% ------------------------------------------------------------------
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Solid State
+    \item \textbf{Email Domain:} \texttt{SolidState.com}
+    \item \textbf{Website Domain:} \texttt{www.SolidState.com}
+    \item \textbf{External IP Address:} \texttt{152.227.115.7}
+\end{itemize}
+
+% ------------------------------------------------------------------
+% Section 3: Security Control Review
+% ------------------------------------------------------------------
+\section{Security Control Review}
+
+A review of administrative and policy-based security controls was conducted via a questionnaire. The results are summarized below. A green checkmark (\ding{51}) indicates a positive control is in place, while a red cross (\ding{55}) indicates a potential security gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\caption{Organizational Security Controls Questionnaire}
+\end{table}
+
+\subsection*{Analysis}
+The primary area of concern identified in the control review is the \textbf{lack of MFA for computer logins}. While MFA is commendably enforced on email and sensitive systems, failing to protect endpoint logins allows a compromised password to grant an attacker direct access to an employee's workstation. This access can be leveraged for privilege escalation, lateral movement, and deployment of malware such as ransomware. This gap is classified as a high-priority risk.
+
+% ------------------------------------------------------------------
+% Section 4: Technical Scan Results
+% ------------------------------------------------------------------
+\section{Technical Scan Results}
+
+An external network scan was performed on \texttt{192.168.10.5} on November 22, 2025. The scan identified the following open ports and services.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Port} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports and Services on \texttt{192.168.10.5}}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified a web server running \textbf{Nginx version 1.18.0}. This is an outdated version that is no longer receiving security updates. Publicly disclosed vulnerabilities exist for this version, which could allow an attacker to cause a denial of service, bypass security restrictions, or potentially execute arbitrary code. This finding represents a high-priority risk.
+
+Additionally, the SSL certificate presented by the service has a Common Name of \texttt{www.acme-corp.com}. This name does not align with the organization's domain (\texttt{www.SolidState.com}), indicating a potential certificate misconfiguration.
+
+% ------------------------------------------------------------------
+% Section 5: Risk Assessment Summary
+% ------------------------------------------------------------------
+\section{Risk Assessment Summary}
+
+The following table synthesizes findings from the security control review and technical scan into a prioritized list of risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.1\linewidth} p{0.45\linewidth}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+RISK-001 & Lack of MFA on Computer Logins & \textbf{High} & The absence of MFA on endpoints allows a single compromised password to grant an attacker full access to a user's workstation, facilitating further network intrusion. \\
+\addlinespace
+RISK-002 & Outdated Web Server Software & \textbf{High} & The Nginx server (v1.18.0) is outdated and has known vulnerabilities. This exposes the public-facing service to remote exploitation, potentially leading to a data breach or system compromise. \\
+\addlinespace
+RISK-003 & SSL Certificate Mismatch & Low & The SSL certificate's Common Name does not match the organization's domain, which can cause browser trust errors and may indicate a server misconfiguration. \\
+\bottomrule
+\end{tabular}
+\caption{Identified Cybersecurity Risks}
+\end{table}
+
+% ------------------------------------------------------------------
+% Section 6: Recommendations
+% ------------------------------------------------------------------
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and strengthen the organization's security posture.
+
+\subsection*{RISK-001: Lack of MFA on Computer Logins (High)}
+\begin{itemize}
+    \item \textbf{Action:} Procure and deploy an MFA solution for all employee computer and server logins (e.g., Windows Hello for Business, Duo, Okta).
+    \item \textbf{Justification:} Enforcing MFA at login prevents unauthorized access even if user credentials are stolen. This is one of the most effective controls for preventing ransomware and lateral movement.
+\end{itemize}
+
+\subsection*{RISK-002: Outdated Web Server Software (High)}
+\begin{itemize}
+    \item \textbf{Action:} Develop a patch management plan to upgrade the Nginx web server on host \texttt{192.168.10.5} from version 1.18.0 to a current, supported stable version.
+    \item \textbf{Justification:} Patching software vulnerabilities is critical for protecting internet-facing systems. Upgrading Nginx will mitigate numerous known security flaws and protect the server from automated attacks.
+\end{itemize}
+
+\subsection*{RISK-003: SSL Certificate Mismatch (Low)}
+\begin{itemize}
+    \item \textbf{Action:} Review the SSL/TLS configuration on the Nginx server. Replace the current certificate with one that correctly corresponds to the domain name being served (e.g., \texttt{www.SolidState.com}).
+    \item \textbf{Justification:} A valid and correctly configured SSL certificate builds trust with users and prevents security warnings in modern browsers. It also ensures encrypted traffic is directed to the intended, legitimate server.
+\end{itemize}
+
+\end{document}
+```

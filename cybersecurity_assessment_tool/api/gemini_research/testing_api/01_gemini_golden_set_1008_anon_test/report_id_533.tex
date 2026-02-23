@@ -1,0 +1,203 @@
+An analysis of the provided data has been completed. The following is the complete and professional LaTeX report synthesizing the network scan, organizational data, and known risks.
+
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For logo (placeholder)
+\usepackage{fancyhdr} % For header/footer
+
+% --- Document Setup ---
+
+% Color definitions for risk levels
+\definecolor{criticalrisk}{HTML}{D73027}
+\definecolor{highrisk}{HTML}{F46D43}
+\definecolor{mediumrisk}{HTML}{FEE08B}
+\definecolor{lowrisk}{HTML}{ABDDA4}
+\definecolor{infoblue}{HTML}{4575B4}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=infoblue,
+    filecolor=magenta,      
+    urlcolor=infoblue,
+    pdftitle={Cybersecurity Risk Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyhead[L]{Cybersecurity Risk Assessment Report}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Cybersecurity Risk Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \textbf{[Organization Name]}
+    
+    \vspace{2cm}
+    
+    \normalsize
+    \textbf{Author:} Cybersecurity Analyst\\
+    \textbf{Date:} \today
+    
+    \vfill
+    
+    \small
+    \textit{This report contains sensitive information and should be handled with care. Distribution is restricted to authorized personnel only.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the current cybersecurity posture of \textbf{[Organization Name]}, based on technical network scans, a review of existing security controls, and pre-identified risks. The assessment was conducted to identify vulnerabilities, evaluate policy and procedure gaps, and provide actionable recommendations to enhance security.
+
+The analysis confirmed a \textbf{critical risk}: the direct exposure of Remote Desktop Protocol (RDP) on port 3389 to the public internet. This vulnerability is a primary target for ransomware attacks and unauthorized access attempts and requires immediate remediation.
+
+Additionally, a \textbf{high-risk governance gap} was identified: the organization lacks a formal Employee Acceptable Use Policy (AUP). This absence creates ambiguity regarding the proper use of corporate assets and data, increasing the likelihood of insider threats and accidental data breaches.
+
+On a positive note, the organization has implemented strong controls regarding Multi-Factor Authentication (MFA) for email, computer logins, and access to sensitive systems. This significantly strengthens defenses against credential-based attacks.
+
+Overall, the security posture is considered high-risk due to the critical network exposure. The recommendations provided in this report prioritize the immediate mitigation of this threat, followed by the implementation of foundational security policies.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following details were used as the basis for this assessment. Due to the anonymized nature of the input data, placeholders are used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+A review of organizational security controls was conducted via a questionnaire. The responses indicate a strong foundation in identity and access management but highlight a critical gap in policy governance.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.6\linewidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} & Strong Control \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} & Strong Control \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} & Strong Control \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} & \textbf{Critical Policy Gap} \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} & Good Practice \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} & Good Practice \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the organization's external infrastructure.
+
+\subsection{Nmap Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+The scan revealed the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Findings}
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product/Version} \\
+\midrule
+3389/tcp & open & ms-wbt-server & Not Disclosed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Findings}
+The scan confirms that port \textbf{3389/tcp} is open. This port is used for Microsoft's Remote Desktop Protocol (RDP). Exposing RDP directly to the public internet is an extremely high-risk configuration. It allows attackers to perform brute-force password attacks, exploit unpatched RDP vulnerabilities (such as BlueKeep), and gain direct administrative access to the internal network. This finding is a common precursor to significant security incidents, including ransomware deployment.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the technical scan, control review, and pre-existing risk data into a consolidated list.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.4\linewidth} l p{0.15\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} & \textbf{Affected Asset(s)} \\
+\midrule
+\addlinespace
+Exposed Remote Desktop Protocol (RDP) & Port 3389 is open to the internet, creating a direct vector for unauthorized access and ransomware. & \colorbox{criticalrisk}{\color{white} \textbf{Critical (9.0)}} & \texttt{[Target IP]} \\
+\addlinespace
+Lack of Acceptable Use Policy & The absence of a formal AUP increases insider threat risks and potential for misuse of IT assets. & \colorbox{highrisk}{\color{white} \textbf{High}} & Organization-wide \\
+\addlinespace
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity.
+
+\subsection{Critical Risk: Exposed RDP}
+This finding requires immediate attention to prevent a potential network compromise.
+
+\begin{itemize}
+    \item \textbf{Immediate Action (Easy Fix):} Block all inbound traffic to port 3389 on the external firewall for IP address \texttt{[Target IP]}. This will immediately remove the public exposure.
+    \item \textbf{Long-Term Solution:} If remote access to this system is necessary, implement a secure Virtual Private Network (VPN) solution. Configure the VPN to require Multi-Factor Authentication (MFA) for all users. RDP access should only be permitted over the secure VPN tunnel.
+\end{itemize}
+
+\subsection{High Risk: No Acceptable Use Policy}
+Establishing clear policies is fundamental to a strong security program.
+
+\begin{itemize}
+    \item \textbf{Action:} Develop, approve, and implement a comprehensive Employee Acceptable Use Policy (AUP).
+    \item \textbf{Details:} This policy should, at a minimum, define rules for:
+        \begin{itemize}
+            \item Data handling and classification.
+            \item Proper use of email and internet.
+            \item Use of company-owned devices.
+            \item Prohibited activities.
+            \item Consequences for policy violations.
+        \end{itemize}
+    \item \textbf{Implementation:} Ensure all current employees read and formally acknowledge the new policy. Integrate the AUP into the new-hire onboarding process and reference it during annual security awareness training.
+\end{itemize}
+
+\end{document}
+```

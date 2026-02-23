@@ -1,0 +1,203 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{graphicx} % For logo (placeholder)
+\usepackage{xcolor} % For colors
+
+% --- Document Metadata ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\newcommand{\riskcritical}[1]{\textcolor{red}{\textbf{#1}}}
+\newcommand{\riskhigh}[1]{\textcolor{orange}{\textbf{#1}}}
+\newcommand{\riskmedium}[1]{\textcolor{yellow}{\textbf{#1}}}
+\newcommand{\risklow}[1]{\textcolor{green}{\textbf{#1}}}
+\newcommand{\riskinformational}[1]{\textcolor{blue}{\textbf{#1}}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% 1. EXECUTIVE SUMMARY
+% ==============================================================================
+\section*{1. Executive Summary}
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{Oasis Wellness}. The analysis combines a review of organizational security controls, a technical network scan of internal assets, and a correlation with pre-existing risk documentation.
+
+While the organization demonstrates a strong commitment to identity security through the consistent enforcement of Multi-Factor Authentication (MFA), two significant risks were identified that require immediate attention.
+
+\begin{itemize}
+    \item \textbf{Critical Technical Finding:} An internal network scan revealed an open service on port 8080 for host \texttt{10.5.5.5} with an HTTP title of \textbf{``TOP SECRET DB''}. This finding directly contradicts previous risk assessments which marked this port as a secure false positive. The title suggests a highly sensitive, and potentially unauthorized, database is exposed on the internal network.
+    
+    \item \textbf{High-Risk Policy Gap:} The organization currently lacks a formal Employee Acceptable Use Policy (AUP). This foundational governance document is essential for setting clear expectations for employee behavior regarding IT assets and data handling. The absence of an AUP increases the risk of insider threats and unauthorized system deployments, such as the one potentially discovered in the technical scan.
+\end{itemize}
+
+Immediate remediation should focus on investigating and securing the exposed database. Concurrently, the development and implementation of a comprehensive AUP should be prioritized to strengthen the organization's overall security governance.
+
+% ==============================================================================
+% 2. ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section*{2. Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Oasis Wellness} \\
+    Email Domain & \texttt{OasisWellness.com} \\
+    Website Domain & \url{www.OasisWellness.com} \\
+    External IP Address & \texttt{206.174.206.86} \\
+    \bottomrule
+\end{tabular}
+
+% ==============================================================================
+% 3. SECURITY CONTROL REVIEW (QUESTIONNAIRE)
+% ==============================================================================
+\section*{3. Security Control Review (Questionnaire)}
+
+A review of the organization's administrative and technical security controls was conducted via a standardized questionnaire. The results indicate a mature implementation of authentication controls but highlight a critical gap in policy documentation.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.75\linewidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & \yes \\
+    Do you require MFA to log into computers? & \yes \\
+    Do you require MFA to access sensitive data systems? & \yes \\
+    Does your organization have an employee acceptable use policy? & \no \\
+    Does your organization do security awareness training for new employees? & \yes \\
+    Does your organization do security awareness training for all employees at least once per year? & \yes \\
+    \bottomrule
+\end{tabular}
+\caption{Security Control Questionnaire Results.}
+\end{table}
+
+\subsection*{Analysis}
+The consistent ``Yes'' responses for Multi-Factor Authentication (MFA) and Security Awareness Training are commendable and significantly reduce the risk of account compromise and social engineering attacks.
+
+However, the ``No'' response for the \textbf{Employee Acceptable Use Policy} is a significant finding. An AUP is a cornerstone of cybersecurity governance. Its absence means there are no formally documented rules for employees regarding the protection of company assets, data handling, and appropriate use of network resources. This gap can lead to unintentional security incidents and makes it difficult to enforce security standards.
+
+% ==============================================================================
+% 4. TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section*{4. Technical Scan Results}
+
+An internal network scan was performed to identify active services and potential vulnerabilities. A critical finding was identified that requires immediate investigation.
+
+\begin{itemize}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Scanner Used:} Nmap
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Target IP} & \textbf{Port} & \textbf{State} & \textbf{Service/Title} \\
+    \midrule
+    \texttt{10.5.5.5} & 8080 & Open & HTTP Title: \textbf{TOP SECRET DB} \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Open Ports and Services.}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified a single open port on the target host \texttt{10.5.5.5}. The service running on port 8080 presents an HTTP interface with the title ``TOP SECRET DB''. This is a major security concern for several reasons:
+\begin{enumerate}
+    \item \textbf{Contradictory Information:} This finding directly contradicts the provided risk data (\texttt{Input\_3\_Current\_Risks\_JSON}), which stated that Port 8080 was a ``confirmed secure and false positive.'' The current, active scan proves this assessment is outdated or incorrect.
+    \item \textbf{Implied Data Sensitivity:} The title strongly suggests that the service provides access to a database containing highly sensitive, confidential, or proprietary information.
+    \item \textbf{Potential for Unauthorized Access:} Exposing a database, especially one with such a name, without proper access controls, could lead to a catastrophic data breach. Further investigation is required to determine the authentication and authorization mechanisms in place.
+\end{enumerate}
+
+% ==============================================================================
+% 5. CONSOLIDATED RISK ASSESSMENT
+% ==============================================================================
+\section*{5. Consolidated Risk Assessment}
+
+By correlating the security control review with the technical scan results, we have identified the following key risks to the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.2\linewidth}p{0.5\linewidth}p{0.2\linewidth}@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+    \midrule
+    Exposed Sensitive Database & An open service on \texttt{10.5.5.5:8080} is titled ``TOP SECRET DB'', suggesting a severe risk of data exposure on the internal network. This contradicts previous risk assessments. & \riskcritical{Critical} \\
+    \addlinespace
+    Lack of Acceptable Use Policy & The absence of a formal AUP creates a governance gap, increasing the likelihood of unauthorized software/system deployment by employees and weakening the overall security culture. & \riskhigh{High} \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\end{table}
+
+% ==============================================================================
+% 6. RECOMMENDATIONS
+% ==============================================================================
+\section*{6. Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Oasis Wellness}.
+
+\subsection*{Risk 1: Exposed Sensitive Database (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action (Containment):}
+    \begin{enumerate}
+        \item Immediately investigate the host at \texttt{10.5.5.5} to identify its owner, purpose, and the nature of the data it contains.
+        \item If the system is unauthorized, disconnect it from the network immediately and preserve it for forensic analysis.
+        \item If the system is legitimate but misconfigured, apply a host-based firewall rule to block all access to port 8080 until a proper security review can be conducted.
+    \end{enumerate}
+    \item \textbf{Long-Term Action (Remediation):}
+    \begin{enumerate}
+        \item If the database is required for business operations, ensure it is placed behind an application firewall, access is restricted to least-privilege principles, and strong authentication (ideally MFA) is enforced.
+        \item Implement a continuous vulnerability scanning program for the internal network to detect and remediate such exposures proactively.
+        \item Review and invalidate the previous risk assessment process that incorrectly labeled this port as a false positive.
+    \end{enumerate}
+\end{itemize}
+
+\subsection*{Risk 2: Lack of Acceptable Use Policy (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action (Development):}
+    \begin{enumerate}
+        \item Prioritize the development of a comprehensive Employee Acceptable Use Policy (AUP).
+        \item The policy should clearly define rules for using company IT assets, handling sensitive data, and explicitly prohibit the installation of unauthorized software or services on the network.
+    \end{enumerate}
+    \item \textbf{Long-Term Action (Implementation):}
+    \begin{enumerate}
+        \item Formally ratify and publish the AUP, ensuring all current employees read and acknowledge it.
+        \item Integrate the AUP into the security awareness training program for new hires and the annual refresher training for all staff.
+        \item Establish a clear process for handling violations of the AUP.
+    \end{enumerate}
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,152 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[hidelinks]{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{xcolor} % For colors in text
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report \\ \large For: \textbf{Swift Current Labs}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Swift Current Labs}, synthesizing data from technical network scans, an organizational security questionnaire, and a review of pre-existing risk documentation.
+
+The assessment has identified a \textbf{critical risk} that requires immediate attention. A network scan of the internal host at \texttt{10.5.5.5} revealed an open service on port \texttt{8080} with the title ``TOP SECRET DB''. This finding directly contradicts pre-existing documentation which classifies this port as secure. This discrepancy suggests either a recent, dangerous misconfiguration or a previously flawed assessment.
+
+Furthermore, significant gaps were identified in foundational security controls. The lack of mandatory Multi-Factor Authentication (MFA) for computer logins, the absence of an employee Acceptable Use Policy (AUP), and the failure to conduct annual security awareness training for all staff represent high-impact risks. These policy and training deficiencies create an environment where technical vulnerabilities are more likely to be introduced and exploited.
+
+Immediate remediation should focus on investigating and securing the exposed service on port \texttt{8080}, followed by the swift implementation of the missing administrative and policy-based controls outlined in this report.
+
+\section{Organizational Information}
+
+The following details were provided for the assessment scope.
+
+\begin{description}
+    \item[Organization Name:] \textbf{Swift Current Labs}
+    \item[Email Domain:] \texttt{SwiftCurrentLabs.org}
+    \item[Website Domain:] \url{www.SwiftCurrentLabs.org}
+    \item[External IP Address:] \texttt{167.194.168.160}
+\end{description}
+
+\section{Security Control Review}
+
+An analysis of the organization's security questionnaire reveals several key strengths and critical weaknesses in current administrative controls. The following table summarizes the responses provided.
+
+\begin{center}
+\begin{tabular}{p{0.8\textwidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green!70!black}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{red!90!black}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green!70!black}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red!90!black}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green!70!black}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red!90!black}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis of Control Gaps}
+The responses marked with a \textcolor{red!90!black}{\ding{55}} indicate significant gaps in the security posture:
+\begin{itemize}
+    \item \textbf{No MFA for Computer Logins:} This is a critical vulnerability. If an employee's password is compromised, an attacker could gain direct access to the internal network, bypassing other controls.
+    \item \textbf{No Acceptable Use Policy (AUP):} An AUP is a foundational document that sets clear expectations for employee behavior regarding company assets and data. Its absence can lead to inconsistent security practices and unintentional insider threats.
+    \item \textbf{No Annual Security Training:} Security threats evolve constantly. Failing to provide annual refresher training for all employees means that their knowledge becomes outdated, making them more susceptible to phishing and social engineering attacks.
+\end{itemize}
+
+\section{Technical Scan Results}
+
+A network scan was performed on the internal target \texttt{10.5.5.5}. The results indicate a critical finding that requires immediate investigation.
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service / Script} & \textbf{Details} \\
+\midrule
+8080/tcp & OPEN & http-title & \textbf{Title: TOP SECRET DB} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis of Technical Findings}
+The discovery of an open port (\texttt{8080}) with a service title of ``TOP SECRET DB'' is a finding of the highest severity. This strongly suggests that a sensitive, possibly unauthenticated, database or application interface is exposed on the internal network.
+
+This finding is particularly alarming because it directly contradicts the information provided in the \texttt{Current\_Risks\_JSON} data, which stated: \textit{``Port 8080 is confirmed secure and false positive.''} This indicates a severe disconnect between the documented security posture and the actual state of the network. This discrepancy must be investigated to determine if this is a new, unauthorized service or if the original assessment was critically flawed.
+
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from all data sources into a prioritized list of risks. The risk from the pre-existing documentation regarding Port 8080 has been superseded by the new, high-fidelity technical evidence.
+
+\begin{center}
+\begin{tabular}{lp{0.8\textwidth}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Details} \\
+\midrule
+\textbf{RISK-001} & \textbf{Severity: CRITICAL} \\
+& \textbf{Exposed Sensitive Data Interface on Internal Network} \\
+& An open service on \texttt{10.5.5.5:8080} titled ``TOP SECRET DB'' suggests a highly sensitive system is accessible. This contradicts existing documentation and poses an immediate threat of data exposure or compromise. \\
+\midrule
+\textbf{RISK-002} & \textbf{Severity: CRITICAL} \\
+& \textbf{Lack of MFA for Endpoint Computer Access} \\
+& The absence of MFA on computer logins significantly increases the risk of unauthorized access to the internal network via compromised credentials. \\
+\midrule
+\textbf{RISK-003} & \textbf{Severity: HIGH} \\
+& \textbf{Inadequate Security Awareness Program} \\
+& Without mandatory annual training, employees are less equipped to defend against evolving threats like phishing, potentially leading to credential theft or malware infection. \\
+\midrule
+\textbf{RISK-004} & \textbf{Severity: HIGH} \\
+& \textbf{Missing Acceptable Use Policy (AUP)} \\
+& The lack of a formal AUP creates ambiguity regarding secure practices and the handling of company data, increasing the likelihood of unintentional insider threats and misconfigurations. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks, prioritized by severity.
+
+\begin{description}
+    \item[For RISK-001 (Exposed Service):]
+        \begin{enumerate}
+            \item \textbf{Immediate Action:} Investigate the service running on \texttt{10.5.5.5:8080} to identify its purpose and the data it contains.
+            \item \textbf{Containment:} If the system is sensitive, immediately apply firewall rules to restrict access to only authorized personnel and systems.
+            \item \textbf{Remediation:} Ensure robust authentication and encryption are implemented for the service. If the service is not required, it should be disabled and removed.
+            \item \textbf{Review:} Update all risk documentation to reflect the true state of this service.
+        \end{enumerate}
+
+    \item[For RISK-002 (MFA Gap):]
+        \begin{enumerate}
+            \item \textbf{Policy:} Draft and ratify a policy that mandates the use of MFA for all computer and remote access logins.
+            \item \textbf{Implementation:} Procure and deploy an MFA solution compatible with the organization's endpoints (e.g., Windows Hello for Business, Duo, etc.) within the next 30 days.
+        \end{enumerate}
+
+    \item[For RISK-003 (Training Gap):]
+        \begin{enumerate}
+            \item \textbf{Program Development:} Establish a formal, mandatory security awareness training program for all employees to be completed annually.
+            \item \textbf{Execution:} Enroll all current employees in the training program, with a 90-day deadline for completion.
+        \end{enumerate}
+
+    \item[For RISK-004 (AUP Gap):]
+        \begin{enumerate}
+            \item \textbf{Development:} Draft a comprehensive Acceptable Use Policy covering topics such as data handling, internet usage, password security, and incident reporting.
+            \item \textbf{Implementation:} Require all employees to read and formally acknowledge the new policy.
+        \end{enumerate}
+\end{description}
+
+\end{document}
+```

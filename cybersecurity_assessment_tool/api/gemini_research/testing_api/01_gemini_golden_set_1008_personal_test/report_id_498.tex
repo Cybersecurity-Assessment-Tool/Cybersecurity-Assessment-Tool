@@ -1,0 +1,185 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{Executive Overview}
+% ==============================================================================
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Echo Chamber Arts}, conducted on \today. The analysis is based on a synthesis of organizational security control data, a network vulnerability scan, and a review of pre-existing documented risks.
+
+The assessment reveals a mixed security posture. The organization has successfully implemented critical controls such as Multi-Factor Authentication (MFA) for email and sensitive data systems. However, significant gaps exist that expose the organization to considerable risk.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Policy Gap:} The absence of a formal Employee Acceptable Use Policy.
+    \item \textbf{High-Risk Gaps:} A lack of mandatory MFA for computer logins and the absence of a recurring annual security awareness training program for all staff. These issues significantly increase the risk of unauthorized access and successful social engineering attacks.
+    \item \textbf{Technical Finding:} A network scan of the internal asset at \texttt{192.168.0.5} showed no open ports, which is a positive finding. This result contradicts a pre-existing documented risk concerning an unencrypted web server, suggesting the risk may apply to a different asset or has been partially remediated.
+\end{itemize}
+
+Immediate action is recommended to address the identified policy and training deficiencies to bolster the organization's defense against common cyber threats.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Echo Chamber Arts} \\
+    Email Domain & \texttt{EchoChamberArts.com} \\
+    External IP Address & \texttt{52.178.173.26} \\
+    \bottomrule
+\end{tabular}
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+
+The following table summarizes the organization's responses to a security controls questionnaire. A green checkmark (\ding{51}) indicates a positive control is in place, while a red cross (\ding{55}) indicates a gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} \\
+    Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} \\
+    Do you require MFA to access sensitive data systems? & \ding{51} \\
+    Does your organization have an employee acceptable use policy? & \textbf{\color{red}\ding{55}} \\
+    Does your organization do security awareness training for new employees? & \ding{51} \\
+    Does your organization do security awareness training for all employees at least once per year? & \textbf{\color{red}\ding{55}} \\
+    \bottomrule
+\end{tabular}
+\caption{Organizational Security Controls}
+\end{table}
+
+\subsection{Analysis of Control Gaps}
+The identified gaps represent significant weaknesses in the organization's security posture:
+\begin{itemize}
+    \item \textbf{No MFA for Computers:} Without MFA on workstations, a single compromised password could grant an attacker full access to an employee's computer, facilitating data theft or lateral movement within the network.
+    \item \textbf{No Acceptable Use Policy (AUP):} An AUP is a foundational document that sets clear expectations for employee behavior regarding company assets and data. Its absence can lead to inconsistent security practices and ambiguity during a security incident.
+    \item \textbf{No Annual Security Training:} Cyber threats evolve constantly. Training only new hires means that the knowledge of long-term employees becomes outdated, making them more susceptible to phishing and other social engineering tactics.
+\end{itemize}
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+
+A network scan was performed to identify open ports and services on the specified target.
+
+\subsection{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{192.168.0.5}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\subsection{Port Scan Findings}
+The scan of the target host revealed no open ports. This indicates a strong baseline security posture for this specific device, as it exposes no network services to potential attackers.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    80 & closed & http & N/A & N/A \\
+    \bottomrule
+\end{tabular}
+\caption{Nmap Scan Results for \texttt{192.168.0.5}}
+\end{table}
+
+\subsection{Correlation with Existing Risks}
+A pre-existing risk, "Unencrypted Web Server," noted that Port 80 was open. The scan of \texttt{192.168.0.5} found this port to be \textbf{closed}. This suggests the pre-existing risk may be outdated, remediated for this host, or may pertain to another asset, such as the public-facing IP address (\texttt{52.178.173.26}). Further investigation is required to validate the status of this risk across all company assets.
+
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+% ==============================================================================
+
+The following table consolidates risks identified from the security control review and pre-existing documentation.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l}
+    \toprule
+    \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    \textbf{Lack of Workstation MFA} & The absence of MFA on computer logins allows for easier account takeover if credentials are stolen. & \textbf{High} \\
+    \addlinespace
+    \textbf{No Acceptable Use Policy} & Foundational policy gap that creates ambiguity in security responsibilities and acceptable employee behavior. & \textbf{High} \\
+    \addlinespace
+    \textbf{No Annual Security Training} & Lack of recurring training increases susceptibility to social engineering and phishing attacks over time. & \textbf{High} \\
+    \addlinespace
+    \textbf{Unencrypted Web Server} & An open Port 80 allows for unencrypted HTTP traffic, exposing data in transit. \textit{(Note: Not confirmed on the scanned internal host.)} & Medium \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+% ==============================================================================
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Echo Chamber Arts}.
+
+\begin{enumerate}
+    \item \textbf{Implement MFA for All Computer Logins (High Priority):}
+    \begin{itemize}
+        \item \textbf{Action:} Deploy a Multi-Factor Authentication solution for all employee workstations and servers.
+        \item \textbf{Impact:} Drastically reduces the risk of unauthorized access from compromised credentials.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Develop and Enforce an Acceptable Use Policy (High Priority):}
+    \begin{itemize}
+        \item \textbf{Action:} Create a formal AUP that defines the rules for using company IT assets, networks, and data. Require all employees to read and formally acknowledge the policy.
+        \item \textbf{Impact:} Establishes a clear security baseline for all employees and provides a framework for enforcing security standards.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Establish a Mandatory Annual Security Training Program (High Priority):}
+    \begin{itemize}
+        \item \textbf{Action:} Implement a security awareness training program that is mandatory for all employees on an annual basis. The training should cover current threats such as phishing, ransomware, and password security.
+        \item \textbf{Impact:} Maintains a high level of security awareness across the organization, creating a stronger human firewall.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Investigate the "Unencrypted Web Server" Risk (Medium Priority):}
+    \begin{itemize}
+        \item \textbf{Action:} Perform a vulnerability scan on the organization's external IP address (\texttt{52.178.173.26}) and other public-facing assets to determine if Port 80 is open.
+        \item \textbf{Impact:} If found, closing the port or enforcing redirection to HTTPS (SSL/TLS) will protect data in transit and improve user trust.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

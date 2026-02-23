@@ -1,0 +1,197 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx}
+\usepackage[table]{xcolor} % For coloring table cells
+\usepackage{longtable} % For tables that span multiple pages
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Cybersecurity, Risk Assessment, Network Scan}
+}
+
+% Define custom colors for severity
+\definecolor{criticalred}{HTML}{D10000}
+\definecolor{highorange}{HTML}{E25F00}
+\definecolor{mediumyellow}{HTML}{F0C200}
+\definecolor{lowblue}{HTML}{0073B2}
+\definecolor{infogray}{HTML}{808080}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:}\\
+    Blackwood Industries
+    \vspace{2cm}
+    \large
+    \textbf{Date of Report:}\\
+    \today
+    \vfill
+    \large
+    \textbf{CONFIDENTIAL}
+    \vspace{0.8cm}
+    \rule{\linewidth}{0.4pt}
+    \vspace{0.4cm}
+    \textit{This document contains sensitive information. Access is restricted to authorized personnel only. Do not distribute without explicit permission.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for Blackwood Industries, based on a combination of technical network scanning, a security controls questionnaire, and a review of pre-existing risk documentation.
+
+The assessment has identified several \textbf{critical-risk} findings that require immediate attention. The most severe issue is the discovery of an openly accessible web service on an internal system (\texttt{10.5.5.5}) on port 8080, which identifies itself as a \textbf{"TOP SECRET DB"}. This finding directly contradicts a pre-existing risk assessment that incorrectly labeled this port as secure.
+
+Furthermore, a systemic lack of Multi-Factor Authentication (MFA) across all key access points—including email, computer logins, and sensitive data systems—presents a critical vulnerability. This gap, combined with deficiencies in security policies and annual employee training, significantly elevates the risk of unauthorized access and potential data breach.
+
+Immediate remediation should focus on securing the exposed database and implementing MFA. Subsequently, efforts must be directed toward establishing robust security policies and a continuous security awareness program.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Blackwood Industries \\
+Email Domain & \texttt{BlackwoodIndustries.net} \\
+Website Domain & \url{www.BlackwoodIndustries.net} \\
+External IP Address & \texttt{95.179.111.220} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the responses from the organizational security questionnaire. Each "No" response indicates a significant gap in security controls and has been flagged for review.
+
+\begin{longtable}{p{0.5\linewidth} c p{0.3\linewidth}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Analyst Notes} \\
+\midrule
+\endhead % Header for subsequent pages
+Does your organization have an employee acceptable use policy? & \ding{55} & \cellcolor{highorange!25} \textbf{High Risk.} Lack of a formal policy creates ambiguity and legal exposure regarding employee use of company assets. \\
+\addlinespace
+Do you require MFA to access email? & \ding{55} & \cellcolor{criticalred!25} \textbf{Critical Risk.} Email is a primary target for phishing and account takeover. The absence of MFA is a severe vulnerability. \\
+\addlinespace
+Do you require MFA to log into computers? & \ding{55} & \cellcolor{criticalred!25} \textbf{Critical Risk.} Compromised credentials could lead directly to endpoint and network access without a second authentication factor. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \ding{55} & \cellcolor{criticalred!25} \textbf{Critical Risk.} This is the most direct path to a data breach. Sensitive systems must be protected with MFA. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \ding{51} & \cellcolor{lowblue!25} \textbf{Good Practice.} Onboarding training is a solid foundation for security awareness. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} & \cellcolor{highorange!25} \textbf{High Risk.} Security is a continuous process. Without annual refreshers, employee knowledge degrades and new threats are not addressed. \\
+\bottomrule
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\end{longtable}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and exposed services on the specified target system.
+
+\subsection{Target: \texttt{10.5.5.5}}
+The scan revealed the following open port and service information.
+
+\begin{tabular}{@{}llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service/Script} & \textbf{Details} \\
+\midrule
+8080/tcp & Open & http-title & \textbf{Title: TOP SECRET DB} \\
+\bottomrule
+\end{tabular}
+
+\subsubsection{Analysis of Findings}
+The discovery of an open port (8080) with a service title of "TOP SECRET DB" is a \textbf{critical finding}. This strongly suggests that a sensitive, possibly unauthenticated, database or application is directly exposed on the network. This finding is especially alarming as it contradicts the information provided in the existing risk documentation (Input 3), which states, "Port 8080 is confirmed secure and false positive." This indicates that the previous risk assessment is dangerously inaccurate and must be invalidated.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+By synthesizing the security control gaps, technical findings, and existing risk data, we have identified the following key risks to the organization.
+
+\begin{longtable}{p{0.2\linewidth} p{0.55\linewidth} p{0.15\linewidth}}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\endhead % Header for subsequent pages
+Exposed Sensitive Database & A service on internal host \texttt{10.5.5.5:8080} identifies as "TOP SECRET DB" and is openly accessible. This contradicts a previous assessment that claimed the port was secure. & \cellcolor{criticalred!25}\textbf{Critical} \\
+\addlinespace
+Systemic Lack of MFA & Multi-Factor Authentication is not enforced for access to email, computers, or sensitive data systems. This dramatically increases the risk of account compromise leading to a major breach. & \cellcolor{criticalred!25}\textbf{Critical} \\
+\addlinespace
+Inadequate Security Policies and Training & The organization lacks a formal Acceptable Use Policy and does not conduct mandatory annual security training for all staff. This fosters a weak security culture and increases susceptibility to human error and insider threats. & \cellcolor{highorange!25}\textbf{High} \\
+\addlinespace
+Outdated Risk Assessment Processes & The technical scan proved that a pre-existing risk assessment was incorrect. This implies a flawed or non-existent validation process for identified risks, meaning other "closed" risks may still be active threats. & \cellcolor{highorange!25}\textbf{High} \\
+\bottomrule
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{longtable}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{Immediate Priority (Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Secure Exposed Database (10.5.5.5:8080):}
+    \begin{itemize}
+        \item Immediately investigate the service running on port 8080 of host \texttt{10.5.5.5}.
+        \item If the system is sensitive, restrict access to authorized personnel only via firewall rules.
+        \item If the service is not required, disable it and close the port.
+        \item Conduct a data spillage assessment to determine if any sensitive information has already been exposed.
+    \end{itemize}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item Begin a phased rollout of MFA across the organization, prioritizing in the following order:
+        \begin{enumerate}
+            \item All sensitive data systems.
+            \item All email accounts (cloud and on-premise).
+            \item All employee computer logins.
+        \end{enumerate}
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority Recommendations}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering from previous list
+    \item \textbf{Develop and Implement Security Policies:}
+    \begin{itemize}
+        \item Create and ratify a formal Employee Acceptable Use Policy (AUP).
+        \item Ensure all employees read and acknowledge the policy.
+    \end{itemize}
+    \item \textbf{Establish Annual Security Training:}
+    \begin{itemize}
+        \item Institute a mandatory security awareness training program for all employees, to be completed annually.
+        \item Training should cover phishing, password hygiene, data handling, and the new AUP.
+    \end{itemize}
+    \item \textbf{Review Risk Management Program:}
+    \begin{itemize}
+        \item Invalidate the previous risk assessment for "Port 8080".
+        \item Initiate a comprehensive review of all previously "closed" or "accepted" risks to ensure their status is accurate.
+    \end{itemize}
+\end{enumerate}
+
+
+% --- Document End ---
+\end{document}
+```

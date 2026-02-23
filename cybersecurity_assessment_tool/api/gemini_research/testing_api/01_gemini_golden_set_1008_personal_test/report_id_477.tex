@@ -1,0 +1,159 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long text strings
+\usepackage{xcolor} % For colors
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture and Risk Analysis Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture and Risk Analysis Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ==============================================================================
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Nebula Creative}. The assessment is based on a synthesis of technical network scans, a review of organizational security controls, and an evaluation of pre-existing risk documentation.
+
+While the organization demonstrates a solid foundation in several key areas—including the enforcement of Multi-Factor Authentication (MFA) for email and computer access, and a consistent security awareness training program—a critical vulnerability has been identified that requires immediate attention.
+
+A technical scan revealed an open port (8080) on an internal system (\texttt{10.5.5.5}) exposing a service with the title \textbf{"TOP SECRET DB"}. This finding directly correlates with a gap identified in the security controls questionnaire, where the organization confirmed it does not require MFA for accessing sensitive data systems.
+
+Critically, this active finding contradicts a pre-existing risk assessment entry which incorrectly labeled Port 8080 as secure and a "false positive." This discrepancy highlights not only a severe technical vulnerability but also a potential flaw in the ongoing risk management process.
+
+Immediate remediation is required to restrict access to this exposed system. Recommendations are detailed in Section 6 of this report.
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Nebula Creative} \\
+Email Domain & \texttt{NebulaCreative.org} \\
+Website Domain & \url{www.NebulaCreative.org} \\
+External IP Address & \texttt{228.95.176.44} \\
+\bottomrule
+\end{tabular}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review (Questionnaire Analysis)}
+
+The following table summarizes the organization's self-reported security controls. "Yes" answers indicate a control is in place, while "No" answers represent a potential gap in the security framework.
+
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.25\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Analyst Notes} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} & Strong control. \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} & Strong control. \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textcolor{red}{\ding{55}} & \textbf{Critical Gap.} Lack of MFA on sensitive systems is a high-risk exposure. \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} & Foundational policy is in place. \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} & Good practice for onboarding. \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} & Meets compliance standards. \\
+\bottomrule
+\end{tabular}
+
+\subsection*{Analysis}
+The questionnaire reveals a mature approach to endpoint and email security. However, the lack of mandatory MFA for sensitive data systems is a significant weakness. This administrative gap directly enables the type of technical vulnerability discovered during the network scan.
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+A network scan was conducted to identify open ports and services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.5.5.5}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service/Product} & \textbf{Details \& Analyst Notes} \\
+\midrule
+8080/tcp & OPEN & http-proxy & \textbf{Critical Finding:} An HTTP service title was discovered: \\
+& & & \textbf{\texttt{"TOP SECRET DB"}}. This strongly suggests an \\
+& & & exposed database or administrative interface containing \\
+& & & highly sensitive information. \\
+\bottomrule
+\end{tabular}
+
+\subsection*{Analysis}
+The discovery of an open port exposing a service explicitly named "TOP SECRET DB" is a severe security issue. This finding, combined with the lack of MFA controls for sensitive systems, creates a high-impact risk scenario where an unauthorized user could potentially gain access to critical organizational data. This technical evidence directly contradicts the pre-existing risk documentation provided.
+
+% ==============================================================================
+% SECTION 5: CORRELATED RISK ASSESSMENT
+% ==============================================================================
+\section{Correlated Risk Assessment}
+
+The following risks have been identified by correlating the security control gaps with the technical scan results. The pre-existing risk assessment, which listed Port 8080 as secure, is now considered inaccurate and has been superseded by the findings below.
+
+\begin{tabular}{@{}p{0.1\linewidth} p{0.3\linewidth} p{0.1\linewidth} p{0.4\linewidth}@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Title} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+RISK-001 & Unprotected Sensitive Data System Exposure & \textbf{Critical} & A system with a title indicating it contains "TOP SECRET" data is accessible via port 8080. This exposure is exacerbated by the organizational policy of not requiring MFA for sensitive systems. \\
+\addlinespace
+RISK-002 & Inaccurate Prior Risk Assessment & High & The existing risk documentation incorrectly classified port 8080 as a "false positive." This indicates a flaw in the risk validation process, creating a false sense of security and preventing remediation of a critical vulnerability. \\
+\bottomrule
+\end{tabular}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks.
+
+\subsection*{Immediate Actions (Within 24 Hours)}
+\begin{enumerate}
+    \item \textbf{Restrict Network Access:} Immediately apply firewall rules to block all access to port 8080 on host \texttt{10.5.5.5} from any network except for a limited set of administrative IP addresses.
+    \item \textbf{Investigate the System:} Identify the owner and purpose of the application running on port 8080. Determine the nature of the data it contains and review access logs for any signs of unauthorized activity.
+\end{enumerate}
+
+\subsection*{Short-Term Actions (1-2 Weeks)}
+\begin{enumerate}
+    \item \textbf{Enforce MFA:} Implement mandatory Multi-Factor Authentication for the application running on port 8080. If the application does not natively support MFA, use an authenticating proxy or alternative access control solution.
+    \item \textbf{Update Policy:} Revise the security policy to mandate MFA for all systems that store, process, or transmit sensitive organizational data.
+\end{enumerate}
+
+\subsection*{Long-Term Actions (1-3 Months)}
+\begin{enumerate}
+    \item \textbf{Review Risk Management Process:} Conduct a thorough review of the risk assessment and validation process. Ensure that technical validation (e.g., vulnerability scanning) is required before any high-risk finding can be closed or accepted as a false positive.
+    \item \textbf{Conduct Architecture Review:} Perform a comprehensive security architecture review of all systems classified as sensitive to ensure they are properly segmented, monitored, and protected with appropriate access controls.
+\end{enumerate}
+
+\end{document}
+```

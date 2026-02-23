@@ -1,0 +1,154 @@
+```latex
+\documentclass[12pt]{article}
+
+% 1. DOCUMENT SETUP & PACKAGES
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+% 2. TITLE SECTION
+\title{
+    \textbf{Cybersecurity Assessment Report} \\
+    \large For \textbf{[Organization Name]}
+}
+\author{Cybersecurity Analyst}
+\date{\today}
+\maketitle
+\hrule
+\vspace{1em}
+
+% 3. EXECUTIVE OVERVIEW
+\section*{1. Executive Overview}
+
+This report details the findings of a cybersecurity assessment conducted to evaluate the security posture of \textbf{[Organization Name]}. The assessment incorporated a review of organizational security controls, an external network scan, and an analysis of pre-existing risk documentation.
+
+The overall security posture is critically deficient, with significant gaps that expose the organization to a high risk of compromise. Key findings include:
+\begin{itemize}
+    \item \textbf{Exposed Sensitive Service:} A network service publicly accessible on port 8080 is titled ``TOP SECRET DB''. This finding directly contradicts the current risk register, which incorrectly classifies this port as secure. This represents a potential vector for a catastrophic data breach.
+    \item \textbf{Inadequate Access Controls:} Multi-Factor Authentication (MFA) is not enforced for computer logins or access to sensitive data systems. This weakness dramatically increases the risk of unauthorized access via compromised credentials.
+    \item \textbf{Foundational Policy Gaps:} The organization lacks a formal employee acceptable use policy and does not provide security awareness training to new hires, creating a significant vulnerability to both insider threats and social engineering attacks.
+\end{itemize}
+Immediate remediation of these issues is strongly recommended to mitigate the identified risks.
+
+% 4. ORGANIZATIONAL INFORMATION
+\section*{2. Organizational Information}
+
+The following information was used as the basis for this assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{Target IP Address:} \texttt{[Client IP]}
+\end{itemize}
+
+% 5. SECURITY CONTROL REVIEW (FROM QUESTIONNAIRE)
+\section*{3. Security Control Review}
+
+A review of internal security controls was conducted based on a standardized questionnaire. The results highlight critical gaps in the organization's security policies and procedures. A ``No'' answer indicates a deviation from security best practices.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Status}
+\begin{tabular}{p{0.75\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\ % Yes
+Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} \\ % No
+Do you require MFA to access sensitive data systems? & \textbf{\color{red}\ding{55}} \\ % No
+Does your organization have an employee acceptable use policy? & \textbf{\color{red}\ding{55}} \\ % No
+Does your organization do security awareness training for new employees? & \textbf{\color{red}\ding{55}} \\ % No
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\ % Yes
+\bottomrule
+\end{tabular}
+\end{table}
+
+% 6. TECHNICAL SCAN RESULTS
+\section*{4. Technical Scan Results}
+
+An external network scan was performed against the target host to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target Host:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+The scan revealed the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{l l p{0.6\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Information} \\
+\midrule
+8080/tcp & OPEN & \textbf{HTTP Title:} \texttt{TOP SECRET DB} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Findings}
+The discovery of an open port with the title ``TOP SECRET DB'' is a finding of the highest criticality. This suggests that a database, potentially containing highly sensitive information, is directly exposed to the internet without adequate protection. This finding is especially alarming as it contradicts the information provided in the organization's current risk documentation (Input 3), which incorrectly states that port 8080 is secure.
+
+% 7. CORRELATED RISK ASSESSMENT
+\section*{5. Correlated Risk Assessment}
+
+By correlating the security control gaps, technical findings, and existing risk data, we have identified the following key risks to the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.45\linewidth} l}
+\toprule
+\textbf{ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+R-01 & Exposed Sensitive Database & An open port (8080) on host \texttt{[Target IP]} reveals a service titled ``TOP SECRET DB''. This contradicts the existing risk register and could lead to a catastrophic data breach. & \textbf{Critical} \\
+\addlinespace
+R-02 & Inadequate Access Control & MFA is not enforced for computer logins or access to sensitive data systems. This significantly increases the risk of unauthorized access from compromised credentials. & \textbf{Critical} \\
+\addlinespace
+R-03 & Deficient Security Policies \& Training & The absence of an Acceptable Use Policy and security training for new hires creates a weak security culture and increases the likelihood of human error leading to security incidents. & \textbf{High} \\
+\addlinespace
+R-04 & Inaccurate Risk Register & The current risk register incorrectly identifies a critical exposure as a secure false positive. This indicates a flawed risk assessment process that requires immediate review. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% 8. RECOMMENDATIONS
+\section*{6. Recommendations}
+
+The following prioritized actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection*{Priority 1: Immediate Actions (Within 72 Hours)}
+\begin{enumerate}
+    \item \textbf{Secure Exposed Database (R-01):} Immediately investigate the service running on port 8080. If it is a sensitive system, restrict access to authorized internal personnel only, preferably via a VPN with MFA. If the service is not essential, it should be disabled.
+    \item \textbf{Review Risk Management Process (R-04):} Conduct an immediate review of the risk assessment and management process. The discrepancy between the scan results and the risk register indicates a severe failure in this process that must be corrected.
+\end{enumerate}
+
+\subsection*{Priority 2: High-Impact Actions (Within 30 Days)}
+\begin{enumerate}
+    \item \textbf{Implement MFA (R-02):} Deploy a mandatory MFA policy for all computer logins and for any application or system that stores or processes sensitive data.
+    \item \textbf{Develop Acceptable Use Policy (R-03):} Create and implement a comprehensive Acceptable Use Policy (AUP) that all employees must read and acknowledge. This policy should define the rules for using company assets and data.
+    \item \textbf{Institute New Hire Training (R-03):} Integrate mandatory security awareness training into the onboarding process for all new employees and contractors before they are granted access to company systems.
+\end{enumerate}
+
+\subsection*{Priority 3: Strategic Actions (Within 90 Days)}
+\begin{enumerate}
+    \item \textbf{Conduct Comprehensive Penetration Test:} Commission a full-scope penetration test of both external and internal networks to identify any other unknown vulnerabilities.
+    \item \textbf{Establish Formal Vulnerability Management Program:} Implement a program for regular vulnerability scanning, risk assessment, and patch management to ensure new vulnerabilities are identified and remediated in a timely manner.
+\end{enumerate}
+
+\end{document}
+```

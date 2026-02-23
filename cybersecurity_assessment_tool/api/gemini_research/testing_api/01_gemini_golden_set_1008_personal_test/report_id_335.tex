@@ -1,0 +1,189 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{datetime}
+
+% --- Document Customization ---
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\definecolor{darkgreen}{rgb}{0.0, 0.39, 0.0}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=darkblue,      
+    urlcolor=darkblue,
+    citecolor=darkblue
+}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Huge \textbf{Cybersecurity Posture Assessment Report}}
+    
+    \vspace{1.5cm}
+    
+    {\Large \textbf{Prepared for:}}
+    
+    \vspace{0.5cm}
+    
+    {\Huge \textbf{Hearth \& Home}}
+    
+    \vfill
+    
+    {\large \textbf{Date of Report:} \today}
+    
+    \vspace{1cm}
+    
+    {\large \textit{This report contains sensitive information and should be handled with care.}}
+    
+\end{titlepage}
+
+\newpage
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Hearth \& Home}, based on a combination of network scanning, a security controls questionnaire, and a review of pre-existing risks. The assessment was conducted to identify vulnerabilities, policy gaps, and areas for security improvement.
+
+Overall, \textbf{Hearth \& Home} demonstrates a strong commitment to identity and access management, with multi-factor authentication (MFA) widely implemented across key systems. This is a commendable security strength.
+
+However, the assessment revealed two critical areas of concern that require immediate attention:
+\begin{itemize}
+    \item \textbf{Policy and Training Gaps:} There is a significant weakness in the organizational security framework. The absence of an employee Acceptable Use Policy (AUP) and the lack of security awareness training for new hires create a substantial risk from insider threats, both accidental and malicious.
+    \item \textbf{Confirmed Technical Vulnerability:} A network scan confirmed a pre-existing high-risk finding, "Localhost Exposed," where a service is running on the local loopback interface (\texttt{127.0.0.1}). While this service is not directly exposed to the internet, its presence and identification as a critical risk suggest a potential misconfiguration that could be exploited under certain conditions.
+\end{itemize}
+
+This report details these findings and provides actionable recommendations to mitigate the identified risks and enhance the overall security posture of the organization.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment:
+\begin{itemize}
+    \item \textbf{Organization Name:} Hearth \& Home
+    \item \textbf{Email Domain:} \texttt{HearthHome.org}
+    \item \textbf{Website Domain:} \url{www.HearthHome.org}
+    \item \textbf{External IP Address:} \texttt{12.62.102.185}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A security questionnaire was completed to evaluate existing administrative and technical controls. The results highlight a mix of strong controls and significant gaps. "No" answers indicate a deviation from security best practices and represent a potential risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \textcolor{darkgreen}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{darkgreen}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{darkgreen}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{darkred}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{darkred}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{darkgreen}{\ding{51}} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+\begin{itemize}
+    \item \textbf{No Acceptable Use Policy (AUP):} The lack of a formal AUP means there are no clearly defined rules for employees regarding the use of company assets, data handling, and internet usage. This increases the likelihood of unintentional data breaches and policy violations.
+    \item \textbf{No New Employee Security Training:} New hires are a primary target for social engineering and phishing attacks. By not providing immediate security training, the organization leaves a critical window of vulnerability open. While annual training is in place, the initial onboarding period is the most crucial for instilling security-conscious behavior.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An Nmap scan was performed to identify open ports and services on the specified target. The scan confirmed the presence of an open service on the local loopback interface.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{127.0.0.1}
+    \item \textbf{Scan Date:} Scan date not provided in source data.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{127.0.0.1}}
+\label{tab:ports}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Inferred Service} & \textbf{Notes} \\ \midrule
+22/tcp & open & SSH & Service version information was not available in the scan data. \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan confirms that a service, likely Secure Shell (SSH), is actively listening on port 22 of the localhost interface. This finding directly correlates with the pre-existing risk documented in \texttt{Input\_3\_Current\_Risks\_JSON}, titled "Localhost Exposed." While not directly accessible from the internet, a service running on localhost can be a component of a larger application and could be exploited through other vulnerabilities, such as Server-Side Request Forgery (SSRF) or local privilege escalation.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security questionnaire, technical scan, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{@{}p{0.1\textwidth} p{0.3\textwidth} p{0.4\textwidth} p{0.1\textwidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\textbf{RISK-01} & Localhost Exposed & Port 22 (SSH) is open on the loopback interface (\texttt{127.0.0.1}). This confirms a known risk and indicates a potential system misconfiguration. & \textbf{Critical} \\
+\addlinespace
+\textbf{RISK-02} & No Security Training for New Hires & New employees are not provided with security awareness training upon joining, making them highly susceptible to phishing and social engineering attacks. & \textbf{High} \\
+\addlinespace
+\textbf{RISK-03} & Lack of Employee Acceptable Use Policy & The absence of a formal AUP creates ambiguity regarding safe computing practices and data handling, increasing the risk of insider threat and non-compliance. & \textbf{High} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and strengthen the security posture of \textbf{Hearth \& Home}.
+
+\subsection{Immediate Priority (Critical)}
+\begin{description}
+    \item[RISK-01: Localhost Exposed]
+    \begin{itemize}
+        \item \textbf{Investigate and Remediate:} System administrators should immediately investigate the service running on port 22 of \texttt{127.0.0.1}.
+        \item \textbf{Disable if Unnecessary:} If the service is not required for any application or system function, it should be disabled.
+        \item \textbf{Secure if Necessary:} If the service is required, ensure it is configured securely according to best practices (e.g., disable root login, use key-based authentication) and that the host-based firewall is properly configured to prevent unauthorized local access.
+    \end{itemize}
+\end{description}
+
+\subsection{High Priority}
+\begin{description}
+    \item[RISK-02: No Security Training for New Hires]
+    \begin{itemize}
+        \item \textbf{Implement Onboarding Training:} Develop and integrate a mandatory security awareness training module into the new employee onboarding process. This training should be completed within the first week of employment.
+        \item \textbf{Content Focus:} The module should cover critical topics such as phishing identification, password hygiene, data handling policies, and recognizing social engineering tactics.
+    \end{itemize}
+    \item[RISK-03: Lack of Employee Acceptable Use Policy]
+    \begin{itemize}
+        \item \textbf{Develop and Implement AUP:} Draft a comprehensive Acceptable Use Policy that clearly outlines the rules for using company technology, networks, and data.
+        \item \textbf{Employee Acknowledgement:} Require all current and new employees to read and formally acknowledge the AUP. This process should be tracked for compliance.
+    \end{itemize}
+\end{description}
+
+% --- Section 7: Conclusion ---
+\section{Conclusion}
+\textbf{Hearth \& Home} has established a strong foundation for user authentication with its robust implementation of MFA. However, significant risks exist within the organization's policy framework and in a confirmed technical misconfiguration.
+
+By addressing the policy gaps related to employee training and acceptable use, the organization can significantly reduce its vulnerability to human-centric attacks. Simultaneously, remediating the "Localhost Exposed" finding will harden the technical environment. Prioritizing the recommendations outlined in this report will lead to a more resilient and mature cybersecurity posture.
+
+\end{document}
+```

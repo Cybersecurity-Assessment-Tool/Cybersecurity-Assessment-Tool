@@ -1,0 +1,150 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Nmap, Risk, Assessment},
+}
+
+% Document Start
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{\stretch{1.0}}
+    \Huge\textbf{Cybersecurity Posture Report}
+    \vspace{0.5cm}
+    \Large For
+    \vspace{0.5cm}
+    \huge\textbf{[Organization Name]}
+    \vspace*{\stretch{2.0}}
+    \large
+    \textbf{Date of Report:} \today \\
+    \textbf{Date of Assessment:} 2025-11-22 \\
+    \textbf{Author:} Cybersecurity Analyst
+    \vspace*{\stretch{1.0}}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The assessment combined a review of organizational security controls, an external network scan, and an analysis of pre-existing risks. The scan was performed on \textbf{November 22, 2025}.
+
+The organization demonstrates a solid foundation in security awareness training and policy. However, two significant risks were identified that require immediate attention. A critical gap in endpoint security was noted due to the absence of Multi-Factor Authentication (MFA) for computer logins. Additionally, the external-facing web server at \seqsplit{\texttt{[Target IP]}} is running an outdated version of Nginx (1.18.0), exposing the organization to publicly known vulnerabilities.
+
+Addressing these issues is crucial to mitigating the risk of unauthorized access, data breaches, and service disruption. Detailed findings and actionable recommendations are provided in the subsequent sections.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were used as the basis for this assessment. As per the provided data, some identifying information has been anonymized.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \seqsplit{\texttt{[Domain]}}
+    \item \textbf{External IP Address Scanned:} \seqsplit{\texttt{[Client IP]}}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of organizational security controls was conducted based on a standardized questionnaire. The responses indicate the current state of implemented policies and procedures. A checkmark (\ding{51}) indicates a positive control, while a cross (\ding{55}) signifies a potential security gap.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Questionnaire}
+\label{tab:controls}
+\begin{tabular}{p{0.75\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The primary finding from this review is the lack of MFA for computer logins. This represents a critical vulnerability, as a single compromised password could grant an attacker direct access to an employee's workstation and, potentially, the internal network.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed against the public-facing IP address to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{[Target IP]}}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services Detected}
+\label{tab:nmap}
+\begin{tabular}{l l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & open & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The scan identified a web server running Nginx version 1.18.0. This version was released in April 2020 and is now considered outdated. It is known to be vulnerable to several security exploits (e.g., CVE-2021-23017), which could allow an attacker to compromise the server.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data. The pre-existing risk log was empty. The following new risks have been identified.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{0.1\linewidth} p{0.3\linewidth} p{0.15\linewidth} p{0.35\linewidth}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+RISK-001 & Lack of MFA on Workstation Logins & \textbf{Critical} & The absence of MFA on computer logins means that a compromised password is the only barrier to entry. This significantly increases the risk of unauthorized access, lateral movement, and ransomware deployment. \\
+\addlinespace
+RISK-002 & Outdated Nginx Web Server & \textbf{High} & The web server is running Nginx 1.18.0, a version with publicly disclosed vulnerabilities. This exposes the server to automated attacks and potential compromise, leading to data breaches or service unavailability. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the identified risks, the following actions are recommended to improve the organization's security posture.
+
+\begin{itemize}
+    \item \textbf{Recommendation for RISK-001 (Critical):}
+    \begin{itemize}
+        \item \textbf{Action:} Implement a mandatory Multi-Factor Authentication (MFA) policy for all employee and privileged user computer/workstation logins.
+        \item \textbf{Justification:} This will create a critical defense-in-depth layer, ensuring that even if user credentials are stolen, attackers cannot gain access to endpoints without a second authentication factor.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Recommendation for RISK-002 (High):}
+    \begin{itemize}
+        \item \textbf{Action:} Upgrade the Nginx web server on host \seqsplit{\texttt{[Target IP]}} from version 1.18.0 to the latest stable version recommended by the vendor.
+        \item \textbf{Justification:} Patching and updating software is a fundamental security control. Upgrading Nginx will remediate known vulnerabilities and protect the server from being an easy target for attackers. A regular patch management schedule should be implemented for all external-facing systems.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

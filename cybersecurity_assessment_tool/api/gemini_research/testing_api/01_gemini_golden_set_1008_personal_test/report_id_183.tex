@@ -1,0 +1,151 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage[utf8]{inputenc}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% --- 1. Executive Overview ---
+\section{Executive Overview}
+This report provides a comprehensive cybersecurity assessment for \textbf{Crestview Analytics}. The analysis synthesizes data from an external network scan, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals a mixed security posture. While the organization has implemented multi-factor authentication (MFA) for critical systems like email and sensitive data access, significant and high-risk gaps exist in foundational administrative and technical controls.
+
+Key findings include a publicly exposed, End-of-Life (EOL) database service, a lack of MFA for endpoint computer access, and the absence of an employee Acceptable Use Policy and new-hire security training. These vulnerabilities, particularly when combined, create a high-risk environment susceptible to unauthorized access, data breaches, and operational disruption.
+
+Immediate remediation is required to address the exposed database service. Strategic improvements are necessary to mature the organization's overall security program by closing identified policy and training gaps.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Crestview Analytics} \\
+    Email Domain & \texttt{CrestviewAnalytics.org} \\
+    Website Domain & \seqsplit{\url{www.CrestviewAnalytics.org}} \\
+    External IP Address & \texttt{200.195.122.89} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The results below highlight both implemented controls and critical gaps. A checkmark (\ding{51}) indicates a positive control, while a cross (\ding{55}) indicates a gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\textwidth}c}
+    \toprule
+    \textbf{Control Question} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} \\
+    Do you require MFA to log into computers? & \ding{55} \\
+    Do you require MFA to access sensitive data systems? & \ding{51} \\
+    Does your organization have an employee acceptable use policy? & \ding{55} \\
+    Does your organization do security awareness training for new employees? & \ding{55} \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The questionnaire identified three significant control gaps:
+\begin{itemize}
+    \item \textbf{No MFA for Computer Logins:} The absence of MFA on endpoints is a high-risk vulnerability. If an employee's password is compromised, an attacker can gain direct access to their workstation, establishing a foothold within the network to move laterally.
+    \item \textbf{No Acceptable Use Policy (AUP):} Lacking an AUP means there are no formal, documented rules for employees regarding the use of company systems and data. This can lead to unintentional misuse, data leakage, and a weakened legal standing in the event of an insider incident.
+    \item \textbf{No New-Hire Security Training:} New employees are often prime targets for phishing and social engineering attacks. Failing to provide immediate security training during onboarding leaves a critical window of vulnerability open.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed against the target IP address \texttt{172.16.50.20}. The scan identified one open port with a service that presents a critical risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    3306/tcp & Open & mysql & MySQL & 5.7.33 \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports and Services}
+\end{table}
+
+\subsection*{Critical Finding: Outdated and Exposed Database}
+The scan confirms that a MySQL database is directly accessible from the network. Further analysis reveals a critical issue:
+\begin{itemize}
+    \item \textbf{End-of-Life Software:} MySQL version 5.7 reached its official End of Life (EOL) in October 2023. This means it no longer receives security updates from the vendor and is highly likely to contain unpatched, publicly known vulnerabilities. Running EOL software, especially on an internet-facing service, is a critical security risk.
+\end{itemize}
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security questionnaire, technical scan, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\textwidth}p{0.55\textwidth}l}
+    \toprule
+    \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    \textbf{Exposed \& Outdated Database} & A MySQL 5.7.33 (End-of-Life) database is directly exposed on port 3306. This service is unpatched against modern threats. & \textbf{Critical} \\
+    \addlinespace
+    \textbf{Lack of Endpoint MFA} & No MFA is required for computer logins, allowing a single compromised password to grant an attacker network access. & High \\
+    \addlinespace
+    \textbf{Missing Acceptable Use Policy} & The absence of a formal AUP creates ambiguity for employees and increases the risk of insider threats and data misuse. & High \\
+    \addlinespace
+    \textbf{Inadequate New-Hire Training} & New employees are not provided with security awareness training, making them highly susceptible to social engineering attacks. & High \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Crestview Analytics}.
+
+\subsection*{Immediate Actions (To Be Completed in < 7 Days)}
+\begin{enumerate}
+    \item \textbf{Restrict Database Access:} Immediately implement strict firewall rules to block all public access to TCP port 3306 on host \texttt{172.16.50.20}. Access should only be permitted from trusted internal IP addresses or via a secure VPN connection.
+    \item \textbf{Plan Database Upgrade:} Initiate an emergency plan to upgrade the MySQL 5.7.33 instance to a fully supported version (e.g., MySQL 8.0 or later). This is critical to ensure security patches are available.
+\end{enumerate}
+
+\subsection*{Strategic Actions (To Be Completed in 1-3 Months)}
+\begin{enumerate}
+    \item \textbf{Implement Endpoint MFA:} Deploy a multi-factor authentication solution for all employee computer logins. Prioritize deployment for administrative and privileged accounts.
+    \item \textbf{Develop and Implement an AUP:} Draft a comprehensive Acceptable Use Policy that clearly defines rules for system access, data handling, and internet usage. Require all employees to read and acknowledge the policy.
+    \item \textbf{Establish Onboarding Security Training:} Create a mandatory security awareness training module for all new hires. This training should be a required part of the onboarding process before system access is granted.
+\end{enumerate}
+
+\end{document}
+```

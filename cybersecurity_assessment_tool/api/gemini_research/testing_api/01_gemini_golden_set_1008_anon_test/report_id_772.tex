@@ -1,0 +1,161 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx} % For potential logo inclusion
+\usepackage{xcolor} % For color definitions
+
+% --- Document Metadata ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Custom Commands & Settings ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% ==============================================================================
+% --- BEGIN DOCUMENT ---
+% ==============================================================================
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% 1. Executive Overview
+% ==============================================================================
+\section{Executive Overview}
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{[Organization Name]}. The assessment combined an external network scan, a review of existing risks, and an analysis of organizational security controls based on a provided questionnaire.
+
+\paragraph{Key Findings:} The overall security posture presents a mixed landscape. On a positive note, the external network scan of the target asset revealed a strong defensive perimeter, with no open ports detected. This suggests a well-configured firewall and a minimized external attack surface for the scanned system.
+
+However, significant and high-risk gaps were identified in internal security controls. The lack of mandatory Multi-Factor Authentication (MFA) for computer logins and the absence of a formal security awareness training program for employees represent critical vulnerabilities. These procedural and policy-based weaknesses expose the organization to substantial risks, including unauthorized access, credential theft, and susceptibility to social engineering attacks like phishing.
+
+\paragraph{Summary:} While the external network defenses appear robust, the primary threats to the organization are internal and human-centric. Immediate action is required to address the identified gaps in endpoint security and employee training to mitigate these high-severity risks.
+
+% ==============================================================================
+% 2. Organizational Information
+% ==============================================================================
+\section{Organizational Information}
+
+The following details were used as the basis for this assessment. Information not provided in the source data is marked with a placeholder.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{Scanned IP Address:} \texttt{[Client IP]}
+\end{itemize}
+
+% ==============================================================================
+% 3. Security Control Review (Questionnaire Analysis)
+% ==============================================================================
+\section{Security Control Review}
+
+An analysis of the security questionnaire reveals the organization's current implementation of key security controls. "No" answers indicate significant gaps that increase organizational risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Control Questionnaire Results}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \textcolor{red}{\no} \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \yes \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\no} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\no} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The organization has successfully implemented MFA for email and sensitive systems, which is commendable. However, the absence of MFA on computer logins is a critical oversight. If an employee's credentials are stolen, an attacker could gain direct access to their workstation and potentially the internal network. Furthermore, the complete lack of a security awareness training program leaves employees unprepared to identify and respond to common cyber threats such as phishing, creating a vulnerable human perimeter.
+
+% ==============================================================================
+% 4. Technical Scan Results
+% ==============================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services on the designated target system.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{[Target IP]}
+    \item \textbf{Scan Status:} The target host was responsive (status: up).
+    \item \textbf{Findings:} The scan confirmed that \textbf{zero open ports} were detected. All 1000 scanned TCP ports were in a 'closed' state.
+\end{itemize}
+
+\paragraph{Conclusion:} The absence of open ports is an excellent security posture for an external-facing asset. It indicates that the firewall is properly configured to deny all unsolicited incoming traffic, significantly reducing the external attack surface and protecting the system from network-based attacks.
+
+% ==============================================================================
+% 5. Risk Assessment Summary
+% ==============================================================================
+\section{Risk Assessment Summary}
+
+The following table synthesizes findings from the security control review and technical scan. No pre-existing vulnerabilities were provided for this assessment. The identified risks are based on observed gaps.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks}
+\begin{tabular}{p{0.1\linewidth} p{0.3\linewidth} p{0.4\linewidth} p{0.1\linewidth}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{R-01} & Lack of Endpoint Multi-Factor Authentication & The absence of MFA for computer logins allows an attacker with stolen credentials to gain direct access to an endpoint and the internal network. & \textbf{High} \\
+\addlinespace
+\textbf{R-02} & Inadequate Security Awareness Training Program & Without training, employees are more likely to fall victim to phishing, social engineering, and other attacks, potentially leading to credential compromise or malware infection. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% 6. Recommendations
+% ==============================================================================
+\section{Recommendations}
+
+The following actionable recommendations are provided to mitigate the high-severity risks identified during this assessment.
+
+\subsection{Risk R-01: Lack of Endpoint MFA}
+\begin{itemize}
+    \item \textbf{Action:} Implement and enforce a mandatory Multi-Factor Authentication (MFA) policy for all employee computer logins (desktops and laptops).
+    \item \textbf{Justification:} This creates a critical secondary layer of defense. Even if an employee's password is compromised, the attacker will be unable to access the system without the second factor (e.g., a code from a mobile app, a physical security key).
+    \item \textbf{Priority:} \textbf{Critical}. This should be addressed immediately.
+\end{itemize}
+
+\subsection{Risk R-02: Inadequate Security Awareness Training}
+\begin{itemize}
+    \item \textbf{Action:} Develop and implement a formal, mandatory security awareness training program. This program should include:
+    \begin{enumerate}
+        \item Onboarding training for all new employees before they are granted system access.
+        \item Annual refresher training for all staff covering current threats like phishing, ransomware, and proper data handling.
+        \item Periodic simulated phishing campaigns to test and reinforce employee knowledge.
+    \end{enumerate}
+    \item \textbf{Justification:} A well-trained workforce is the first line of defense against many common cyberattacks. Training reduces the likelihood of human error leading to a security breach.
+    \item \textbf{Priority:} \textbf{High}. A program should be developed and implemented within the next quarter.
+\end{itemize}
+
+\end{document}
+% ==============================================================================
+% --- END DOCUMENT ---
+% ==============================================================================
+```

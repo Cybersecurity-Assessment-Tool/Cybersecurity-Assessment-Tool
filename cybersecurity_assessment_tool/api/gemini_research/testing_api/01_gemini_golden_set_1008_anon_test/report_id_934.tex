@@ -1,0 +1,212 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{datetime}
+
+% --- Document Setup ---
+
+% Define colors for the report
+\definecolor{PrimaryColor}{HTML}{0D47A1} % A deep blue
+\definecolor{SecondaryColor}{HTML}{424242} % A dark grey
+
+% Setup Hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=PrimaryColor,
+    filecolor=magenta,      
+    urlcolor=PrimaryColor,
+    citecolor=PrimaryColor,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Setup Headers and Footers
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{\textbf{Cybersecurity Assessment Report}}
+\fancyhead[R]{\textbf{\seqsplit{\textbf{[Organization Name]}}}}
+\fancyfoot[C]{Page \thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \textcolor{PrimaryColor}{\Huge \textbf{Cybersecurity Assessment Report}}
+    
+    \vspace{1.5cm}
+    
+    {\Large Prepared for:}
+    
+    \vspace{0.5cm}
+    
+    {\Huge \textbf{[Organization Name]}}
+    
+    \vfill % Pushes the rest to the bottom
+    
+    {\large \today}
+    
+    \vspace{0.5cm}
+    
+    \textcolor{SecondaryColor}{\rule{\linewidth}{0.4pt}}
+    \par
+    \textit{This report contains sensitive and confidential information intended for the exclusive use of \textbf{[Organization Name]}. Unauthorized distribution is strictly prohibited.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The evaluation combined a review of organizational security controls via a questionnaire, an external network vulnerability scan, and an analysis of pre-existing risks.
+
+\paragraph{Key Findings:} The assessment revealed a mixed security posture. On a positive note, the external network scan of the target IP address (\texttt{[Target IP]}) showed no open ports, indicating a strong perimeter defense and a well-configured firewall. This significantly reduces the risk of direct external attacks against network services.
+
+However, critical gaps were identified in internal security controls. The lack of mandatory Multi-Factor Authentication (MFA) for accessing email and other sensitive data systems presents a \textbf{Critical Risk}. This weakness could allow an attacker with stolen credentials to gain unauthorized access to confidential communications and critical business data. Furthermore, the absence of security awareness training for new employees creates a \textbf{High Risk}, as new hires are often prime targets for phishing and social engineering attacks.
+
+\paragraph{Conclusion:} While the organization's network perimeter is currently secure, its resilience against credential-based attacks and insider threats is low. Immediate action is required to address the identified gaps in access control and employee training to prevent potential data breaches and financial loss. Recommendations are prioritized in Section \ref{sec:recommendations} to systematically mitigate these risks.
+
+\newpage
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+This section provides the organizational details relevant to this assessment. As the provided data was anonymized, placeholders are used where necessary.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \seqsplit{\texttt{[Domain]}} \\
+Known External IP Address & \seqsplit{\texttt{[Client IP]}} \\
+IP Address Scanned in this Assessment & \seqsplit{\texttt{[Target IP]}} \\
+\bottomrule
+\end{tabular}
+\caption{Organizational and Assessment Scope Details.}
+\label{tab:org_info}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review (Questionnaire)}
+
+The following table summarizes the organization's responses to the security controls questionnaire. Each response is assessed against industry best practices. A green checkmark (\textcolor{green}{\ding{51}}) indicates alignment with best practices, while a red cross (\textcolor{red}{\ding{55}}) signifies a significant gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.55\linewidth} c p{0.25\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} & \textbf{Critical Gap}. Exposes organization to Business Email Compromise (BEC). \\
+\addlinespace
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} & Best Practice Met. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} & \textbf{Critical Gap}. High risk of sensitive data exposure. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} & Best Practice Met. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} & \textbf{High Risk}. New hires are a primary target for attackers. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} & Best Practice Met. \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis.}
+\label{tab:controls_review}
+\end{table}
+
+\newpage
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed on the target IP address provided for this assessment.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{[Target IP]}}
+    \item \textbf{Scan Summary:} The scan completed successfully.
+\end{itemize}
+
+\paragraph{Findings:}
+The scan of the target IP address did not identify any open TCP or UDP ports. This is a positive security finding. It suggests the presence of a well-configured firewall or network access control list (ACL) that is effectively blocking all unsolicited inbound traffic from the internet. 
+
+While this indicates a strong security posture for the network perimeter at this specific IP, it does not provide insight into vulnerabilities on other systems or risks originating from within the network (e.g., from authenticated users or malware).
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+
+This section consolidates all identified risks from the questionnaire analysis and technical scan. Since no pre-existing vulnerabilities were provided, the list below is based solely on the findings of this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.3\linewidth}p{0.4\linewidth}l@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & Lack of MFA on Email Accounts & The absence of MFA on email exposes the organization to a high likelihood of account takeover via phishing or credential stuffing, leading to Business Email Compromise (BEC) and data theft. & \textcolor{red}{\textbf{Critical}} \\
+\addlinespace
+RISK-002 & Lack of MFA on Sensitive Systems & Critical business systems containing sensitive data are not protected by MFA. Stolen credentials could grant an attacker direct access to the organization's most valuable assets. & \textcolor{red}{\textbf{Critical}} \\
+\addlinespace
+RISK-003 & Inadequate Employee Onboarding Security & New employees do not receive security awareness training. This makes them significantly more susceptible to social engineering attacks and unintentional policy violations, creating an entry point for threats. & \textcolor{orange}{\textbf{High}} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\label{tab:risk_summary}
+\end{table}
+
+\newpage
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+\label{sec:recommendations}
+
+The following prioritized recommendations are provided to help \textbf{[Organization Name]} mitigate the identified risks and improve its overall security posture.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Immediately Enforce Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item \textbf{Action:} Procure and deploy an MFA solution for all user accounts.
+        \item \textbf{Scope:} Prioritize enforcement on all externally accessible services, especially email (e.g., Microsoft 365, Google Workspace) and any systems containing sensitive or critical data (RISK-001, RISK-002).
+        \item \textbf{Justification:} MFA is one of the most effective controls to prevent account takeover attacks, mitigating over 99.9\% of credential-based breaches. This action directly addresses the most critical risks identified.
+    \end{itemize}
+    \vspace{0.5cm}
+
+    \item \textbf{[High] Integrate Security Training into Employee Onboarding:}
+    \begin{itemize}
+        \item \textbf{Action:} Develop or procure a security awareness training module and make it a mandatory part of the new employee onboarding process.
+        \item \textbf{Scope:} The training should cover, at a minimum, phishing identification, password hygiene, acceptable use policies, and how to report a security incident (RISK-003).
+        \item \textbf{Justification:} A strong human firewall is a critical layer of defense. Educating employees from day one reduces the likelihood of successful social engineering attacks and costly human error.
+    \end{itemize}
+    \vspace{0.5cm}
+
+    \item \textbf{[Medium] Maintain and Validate Perimeter Security:}
+    \begin{itemize}
+        \item \textbf{Action:} Continue to perform regular, automated external network scans on all public-facing IP addresses.
+        \item \textbf{Scope:} Scans should be performed at least quarterly and after any significant network or firewall changes.
+        \item \textbf{Justification:} The current strong perimeter is a key asset. Continuous monitoring ensures that misconfigurations or new services do not inadvertently expose the organization to external threats.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

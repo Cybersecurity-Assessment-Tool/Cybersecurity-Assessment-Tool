@@ -1,0 +1,188 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding{51}, \ding{55})
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking words
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Report},
+    pdfkeywords={Cybersecurity, Assessment, Report},
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Assessment Report}
+\rhead{Crestview Analytics}
+\cfoot{\thepage}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Assessment Report}}
+    \vspace{1.5cm}
+    \Large{\textbf{Prepared for:}} \\
+    \vspace{0.5cm}
+    \Large{Crestview Analytics}
+    \vspace{2cm}
+    \large{\textbf{Date of Report:}} \\
+    \vspace{0.5cm}
+    \large{\today}
+    \vfill
+    \large{This report contains sensitive and confidential information. Distribution should be limited to authorized personnel only.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section*{1. Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for Crestview Analytics. The assessment combined a review of organizational security controls, an external network scan, and an analysis of pre-existing risk documentation.
+
+The overall security posture of Crestview Analytics reveals a mix of strengths and critical weaknesses. The organization has established a good foundation with security awareness training and an acceptable use policy. However, several critical-risk issues were identified that require immediate attention.
+
+The most severe findings are:
+\begin{itemize}
+    \item \textbf{Lack of Multi-Factor Authentication (MFA):} A systemic failure to implement MFA across email, endpoints, and sensitive data systems exposes the organization to significant risk from credential theft and unauthorized access.
+    \item \textbf{Exposed End-of-Life Database:} The network scan identified a MySQL database server (\texttt{172.16.50.20}) with port \texttt{3306} open. The running version, MySQL 5.7.33, reached its official End-of-Life (EOL) in October 2023 and no longer receives security updates, making it an easy target for exploitation.
+\end{itemize}
+
+The combination of these two findings presents a clear and present danger. An attacker who compromises a user's credentials could potentially gain direct access to a sensitive, unpatched database. Immediate remediation of these issues is strongly recommended to mitigate the high probability of a security incident.
+
+% --- Section 2: Organizational Information ---
+\section*{2. Organizational Information}
+
+This section provides the organizational details collected for this assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Crestview Analytics \\
+    Email Domain & \seqsplit{\texttt{CrestviewAnalytics.com}} \\
+    Website Domain & \seqsplit{\texttt{www.CrestviewAnalytics.com}} \\
+    External IP Address & \texttt{137.125.155.30} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section*{3. Security Control Review}
+
+A review of administrative and procedural security controls was conducted via a questionnaire. The results are summarized below. A green checkmark (\ding{51}) indicates a positive control, while a red cross (\ding{55}) indicates a significant gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & No & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & No & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & No & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization do training for all employees annually? & Yes & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\caption{Organizational Security Control Status}
+\end{table}
+
+\subsection*{Analysis}
+The complete absence of Multi-Factor Authentication (MFA) is a critical security deficiency. User credentials are the primary target for attackers, and without MFA, a single compromised password can lead to a full breach of email, endpoints, and critical data repositories. This gap significantly elevates the risk associated with all other vulnerabilities.
+
+% --- Section 4: Technical Scan Results ---
+\section*{4. Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.50.20}
+    \item \textbf{Scan Date:} \textbf{[Scan Date]}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+3306/tcp & open & mysql & MySQL & 5.7.33 \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports and Services Detected on \texttt{172.16.50.20}}
+\end{table}
+
+\subsection*{Analysis}
+The scan confirms the pre-existing risk of "Database Exposure". Port \texttt{3306} is the default port for MySQL, and its exposure is highly discouraged. 
+
+\textbf{Critical Finding:} The detected version, \textbf{MySQL 5.7.33}, is a significant concern. The MySQL 5.7 series reached its official \textbf{End-of-Life (EOL) in October 2023}. Systems running EOL software do not receive security patches from the vendor and are prime targets for attackers who exploit known, unpatched vulnerabilities.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section*{5. Correlated Risk Assessment}
+
+This section correlates findings from the security control review, technical scan, and pre-existing risk data to provide a synthesized view of the top risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\textwidth} p{0.55\textwidth} p{0.1\textwidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Exposed End-of-Life Database} & A MySQL 5.7 database is directly exposed via port 3306. This version is no longer supported with security patches, making it highly vulnerable to known exploits. This confirms and elevates the pre-existing "Database Exposure" risk. & \textbf{Critical} \\
+\addlinespace
+\textbf{Systemic Lack of MFA} & The absence of MFA for email, computer logins, and sensitive systems creates a high risk of account takeover from a single compromised password. & \textbf{Critical} \\
+\addlinespace
+\textbf{Compounded Risk of Unauthorized Data Access} & The lack of MFA on sensitive systems directly amplifies the risk of the exposed database. An attacker with stolen credentials could access the database without any secondary authentication challenge, leading to a high-impact data breach. & \textbf{Critical} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Key Risks}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section*{6. Recommendations}
+
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity and urgency.
+
+\subsection*{Immediate Actions (To Be Completed Within 72 Hours)}
+\begin{enumerate}
+    \item \textbf{Restrict Database Access:} Immediately apply firewall rules to restrict all access to port \texttt{3306} on host \texttt{172.16.50.20}. Access should only be permitted from specific, trusted internal IP addresses. Public access must be disabled.
+    \item \textbf{Initiate Upgrade Plan:} Begin planning the urgent migration of the MySQL 5.7 database to a currently supported version (e.g., MySQL 8.x or a managed cloud equivalent). This plan should include data backup, testing, and a scheduled migration window.
+\end{enumerate}
+
+\subsection*{High-Priority Actions (To Be Completed Within 30 Days)}
+\begin{enumerate}
+    \item \textbf{Deploy Multi-Factor Authentication (MFA):} Implement and enforce MFA across the organization. The rollout should be prioritized as follows:
+    \begin{itemize}
+        \item All administrator and privileged accounts.
+        \item All user accounts for email access (e.g., Office 365, Google Workspace).
+        \item All access to sensitive data systems, including any new database infrastructure.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Long-Term Recommendations}
+\begin{enumerate}
+    \item \textbf{Establish a Patch Management Program:} Develop and implement a formal policy for regularly identifying, testing, and applying security patches to all systems, applications, and infrastructure. This program must track vendor EOL dates.
+    \item \textbf{Implement Network Segmentation:} Review and enhance the network architecture to isolate critical systems, such as databases, into secure zones. This prevents lateral movement by an attacker and reduces the attack surface.
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,187 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For check and cross marks
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{fancyhdr}
+
+% --- Document Setup ---
+
+% Define colors for risk levels
+\definecolor{SeverityCritical}{HTML}{6B0000}
+\definecolor{SeverityHigh}{HTML}{C00000}
+\definecolor{SeverityMedium}{HTML}{FFC000}
+\definecolor{SeverityLow}{HTML}{00B050}
+
+% Hyperref setup for PDF metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Nmap, Risk, Assessment},
+    pdftoolbar=true,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{Acme Corp}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Body ---
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Cybersecurity Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{Acme Corp}
+    
+    \vfill % Pushes the date to the bottom
+    
+    \large
+    \textbf{Date of Scan:} November 22, 2025 \\
+    \textbf{Date of Report:} \today
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for Acme Corp on November 22, 2025. The assessment combined a review of organizational security controls via a questionnaire with a technical network scan of the external-facing IP address \texttt{192.168.10.5}.
+
+The organization demonstrates a strong security posture from a policy perspective. All questionnaire responses indicated that essential security controls, such as Multi-Factor Authentication (MFA) and security awareness training, are in place. This foundational layer of security is commendable and significantly reduces risk from common attack vectors like phishing and credential theft.
+
+However, the technical scan identified a \textbf{High} severity risk. The public-facing web server at \texttt{192.168.10.5} is running an outdated version of Nginx (1.18.0), which was released in 2020. Outdated software is a primary target for attackers, as it often contains publicly known and exploitable vulnerabilities.
+
+Immediate remediation should focus on upgrading the Nginx server software to a current, stable version to mitigate the risk of a potential system compromise. While policy controls are strong, a single technical vulnerability in a critical public-facing asset can undermine the overall security posture.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & Acme Corp \\
+Email Domain      & \texttt{acme-corp.com} \\
+Website Domain    & \texttt{www.acme-corp.com} \\
+External IP Scanned & \texttt{192.168.10.5} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Data.}
+\label{tab:org_info}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review (Questionnaire)}
+
+A review of the organization's security policies and procedures was conducted based on a standardized questionnaire. The responses indicate a mature approach to security policy implementation. A green checkmark (\ding{51}) indicates the control is in place, while a red 'X' (\ding{55}) would indicate a gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\ \bottomrule
+\end{tabular}
+\caption{Security Control Questionnaire Responses.}
+\label{tab:controls}
+\end{table}
+
+\noindent \textbf{Analysis:} The organization has implemented all reviewed administrative controls. This is an excellent foundation for a strong security program.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed on the target IP address to identify open ports and exposed services.
+
+\subsection*{Target: \texttt{192.168.10.5}}
+\textbf{Scan Date:} 2025-11-22T10:00:00Z \\
+\textbf{Host Status:} Up
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} & \textbf{Notes} \\ \midrule
+443/tcp & open & https & nginx & 1.18.0 & SSL cert for www.acme-corp.com \\ \bottomrule
+\end{tabular}
+\caption{Open Ports and Services Detected on \texttt{192.168.10.5}.}
+\label{tab:scan_results}
+\end{table}
+
+\noindent \textbf{Analysis:} The scan revealed a single open port (443/tcp) running an Nginx web server. The version detected, \textbf{1.18.0}, is significantly outdated. This version was released in April 2020 and is no longer supported with security patches, exposing the service to numerous known vulnerabilities.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+
+This section correlates findings from the organizational review and technical scans to identify and prioritize risks.
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{@{}p{0.1\linewidth} p{0.3\linewidth} p{0.4\linewidth} p{0.1\linewidth}@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\ \midrule
+RISK-001 & Outdated Web Server Software (Nginx 1.18.0) & The public-facing web server is running Nginx 1.18.0, a version that is no longer receiving security updates. This exposes the server to a wide range of publicly disclosed vulnerabilities that could lead to unauthorized access, data breach, or denial of service. & \cellcolor{SeverityHigh!25}\textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Identified Security Risks.}
+\label{tab:risks}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of Acme Corp.
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{@{}p{0.15\linewidth} p{0.65\linewidth} p{0.1\linewidth}@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Recommendation} & \textbf{Priority} \\ \midrule
+RISK-001 & Upgrade the Nginx server on host \texttt{192.168.10.5} from version 1.18.0 to the latest stable version available. Implement a formal patch management policy and schedule to ensure all public-facing systems are updated regularly. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Remediation Recommendations.}
+\label{tab:recommendations}
+\end{table}
+
+\end{document}
+```

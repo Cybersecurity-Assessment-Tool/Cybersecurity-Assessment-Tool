@@ -1,0 +1,130 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+% --- SECTION 1: EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+\setcounter{page}{1}
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{Evergreen Alliance}, conducted on \today. The analysis is based on a synthesis of network scan data, an organizational security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals a mixed security posture. On one hand, the technical network scan of the target host (\texttt{192.168.1.100}) showed a strong defensive configuration, with no open ports detected. This indicates effective network-level filtering and a minimal attack surface for that specific asset.
+
+On the other hand, a review of organizational security controls identified two significant gaps that present a high degree of risk. The absence of Multi-Factor Authentication (MFA) for computer logins exposes the organization to account takeover attacks. Furthermore, the lack of a formal Acceptable Use Policy (AUP) represents a critical governance deficiency, creating ambiguity for employees and increasing the risk of insider threats and non-compliance.
+
+While no pre-existing vulnerabilities were documented, the newly identified control gaps are foundational and require immediate attention. This report outlines these risks and provides actionable recommendations to mitigate them and strengthen the organization's overall security framework.
+
+% --- SECTION 2: ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context for the technical and procedural analysis.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Evergreen Alliance} \\
+Email Domain & \texttt{EvergreenAlliance.org} \\
+Website Domain & \url{www.EvergreenAlliance.org} \\
+External IP Address & \texttt{33.111.237.113} \\
+\bottomrule
+\end{tabular}
+
+% --- SECTION 3: SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses indicate the current state of implemented security policies and procedures. Gaps identified here often represent significant organizational risk.
+
+\begin{tabular}{@{}p{0.75\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\ % Yes
+Do you require MFA to log into computers? & \color{red}\ding{55} \\ % No
+Do you require MFA to access sensitive data systems? & \ding{51} \\ % Yes
+Does your organization have an employee acceptable use policy? & \color{red}\ding{55} \\ % No
+Does your organization do security awareness training for new employees? & \ding{51} \\ % Yes
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\ % Yes
+\bottomrule
+\end{tabular}
+
+\vspace{1em}
+\noindent \textbf{Analysis:} The organization has successfully implemented MFA for critical assets like email and sensitive data systems. However, the lack of MFA for endpoint computer logins and the absence of an Acceptable Use Policy are critical deficiencies that undermine the overall security posture.
+
+% --- SECTION 4: TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+
+A network port scan was performed to identify accessible services and potential vulnerabilities on the specified target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.1.100}
+    \item \textbf{Scan Status:} Completed
+\end{itemize}
+
+\subsection{Summary of Findings}
+The scan results were positive from a security perspective. No open ports were detected on the target host. All 1000 scanned ports were reported as being in a \textbf{`closed`} state.
+
+\subsubsection{Implications}
+A host with no open ports presents a minimal network attack surface. This typically indicates one of the following:
+\begin{itemize}
+    \item The host is protected by a well-configured firewall that is effectively blocking all inbound connection attempts.
+    \item The host is not running any network-facing services.
+\end{itemize}
+This is a strong security control and is commended. No further technical vulnerabilities were identified on this host from this scan.
+
+% --- SECTION 5: RISK ASSESSMENT ---
+\section{Risk Assessment}
+
+This section consolidates findings from the security control review, technical scans, and pre-existing risk data. The following table summarizes the identified risks, their potential impact, and an assigned severity level. No pre-existing vulnerabilities were provided for this assessment.
+
+\begin{tabular}{@{}p{0.25\linewidth}p{0.5\linewidth}p{0.15\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of Endpoint MFA} & Employee computers do not require Multi-Factor Authentication for login. This significantly increases the risk of unauthorized access resulting from compromised (e.g., stolen, weak, or reused) credentials. & \textbf{High} \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy (AUP)} & The absence of a formal AUP creates ambiguity regarding the proper use of company assets and data. This can lead to unintentional data exposure, insider threats, and potential legal or compliance issues. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+
+% --- SECTION 6: RECOMMENDATIONS ---
+\section{Recommendations}
+
+Based on the findings in this report, the following actions are recommended to mitigate the identified risks and improve the overall cybersecurity posture of \textbf{Evergreen Alliance}.
+
+\subsection{High Priority: Implement MFA for All Endpoints}
+\begin{itemize}
+    \item \textbf{Action:} Procure and deploy a mandatory MFA solution for all employee computer and laptop logins. Supported methods should include authenticator applications (e.g., Google Authenticator, Microsoft Authenticator), hardware tokens (e.g., YubiKey), or biometrics.
+    \item \textbf{Justification:} Endpoints are a primary target for attackers. Enforcing MFA at login is one of the most effective controls to prevent unauthorized access via compromised credentials, thereby protecting against ransomware and data breaches.
+\end{itemize}
+
+\subsection{Medium Priority: Develop and Implement an Acceptable Use Policy}
+\begin{itemize}
+    \item \textbf{Action:} Draft a comprehensive AUP that clearly defines the rules and expectations for employees when using company networks, systems, applications, and data. The policy should be reviewed by legal counsel, communicated to all staff, and formally acknowledged via signature.
+    \item \textbf{Justification:} An AUP is a foundational governance document. It establishes a baseline for secure behavior, reduces organizational liability, and provides a framework for enforcing security standards.
+\end{itemize}
+
+\end{document}
+```

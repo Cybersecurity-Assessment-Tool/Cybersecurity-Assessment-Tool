@@ -1,0 +1,181 @@
+```latex
+\documentclass[12pt]{article}
+
+% 1. Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and metadata
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long monospaced text
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For potential logos in the future
+\usepackage{fancyhdr} % For headers/footers
+
+% 2. Document Setup and Metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Risk Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Security, Risk, Assessment},
+}
+
+% 3. Custom Commands and Colors
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\definecolor{sev_critical}{HTML}{990000}
+\definecolor{sev_high}{HTML}{D2691E}
+\definecolor{sev_medium}{HTML}{DAA520}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyhead[L]{Cybersecurity Risk Assessment Report}
+\fancyhead[R]{Confidential}
+\fancyfoot[C]{\thepage}
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Risk Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:} \\
+    \vspace{0.5cm}
+    \textbf{Great Lakes} % From Input 2
+    \vspace{2cm}
+    \large
+    \textbf{Date of Report:} \\
+    \vspace{0.5cm}
+    \today
+    \vfill
+    \textit{This document is confidential and intended solely for the use of the recipient.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the current cybersecurity posture of \textbf{Great Lakes}, based on a synthesis of network scan data, organizational security controls, and pre-existing risk information. The assessment reveals several critical and high-risk vulnerabilities that require immediate attention to mitigate potential threats.
+
+Key findings indicate significant gaps in fundamental security controls. The absence of Multi-Factor Authentication (MFA) for computer and sensitive data access, coupled with a lack of a formal Acceptable Use Policy and recurring security training, creates a high-risk environment susceptible to credential compromise and insider threats.
+
+Furthermore, technical scans have confirmed the presence of an exposed Remote Desktop Protocol (RDP) service on the internal network. This finding, correlated with pre-existing risks, points to a systemic issue of insecure service configuration. When combined with the identified MFA gaps, this vulnerability presents a direct and severe threat, as it is a common vector for ransomware attacks and unauthorized access.
+
+Immediate remediation of the identified RDP exposures and the implementation of a comprehensive MFA policy are the highest priorities.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} Great Lakes
+    \item \textbf{Email Domain:} \texttt{GreatLakes.com}
+    \item \textbf{Website Domain:} \texttt{www.GreatLakes.com}
+    \item \textbf{Known External IP:} \texttt{34.114.94.226}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight critical gaps in administrative and technical safeguards. A "No" response indicates a missing control and a significant increase in risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\begin{tabular}{p{8cm} c p{4cm}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \yes & \textbf{Good Practice:} Control is in place. \\
+\addlinespace
+Do you require MFA to log into computers? & \no & \textcolor{sev_critical}{\textbf{Critical Gap:} Lack of endpoint MFA allows for trivial lateral movement if credentials are stolen.} \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \no & \textcolor{sev_critical}{\textbf{Critical Gap:} The organization's most valuable data is not protected by a critical access control.} \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \no & \textcolor{sev_high}{\textbf{High Risk:} No formal guidelines for employees, leading to inconsistent practices and potential misuse.} \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \yes & \textbf{Good Practice:} Foundational training is provided. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \no & \textcolor{sev_high}{\textbf{High Risk:} Security knowledge degrades over time. Lack of recurring training increases susceptibility to phishing and social engineering.} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An Nmap scan was performed to identify open ports and services on the target system. The results indicate the presence of an exposed remote access service.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.10.10.51}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{10.10.10.51}}
+\label{tab:nmap}
+\begin{tabular}{l l l p{7cm}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Analysis} \\
+\midrule
+3389/tcp & Open & \texttt{ms-wbt-server} & This is the Microsoft Remote Desktop Protocol (RDP). Exposing RDP without compensating controls (e.g., VPN, MFA, IP whitelisting) is a critical security risk and a primary target for attackers. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of risks.
+
+\begin{table}[h!]
+\centering
+\caption{Prioritized Risk Summary}
+\label{tab:risks}
+\begin{tabular}{p{1.5cm} p{3.5cm} p{6cm} l}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & Systemic RDP Exposure & The technical scan identified RDP open on \texttt{10.10.10.51}. This correlates with a known risk on \texttt{10.10.10.50}, indicating a pattern of insecure configuration. RDP is a primary vector for ransomware. & \textcolor{sev_critical}{\textbf{Critical}} \\
+\addlinespace
+RISK-002 & Insufficient Identity and Access Management & The lack of MFA on computer logins and sensitive data systems means a single compromised password provides an attacker with significant access to the internal network and critical data. & \textcolor{sev_critical}{\textbf{Critical}} \\
+\addlinespace
+RISK-003 & Deficient Security Governance & The absence of an Acceptable Use Policy and mandatory annual security training for all staff significantly increases the human risk factor, making technical vulnerabilities more likely to be exploited. & \textcolor{sev_high}{\textbf{High}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the consolidated risk assessment, the following actions are recommended to improve the security posture of \textbf{Great Lakes}. Recommendations are prioritized to address the most critical risks first.
+
+\begin{enumerate}
+    \item \textbf{[Immediate] Remediate RDP Exposure (RISK-001):}
+    \begin{itemize}
+        \item Immediately close or firewall port 3389 on all affected systems, including \texttt{10.10.10.51} and \texttt{10.10.10.50}, from all non-essential sources.
+        \item For necessary remote access, implement a Virtual Private Network (VPN) with MFA as the sole method for connecting to internal resources like RDP.
+        \item Conduct a network-wide audit to identify and remediate any other instances of exposed management services.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{[High Priority] Implement Comprehensive MFA (RISK-002):}
+    \begin{itemize}
+        \item Procure and deploy an MFA solution for all employee computer logins (Windows, macOS, etc.).
+        \item Enforce MFA for access to all applications and repositories containing sensitive or critical business data.
+        \item This action directly mitigates the risk of credential theft leading to a breach.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{[Medium Priority] Establish Security Governance (RISK-003):}
+    \begin{itemize}
+        \item Develop and ratify a formal Employee Acceptable Use Policy (AUP). This policy should be signed by all new and existing employees.
+        \item Institute a mandatory annual security awareness training program for all employees. The training should cover current threats such as phishing, password hygiene, and social engineering.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

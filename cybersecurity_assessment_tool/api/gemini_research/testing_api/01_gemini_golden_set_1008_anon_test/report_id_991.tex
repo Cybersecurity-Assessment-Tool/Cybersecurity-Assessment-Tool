@@ -1,0 +1,191 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmarks and crosses (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For hyperlinks, metadata
+\usepackage{url}                  % For URL formatting
+\usepackage{seqsplit}             % For splitting long strings in text
+\usepackage{fancyhdr}             % For custom headers/footers
+\usepackage{xcolor}               % For custom colors
+\usepackage{graphicx}             % For including images
+
+% --- DOCUMENT METADATA ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment, Scan},
+    pdflang={en}
+}
+
+% --- HEADER & FOOTER ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+
+% --- COMMAND DEFINITIONS ---
+\newcommand{\yes}{\ding{51}} % Green checkmark
+\newcommand{\no}{\ding{55}}  % Red cross
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:}\\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+    \vspace{2.5cm}
+    \textbf{Prepared by:}\\
+    \vspace{0.5cm}
+    Cybersecurity Analysis Division
+    \vfill
+    \large
+    \textbf{Date of Report:}\\
+    \today
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture of \textbf{[Organization Name]}. The assessment is based on a synthesis of organizational data, technical network scans, and a review of known risks.
+
+The analysis reveals a mixed security posture. The organization has successfully implemented strong multi-factor authentication (MFA) controls across key systems, which significantly reduces the risk of credential-based attacks. However, this strength is undermined by critical gaps in foundational security policies and procedures.
+
+Specifically, the absence of an employee Acceptable Use Policy (AUP) and the failure to provide security awareness training to new hires represent significant, high-impact risks. These procedural gaps create a permissive environment for insider threats and make the organization highly susceptible to social engineering attacks.
+
+Furthermore, technical scanning identified an externally exposed Secure Shell (SSH) service. While necessary for remote administration, this service is a primary target for attackers and must be rigorously secured and monitored. Currently, no pre-existing vulnerabilities were reported.
+
+This report outlines these findings in detail and provides actionable recommendations to mitigate the identified risks and strengthen the overall security framework.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+This section provides the high-level details of the organization under review. The data provided for this assessment was anonymized.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \seqsplit{\texttt{[Client IP]}}
+\end{itemize}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. This review serves as a baseline to understand the current state of implemented policies and procedures. "Yes" responses are marked with \yes, and "No" responses with \no.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.6\textwidth} c p{0.2\textwidth}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \yes & Best Practice Met \\
+Do you require MFA to log into computers? & \yes & Best Practice Met \\
+Do you require MFA to access sensitive data systems? & \yes & Best Practice Met \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+Does your organization do security awareness training for new employees? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Partial Control \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Controls}
+The organization demonstrates a strong commitment to identity and access management through its consistent enforcement of MFA. However, the lack of an Acceptable Use Policy and mandatory security training for new hires are critical deficiencies. These gaps expose the organization to significant human-centric risks, as employees are not formally instructed on safe computing practices or trained to recognize common threats like phishing upon joining the company.
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+A network scan was performed on the organization's external infrastructure to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \seqsplit{\texttt{[Target IP]}}
+    \item \textbf{Scan Status:} Host is Up
+\end{itemize}
+
+The following table details the services discovered to be accessible from the public internet.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services}
+\begin{tabular}{c c c l}
+\toprule
+\textbf{Port} & \textbf{Protocol} & \textbf{State} & \textbf{Inferred Service \& Notes} \\
+\midrule
+22 & TCP & Open & \textbf{SSH (Secure Shell):} This service is used for remote \\
+   &     &      & administration. Its exposure is common but presents a \\
+   &     &      & significant risk if not secured with strong credentials, \\
+   &     &      & key-based authentication, and access control lists. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- RISK ASSESSMENT ---
+\section{Risk Assessment}
+This section correlates the findings from the security control review and technical scans to provide a consolidated list of identified risks. No pre-existing vulnerabilities were provided for this assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.1\textwidth} p{0.3\textwidth} p{0.15\textwidth} p{0.35\textwidth}}
+\toprule
+\textbf{Risk ID} & \textbf{Finding} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+RISK-001 & Lack of Employee Acceptable Use Policy (AUP) & \textbf{Critical} & Without an AUP, there are no formal rules governing the use of company assets. This increases the risk of data leakage, malware infections from unapproved software, and legal liability. \\
+\addlinespace
+RISK-002 & No Security Training for New Hires & \textbf{High} & New employees are a primary target for social engineering. Without immediate training, they are highly vulnerable to phishing and other attacks, potentially compromising credentials and data from day one. \\
+\addlinespace
+RISK-003 & Exposed Administrative Service (SSH) & \textbf{Medium} & The SSH service on port 22 is open to the internet. While required for remote access, it is a constant target for automated brute-force attacks and exploit attempts. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\begin{enumerate}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP).}
+    \begin{itemize}
+        \item \textbf{Action:} Draft a formal AUP that clearly defines the rules for using company networks, devices, and data. The policy should cover topics such as internet usage, data handling, password security, and prohibited activities.
+        \item \textbf{Impact:} Establishes a clear security baseline for all employees and provides a basis for enforcement actions. This is a foundational control for any security program.
+        \item \textbf{Priority:} \textbf{Critical}.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Integrate Security Training into Employee Onboarding.}
+    \begin{itemize}
+        \item \textbf{Action:} Create a mandatory security awareness training module that all new employees must complete during their first week. This training should cover phishing, password hygiene, social engineering, and the new AUP.
+        \item \textbf{Impact:} Reduces the likelihood of new employees falling victim to common cyberattacks, closing a significant window of vulnerability.
+        \item \textbf{Priority:} \textbf{High}.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Harden the Exposed SSH Service.}
+    \begin{itemize}
+        \item \textbf{Action:}
+            \begin{enumerate}
+                \item Implement a firewall rule to restrict access to the SSH port (22) to only known, trusted IP addresses (e.g., office or administrator home IPs).
+                \item Disable password-based authentication and enforce the use of public key cryptography for all SSH access.
+                \item Ensure logging is enabled for all SSH connections and failed login attempts, and that these logs are regularly reviewed.
+            \end{enumerate}
+        \item \textbf{Impact:} Drastically reduces the attack surface of the server, protecting it from automated brute-force attacks and unauthorized access attempts.
+        \item \textbf{Priority:} \textbf{Medium}.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

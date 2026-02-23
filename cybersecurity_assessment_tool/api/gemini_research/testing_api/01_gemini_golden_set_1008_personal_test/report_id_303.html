@@ -1,0 +1,256 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<hr />
+<hr />
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This assessment synthesizes technical scan data, a security controls
+questionnaire, and known risks to provide a holistic view of the
+organization’s security posture.</p>
+<p>The key findings indicate a critical external exposure. A MySQL
+database server is directly accessible from the scanned network segment.
+Furthermore, this database is running version <code>5.7.33</code>, which
+is an unsupported, end-of-life (EOL) version that no longer receives
+security patches. This finding confirms and elevates a pre-existing
+identified risk, "Database Exposure," from High to Critical.</p>
+<p>Additionally, the security control review identified significant
+gaps. The lack of Multi-Factor Authentication (MFA) on employee
+computers and the absence of a formal Acceptable Use Policy (AUP)
+represent high-impact risks that weaken the organization’s defense
+against unauthorized access and insider threats.</p>
+<p>This report outlines these risks in detail and provides prioritized,
+actionable recommendations to strengthen the security posture of Solaris
+Energy.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following details were provided for the assessment.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> Solaris Energy</p></li>
+<li><p><strong>Email Domain:</strong>
+<code>SolarisEnergy.net</code></p></li>
+<li><p><strong>Website Domain:</strong></p></li>
+<li><p><strong>External IP Address:</strong>
+<code>76.70.131.145</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>An internal review of administrative and technical security controls
+was conducted based on a standardized questionnaire. The results
+highlight key areas of strength and weakness. Gaps identified with a
+represent a significant increase in organizational risk.</p>
+<table style="width:80%;">
+<caption>Security Controls Questionnaire Results</caption>
+<colgroup>
+<col style="width: 80%" />
+<col />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered" id="analysis-of-control-gaps">Analysis of Control
+Gaps</h2>
+<ul>
+<li><p><strong>No MFA on Computers:</strong> This is a critical
+weakness. If an employee’s credentials are stolen (e.g., through
+phishing), an attacker can gain direct access to their computer and the
+internal network without any further barriers.</p></li>
+<li><p><strong>No Acceptable Use Policy (AUP):</strong> The lack of a
+formal AUP creates ambiguity regarding safe computing practices and the
+consequences of misuse. This administrative gap weakens the overall
+security culture and legal standing in case of an internal
+incident.</p></li>
+</ul>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed to identify active services and
+potential vulnerabilities on the target host.</p>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>172.16.50.20</code></p></li>
+</ul>
+<h2 class="unnumbered" id="open-ports-and-services">Open Ports and
+Services</h2>
+<p>The following table details the open ports and services discovered on
+the target system.</p>
+<table>
+<caption>Nmap Scan Findings for <code>172.16.50.20</code></caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product &amp;
+Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3306/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">mysql</td>
+<td style="text-align: left;">MySQL 5.7.33</td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered" id="analysis-of-technical-findings">Analysis of
+Technical Findings</h2>
+<p>The scan identified one open port, <strong>3306/tcp</strong>, which
+is the default port for the MySQL database service.</p>
+<ul>
+<li><p><strong>Service Exposure:</strong> Exposing a database directly
+to the network is a significant security risk. It allows attackers to
+directly target the database for brute-force attacks, credential
+stuffing, or exploitation of known vulnerabilities. This finding
+validates the pre-existing risk "Database Exposure."</p></li>
+<li><p><strong>Outdated Software:</strong> The identified version,
+<strong>MySQL 5.7.33</strong>, is critically outdated. The MySQL 5.7
+series reached its official End of Life (EOL) in October 2023. This
+means it no longer receives security updates from the vendor, and
+numerous vulnerabilities discovered since its release in early 2021
+remain unpatched.</p></li>
+</ul>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>By correlating the security control gaps, technical findings, and
+pre-existing risk data, we have compiled the following summary of key
+risks facing the organization.</p>
+<table style="width:80%;">
+<caption>Consolidated Risk Summary</caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 55%" />
+<col />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Description</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Exposed &amp; Outdated
+Database</strong></td>
+<td style="text-align: left;">The MySQL database on port 3306 is open to
+the network and is running an unsupported, end-of-life version with
+known vulnerabilities.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lack of Endpoint MFA</strong></td>
+<td style="text-align: left;">The absence of MFA for computer logins
+exposes the organization to account takeover and facilitates
+unauthorized lateral movement within the network.</td>
+<td style="text-align: left;"><strong>High</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Missing Acceptable Use
+Policy</strong></td>
+<td style="text-align: left;">The lack of a formal AUP introduces
+administrative and legal risk and fails to establish a clear baseline
+for secure employee behavior.</td>
+<td style="text-align: left;"><strong>High</strong></td>
+</tr>
+</tbody>
+</table>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following prioritized recommendations are provided to address the
+identified risks and improve the overall security posture of Solaris
+Energy.</p>
+<h2 class="unnumbered"
+id="immediate-actions-critical-priority">Immediate Actions (Critical
+Priority)</h2>
+<ol>
+<li><p><strong>Restrict Database Access:</strong> Immediately implement
+strict firewall rules to block all public access to TCP port 3306 on
+host <code>172.16.50.20</code>. Access should be restricted to a
+whitelist of specific, trusted IP addresses only. If remote access is
+required, it should be facilitated through a secure VPN.</p></li>
+<li><p><strong>Plan Database Upgrade:</strong> Develop an urgent plan to
+upgrade the MySQL 5.7.33 instance to a currently supported version
+(e.g., MySQL 8.x). The current version is EOL and presents an
+unacceptable level of risk due to unpatched vulnerabilities.</p></li>
+</ol>
+<h2 class="unnumbered" id="high-priority-actions">High Priority
+Actions</h2>
+<ol>
+<li><p><strong>Deploy MFA on Endpoints:</strong> Implement a mandatory
+MFA solution for all employee computer logins. This is a critical
+defense against credential theft and unauthorized access.</p></li>
+<li><p><strong>Develop and Implement an AUP:</strong> Draft a formal
+Acceptable Use Policy that clearly defines rules for using company
+assets, data handling, and internet usage. Ensure all employees read and
+acknowledge the policy as a condition of employment.</p></li>
+</ol>
+<h2 class="unnumbered" id="general-recommendations">General
+Recommendations</h2>
+<ol>
+<li><p><strong>Conduct Comprehensive Vulnerability Scanning:</strong>
+Perform authenticated and unauthenticated vulnerability scans across the
+entire network infrastructure to identify other outdated systems or
+misconfigurations.</p></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

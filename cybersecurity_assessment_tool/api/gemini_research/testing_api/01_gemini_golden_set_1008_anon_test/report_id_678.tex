@@ -1,0 +1,158 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% --- 1. EXECUTIVE OVERVIEW ---
+\section{Executive Overview}
+
+This report details a cybersecurity posture assessment for \textbf{[Organization Name]}. The analysis is based on a combination of a network perimeter scan, a review of organizational security controls, and an evaluation of pre-existing risk data.
+
+The organization demonstrates a strong commitment to identity and access management, with Multi-Factor Authentication (MFA) consistently enforced across email, computer logins, and sensitive data systems. This significantly reduces the risk of unauthorized access through compromised credentials.
+
+However, the assessment identified \textbf{critical deficiencies in administrative controls}. The absence of a formal Acceptable Use Policy (AUP) and a structured security awareness training program for employees presents a high level of risk. These gaps leave the organization highly susceptible to human error, social engineering, and insider threats.
+
+On the technical front, the external network scan of the provided IP address (\texttt{[Client IP]}) revealed a secure perimeter with no open ports. This is a positive finding and indicates that a previously identified risk concerning an open web server on port 80 has been successfully remediated.
+
+In summary, while technical access controls are robust, the primary areas of concern are foundational security policies and employee training. Immediate action is recommended to address these administrative gaps to build a more resilient and comprehensive security posture.
+
+% --- 2. ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+
+The following details were used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- 3. SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+
+A review of key administrative and technical security controls was conducted via a questionnaire. The results below highlight areas of strength and significant weakness. "No" answers indicate a control gap that increases organizational risk.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Status}
+\label{tab:controls}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+\midrule
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The organization has effectively implemented MFA, a critical control for preventing account takeover attacks. However, the complete lack of a security training program or an acceptable use policy represents a critical failure in establishing a security-conscious culture.
+
+% --- 4. TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+
+An external network scan was performed to identify exposed services and potential vulnerabilities on the organization's network perimeter.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+The scan results are summarized in the table below.
+
+\begin{table}[h!]
+\centering
+\caption{Nmap Scan Results for \texttt{[Target IP]}}
+\label{tab:nmap}
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} \\
+\midrule
+80 & closed & http & N/A \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The scan of the target IP address revealed no open ports. The finding that port 80 is closed is a positive security outcome. This result directly contradicts a pre-existing risk entry (see Section 5), which stated that port 80 was open. This suggests that the previously identified vulnerability has been successfully remediated. The current configuration indicates a well-hardened network perimeter.
+
+% --- 5. CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, the technical scan, and pre-existing risk data into a consolidated list of current risks.
+
+\begin{table}[h!]
+\centering
+\caption{Risk Summary}
+\label{tab:risks}
+\begin{tabular}{p{0.1\linewidth} p{0.3\linewidth} p{0.4\linewidth} l}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & \textbf{Lack of Security Awareness Training} & Employees are not trained to identify or respond to security threats like phishing or social engineering. This significantly increases the likelihood of a breach originating from human error. & \textbf{High} \\
+\addlinespace
+RISK-002 & \textbf{No Acceptable Use Policy (AUP)} & Without a formal AUP, there are no established rules for employee use of company assets. This exposes the organization to insider threat, data misuse, and legal liabilities. & \textbf{High} \\
+\addlinespace
+RISK-003 & Unencrypted Web Server & \textit{Previous Finding:} Port 80 was believed to be open. \textbf{Current Status:} Our scan confirms Port 80 is closed. This risk is considered remediated. & \textbf{Closed} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. RECOMMENDATIONS ---
+\section{Recommendations}
+
+Based on the consolidated risk assessment, the following actions are recommended to improve the organization's security posture. Recommendations are prioritized by severity.
+
+\subsection{Priority 1: High Severity Risks}
+
+\begin{enumerate}
+    \item \textbf{Establish a Security Awareness Training Program (RISK-001):}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Develop and deliver mandatory security awareness training for all current employees. This training must cover, at a minimum: phishing identification, password hygiene, and social engineering tactics.
+        \item \textbf{Ongoing Action:} Integrate this training into the onboarding process for all new hires. Mandate annual refresher training for all staff to ensure continuous awareness.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (RISK-002):}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Draft a formal AUP that clearly defines the rules for using company networks, devices, and data.
+        \item \textbf{Ongoing Action:} Require all employees to read and formally acknowledge the policy. Review and update the AUP annually or as significant organizational changes occur.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Priority 2: Informational / Administrative}
+
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Update Risk Register (RISK-003):}
+    \begin{itemize}
+        \item \textbf{Action:} Formally update the internal risk register to mark the "Unencrypted Web Server" vulnerability as \textbf{Closed/Remediated} based on the technical scan results dated \today. This ensures risk documentation remains accurate.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

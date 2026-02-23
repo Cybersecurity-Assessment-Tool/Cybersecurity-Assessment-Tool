@@ -1,0 +1,186 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- Document Metadata ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}} % Green checkmark
+\newcommand{\no}{\ding{55}}  % Red cross
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ==============================================================================
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Apex Legends Group}, conducted on November 22, 2025. The analysis correlates data from a network infrastructure scan, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals several critical and high-risk security gaps that require immediate attention. While the organization has implemented foundational security practices like employee awareness training, significant weaknesses exist in its access control and patch management policies.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical MFA Gaps:} Multi-Factor Authentication (MFA) is not enforced for accessing email or for logging into employee computers. This exposes the organization to a high risk of account compromise and unauthorized access.
+    \item \textbf{Outdated Web Server:} The external-facing web server at \texttt{192.168.10.5} is running an outdated version of Nginx (1.18.0). This version has multiple known vulnerabilities that could be exploited by attackers to compromise the server and access sensitive data.
+\end{itemize}
+
+The overall security posture is considered weak due to these fundamental control failures. Immediate remediation of the identified risks is strongly recommended to protect organizational assets and data from potential cyber threats.
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information helps establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Apex Legends Group \\
+Email Domain & \texttt{ApexLegendsGroup.com} \\
+Website Domain & \url{www.ApexLegendsGroup.com} \\
+External IP Address & \texttt{65.57.222.86} \\
+\bottomrule
+\end{tabular}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A security questionnaire was completed to evaluate the implementation of essential administrative and technical controls. The table below summarizes the responses. "No" answers indicate significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}lc}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \no \\
+Do you require MFA to log into computers? & \no \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \yes \\
+Does your organization do security awareness training for new employees? & \yes \\
+Does your organization do security awareness training for all employees annually? & \yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The lack of MFA for email and computer logins represents a critical vulnerability. Email is a primary target for phishing attacks, and a compromised account can lead to data breaches and further internal attacks. Similarly, the absence of MFA on computer logins significantly weakens endpoint security and increases the risk of unauthorized access if user credentials are stolen.
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+An Nmap scan was performed on \textbf{2025-11-22} to identify open ports and running services on the target system.
+
+\subsection*{Scan Target}
+\begin{itemize}
+    \item \textbf{IP Address:} \texttt{192.168.10.5}
+    \item \textbf{Status:} Host is Up
+\end{itemize}
+
+\subsection*{Open Ports and Services}
+The following services were identified as accessible on the target system.
+
+\begin{table}[h!]
+\centering
+\caption{Discovered Network Services}
+\begin{tabular}{@{}lllll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & open & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Technical Findings Analysis}
+The scan identified an Nginx web server, version \textbf{1.18.0}, running on port 443. This version was released in April 2020 and is now significantly outdated. It is known to be vulnerable to multiple security issues, including a high-severity vulnerability (CVE-2021-23017) that could allow an attacker to cause a denial of service or potentially execute arbitrary code. Running outdated, internet-facing software poses a direct and severe threat to the organization.
+
+% ==============================================================================
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review and the technical scan. No pre-existing risks were provided for this assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.25\linewidth} p{0.5\linewidth} p{0.15\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Inadequate Multi-Factor Authentication (MFA)} & MFA is not enforced on critical access points, including email and computer logins. This dramatically increases the likelihood of a successful account takeover via stolen credentials. & \textbf{Critical} \\
+\addlinespace
+\textbf{Outdated Web Server Software} & The public-facing web server runs Nginx 1.18.0, a version with publicly known high-severity vulnerabilities. This exposes the server to remote exploitation, potentially leading to a full system compromise. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+Based on the analysis, the following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Apex Legends Group}.
+
+\begin{description}
+    \item[Remediation for MFA Gaps (Critical):]
+    \begin{itemize}
+        \item Immediately procure and deploy an MFA solution for all user accounts.
+        \item Enforce MFA for all access to the email system (e.g., Office 365, Google Workspace).
+        \item Enforce MFA for all computer and remote access logins (e.g., VPN, RDP).
+        \item Prioritize this initiative, as it provides the single greatest improvement to account security.
+    \end{itemize}
+    \vspace{1em}
+    \item[Remediation for Outdated Software (High):]
+    \begin{itemize}
+        \item Upgrade the Nginx server on \texttt{192.168.10.5} from version 1.18.0 to the latest stable version recommended by the vendor.
+        \item Before upgrading, perform a backup and test the new version in a staging environment to ensure compatibility with existing applications.
+        \item Implement a formal patch management policy and program to ensure all systems are updated on a regular basis.
+    \end{itemize}
+    \vspace{1em}
+    \item[Strategic Improvement:]
+    \begin{itemize}
+        \item Conduct regular, automated vulnerability scans of all external and internal infrastructure to proactively identify and remediate security weaknesses.
+    \end{itemize}
+\end{description}
+
+\end{document}
+```

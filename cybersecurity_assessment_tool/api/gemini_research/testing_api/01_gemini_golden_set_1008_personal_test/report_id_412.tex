@@ -1,0 +1,155 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long monospaced text
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Team}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Team},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Nmap, Risk Assessment}
+}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+\pagestyle{plain}
+
+% ===================================================================
+% SECTION 1: EXECUTIVE OVERVIEW
+% ===================================================================
+\section{Executive Overview}
+
+This report provides a cybersecurity posture assessment for \textbf{Pioneer Pulse}. The analysis is based on a synthesis of a technical network scan, a review of organizational security controls via a questionnaire, and an evaluation of pre-existing risk data.
+
+The assessment identified a mixed security posture. On a positive note, the technical network scan of the target host showed no exposed services, indicating a strong network perimeter defense or effective host-based firewall configuration.
+
+However, significant and critical gaps were identified in the organization's access control policies. The absence of Multi-Factor Authentication (MFA) for logging into computers and accessing sensitive data systems represents a critical vulnerability. If an employee's credentials were to be compromised, there are insufficient controls to prevent unauthorized access to endpoints and critical data.
+
+Furthermore, the lack of mandatory, annual security awareness training for all employees constitutes a high risk, leaving the organization more susceptible to social engineering and phishing attacks over time.
+
+Immediate remediation should focus on implementing a robust MFA strategy across the organization and establishing a recurring security training program.
+
+% ===================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Pioneer Pulse} \\
+Email Domain & \seqsplit{\texttt{PioneerPulse.net}} \\
+Website Domain & \href{http://www.PioneerPulse.net}{\seqsplit{\url{www.PioneerPulse.net}}} \\
+External IP Address & \seqsplit{\texttt{235.111.77.205}} \\
+\bottomrule
+\end{tabular}
+
+% ===================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ===================================================================
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. A checkmark (\ding{51}) indicates a positive control is in place, while a cross (\ding{55}) indicates a control gap that introduces risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\textbf{Analysis:} The review highlights critical deficiencies in access control enforcement. While MFA is correctly applied to email, its absence on computer logins and sensitive systems significantly weakens the defense against credential theft. The lack of annual security training for all staff indicates a potential degradation of security awareness over time.
+
+% ===================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+A network scan was performed to identify exposed services and potential vulnerabilities on the specified target system.
+
+\subsection{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{192.168.1.100}}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\subsection{Findings}
+The scan reported the target host as \textbf{up}, but found no open TCP or UDP ports. All 1000 scanned ports were in a \textbf{closed} state.
+
+\textbf{Analysis:} This is a positive security finding. It indicates that the target host is not exposing any network services to the scanner. This is likely the result of a well-configured host-based or network firewall, which is a key component of a defense-in-depth strategy. No immediate technical vulnerabilities were identified on this host from a network perspective.
+
+% ===================================================================
+% SECTION 5: RISK ASSESSMENT
+% ===================================================================
+\section{Risk Assessment}
+
+The following table consolidates risks identified through the analysis of the security questionnaire and technical scan. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\textwidth}p{0.55\textwidth}p{0.1\textwidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Inadequate Access Control: Endpoints} & The absence of MFA on computer logins means that a single compromised password could grant an attacker full access to an employee's workstation and any local data. & \textbf{Critical} \\
+\addlinespace
+\textbf{Inadequate Access Control: Sensitive Systems} & Critical systems containing sensitive organizational or customer data are not protected by MFA. This dramatically increases the risk of a significant data breach if user credentials are stolen. & \textbf{Critical} \\
+\addlinespace
+\textbf{Deficient Security Awareness Program} & Without mandatory annual training, employees' ability to recognize and respond to evolving threats like phishing and social engineering diminishes, making them the weakest link in the security chain. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% ===================================================================
+% SECTION 6: RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+Based on the findings of this assessment, the following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Pioneer Pulse}.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement MFA for Endpoint Access:} Deploy a mandatory Multi-Factor Authentication solution for all employees to log into their company-issued computers (desktops and laptops). This will prevent unauthorized access even if user passwords are compromised.
+    
+    \item \textbf{[Critical] Enforce MFA on All Sensitive Systems:} Immediately prioritize the deployment of MFA for all applications and systems that store, process, or transmit sensitive data. This includes databases, financial systems, and administrative portals. This is the most effective control to prevent a major data breach.
+    
+    \item \textbf{[High] Establish a Mandatory Annual Security Training Program:} Develop and implement a security awareness training program that is mandatory for all employees on an annual basis. The curriculum should be updated regularly to address current and emerging cyber threats.
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,188 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For logo (placeholder)
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- COMMANDS ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+\section{Executive Summary}
+% ===================================================================
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{Borealis Tech}. The assessment combined a review of organizational security controls, an external network vulnerability scan, and an analysis of pre-existing risks.
+
+The analysis revealed several critical and high-risk vulnerabilities that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Network Vulnerability:} An externally facing FTP server was found to be running a severely outdated and vulnerable version of \texttt{vsftpd} (2.3.4), which is susceptible to a known backdoor (CVE-2011-2523). The service also permits anonymous logins, significantly increasing the risk of unauthorized access.
+    \item \textbf{Critical Control Gaps:} The organization does not enforce Multi-Factor Authentication (MFA) for accessing sensitive data systems. This represents a single point of failure where a compromised password could lead to a major data breach.
+    \item \textbf{High-Risk Policy and Training Deficiencies:} The absence of a formal Acceptable Use Policy and a mandatory annual security awareness training program for all employees creates a significant risk from insider threats and susceptibility to social engineering attacks like phishing.
+    \item \textbf{Pre-existing Medium Risk:} The continued use of Windows 7, an end-of-life operating system, on workstations leaves them vulnerable to exploitation as they no longer receive security updates.
+\end{itemize}
+
+The combination of these findings indicates a security posture that exposes the organization to a high likelihood of compromise. This report provides specific, actionable recommendations to mitigate these risks and strengthen the overall security framework.
+
+% ===================================================================
+\section{Organizational Information}
+% ===================================================================
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Borealis Tech} \\
+Email Domain & \texttt{BorealisTech.org} \\
+Website Domain & \url{www.BorealisTech.org} \\
+External IP Address & \texttt{43.181.115.14} \\
+\bottomrule
+\end{tabular}
+
+% ===================================================================
+\section{Security Control Review}
+% ===================================================================
+
+A review of administrative and technical security controls was conducted based on a standardized questionnaire. The results highlight critical gaps in policy and access control enforcement. Answers marked with a \no{} indicate a deviation from security best practices and represent a significant risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.7\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \yes \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textcolor{red}{\no} \\
+\textbf{Does your organization have an employee acceptable use policy?} & \textcolor{red}{\no} \\
+Does your organization do security awareness training for new employees? & \yes \\
+\textbf{Does your organization do security awareness training for all employees at least once per year?} & \textcolor{red}{\no} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{No MFA for Sensitive Systems:} This is a critical deficiency. While MFA is correctly applied to email and computer logins, the most valuable assets—sensitive data systems—are protected only by a single factor (passwords). This makes them highly vulnerable to credential stuffing, password spraying, and phishing attacks.
+    \item \textbf{No Acceptable Use Policy (AUP):} An AUP is a foundational document that sets clear expectations for employees on how to use company resources securely. Its absence can lead to unintentional misuse of systems and data, increasing the risk of insider threats and compliance violations.
+    \item \textbf{No Annual Security Training:} Security is a continuous process. The lack of recurring training means employees' awareness of current threats (like new phishing techniques) will degrade over time, making them the weakest link in the organization's defenses.
+\end{itemize}
+
+% ===================================================================
+\section{Technical Scan Results}
+% ===================================================================
+
+An Nmap scan was performed on the target IP address \texttt{10.0.0.15} to identify open ports and running services.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{Service} & \textbf{Product} & \textbf{Version} & \textbf{Notes} \\
+\midrule
+21/tcp & ftp & vsftpd & 2.3.4 & \begin{tabular}[t]{@{}l@{}}Anonymous FTP login allowed.\\ \textbf{CRITICAL:} Version is vulnerable\\ to a backdoor (CVE-2011-2523).\end{tabular} \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports and Services on \texttt{10.0.0.15}}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The scan identified a single open port running an FTP service. The configuration and version of this service present an immediate and critical threat to the organization.
+\begin{itemize}
+    \item \textbf{Vulnerable Software (CVE-2011-2523):} Version 2.3.4 of \texttt{vsftpd} contains a critical backdoor that was intentionally added to the source code. If exploited, it allows an attacker to gain a command shell on the underlying server with root privileges.
+    \item \textbf{Anonymous FTP Login:} This misconfiguration allows any user on the internet to connect and potentially upload or download files without authentication. This could be used to host malicious files, exfiltrate data, or serve as a pivot point for further attacks into the internal network.
+\end{itemize}
+
+% ===================================================================
+\section{Consolidated Risk Assessment}
+% ===================================================================
+
+The following table synthesizes all identified risks from the organizational review, technical scan, and pre-existing risk data. Risks are prioritized by severity to guide remediation efforts.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.5\textwidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Vulnerable FTP Server} & An outdated FTP server (vsftpd 2.3.4) with a known backdoor (CVE-2011-2523) and anonymous login is exposed. & \textbf{Critical} \\
+\addlinespace
+\textbf{No MFA on Sensitive Systems} & Lack of multi-factor authentication on critical data systems allows access with only a password, risking a major breach. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Acceptable Use Policy} & No formal policy defining rules for employee use of IT assets, increasing insider threat and misuse risks. & \textbf{High} \\
+\addlinespace
+\textbf{Lack of Annual Security Training} & Employees do not receive recurring security training, increasing susceptibility to phishing and social engineering. & \textbf{High} \\
+\addlinespace
+\textbf{Outdated Windows Policy} & Workstations are running Windows 7, an unsupported OS that no longer receives security updates. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% ===================================================================
+\section{Recommendations}
+% ===================================================================
+
+The following actions are recommended to mitigate the identified risks. They are ordered by priority, addressing critical risks first.
+
+\subsection{Remediation for Vulnerable FTP Server (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate:} If the FTP service is not essential for business operations, disable and block port 21 at the firewall immediately.
+    \item \textbf{Short-Term:} If the service is required, upgrade \texttt{vsftpd} to the latest stable version. Simultaneously, disable anonymous FTP access and configure user accounts with strong, unique passwords.
+    \item \textbf{Long-Term:} Evaluate the business need for FTP. Consider replacing it with a more secure file transfer protocol like SFTP (SSH File Transfer Protocol).
+\end{itemize}
+
+\subsection{Remediation for No MFA on Sensitive Systems (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate:} Prioritize the rollout of MFA for all administrative and privileged accounts that have access to sensitive data systems.
+    \item \textbf{Short-Term:} Develop a phased plan to enforce MFA for all users accessing any system classified as containing sensitive or confidential data.
+\end{itemize}
+
+\subsection{Remediation for Policy and Training Gaps (High)}
+\begin{itemize}
+    \item \textbf{Acceptable Use Policy:} Develop and implement a comprehensive AUP. Ensure all current employees read and acknowledge the policy, and incorporate it into the onboarding process for new hires.
+    \item \textbf{Security Awareness Training:} Procure and launch a mandatory annual security awareness training program for all employees. The training should cover topics such as phishing, password hygiene, and data handling.
+\end{itemize}
+
+\subsection{Remediation for Outdated Windows Policy (Medium)}
+\begin{itemize}
+    \item \textbf{Short-Term:} Isolate all Windows 7 machines from critical network segments to limit their exposure.
+    \item \textbf{Long-Term:} Execute a plan to upgrade or replace all remaining Windows 7 workstations with a modern, supported operating system such as Windows 11.
+\end{itemize}
+
+\end{document}
+```

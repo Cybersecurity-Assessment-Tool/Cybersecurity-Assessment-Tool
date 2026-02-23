@@ -1,0 +1,141 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Document Start
+\begin{document}
+
+% --- Title Section ---
+\title{
+    \textbf{Cybersecurity Posture Report} \\
+    \large \textit{Analysis for Solaris Energy}
+}
+\author{Cybersecurity Analyst}
+\date{\today}
+\maketitle
+\hrule
+\vspace{1em}
+
+% --- 1. Executive Summary ---
+\section*{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Solaris Energy}, based on a review of organizational security controls, a network vulnerability scan, and pre-existing risk data.
+
+The assessment reveals a mixed security posture. On the one hand, the technical network scan of the target host \texttt{192.168.1.100} showed a strong defensive configuration with no open ports detected. This indicates effective network hardening or firewall implementation for the scanned asset.
+
+However, significant administrative and procedural gaps were identified through the security questionnaire. The two most critical findings are:
+\begin{itemize}
+    \item \textbf{Critical Risk:} The absence of Multi-Factor Authentication (MFA) for email access. This exposes the organization to a high risk of business email compromise, phishing attacks, and unauthorized data access.
+    \item \textbf{High Risk:} The lack of a formal employee Acceptable Use Policy (AUP). This creates ambiguity regarding the secure use of company assets and increases the potential for insider threats and policy violations.
+\end{itemize}
+
+While security awareness training and MFA for other systems are commendable, the identified gaps require immediate remediation to protect the organization's primary communication channel and establish a clear governance framework. Recommendations are detailed in the final section of this report.
+
+% --- 2. Organizational Information ---
+\section*{Organizational Information}
+
+The following details were provided for the assessment:
+\begin{itemize}
+    \item \textbf{Organization Name:} Solaris Energy
+    \item \textbf{Email Domain:} \texttt{SolarisEnergy.org}
+    \item \textbf{Website Domain:} \url{www.SolarisEnergy.org}
+    \item \textbf{External IP Address:} \texttt{170.34.135.242}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section*{Security Control Review}
+
+The following table summarizes the organization's responses to the security controls questionnaire. Gaps in these administrative controls often represent significant organizational risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{8cm} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{55} & \textbf{Critical Gap} \\
+Do you require MFA to log into computers? & \ding{51} & Best Practice Met \\
+Do you require MFA to access sensitive data systems? & \ding{51} & Best Practice Met \\
+Does your organization have an employee acceptable use policy? & \ding{55} & \textbf{High Risk} \\
+Does your organization do security awareness training for new employees? & \ding{51} & Best Practice Met \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Best Practice Met \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+% --- 4. Technical Scan Results ---
+\section*{Technical Scan Results}
+
+A network scan was conducted to identify vulnerabilities on externally or internally facing systems.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.1.100}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Status:} Host is Up
+\end{itemize}
+
+\textbf{Findings:}
+The scan results were positive, indicating a strong security posture for this specific host.
+\begin{itemize}
+    \item \textbf{Open Ports:} None detected.
+    \item \textbf{Filtered/Closed Ports:} All 1000 scanned ports were reported as `closed`.
+\end{itemize}
+\textbf{Analysis:} A host with no open ports is not exposing any network services, which significantly reduces its attack surface. This is an excellent security configuration and suggests that a firewall is properly configured or the device has no network-facing applications.
+
+% --- 5. Risk Assessment Summary ---
+\section*{Risk Assessment Summary}
+
+This section synthesizes findings from the security control review, technical scans, and pre-existing risk data. As no pre-existing vulnerabilities were reported, the following risks are derived directly from this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{2.5cm} p{8cm} l}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & \textbf{Lack of MFA on Email Accounts:} User email accounts are protected only by passwords, making them highly susceptible to compromise via phishing, credential stuffing, or password spraying attacks. A compromised email account can lead to data breaches, financial fraud, and further system infiltration. & \textbf{Critical} \\
+\vspace{1em} % Add some space between rows
+RISK-002 & \textbf{No Employee Acceptable Use Policy (AUP):} Without a formal AUP, there are no documented rules for employees regarding the use of company systems, data, and internet access. This can lead to unintentional data exposure, malware infections from unauthorized software, and legal liabilities. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Identified Risks and Severity}
+\end{table}
+
+% --- 6. Recommendations ---
+\section*{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Solaris Energy}.
+
+\subsection*{RISK-001: Remediate Lack of MFA on Email (Critical)}
+\begin{enumerate}
+    \item \textbf{Immediate Action:} Enable MFA across the entire email environment (\texttt{SolarisEnergy.org}). Prioritize enabling it for privileged accounts (administrators, executives) within 24-48 hours, with a full rollout to all users within 7 days.
+    \item \textbf{Policy Update:} Update the organization's information security policy to mandate the use of MFA for all remote access, cloud services (especially email), and access to sensitive data.
+    \item \textbf{User Training:} Provide clear instructions and support to all employees on how to set up and use MFA (e.g., via an authenticator app, SMS, or hardware token).
+\end{enumerate}
+
+\subsection*{RISK-002: Develop and Implement an AUP (High)}
+\begin{enumerate}
+    \item \textbf{Immediate Action:} Draft a formal Acceptable Use Policy that clearly defines the rules and responsibilities for all employees when using company technology and data.
+    \item \textbf{Policy Content:} The AUP should cover, at a minimum: data handling procedures, password complexity requirements, prohibitions on unauthorized software installation, guidelines for internet and email usage, and consequences for non-compliance.
+    \item \textbf{Implementation:} Require all current employees to read and formally acknowledge the new policy. Incorporate this AUP acknowledgment into the onboarding process for all new hires.
+\end{enumerate}
+
+\end{document}
+```

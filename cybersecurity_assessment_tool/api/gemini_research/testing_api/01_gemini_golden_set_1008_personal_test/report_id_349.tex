@@ -1,0 +1,172 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[hidelinks]{hyperref} % For clickable links without boxes
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx} % For potential logos (not used here, but good practice)
+\usepackage{xcolor} % For colors
+
+% Document Metadata
+\title{Cybersecurity Assessment Report \\ \large For: Opal Sky Media}
+\author{Cybersecurity Analyst Group}
+\date{November 22, 2025}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Executive Summary ---
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{Opal Sky Media}. The assessment combined a technical network scan, a review of existing security controls via a questionnaire, and an analysis of previously identified risks. The objective is to provide a clear overview of the current security posture and offer actionable recommendations to mitigate identified vulnerabilities.
+
+The assessment revealed several areas of significant concern requiring immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Outdated Web Server Software:} A public-facing web server was found to be running an outdated version of Nginx (1.18.0), which is susceptible to multiple known vulnerabilities.
+    \item \textbf{Critical Gaps in Access Control:} Multi-Factor Authentication (MFA) is not enforced for access to sensitive data systems, creating a critical risk of unauthorized data access and breach.
+    \item \textbf{Foundational Policy Deficiencies:} The organization lacks a formal Acceptable Use Policy (AUP) and does not provide security awareness training for new employees during onboarding. These gaps increase the risk of insider threats and susceptibility to social engineering attacks.
+\end{itemize}
+
+While some positive security controls are in place, such as MFA for email and computer logins, the identified vulnerabilities present a high level of risk to the organization's data and operations. We strongly recommend prioritizing the remediation steps outlined in Section 6 of this report.
+
+% --- Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information helps establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Opal Sky Media} \\
+    Email Domain & \texttt{OpalSkyMedia.com} \\
+    Website Domain & \url{www.OpalSkyMedia.com} \\
+    External IP Address & \texttt{65.53.226.149} \\
+    \bottomrule
+\end{tabular}
+
+% --- Security Control Review ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate potential gaps in the security framework that can increase risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\textwidth}cc}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} & Compliant \\
+    Do you require MFA to log into computers? & \ding{51} & Compliant \\
+    Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} & \textbf{Critical Gap} \\
+    Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} & \textbf{High Risk Gap} \\
+    Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} & \textbf{High Risk Gap} \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Compliant \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+The review identified three significant control gaps. The lack of MFA for sensitive systems is the most critical, as it removes a vital layer of protection for the organization's most valuable data. The absence of an Acceptable Use Policy and new-hire security training represents foundational weaknesses that expose the organization to both accidental and malicious insider threats.
+
+% --- Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed on \textbf{November 22, 2025}, targeting the host at \texttt{192.168.10.5}. The scan identified the following open ports and services.
+
+\subsection{Open Ports}
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    443/tcp & open & https & nginx & 1.18.0 \\
+    \bottomrule
+\end{tabular}
+\caption{Scan results for target \texttt{192.168.10.5}}
+\end{table}
+
+\subsection{Analysis of Findings}
+The scan revealed that the web server is running \textbf{Nginx version 1.18.0}. This version was released in April 2020 and is now significantly outdated. It is known to be vulnerable to several publicly disclosed security flaws, including but not limited to:
+\begin{itemize}
+    \item \textbf{CVE-2021-23017:} A DNS resolver vulnerability that could allow an attacker to cause a denial of service or potentially execute arbitrary code.
+    \item Other vulnerabilities affecting modules and core components that have been patched in subsequent releases.
+\end{itemize}
+Running outdated software on a public-facing service constitutes a high-severity risk, as it provides a direct vector for attackers to compromise the system.
+
+% --- Risk Assessment ---
+\section{Risk Assessment}
+
+This section correlates the findings from the security control review and the technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llp{0.6\textwidth}@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Severity} & \textbf{Description} \\
+    \midrule
+    RISK-001 & \textbf{\textcolor{red}{Critical}} & Lack of Multi-Factor Authentication (MFA) on systems storing or processing sensitive data. \\
+    \addlinespace
+    RISK-002 & \textbf{\textcolor{orange}{High}} & Public-facing web server running outdated and vulnerable Nginx 1.18.0 software. \\
+    \addlinespace
+    RISK-003 & \textbf{\textcolor{orange}{High}} & No formal Acceptable Use Policy (AUP) for employees, leading to unclear security expectations. \\
+    \addlinespace
+    RISK-004 & \textbf{\textcolor{orange}{High}} & No mandatory security awareness training for new employees during the onboarding process. \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% --- Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Opal Sky Media}.
+
+\begin{description}
+    \item[For RISK-001 (Critical):] \textbf{Implement MFA for Sensitive Systems.}
+    \begin{itemize}
+        \item Immediately prioritize the deployment and enforcement of MFA across all applications, databases, and administrative interfaces that contain sensitive organizational or customer data.
+    \end{itemize}
+
+    \item[For RISK-002 (High):] \textbf{Upgrade Web Server Software.}
+    \begin{itemize}
+        \item Plan and execute an upgrade of the Nginx server on host \texttt{192.168.10.5} to the latest stable version.
+        \item Implement a patch management policy to ensure all public-facing systems are updated in a timely manner.
+    \end{itemize}
+
+    \item[For RISK-003 (High):] \textbf{Develop an Acceptable Use Policy.}
+    \begin{itemize}
+        \item Create a comprehensive AUP that clearly defines the rules and responsibilities for all employees and contractors regarding the use of company assets, data handling, and internet access.
+        \item Ensure all current employees read and acknowledge the policy, and integrate it into the new-hire onboarding process.
+    \end{itemize}
+
+    \item[For RISK-004 (High):] \textbf{Establish New-Hire Security Training.}
+    \begin{itemize}
+        \item Develop a mandatory security awareness training module for all new employees to be completed within their first week of employment.
+        \item This training should cover key topics such as phishing, password security, data handling, and the new AUP.
+    \end{itemize}
+\end{description}
+
+\end{document}
+```

@@ -1,0 +1,183 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PREAMBLE: PACKAGES AND DOCUMENT SETUP ---
+\usepackage[margin=1in]{geometry} % For setting page margins
+\usepackage{pifont}               % For symbols like checkmarks (\ding)
+\usepackage{booktabs}             % For professional-quality tables
+\usepackage{hyperref}             % For creating hyperlinks in the document
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % For splitting long strings in texttt
+\usepackage{xcolor}               % For using colors
+
+% --- HYPERREF CONFIGURATION ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Report, Analysis, Nmap, Risk}
+}
+
+% --- CUSTOM COMMANDS FOR DATA AND SYMBOLS ---
+% These commands will hold the parsed data.
+% If the input data were anonymized, these would be replaced by the placeholder values.
+\newcommand{\orgName}{\textbf{Hidden Gem}}
+\newcommand{\orgDomain}{\texttt{HiddenGem.org}}
+\newcommand{\orgIP}{\texttt{207.12.4.159}}
+\newcommand{\targetIP}{\texttt{10.5.5.5}}
+
+% Commands for status symbols
+\newcommand{\yes}{\textcolor{green}{\ding{51}}}
+\newcommand{\no}{\textcolor{red}{\ding{55}}}
+
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:}\\
+    \vspace{0.5cm}
+    \orgName
+    \vfill
+    \large
+    \textbf{Date of Report:}\\
+    \today
+    \vspace{2cm}
+    \small
+    \textbf{CONFIDENTIALITY NOTICE}\\
+    \textit{This document contains sensitive information intended only for authorized personnel within the recipient organization. Unauthorized distribution is strictly prohibited.}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section*{1.0 Executive Summary}
+This report outlines the findings of a cybersecurity assessment for \orgName. The analysis is based on a correlation of a technical network scan, a review of administrative security controls, and an evaluation of pre-existing risk data.
+
+The assessment identified a \textbf{critical technical vulnerability} and several \textbf{high-risk administrative control gaps}. A network scan of the internal host \targetIP{} revealed an open service on port 8080 with the title \textbf{``TOP SECRET DB''}, strongly indicating an exposed, sensitive database. This finding directly contradicts a previous risk assessment which had incorrectly labeled this port as a secure false positive.
+
+Furthermore, significant weaknesses in organizational policy were identified. The absence of mandatory Multi-Factor Authentication (MFA) for computer access, coupled with a lack of a formal security awareness training program and an acceptable use policy, creates substantial risk. These administrative failures significantly increase the likelihood that a technical vulnerability could be successfully exploited.
+
+Immediate action is required to investigate and secure the exposed database service and to implement foundational security controls to mitigate these risks.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section*{2.0 Organizational Information}
+The following information was provided for the assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} \orgName
+    \item \textbf{Email Domain:} \orgDomain
+    \item \textbf{External IP Address:} \orgIP
+\end{itemize}
+
+% --- SECURITY CONTROL REVIEW ---
+\section*{3.0 Administrative Security Control Review}
+An evaluation of the organization's security policies and procedures was conducted via a questionnaire. The results highlight critical gaps in the current security posture. Answers marked with a red cross (\no) represent a failure to meet baseline security best practices.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\begin{tabular}{p{0.75\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \no \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \no \\
+Does your organization do security awareness training for new employees? & \no \\
+Does your organization do security awareness training for all employees at least once per year? & \no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{3.1 Analysis of Control Gaps}
+The identified gaps represent a significant portion of the organization's risk profile:
+\begin{itemize}
+    \item \textbf{No MFA for Computer Logins:} This is a critical weakness. Should an employee's credentials be compromised (e.g., via phishing), an attacker could gain direct access to a corporate workstation and the internal network without any secondary challenge.
+    \item \textbf{Lack of Security Training and Policy:} The absence of a security awareness program and an Acceptable Use Policy (AUP) means the "human firewall" is non-existent. Employees are likely unprepared to identify or respond to common threats like phishing, increasing the overall risk of a breach.
+\end{itemize}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section*{4.0 Technical Scan Results}
+A network reconnaissance scan was performed against the designated internal target to identify accessible services.
+
+\subsection*{4.1 Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \targetIP
+    \item \textbf{Scan Type:} Nmap TCP Connect Scan
+\end{itemize}
+
+\subsection*{4.2 Findings}
+The scan identified one open port with a highly concerning service banner.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Discovered on \targetIP}
+\label{tab:nmap}
+\begin{tabular}{lcl}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Information / Banner} \\
+\midrule
+8080/tcp & open & \seqsplit{\texttt{http-title: TOP SECRET DB}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{4.3 Technical Analysis}
+The discovery of a web service on port 8080 with the title \textbf{``TOP SECRET DB''} is a \textbf{critical finding}. This banner strongly suggests the exposure of a database management interface or an application with direct access to highly sensitive data. The title itself implies the data is considered classified or is of the highest confidentiality.
+
+\textbf{Risk Correlation Note:} This finding directly invalidates the pre-existing risk entry ("Port 8080 Secured... false positive"). The prior assessment was either inaccurate or the system's configuration has changed. This service must be treated as an active, unmitigated critical vulnerability.
+
+% --- RISK ASSESSMENT SUMMARY ---
+\section*{5.0 Risk Assessment Summary}
+This section synthesizes all findings into a prioritized list of identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{0.5\linewidth}ll}
+\toprule
+\textbf{Risk / Finding} & \textbf{Severity} & \textbf{Category} \\
+\midrule
+\textbf{Exposed Sensitive Database Interface} on \targetIP:8080 & \textbf{Critical} & Technical \\
+\textbf{No MFA for Workstation Access} allowing credential compromise & High & Administrative \\
+\textbf{Lack of Security Awareness Training} increasing human error risk & High & Administrative \\
+\textbf{No Employee Acceptable Use Policy} leading to insecure practices & High & Administrative \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section*{6.0 Recommendations}
+The following actionable recommendations are provided to address the identified risks and improve the overall security posture of \orgName.
+
+\subsection*{6.1 Immediate Priority (Remediate within 72 Hours)}
+\begin{enumerate}
+    \item \textbf{Isolate and Investigate Exposed Service:} Immediately investigate the service running on \targetIP:8080. Determine the nature of the data, verify access controls, and identify its business purpose. If it cannot be immediately secured with proper authentication and encryption, the host should be disconnected from the network.
+    \item \textbf{Enforce MFA on All Workstations:} Procure and enforce an MFA solution for all employee computer and remote access logins. This is one of the most effective controls for preventing account takeover.
+\end{enumerate}
+
+\subsection*{6.2 High Priority (Remediate within 30 Days)}
+\begin{enumerate}
+    \item \textbf{Implement Security Awareness Training:} Develop and deploy a mandatory security awareness training program for all employees. This program must be completed by new hires and repeated annually by all staff. It should cover phishing, password security, and data handling best practices.
+    \item \textbf{Establish an Acceptable Use Policy (AUP):} Draft, approve, and distribute a formal AUP. All employees must read and acknowledge this policy, which should clearly define the rules for using company IT assets.
+\end{enumerate}
+
+\subsection*{6.3 Medium Priority (Remediate within 90 Days)}
+\begin{enumerate}
+    \item \textbf{Review and Update Risk Register:} Conduct a thorough review of the organization's risk register. The incorrect entry for Port 8080 must be removed and replaced with the critical finding from this report. This event should also trigger a process review to determine how the initial, flawed assessment was conducted.
+\end{enumerate}
+
+\end{document}
+```

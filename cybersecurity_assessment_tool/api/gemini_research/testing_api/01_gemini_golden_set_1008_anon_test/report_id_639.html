@@ -1,0 +1,225 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<hr />
+<h1 class="unnumbered" id="executive-summary">Executive Summary</h1>
+<p>This report provides a cybersecurity assessment for
+<strong>[Organization Name]</strong>, synthesizing findings from a
+technical network scan, a review of existing risks, and an
+organizational security controls questionnaire.</p>
+<p>The analysis indicates a notable contrast in the organization’s
+security posture. On one hand, administrative controls, as reported in
+the questionnaire, appear robust. The organization has implemented key
+policies such as Multi-Factor Authentication (MFA), acceptable use
+policies, and security awareness training.</p>
+<p>However, the technical scan revealed critical-level vulnerabilities
+that significantly elevate the organization’s risk profile. A MySQL
+database service is publicly exposed to the internet on a server at
+<code>[Target IP]</code>. Furthermore, this database is running on MySQL
+version 5.7.33, which is an End-of-Life (EOL) product and no longer
+receives security updates. This combination of direct exposure and
+unpatchable software creates a high-impact target for malicious
+actors.</p>
+<p>Immediate remediation is required to restrict access to the exposed
+database, followed by a plan to upgrade the underlying software to a
+supported version.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following details were used as the basis for this assessment.
+Anonymized placeholders are used where data was not provided.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Primary Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>External IP Scanned:</strong>
+<code>[Target IP]</code></p></li>
+<li><p><strong>Scan Date:</strong> 2026-01-31</p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>The following table summarizes the organization’s self-reported
+security controls. A green checkmark () indicates a positive response
+("Yes"), while a red cross () would indicate a negative response ("No").
+The organization reports full compliance across all surveyed controls,
+which is a strong indicator of a mature security governance program.</p>
+<table>
+<caption>Organizational Security Controls Questionnaire</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed on the target IP address
+<code>[Target IP]</code>. The scan identified the following open port
+and running service.</p>
+<table>
+<caption>Open Ports and Services Detected</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+<th style="text-align: left;"><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3306/tcp</td>
+<td style="text-align: left;">Open</td>
+<td style="text-align: left;">mysql</td>
+<td style="text-align: left;">MySQL 5.7.33</td>
+<td style="text-align: left;"><strong>Critical Finding</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered" id="analysis-of-technical-findings">Analysis of
+Technical Findings</h2>
+<p>The key finding is the exposure of a MySQL database service (port
+3306) to the public internet. Database servers are high-value targets
+for attackers seeking to exfiltrate or ransom data and should not be
+directly accessible.</p>
+<p>Compounding this issue is the software version in use. <strong>MySQL
+5.7 reached its official End-of-Life (EOL) in October 2023.</strong>
+This means it no longer receives security patches from the vendor, and
+any newly discovered vulnerabilities will remain unpatched. Running EOL
+software, especially on a publicly exposed critical service, constitutes
+a severe and unacceptable risk.</p>
+<h1 id="risk-assessment-summary">Risk Assessment Summary</h1>
+<p>The following table correlates the pre-existing risk data with new
+findings from the technical scan. The severity is based on the CVSS v3.1
+standard, where 7.0-8.9 is High and 9.0-10.0 is Critical.</p>
+<table style="width:90%;">
+<caption>Identified and Correlated Risks</caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 10%" />
+<col style="width: 55%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Database Exposure</strong></td>
+<td style="text-align: left;">High (7.5)</td>
+<td style="text-align: left;">The MySQL database port (3306) is open to
+the public internet, allowing attackers to directly attempt to connect,
+brute-force credentials, or exploit vulnerabilities. This finding
+confirms the pre-existing risk.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>End-of-Life Software</strong></td>
+<td style="text-align: left;">Critical (9.8)</td>
+<td style="text-align: left;">The exposed MySQL service is running
+version 5.7.33, which is past its end-of-life. The system is unpatchable
+against any current or future vulnerabilities, making a compromise
+highly likely over time.</td>
+</tr>
+</tbody>
+</table>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the correlated findings, the following remediation actions
+are recommended, prioritized by urgency.</p>
+<ol>
+<li><p><strong>Immediate: Restrict Access via Firewall.</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Configure the network firewall to deny
+all inbound traffic to TCP port 3306 on <code>[Target IP]</code> from
+the internet. Access should only be permitted from trusted, internal IP
+addresses.</p></li>
+<li><p><strong>Impact:</strong> High. This action will immediately
+mitigate the exposure risk and is the most critical first step.</p></li>
+</ul></li>
+<li><p><strong>Short-Term: Plan and Execute Software
+Upgrade.</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Develop a migration plan to upgrade the
+MySQL 5.7.33 database to a currently supported version (e.g., MySQL
+8.x). This involves testing application compatibility, backing up data,
+and performing the upgrade in a controlled manner.</p></li>
+<li><p><strong>Impact:</strong> High. This action mitigates the risk of
+exploitation via unpatchable vulnerabilities inherent in the EOL
+software.</p></li>
+</ul></li>
+<li><p><strong>Long-Term: Implement Secure Access
+Architecture.</strong></p>
+<ul>
+<li><p><strong>Action:</strong> For any required external administrative
+access, implement a secure solution such as a Virtual Private Network
+(VPN) or a bastion host (jump box). This ensures that sensitive services
+are never directly exposed to the internet, providing a defense-in-depth
+posture.</p></li>
+<li><p><strong>Impact:</strong> Medium. This is a strategic improvement
+that reduces the likelihood of similar configuration errors in the
+future.</p></li>
+</ul></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- TITLE ---
+\title{Cybersecurity Posture Report \\ \large For: Deep Root Ecology}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{Executive Summary}
+% ==============================================================================
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Deep Root Ecology}, based on a synthesis of network scan data, organizational security controls, and pre-existing risk information.
+
+The assessment reveals a mixed security posture. On one hand, the technical network scan of the target host \texttt{192.168.0.5} showed no open ports, indicating a hardened perimeter for that specific asset. This finding suggests that a previously identified risk concerning an unencrypted web server on port 80 has been successfully remediated.
+
+However, the organizational security control review identified several \textbf{critical vulnerabilities}. The complete absence of Multi-Factor Authentication (MFA) for email, computer logins, and sensitive data systems represents a severe risk. This gap significantly increases the likelihood of unauthorized access through credential compromise. Furthermore, the lack of security awareness training for new employees creates a window of high vulnerability.
+
+Immediate action should be focused on implementing a robust MFA solution across all critical systems and integrating security training into the employee onboarding process.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Deep Root Ecology} \\
+Email Domain & \texttt{DeepRootEcology.org} \\
+Website Domain & \url{www.DeepRootEcology.org} \\
+External IP Address & \texttt{76.188.18.154} \\
+\bottomrule
+\end{tabular}
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+
+A review of internal security controls was conducted via a questionnaire. The responses highlight significant gaps in identity and access management and employee training protocols.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{8cm}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to log into computers? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to access sensitive data systems? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+Does your organization have an employee acceptable use policy? & \yes & Good Practice \\
+Does your organization do security awareness training for new employees? & \no & \textcolor{orange}{High Risk} \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Good Practice \\
+\bottomrule
+\end{tabular}
+\caption{Organizational Security Control Questionnaire Results.}
+\end{table}
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+
+A network scan was performed to identify open ports and exposed services on the specified target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.0.5}
+    \item \textbf{Scan Type:} Nmap Port Scan
+\end{itemize}
+
+The scan results indicate that the target host is online, but all scanned ports were found to be in a \texttt{closed} state. This is a positive security finding, as it suggests the host has a minimal attack surface exposed to the network.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\
+\midrule
+80/tcp & closed & http & N/A \\
+\bottomrule
+\end{tabular}
+\caption{Network Scan Results for \texttt{192.168.0.5}.}
+\end{table}
+
+\subsection{Correlation with Existing Risks}
+A pre-existing risk entry, "Unencrypted Web Server," noted that port 80 was open. The current scan results contradict this finding, showing the port is now closed. This strongly suggests that the previously identified vulnerability has been remediated. This is a positive development and should be reflected in the organization's risk register.
+
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+% ==============================================================================
+
+The following table summarizes the most pressing risks identified through the correlation of all data sources.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{4cm}p{6cm}l@{}}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of Multi-Factor Authentication (MFA)} & The absence of MFA for email, computer, and sensitive system access makes the organization highly susceptible to account takeover attacks from stolen or weak credentials. & \textcolor{red}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Inadequate New Employee Training} & New employees are not provided with security awareness training upon hiring. This creates a period of high susceptibility to phishing and social engineering attacks until the annual training occurs. & \textcolor{orange}{\textbf{High}} \\
+\addlinespace
+\textbf{Unencrypted Web Server (Remediated)} & A previously identified risk of an open port 80 (HTTP) appears to have been resolved, as current scans show the port is closed. This is an informational finding confirming a positive security improvement. & \textcolor{green}{Informational} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified and Correlated Risks.}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+% ==============================================================================
+
+Based on the analysis, the following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Deep Root Ecology}.
+
+\subsection{Immediate Priority (Critical Risk)}
+\begin{enumerate}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item \textbf{Action:} Deploy and mandate the use of an MFA solution for all users across all critical platforms.
+        \item \textbf{Scope:} Prioritize implementation in the following order:
+            \begin{enumerate}
+                \item Remote access systems (VPNs) and email (e.g., Office 365, Google Workspace).
+                \item Access to systems containing sensitive data.
+                \item Standard computer/workstation logins.
+            \end{enumerate}
+        \item \textbf{Impact:} Drastically reduces the risk of unauthorized access due to compromised credentials.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Integrate Security Training into Onboarding:}
+    \begin{itemize}
+        \item \textbf{Action:} Develop or procure a security awareness training module and make it a mandatory part of the new employee onboarding process.
+        \item \textbf{Content:} The training should cover, at a minimum, phishing identification, acceptable use of company assets, password hygiene, and how to report a security incident.
+        \item \textbf{Impact:} Reduces the "window of vulnerability" for new hires and fosters a security-conscious culture from day one.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Administrative Recommendation}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Update Risk Register:}
+    \begin{itemize}
+        \item \textbf{Action:} Formally update the internal risk register to mark the "Unencrypted Web Server" risk associated with port 80 as "Remediated" or "Closed."
+        \item \textbf{Impact:} Ensures risk documentation is accurate and reflects the current security posture.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

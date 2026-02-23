@@ -1,0 +1,163 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The analysis correlates data from an external network scan, a security controls questionnaire, and a list of pre-existing known risks.
+
+The assessment has identified a \textbf{critical-risk} security posture. A primary finding is the direct exposure of Remote Desktop Protocol (RDP) on port 3389 to the public internet on host \texttt{[Target IP]}. This vulnerability, with a CVSS score of 9.0, presents a significant and immediate threat of unauthorized access, potentially leading to a full system compromise or ransomware attack.
+
+Furthermore, significant gaps were identified in the organization's internal security controls. The absence of Multi-Factor Authentication (MFA) for email and sensitive data systems, coupled with a lack of a formal security awareness training program, drastically increases the risk of a successful phishing or credential theft attack.
+
+Immediate remediation of the exposed RDP service is paramount. Following this, the implementation of MFA and the establishment of a comprehensive security awareness program are strongly recommended to mitigate the identified high-risk vulnerabilities.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+This section provides the key identification details for the organization under review. The data has been anonymized for this report.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{Scanned External IP Address:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+An analysis of the security questionnaire reveals several areas of concern where current practices do not align with security best practices. "No" answers indicate significant control gaps that increase organizational risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.6\linewidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to log into computers? & \ding{51} & Good Practice \\
+Do you require MFA to access sensitive data systems? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+Does your organization have an employee acceptable use policy? & \ding{51} & Good Practice \\
+Does your organization do security awareness training for new employees? & \ding{55} & \textcolor{orange}{High Risk} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} & \textcolor{orange}{High Risk} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed using Nmap to identify open ports and exposed services on the organization's public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Status:} Host is UP.
+\end{itemize}
+
+The following table details the open ports discovered during the scan.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{c c l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Notes} \\
+\midrule
+3389/tcp & OPEN & ms-wbt-server & Remote Desktop Protocol (RDP). \\
+ & & & \textcolor{red}{\textbf{Critical Risk Exposure.}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Findings}
+The scan confirms that port 3389 (RDP) is open and accessible from the public internet. RDP is a frequent target for brute-force attacks and exploitation of known vulnerabilities (e.g., BlueKeep). Exposing this service directly without mitigating controls like a VPN or firewall restrictions is a critical security flaw.
+
+% --- 5. Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes findings from all data sources to provide a holistic view of the organization's risk profile.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.4\linewidth} l}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & \textbf{Public RDP Exposure} & The network scan confirms that RDP (port 3389) is exposed on \texttt{[Target IP]}. This aligns with pre-existing risk data and presents an immediate threat of compromise. & \textbf{Critical (9.0)} \\
+\addlinespace
+RISK-002 & \textbf{Lack of MFA on Critical Systems} & MFA is not enforced for accessing email or sensitive data. A compromised password would grant an attacker direct access to these key systems. & \textbf{High} \\
+\addlinespace
+RISK-003 & \textbf{Insufficient Security Awareness} & The organization does not conduct security awareness training for new or existing employees, increasing susceptibility to phishing and social engineering attacks. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following prioritized actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{Priority 1: Remediate RDP Exposure (Immediate)}
+This is the most critical finding and must be addressed immediately to prevent an imminent breach.
+\begin{itemize}
+    \item \textbf{Short-Term Fix:} Immediately implement a firewall rule to block all inbound traffic to TCP port 3389 on \texttt{[Target IP]} from the public internet.
+    \item \textbf{Long-Term Solution:} For necessary remote access, deploy a Virtual Private Network (VPN) solution. All remote administration should be performed exclusively through the secure VPN tunnel.
+\end{itemize}
+
+\subsection{Priority 2: Implement Multi-Factor Authentication (High)}
+To protect against credential theft, MFA is essential.
+\begin{itemize}
+    \item \textbf{Action:} Procure and deploy an MFA solution for all users.
+    \item \textbf{Implementation Priority:}
+    \begin{enumerate}
+        \item All email accounts (e.g., Office 365, Google Workspace).
+        \item All systems containing sensitive data.
+        \item All privileged/administrator accounts.
+    \end{enumerate}
+\end{itemize}
+
+\subsection{Priority 3: Establish Security Awareness Training Program (High)}
+A well-trained workforce is a critical layer of defense.
+\begin{itemize}
+    \item \textbf{Action:} Develop and implement a formal security awareness training program.
+    \item \textbf{Requirements:}
+    \begin{enumerate}
+        \item The training must be mandatory for all new employees during their onboarding process.
+        \item All existing employees must complete the training at least once per year.
+        \item The program should cover key topics such as phishing identification, password security, and the acceptable use policy.
+    \end{enumerate}
+\end{itemize}
+
+\end{document}
+```

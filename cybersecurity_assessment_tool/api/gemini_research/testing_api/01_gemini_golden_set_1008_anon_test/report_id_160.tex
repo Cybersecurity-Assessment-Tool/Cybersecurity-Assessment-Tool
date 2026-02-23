@@ -1,0 +1,198 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{xcolor} % For custom colors
+\usepackage{graphicx} % For logos, etc.
+\usepackage{fancyhdr} % For headers and footers
+
+% --- Document Setup ---
+
+% Define colors for risk levels
+\definecolor{critical}{HTML}{990000}
+\definecolor{high}{HTML}{D14302}
+\definecolor{medium}{HTML}{E5A000}
+\definecolor{low}{HTML}{3399FF}
+\definecolor{info}{HTML}{57A0D3}
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{\textbf{Cybersecurity Posture Report}}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+
+% --- Document Start ---
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+    
+    \vspace{2cm}
+    
+    \large
+    Generated: \today \\
+    Report ID: CSR-2023-10-27-01
+    
+    \vfill
+    
+    \large
+    \textbf{Confidential} \\
+    \textit{This document contains sensitive information and is intended for the exclusive use of the recipient.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on a synthesis of organizational data, technical network scans, and a review of existing risks. The assessment was conducted to identify security gaps, evaluate the effectiveness of current controls, and provide actionable recommendations to enhance the organization's resilience against cyber threats.
+
+\paragraph{Key Findings:} A significant dichotomy was observed between the organization's external network security and its internal administrative controls.
+
+\begin{itemize}
+    \item \textbf{Strengths:} The external network scan of the target asset (\seqsplit{\texttt{[Target IP]}}) revealed a very strong perimeter defense. No open ports or exposed services were detected, indicating a well-configured firewall that effectively minimizes the external attack surface. This is a commendable security practice.
+    
+    \item \textbf{Critical Weaknesses:} Despite the strong perimeter, critical gaps were identified in identity and access management and security awareness policies. The absence of Multi-Factor Authentication (MFA) on email accounts represents a \textbf{Critical Risk}. Email is a primary vector for phishing and business email compromise (BEC) attacks, and without MFA, compromised credentials can lead directly to a breach.
+    
+    \item \textbf{High-Priority Gaps:} The lack of mandatory, annual security awareness training for all employees constitutes a \textbf{High Risk}. A one-time training for new hires is insufficient to defend against the constantly evolving tactics used by malicious actors.
+\end{itemize}
+
+\paragraph{Conclusion:} While the technical perimeter is secure, the organization is highly vulnerable to attacks that target employees, such as phishing and credential theft. Immediate action is required to address the identified policy and identity management weaknesses to prevent potential account takeovers and subsequent data breaches.
+
+\newpage
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following details were used as the basis for this assessment. Due to the anonymized nature of the input data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \seqsplit{\texttt{[Domain]}}
+    \item \textbf{External IP Provided:} \seqsplit{\texttt{[Client IP]}}
+    \item \textbf{Target IP Scanned:} \seqsplit{\texttt{[Target IP]}}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of the organization's administrative security controls was conducted based on a standardized questionnaire. The results highlight key areas of strength and weakness in current policies and procedures. A "No" response indicates a deviation from security best practices and a potential risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.2\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{55} & \textcolor{critical}{\textbf{Critical Gap}} \\
+Do you require MFA to log into computers? & \ding{51} & Compliant \\
+Do you require MFA to access sensitive data systems? & \ding{51} & Compliant \\
+Does your organization have an employee acceptable use policy? & \ding{51} & Compliant \\
+Does your organization do security awareness training for new employees? & \ding{51} & Good Practice \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} & \textcolor{high}{\textbf{High Risk}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The lack of MFA on email is the most severe finding. Email accounts are high-value targets for attackers seeking to gain an initial foothold, conduct financial fraud, or access sensitive data. The absence of recurring, annual security training for all staff members significantly increases the likelihood of an employee falling victim to a phishing or social engineering attack.
+
+\newpage
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network port scan was performed using Nmap to identify exposed services on the public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{[Target IP]}}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Scan Summary:} The target host was found to be online and responsive to network probes. However, the scan confirmed that \textbf{no TCP or UDP ports were open}. All 65,535 ports on the target system were determined to be in a `closed` state.
+\end{itemize}
+
+\paragraph{Interpretation:} This result is highly positive from a security perspective. It indicates that the perimeter firewall is configured with a "default deny" policy, only allowing traffic for explicitly defined services (of which none were publicly exposed on this IP). This configuration drastically reduces the external attack surface and protects against automated scanning and exploitation attempts targeting common services.
+
+% --- 5. Risk Assessment Summary ---
+\section{Risk Assessment Summary}
+
+This section synthesizes findings from the security control review and technical scans. Since no pre-existing vulnerabilities were provided, the following risks have been identified based on the current assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks}
+\label{tab:risks}
+\begin{tabular}{@{}p{0.1\linewidth} p{0.25\linewidth} p{0.4\linewidth} l@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{R-01} & Lack of MFA on Email Accounts & Without MFA, a single compromised password provides an attacker with full access to an employee's mailbox. This enables data theft, internal phishing, and business email compromise. & \textcolor{critical}{\textbf{Critical}} \\
+\addlinespace
+\textbf{R-02} & Insufficient Security Awareness Training & The absence of annual, recurring training for all employees means that staff are not kept up-to-date on evolving threats. This increases the probability of successful social engineering and phishing attacks. & \textcolor{high}{\textbf{High}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+The following recommendations are provided to address the identified risks and strengthen the overall security posture of \textbf{[Organization Name]}. They are prioritized based on severity and potential impact.
+
+\begin{enumerate}
+    \item \textbf{\textcolor{critical}{[Critical]} Implement Mandatory MFA for Email (Addresses R-01)} \\
+    Immediately begin the process of enabling and enforcing Multi-Factor Authentication (MFA) for all user accounts accessing the organization's email system (\seqsplit{\texttt{[Domain]}}). This is the single most effective control to prevent unauthorized account access and should be treated as the highest priority.
+    
+    \item \textbf{\textcolor{high}{[High]} Establish an Annual Security Awareness Training Program (Addresses R-02)} \\
+    Develop or procure a formal security awareness training program that is mandatory for all employees on an annual basis. The training should be updated regularly to include modern threats such as:
+    \begin{itemize}
+        \item Phishing and spear-phishing recognition
+        \item Business Email Compromise (BEC) tactics
+        \item Password security and hygiene
+        \item Safe handling of sensitive data
+    \end{itemize}
+    
+    \item \textbf{\textcolor{info}{[Informational]} Maintain and Validate Perimeter Security} \\
+    The current firewall configuration is excellent. To maintain this strong posture, it is recommended to perform periodic, authenticated vulnerability scans and regular reviews of firewall rules. This ensures that the perimeter remains secure as the network environment evolves.
+\end{enumerate}
+
+% --- 7. Conclusion ---
+\section{Conclusion}
+
+The security posture of \textbf{[Organization Name]} is characterized by a strong, well-defended network perimeter but is undermined by critical deficiencies in internal security policies. The immediate priorities must be the enforcement of MFA on all email accounts and the implementation of a comprehensive, recurring security awareness program. By addressing these human-centric and identity-based vulnerabilities, the organization can significantly reduce its risk of a major security breach.
+
+\end{document}
+```

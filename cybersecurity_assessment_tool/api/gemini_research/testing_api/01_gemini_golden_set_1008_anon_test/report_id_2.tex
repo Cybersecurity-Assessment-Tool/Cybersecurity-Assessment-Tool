@@ -1,0 +1,132 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% --- Section 1: Executive Overview ---
+\section*{Executive Overview}
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, organizational security controls, and pre-existing risk documentation.
+
+The assessment reveals several critical and high-risk vulnerabilities that require immediate attention. Key findings include an externally facing, outdated, and dangerously misconfigured FTP server, a significant lack of multi-factor authentication (MFA) for critical access points, and gaps in foundational security policies and training. The combination of these factors results in a significantly elevated risk profile.
+
+The overall security posture is considered poor. Immediate remediation of the identified critical risks is strongly advised to prevent potential unauthorized access, data breaches, and system compromise. Detailed findings and actionable recommendations are provided in the subsequent sections.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The responses indicate significant gaps in access control and policy enforcement. A "No" response (\ding{55}) highlights a weakness that increases organizational risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{0.75\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{55} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the target IP address \texttt{[Target IP]}. The scan identified one open port with a vulnerable service.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis for Target: \texttt{[Target IP]}}
+\begin{tabular}{c c l l p{0.4\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} & \textbf{Notes} \\
+\midrule
+21/tcp & Open & ftp & vsftpd 2.3.4 & \textbf{Critical Finding:} Anonymous FTP login is allowed. This version is notoriously vulnerable to a backdoor exploit (CVE-2011-2523). \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, the technical scan, and pre-existing risk data. Risks are categorized by severity to guide prioritization.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.3\linewidth} p{0.5\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Exposed Vulnerable FTP Service} & An outdated and misconfigured FTP server (vsftpd 2.3.4) is publicly accessible, allowing anonymous logins and is susceptible to remote code execution. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Multi-Factor Authentication} & MFA is not enforced for computer logins or access to sensitive data systems, leaving them vulnerable to credential theft and unauthorized access. & \textbf{Critical} \\
+\addlinespace
+\textbf{Missing Foundational Security Policies} & The absence of an Acceptable Use Policy and mandatory annual security training creates a weak security culture and increases the likelihood of human error. & High \\
+\addlinespace
+Outdated Windows Policy & Workstations are running Windows 7, which is an unsupported operating system no longer receiving security updates from Microsoft. & Medium \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture. They are prioritized based on severity.
+
+\subsection*{Immediate Actions (Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Remediate Vulnerable FTP Server:} The FTP service on \texttt{[Target IP]} must be taken offline immediately.
+    \begin{itemize}
+        \item If the service is not business-critical, disable and firewall port 21.
+        \item If file transfer is required, replace FTP with a secure alternative such as SFTP (SSH File Transfer Protocol) or FTPS.
+        \item Under no circumstances should anonymous access be permitted.
+    \end{itemize}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item Prioritize the deployment of MFA on all systems containing sensitive data.
+        \item Roll out MFA for all employee computer logins to protect against unauthorized workstation access.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{High-Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Develop and Enforce Security Policies:}
+    \begin{itemize}
+        \item Draft and implement a formal Employee Acceptable Use Policy (AUP) that all employees must read and acknowledge.
+        \item Establish a mandatory annual security awareness training program for all staff to ensure ongoing education about current threats.
+    \end{itemize}
+    \item \textbf{Address Outdated Operating Systems:}
+    \begin{itemize}
+        \item Accelerate the plan to upgrade all Windows 7 workstations to a modern, supported operating system like Windows 10 or 11. This mitigates the "Outdated Windows Policy" risk.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

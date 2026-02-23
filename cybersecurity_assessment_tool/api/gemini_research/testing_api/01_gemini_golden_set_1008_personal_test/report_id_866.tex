@@ -1,0 +1,177 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For check and x marks
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For proper URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{xcolor}   % For colors
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- TITLE ---
+\title{Cybersecurity Posture Report \\ \large For: \textbf{Pioneer Pulse}}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% 1. EXECUTIVE SUMMARY
+% ==============================================================================
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Pioneer Pulse}, based on a synthesis of network scan data, organizational security controls, and pre-existing risk information.
+
+The assessment reveals a mixed security posture. The organization demonstrates strong identity and access management controls, with Multi-Factor Authentication (MFA) consistently enforced across key systems. However, critical vulnerabilities were identified that require immediate attention.
+
+A network scan of the internal host \texttt{10.0.0.15} discovered an FTP server running a dangerously outdated and vulnerable version of \texttt{vsftpd} (2.3.4), which is known to contain a critical backdoor. This service is also configured to allow anonymous, unauthenticated access. Furthermore, significant gaps exist in foundational security policies and employee training, as evidenced by the lack of an Acceptable Use Policy and a formal security awareness training program. These policy gaps create a permissive environment for human error and insider threats.
+
+Immediate remediation of the vulnerable FTP server is paramount to prevent a system compromise. Following this, the development and implementation of core security policies and training programs are strongly recommended to build a more resilient and security-conscious culture.
+
+% ==============================================================================
+% 2. ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Pioneer Pulse \\
+Email Domain & \texttt{PioneerPulse.com} \\
+Website Domain & \url{www.PioneerPulse.com} \\
+External IP Address & \texttt{33.114.144.60} \\
+\bottomrule
+\end{tabular}
+
+% ==============================================================================
+% 3. SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The results below highlight a strong implementation of MFA but a critical deficiency in administrative and policy-based controls. The absence of an Acceptable Use Policy and security awareness training represents a high risk to the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc}
+\toprule
+\textbf{Security Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\ % Yes
+Do you require MFA to log into computers? & \ding{51} \\ % Yes
+Do you require MFA to access sensitive data systems? & \ding{51} \\ % Yes
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\ % No
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\ % No
+Does your organization do security awareness training for all employees annually? & \textcolor{red}{\ding{55}} \\ % No
+\bottomrule
+\end{tabular}
+\caption{Organizational Security Control Questionnaire Results.}
+\end{table}
+
+% ==============================================================================
+% 4. TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+An internal network scan was performed to identify active services and potential vulnerabilities.
+
+\subsection*{Host: \texttt{10.0.0.15}}
+The scan identified one host as active. The following open ports and services were discovered:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Notes} \\
+\midrule
+21/tcp & Open & ftp & vsftpd 2.3.4 & \textbf{CRITICAL:} Anonymous login allowed. \\
+& & & & Version is vulnerable to CVE-2011-2523. \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports and Services on \texttt{10.0.0.15}.}
+\end{table}
+
+\paragraph{Analysis of Findings:}
+The FTP server running on port 21 presents two immediate and critical risks:
+\begin{enumerate}
+    \item \textbf{Vulnerable Software (CVE-2011-2523):} The identified version, \texttt{vsftpd 2.3.4}, contains a well-documented backdoor that allows an attacker to gain a command shell on the underlying server by entering a specific string in the username field. This can lead to a full system compromise.
+    \item \textbf{Anonymous FTP Access:} The server is configured to allow anonymous logins. This enables any user on the network to connect without credentials, potentially accessing, modifying, or uploading files. This could be used to exfiltrate sensitive data or plant malware within the network.
+\end{enumerate}
+
+% ==============================================================================
+% 5. CONSOLIDATED RISK ASSESSMENT
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the technical scan, control review, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\linewidth}p{0.1\linewidth}p{0.35\linewidth}p{0.15\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Overview} & \textbf{Affected Systems} \\
+\midrule
+\textbf{Vulnerable FTP Server (CVE-2011-2523)} & \textbf{Critical} & The FTP service version \texttt{vsftpd 2.3.4} has a known remote code execution backdoor. & Server \texttt{10.0.0.15} \\
+\addlinespace
+\textbf{Anonymous FTP Access} & \textbf{Critical} & Unauthenticated users can access the FTP server, leading to potential data exfiltration or malware upload. & Server \texttt{10.0.0.15} \\
+\addlinespace
+\textbf{Lack of Security Awareness Training} & High & Employees are not trained on security best practices, increasing susceptibility to phishing and social engineering. & All Employees \\
+\addlinespace
+\textbf{No Acceptable Use Policy (AUP)} & High & Lack of a formal policy creates ambiguity regarding proper use of company assets and data handling. & Entire Organization \\
+\addlinespace
+\textbf{Outdated Windows Policy} & Medium & Workstations are running Windows 7, an end-of-life OS that no longer receives security updates. & Workstations \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\end{table}
+
+% ==============================================================================
+% 6. RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+Based on the risk assessment, the following prioritized actions are recommended to improve the security posture of \textbf{Pioneer Pulse}.
+
+\subsection*{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Remediate Vulnerable FTP Server:} Immediately take the server at \texttt{10.0.0.15} offline or place it behind a firewall that blocks all access to port 21. The \texttt{vsftpd 2.3.4} software must be upgraded to a patched version or replaced entirely.
+    \item \textbf{Disable Anonymous FTP:} If FTP is a business requirement, reconfigure the service to disable anonymous access and enforce strong, unique credentials for all users. Consider replacing FTP with a secure alternative like SFTP (SSH File Transfer Protocol) or FTPS (FTP over SSL/TLS).
+\end{enumerate}
+
+\subsection*{High Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP that clearly defines rules for all employees regarding the use of company networks, systems, and data. This policy should be reviewed and signed by all staff.
+    \item \textbf{Establish a Security Awareness Program:} Implement a mandatory security awareness training program for all new hires and conduct annual refresher training for all employees. Topics should include phishing identification, password hygiene, and data handling best practices.
+\end{enumerate}
+
+\subsection*{Medium Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item \textbf{Accelerate Operating System Upgrades:} Prioritize the project to upgrade all workstations from Windows 7 to a modern, supported operating system (e.g., Windows 10/11) to ensure they receive critical security patches.
+\end{enumerate}
+
+\end{document}
+```

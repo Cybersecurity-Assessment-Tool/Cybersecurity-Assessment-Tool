@@ -1,0 +1,199 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding symbols
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and ToC
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long monospaced strings
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{titlesec}
+\usepackage{parskip}
+
+% --- Document Customization ---
+
+% Define colors for severity levels
+\definecolor{sev_critical}{HTML}{990000}
+\definecolor{sev_high}{HTML}{D14302}
+\definecolor{sev_medium}{HTML}{E5A600}
+\definecolor{sev_low}{HTML}{339900}
+\definecolor{tablehead}{gray}{0.9}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Report, Analysis},
+    bookmarks=true
+}
+
+% Section formatting
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{darkgray}}
+  {\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}
+  {\thesubsection}{1em}{}
+
+% --- Document Start ---
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{\stretch{1.0}}
+    {\Huge\bfseries Cybersecurity Posture Report}
+    \vspace{0.5cm}
+    \hrule
+    \vspace{0.5cm}
+    {\Large For: \textbf{[Organization Name]}}
+    \vspace{1.5cm}
+    {\large Report Date: \today}
+    \vspace*{\stretch{2.0}}
+    \vfill
+    {\small This report contains sensitive information and is intended solely for the use of the designated recipient.}
+\end{titlepage}
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on a review of organizational security controls, an external network scan, and pre-existing risk data.
+
+The assessment reveals several \textbf{critical-risk} security deficiencies that require immediate attention. Foundational security controls, such as Multi-Factor Authentication (MFA) for email and computer access, are not implemented. Furthermore, the organization lacks a formal security awareness training program for its employees. These gaps significantly increase the risk of credential compromise, phishing attacks, and unauthorized access.
+
+Technically, the assessment identified a pre-existing vulnerability, \textbf{"Localhost Exposed,"} with a CVSS score of 10.0 (Critical). This represents a severe and immediate threat that could lead to a full system compromise. An open SSH port (22/TCP) was also discovered, which, when combined with the lack of MFA, presents a high-risk attack vector.
+
+Immediate remediation is required to address the critical vulnerabilities and implement fundamental security controls to protect the organization's assets and data.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This section outlines the basic information used for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{Assessed IP Address:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security policies and procedures was conducted via a questionnaire. The results highlight significant gaps in administrative and access controls. A "No" answer indicates a deviation from security best practices and introduces risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\begin{tabular}{p{0.5\textwidth} c p{0.3\textwidth}}
+\toprule
+\rowcolor{tablehead}
+\textbf{Control Question} & \textbf{Response} & \textbf{Analyst Commentary} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} & \textbf{Critical Gap.} Email is a primary target for phishing and account takeover. Lack of MFA makes it highly vulnerable. \\
+\addlinespace
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} & \textbf{High Risk.} Compromised credentials could lead directly to endpoint and internal network access. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} & Good. This control reduces risk for the most critical assets, but its effectiveness is undermined by other gaps. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} & Good. A foundational policy is in place. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} & \textbf{Critical Gap.} New employees are often prime targets for social engineering. Lack of training is a major oversight. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} & \textbf{Critical Gap.} Without ongoing training, employees are unprepared to identify and report modern cyber threats. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the target IP address to identify exposed services.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Scan date not provided in source data.
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+The scan identified the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\label{tab:ports}
+\begin{tabular}{c c c p{0.5\textwidth}}
+\toprule
+\rowcolor{tablehead}
+\textbf{Port} & \textbf{State} & \textbf{Inferred Service} & \textbf{Analysis} \\
+\midrule
+22/TCP & Open & SSH (Secure Shell) & The SSH service is exposed to the public internet. This is a common vector for brute-force and credential stuffing attacks. Without robust controls like MFA, key-based authentication, and IP whitelisting, this service poses a significant risk. No version information was available from the scan data. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data to provide a holistic view of the organization's risk profile.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{0.3\textwidth} p{0.15\textwidth} p{0.45\textwidth}}
+\toprule
+\rowcolor{tablehead}
+\textbf{Risk / Vulnerability} & \textbf{Severity} & \textbf{Impact and Correlation} \\
+\midrule
+\textbf{Localhost Exposed} & \cellcolor{sev_critical!25}\textcolor{sev_critical}{Critical (10.0)} & This pre-existing vulnerability indicates a severe misconfiguration where an internal service is exposed externally. A CVSS score of 10.0 implies it could lead to a complete system compromise with no user interaction required. \textbf{This is the highest priority finding.} \\
+\addlinespace
+\textbf{Lack of MFA for Email and Endpoints} & \cellcolor{sev_critical!25}\textcolor{sev_critical}{Critical} & This administrative gap makes the organization highly susceptible to account takeovers via phishing or credential stuffing. It directly elevates the risk of the exposed SSH service, as a single compromised password could grant network access. \\
+\addlinespace
+\textbf{No Security Awareness Training} & \cellcolor{sev_critical!25}\textcolor{sev_critical}{Critical} & Employees are the first line of defense. Without training, they are unable to recognize or respond to phishing and social engineering attacks, making the lack of MFA even more dangerous. \\
+\addlinespace
+\textbf{Exposed SSH Service} & \cellcolor{sev_high!25}\textcolor{sev_high}{High} & An externally facing SSH port is a constant target for automated attacks. Correlated with the lack of MFA and weak password policies (inferred), this presents a high-likelihood path for an attacker to gain a foothold in the network. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{Immediate Priority (Remediate within 72 hours)}
+\begin{enumerate}
+    \item \textbf{Investigate and Remediate "Localhost Exposed":} This CVSS 10.0 vulnerability must be treated as an active threat. Immediately identify the affected system at \texttt{[Target IP]} and correct the misconfiguration that exposes the local service. This likely involves firewall rule adjustments or service binding changes.
+    \item \textbf{Enforce MFA on All Email Accounts:} Procure and deploy an MFA solution for the organization's email system (\texttt{[Domain]}). Make MFA mandatory for all users to prevent account takeovers.
+\end{enumerate}
+
+\subsection{High Priority (Remediate within 30 days)}
+\begin{enumerate}
+    \item \textbf{Deploy Security Awareness Training:} Implement a security awareness training program. All new hires must complete initial training, and all existing employees must complete it annually. This should cover phishing, password security, and acceptable use.
+    \item \textbf{Enforce MFA on All Endpoints:} Extend the MFA requirement to all computer logins (desktops and laptops) to protect against unauthorized physical and remote access.
+    \item \textbf{Harden the Exposed SSH Service:}
+        \begin{itemize}
+            \item Disable password-based authentication and enforce the use of SSH keys.
+            \item Disable root login over SSH.
+            \item If possible, restrict access to known, trusted IP addresses using a firewall.
+            \item Implement an intrusion prevention tool like \texttt{fail2ban} to block brute-force attempts.
+        \end{itemize}
+\end{enumerate}
+
+% --- Section 7: Conclusion ---
+\section{Conclusion}
+The current cybersecurity posture of \textbf{[Organization Name]} is poor and exposes the organization to significant and immediate risk of a major security breach. The combination of a critical technical vulnerability and the absence of fundamental security controls like MFA and employee training creates a highly permissive environment for attackers.
+
+The recommendations outlined in this report are not merely suggestions but are essential steps required to establish a defensible security baseline. The leadership team must prioritize these initiatives and allocate the necessary resources to ensure their swift and complete implementation.
+
+\end{document}
+```

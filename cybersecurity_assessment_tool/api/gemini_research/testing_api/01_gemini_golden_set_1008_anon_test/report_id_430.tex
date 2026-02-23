@@ -1,0 +1,167 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Custom Commands for Dingbats
+\newcommand{\cmark}{\ding{51}} % Checkmark
+\newcommand{\xmark}{\ding{55}} % Cross
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{[Organization Name]}. The assessment combined a review of organizational security controls via a questionnaire, an external network vulnerability scan, and a review of pre-existing risks.
+
+The analysis revealed several \textbf{critical gaps} in fundamental security controls. The lack of Multi-Factor Authentication (MFA) for email and sensitive data systems exposes the organization to significant risks of account compromise and data breach. Furthermore, the absence of a formal Acceptable Use Policy (AUP) and any security awareness training program indicates a foundational weakness in security governance and employee preparedness.
+
+The external network scan of the target IP address \texttt{[Target IP]} did not identify any open ports or services. While this can indicate a strong firewall configuration, it could also mean the host was offline or unresponsive during the scan. No pre-existing vulnerabilities were reported.
+
+Immediate action is required to address the identified control gaps to mitigate substantial risks to the organization's data, operations, and reputation.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+This section provides the key identification details for the organization under review. As the provided data was anonymized, placeholders have been used.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \texttt{[Domain]} \\
+External IP Address Scanned & \texttt{[Client IP]} \\
+Target of Network Scan & \texttt{[Target IP]} \\
+\bottomrule
+\end{tabular}
+\caption{Client Identification Details.}
+\label{tab:org_info}
+\end{table}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A security questionnaire was completed to evaluate the implementation of essential administrative and technical controls. The results, summarized in Table \ref{tab:controls}, highlight critical deficiencies in the organization's security posture.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \xmark \\
+Do you require MFA to log into computers? & \cmark \\
+Do you require MFA to access sensitive data systems? & \xmark \\
+Does your organization have an employee acceptable use policy? & \xmark \\
+Does your organization do security awareness training for new employees? & \xmark \\
+Does your organization do security awareness training for all employees annually? & \xmark \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results.}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis}
+The responses indicate a concerning lack of foundational security measures. The items marked with an \xmark\ represent significant vulnerabilities:
+\begin{itemize}
+    \item \textbf{MFA Gaps:} Failure to enforce MFA on email and sensitive data systems drastically increases the risk of unauthorized access through credential theft (e.g., phishing). Email is a primary target for attackers to gain an initial foothold.
+    \item \textbf{Policy and Training Gaps:} The absence of an Acceptable Use Policy means there are no formal rules governing how employees use company assets, creating ambiguity and risk. The complete lack of security awareness training leaves employees unprepared to recognize and respond to common threats like phishing, social engineering, and malware.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the designated target IP address to identify open ports and exposed services.
+
+\subsection*{Target}
+\texttt{[Target IP]}
+
+\subsection*{Findings}
+The scan completed successfully but did not discover any open TCP or UDP ports on the target host. 
+
+\textbf{Conclusion:} This result can be interpreted in several ways:
+\begin{enumerate}
+    \item The host is protected by a well-configured firewall that drops or rejects all unsolicited incoming traffic, which is a positive security practice.
+    \item The host was offline or otherwise unreachable at the time of the scan.
+    \item The scan was blocked by an upstream network security device (e.g., an Intrusion Prevention System).
+\end{enumerate}
+Without further information, we assess that no immediate external vulnerabilities were identified through this scan. However, this does not negate the internal risks identified in other sections.
+
+% --- 5. Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from the security control review and technical scan. As no pre-existing risks were provided and the technical scan yielded no findings, the risks listed below are derived directly from the identified organizational control gaps.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\ \midrule
+\textbf{Email Account Compromise} & Lack of MFA on email accounts makes them highly susceptible to takeover via phishing or credential stuffing. A compromised email account can lead to data exfiltration, further phishing attacks, and business email compromise (BEC). & \textbf{Critical} \\
+\addlinespace
+\textbf{Sensitive Data Breach} & Lack of MFA on sensitive data systems allows an attacker with stolen credentials to gain direct access to the organization's most valuable information, potentially leading to significant financial and reputational damage. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Security Governance} & The absence of an Acceptable Use Policy creates an environment without clear guidelines for employee behavior, increasing the likelihood of insider threat (both malicious and accidental) and misuse of company resources. & \textbf{High} \\
+\addlinespace
+\textbf{Untrained Workforce} & Without security awareness training, employees are unable to identify or appropriately respond to common cyber threats. This makes the organization highly vulnerable to social engineering and phishing attacks. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\label{tab:risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+Based on the risks identified in Table \ref{tab:risks}, we provide the following prioritized recommendations to improve the security posture of \textbf{[Organization Name]}.
+
+\subsection*{Priority 1: Remediate Critical Risks}
+\begin{enumerate}
+    \item \textbf{Implement MFA Everywhere:} Immediately enforce MFA for all users on all critical systems, starting with email (e.g., Office 365, Google Workspace) and any systems identified as containing sensitive data. This is the single most effective control to prevent unauthorized access.
+\end{enumerate}
+
+\subsection*{Priority 2: Establish Foundational Programs}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Continue numbering
+    \item \textbf{Develop an Acceptable Use Policy (AUP):} Create and implement a formal AUP that clearly defines the rules and responsibilities for all employees when using company technology and data. Ensure every employee reads and acknowledges the policy.
+    \item \textbf{Establish a Security Awareness Training Program:}
+    \begin{itemize}
+        \item Implement mandatory security training for all new hires during their onboarding process.
+        \item Conduct annual security awareness training for all staff, covering topics such as phishing, password security, and data handling.
+        \item Consider regular phishing simulations to test and reinforce employee training.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 3: Further Investigation}
+\begin{enumerate}
+    \setcounter{enumi}{3} % Continue numbering
+    \item \textbf{Verify Network Scan Results:} Conduct an internal review or a credentialed scan to validate the external scan results and ensure that the lack of open ports is by design and not due to a transient network issue.
+\end{enumerate}
+
+\end{document}
+```

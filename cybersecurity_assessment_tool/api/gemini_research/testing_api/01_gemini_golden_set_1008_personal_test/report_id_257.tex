@@ -1,0 +1,164 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and a modern look
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long monospaced strings like IPs
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Document Information
+\title{Cybersecurity Posture Report for \textbf{Vivid Vision}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Vivid Vision}, based on a synthesis of network scan data, organizational security controls, and pre-existing risk information.
+
+The assessment reveals several critical and high-risk vulnerabilities that require immediate attention. The primary areas of concern are the direct exposure of Remote Desktop Protocol (RDP) services, a lack of mandatory Multi-Factor Authentication (MFA) for computer logons, and a complete absence of a formal security awareness training program.
+
+The combination of these vulnerabilities creates a significant risk of unauthorized access, data breach, and potential ransomware attacks. If an employee's credentials were to be compromised—a risk heightened by the lack of security training—an attacker could gain direct access to internal systems without the safeguard of MFA.
+
+This report outlines specific, actionable recommendations prioritized by severity to mitigate these risks and strengthen the overall security posture of the organization.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following information was provided for the assessment. This data is used to establish the context for the technical and procedural findings.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Vivid Vision
+    \item \textbf{Email Domain:} \seqsplit{\texttt{VividVision.org}}
+    \item \textbf{Website Domain:} \seqsplit{\texttt{www.VividVision.org}}
+    \item \textbf{External IP Address:} \seqsplit{\texttt{163.145.41.230}}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight significant gaps in foundational security practices, particularly concerning endpoint security and employee security awareness. A summary of the findings is presented in Table \ref{tab:controls}.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \ding{51} \\
+\textbf{Do you require MFA to log into computers?} & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+\textbf{Does your organization have an employee acceptable use policy?} & \textcolor{red}{\ding{55}} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textcolor{red}{\ding{55}} \\
+\textbf{Does your organization do security awareness training for all employees annually?} & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+The items marked with a cross (\textcolor{red}{\ding{55}}) represent critical administrative and technical control gaps that directly increase the organization's risk profile.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify exposed services on the organization's infrastructure. The scan identified an open port associated with a high-risk service.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{10.10.10.51}}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \seqsplit{\texttt{10.10.10.51}}}
+\label{tab:nmap}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\ \midrule
+3389/tcp & open & ms-wbt-server & Microsoft Remote Desktop Protocol (RDP) \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The scan confirms that port \textbf{3389 (RDP)} is open on the host \seqsplit{\texttt{10.10.10.51}}. RDP is a primary target for attackers who use brute-force techniques or stolen credentials to gain unauthorized access to internal networks. This finding, combined with the pre-existing risk of RDP exposure on another host (\seqsplit{\texttt{10.10.10.50}}), indicates a systemic issue with remote access management.
+
+% --- 5. Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes the findings from the security control review, technical scan, and pre-existing risk data to provide a holistic view of the organization's risk posture.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{@{}p{0.3\textwidth}p{0.5\textwidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\textbf{Systemic RDP Exposure} & RDP is exposed on multiple internal hosts (\seqsplit{\texttt{10.10.10.50}}, \seqsplit{\texttt{10.10.10.51}}). This service is a frequent target for ransomware and unauthorized access attacks. & \textbf{Critical} \\
+\textbf{Lack of Endpoint MFA} & The absence of MFA for computer logons allows an attacker with valid credentials to gain full access to a user's workstation and potentially move laterally within the network. & \textbf{Critical} \\
+\textbf{No Security Awareness Program} & Employees are not trained to identify or report security threats like phishing. This makes the organization highly susceptible to credential theft and social engineering. & \textbf{High} \\
+\textbf{No Acceptable Use Policy} & The lack of a formal policy creates ambiguity regarding secure practices, password requirements, and the responsibilities of employees in protecting company data. & \textbf{Medium} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following recommendations are provided to address the identified risks. They are prioritized to ensure that the most critical vulnerabilities are remediated first.
+
+\subsection{Immediate Priority (Remediate within 72 hours)}
+\begin{enumerate}
+    \item \textbf{Remediate RDP Exposure:}
+    \begin{itemize}
+        \item Immediately close port 3389 on hosts \seqsplit{\texttt{10.10.10.50}} and \seqsplit{\texttt{10.10.10.51}} from any external access.
+        \item If remote access is required, restrict access to a list of trusted source IP addresses using a firewall.
+    \end{itemize}
+    
+    \item \textbf{Implement MFA for Computer Logons:}
+    \begin{itemize}
+        \item Enforce mandatory MFA for all user accounts, especially those with administrative privileges, for logging into company workstations and servers.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority (Remediate within 30 days)}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Establish a Security Awareness Program:}
+    \begin{itemize}
+        \item Implement mandatory security awareness training for all new hires upon onboarding.
+        \item Conduct annual refresher training for all employees, covering topics such as phishing, password security, and incident reporting.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Medium Priority (Remediate within 90 days)}
+\begin{enumerate}
+    \setcounter{enumi}{3} % Continue numbering
+    \item \textbf{Develop an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item Create and enforce a formal AUP that clearly defines the rules and responsibilities for using company technology and data assets.
+    \end{itemize}
+    
+    \item \textbf{Implement a Secure Remote Access Solution:}
+    \begin{itemize}
+        \item For long-term needs, replace direct RDP exposure with a more secure solution, such as a Virtual Private Network (VPN) with MFA or a Zero Trust Network Access (ZTNA) platform.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

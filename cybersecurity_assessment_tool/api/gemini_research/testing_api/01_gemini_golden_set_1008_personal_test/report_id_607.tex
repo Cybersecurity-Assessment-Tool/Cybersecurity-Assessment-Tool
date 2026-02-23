@@ -1,0 +1,165 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings like IPs
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a cybersecurity posture assessment for \textbf{Nexus Dynamics}, based on a synthesis of network scan data, an organizational security questionnaire, and a review of pre-existing risks. The analysis was conducted on \today.
+
+The assessment reveals a mixed security posture. While the organization has implemented some essential controls, such as Multi-Factor Authentication (MFA) for computer and sensitive system access, critical gaps exist that expose the organization to significant risk.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Risk:} The absence of MFA for email (\texttt{NexusDynamics.org}) represents a severe vulnerability. Email is a primary vector for phishing, business email compromise, and account takeovers.
+    \item \textbf{High Risk:} New employees do not receive security awareness training upon being hired. This creates a window of vulnerability where new staff are more susceptible to social engineering and policy violations.
+    \item \textbf{Medium Risk:} An external-facing Secure Shell (SSH) service was identified on port 22 at the IPv6 address \seqsplit{\texttt{2001:db8::1}}. Publicly exposed administrative services increase the attack surface and risk of unauthorized access attempts.
+\end{itemize}
+
+Immediate remediation is required for the identified critical and high-risk findings to strengthen the organization's defense against common cyber threats. Detailed recommendations are provided in Section 6 of this report.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Nexus Dynamics} \\
+    Email Domain & \texttt{NexusDynamics.org} \\
+    Website Domain & \url{www.NexusDynamics.org} \\
+    External IP (IPv4) & \texttt{220.179.72.97} \\
+    Scanned IP (IPv6) & \seqsplit{\texttt{2001:db8::1}} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. Each response is assessed against industry best practices.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{8cm}ccp{3cm}@{}}
+    \toprule
+    \textbf{Control Question} & \multicolumn{2}{c}{\textbf{Response}} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \ding{55} & (No) & \textbf{Critical Gap} \\
+    Do you require MFA to log into computers? & \ding{51} & (Yes) & Meets Best Practice \\
+    Do you require MFA to access sensitive data systems? & \ding{51} & (Yes) & Meets Best Practice \\
+    Does your organization have an employee acceptable use policy? & \ding{51} & (Yes) & Meets Best Practice \\
+    Does your organization do security awareness training for new employees? & \ding{55} & (No) & \textbf{High Risk} \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} & (Yes) & Meets Best Practice \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed on the target IP address to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Details} \\
+    \midrule
+    22/tcp & open & ssh & The Secure Shell service is exposed. This protocol is used for remote \\
+           &      &     & administration and presents a target for brute-force attacks. \\
+           &      &     & No version information was obtained in this scan. \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports Identified on \seqsplit{\texttt{2001:db8::1}}}
+\end{table}
+
+% --- 5. Risk Assessment Summary ---
+\section{Risk Assessment Summary}
+
+The following table synthesizes findings from the security control review and technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{8cm}l@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & \textbf{No MFA on Email Accounts:} Lack of multi-factor authentication on the \texttt{NexusDynamics.org} email domain allows for account takeover with compromised credentials alone. & \textbf{Critical} \\
+    \addlinespace
+    RISK-002 & \textbf{No Onboarding Security Training:} New employees are not provided with security awareness training, leaving a critical gap in human-layer security during their initial, most vulnerable period. & \textbf{High} \\
+    \addlinespace
+    RISK-003 & \textbf{Exposed SSH Administrative Service:} Port 22 (SSH) is open to the public on \seqsplit{\texttt{2001:db8::1}}, increasing the attack surface and exposure to automated brute-force attacks and potential exploitation. & \textbf{Medium} \\
+    \bottomrule
+\end{tabular}
+\caption{Identified Cybersecurity Risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Nexus Dynamics}.
+
+\begin{enumerate}
+    \item \textbf{Immediately Enforce MFA for Email (RISK-001):}
+    \begin{itemize}
+        \item \textbf{Action:} Enable and enforce Multi-Factor Authentication (MFA) for all user accounts on the \texttt{NexusDynamics.org} email service.
+        \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access to email accounts, which are a primary target for attackers. This action directly mitigates the risk of business email compromise and phishing-related breaches. This is the highest priority recommendation.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Implement Onboarding Security Training (RISK-002):}
+    \begin{itemize}
+        \item \textbf{Action:} Integrate a mandatory security awareness training module into the new employee onboarding process. This should cover acceptable use, phishing identification, password hygiene, and incident reporting.
+        \item \textbf{Justification:} Educating employees from day one establishes a strong security culture and reduces the likelihood of human error, which is a factor in the majority of security incidents.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Secure the Exposed SSH Service (RISK-003):}
+    \begin{itemize}
+        \item \textbf{Action:} Review the business necessity for the publicly exposed SSH service on \seqsplit{\texttt{2001:db8::1}}.
+        \begin{itemize}
+            \item If not required, disable the service or block access at the firewall.
+            \item If required, restrict access to a whitelist of trusted IP addresses.
+            \item At a minimum, ensure that it is configured with strong controls, such as disabling password-based authentication in favor of cryptographic keys, and ensure the SSH server software is fully patched.
+        \end{itemize}
+        \item \textbf{Justification:} Minimizing the public attack surface is a fundamental security principle. Securing administrative ports reduces the risk of brute-force attacks and exploitation of potential software vulnerabilities.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

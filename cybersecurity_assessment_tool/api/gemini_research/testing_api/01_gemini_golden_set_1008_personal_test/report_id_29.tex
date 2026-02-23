@@ -1,0 +1,161 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings without breaking
+\usepackage{xcolor} % For colors in text
+
+% Document Metadata
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+
+% =============================================================================
+% Section 1: Executive Summary
+% =============================================================================
+\section*{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Vertex Solutions}. The analysis is based on a correlation of network scan data, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals several \textbf{critical-risk} findings that require immediate attention. The most significant vulnerabilities are the widespread lack of Multi-Factor Authentication (MFA) for primary access points (email and computer logins) and the continued exposure of Remote Desktop Protocol (RDP) services on the internal network. The technical scan identified a new host (\texttt{10.10.10.51}) with RDP open, indicating a systemic configuration issue, as a similar risk was previously documented for another host.
+
+These technical vulnerabilities are compounded by significant procedural gaps, including the absence of an employee acceptable use policy and a formal security training program for new hires. The combination of these factors creates a high-risk environment susceptible to credential-based attacks, lateral movement, and ransomware incidents. We strongly urge the immediate implementation of the prioritized recommendations outlined in this report to mitigate these threats.
+
+% =============================================================================
+% Section 2: Organizational Information
+% =============================================================================
+\section*{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Vertex Solutions} \\
+Email Domain & \texttt{VertexSolutions.org} \\
+Website Domain & \url{www.VertexSolutions.org} \\
+External IP Address & \texttt{53.50.225.142} \\
+\bottomrule
+\end{tabular}
+
+% =============================================================================
+% Section 3: Security Control Review
+% =============================================================================
+\section*{Security Control Review}
+
+This section details the organization's self-reported security posture based on a controls questionnaire. "No" answers indicate significant gaps in security controls and are marked accordingly.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{9cm}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & No & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & No & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & No & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & No & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & Yes & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+% =============================================================================
+% Section 4: Technical Scan Results
+% =============================================================================
+\section*{Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Target IP} & \textbf{Port / Protocol} & \textbf{State} & \textbf{Service Name} \\
+\midrule
+\texttt{10.10.10.51} & 3389/tcp & open & ms-wbt-server (RDP) \\
+\bottomrule
+\end{tabular}
+\caption{Nmap Scan Findings}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified that TCP port 3389, used for Microsoft's Remote Desktop Protocol (RDP), is open on the host \texttt{10.10.10.51}. Unsecured RDP is a primary vector for unauthorized access and is heavily targeted by ransomware groups for initial entry and lateral movement within a network.
+
+% =============================================================================
+% Section 5: Consolidated Risk Assessment
+% =============================================================================
+\section*{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security questionnaire, technical scans, and pre-existing risk data into a prioritized list of security risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{3.5cm}p{2cm}p{8.5cm}@{}}
+\toprule
+\textbf{Risk Title} & \textbf{Severity} & \textbf{Description and Correlated Findings} \\
+\midrule
+\textbf{Insecure Remote Desktop Protocol (RDP) Exposure} & \textbf{Critical} & The technical scan confirmed RDP is exposed on \texttt{10.10.10.51}. This finding is especially alarming as a pre-existing risk for RDP on another host (\texttt{10.10.10.50}) was already documented. This indicates a systemic misconfiguration. The lack of MFA on computer logins (from the questionnaire) makes this exposure trivial to exploit with compromised credentials. \\
+\addlinespace
+\textbf{Widespread Lack of Multi-Factor Authentication} & \textbf{Critical} & The questionnaire revealed that MFA is not enforced for accessing email or for logging into computers. This represents a critical failure in identity and access management. A single compromised password could grant an attacker access to email communications and a foothold on the internal network. \\
+\addlinespace
+\textbf{Deficient Employee Security Policies and Training} & \textbf{High} & The organization lacks a formal Acceptable Use Policy and does not provide security awareness training to new employees. This creates an environment where employees are unaware of security best practices, increasing the likelihood of phishing susceptibility, weak password usage, and unintentional data exposure. \\
+\bottomrule
+\end{tabular}
+\caption{Synthesized Risk Summary}
+\end{table}
+
+% =============================================================================
+% Section 6: Prioritized Recommendations
+% =============================================================================
+\section*{Prioritized Recommendations}
+
+Based on the consolidated risk assessment, the following actions are recommended to improve the security posture of \textbf{Vertex Solutions}.
+
+\begin{enumerate}
+    \item \textbf{[Immediate] Remediate RDP Exposure:}
+    \begin{itemize}
+        \item Immediately close or firewall TCP port 3389 on \texttt{10.10.10.51} and any other non-essential systems.
+        \item Conduct a comprehensive internal network scan to identify and remediate all instances of exposed RDP.
+        \item For necessary remote administration, implement a secure access solution such as a Virtual Private Network (VPN) or a bastion host with strict access controls.
+    \end{itemize}
+    \item \textbf{[High Priority] Implement Comprehensive MFA:}
+    \begin{itemize}
+        \item Prioritize the deployment of a robust MFA solution for all users to access email services (e.g., Office 365, G Suite).
+        \item Enforce MFA for all computer logins, both for local and remote access.
+        \item Review the MFA implementation on sensitive data systems to ensure it is configured correctly and without exceptions.
+    \end{itemize}
+    \item \textbf{[Medium Priority] Develop and Implement Security Policies \& Training:}
+    \begin{itemize}
+        \item Develop and ratify a formal Acceptable Use Policy (AUP) that all employees must read and acknowledge.
+        \item Integrate mandatory security awareness training into the onboarding process for all new employees. This training should cover phishing, password hygiene, and the new AUP.
+        \item Continue the annual security awareness training program for all staff.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

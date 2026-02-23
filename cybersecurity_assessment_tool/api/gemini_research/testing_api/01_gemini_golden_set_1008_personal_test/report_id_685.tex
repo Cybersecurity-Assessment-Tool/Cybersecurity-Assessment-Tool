@@ -1,0 +1,157 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage[utf8]{inputenc}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{November 22, 2025}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Oasis Wellness}, conducted on November 22, 2025. The analysis correlates organizational security controls, technical network scan data, and pre-existing risk information.
+
+The assessment reveals a mixed security posture. The organization demonstrates strong identity and access management controls, with Multi-Factor Authentication (MFA) consistently enforced across email, endpoints, and sensitive systems. This significantly reduces the risk of unauthorized access through compromised credentials.
+
+However, critical deficiencies were identified in foundational security practices. The absence of an employee Acceptable Use Policy (AUP) and a formal security awareness training program creates significant exposure to insider threats, social engineering, and phishing attacks.
+
+Furthermore, technical scanning of the external-facing web server at \texttt{192.168.10.5} revealed an outdated version of Nginx (\texttt{1.18.0}), which is known to have multiple security vulnerabilities. This presents a high risk of system compromise.
+
+Immediate remediation should focus on establishing a security training program, developing an AUP, and patching the vulnerable web server software to mitigate these high-impact risks.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information serves as the baseline for understanding the organization's digital footprint.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Oasis Wellness
+    \item \textbf{Email Domain:} \texttt{OasisWellness.net}
+    \item \textbf{Website Domain:} \url{www.OasisWellness.net}
+    \item \textbf{Primary External IP:} \texttt{210.38.4.246}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate significant gaps in the security framework and are correlated with identified risks in Section 5.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \textbf{\color{red}\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textbf{\color{red}\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textbf{\color{red}\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The organization has effectively implemented MFA, a critical control for preventing account takeovers. However, the complete absence of security policies and training represents a critical vulnerability. Without these, employees are more likely to fall victim to phishing attacks or misuse company assets, inadvertently or otherwise.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports, running services, and potential vulnerabilities on the organization's perimeter.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.10.5}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+The table below details the findings from the network scan.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port and Service Analysis}
+\begin{tabular}{l l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Notes} \\
+\midrule
+443/tcp & Open & https & nginx 1.18.0 & \parbox[t]{4cm}{Outdated version. SSL certificate common name is \texttt{www.acme-corp.com}, a mismatch with the organization's domain.} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The primary web server is running Nginx version \texttt{1.18.0}, which was released in 2020. This version is no longer supported and has several publicly disclosed vulnerabilities (CVEs). This exposes the server to potential remote code execution, denial of service, or information disclosure attacks. The SSL certificate mismatch erodes user trust and may indicate a misconfiguration.
+
+% --- 5. Risk Assessment Summary ---
+\section{Risk Assessment Summary}
+
+The following table synthesizes findings from the security control review and technical scan into a prioritized list of risks.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks and Severity}
+\begin{tabular}{p{0.1\linewidth} p{0.3\linewidth} p{0.15\linewidth} p{0.35\linewidth}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+RISK-001 & Lack of Security Policies \& Training & \textbf{Critical} & The absence of an AUP and security training program makes the organization highly susceptible to phishing, social engineering, and insider threats, which are primary vectors for data breaches. \\
+\addlinespace
+RISK-002 & Outdated Web Server Software & \textbf{High} & The Nginx web server (v1.18.0) is outdated and has known vulnerabilities. An attacker could exploit these to compromise the server, deface the website, or steal sensitive data. \\
+\addlinespace
+RISK-003 & SSL Certificate Mismatch & Medium & The SSL certificate does not match the organization's domain. This can lead to browser trust warnings, facilitate man-in-the-middle attacks, and negatively impact brand reputation. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+Based on the risk assessment, the following actions are recommended to improve the cybersecurity posture of \textbf{Oasis Wellness}.
+
+\begin{enumerate}
+    \item \textbf{Develop and Implement Foundational Policies (RISK-001):}
+    \begin{itemize}
+        \item \textbf{Immediate:} Draft and implement a comprehensive Acceptable Use Policy (AUP) that all employees must read and acknowledge.
+        \item \textbf{Short-Term:} Establish a mandatory security awareness training program for all new hires.
+        \item \textbf{Ongoing:} Conduct annual security awareness training for all staff to keep them informed about evolving threats like new phishing techniques.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Remediate Web Server Vulnerabilities (RISK-002):}
+    \begin{itemize}
+        \item \textbf{Immediate:} Upgrade the Nginx server on host \texttt{192.168.10.5} from version \texttt{1.18.0} to the latest stable version.
+        \item \textbf{Ongoing:} Implement a formal patch management policy to ensure all internet-facing systems are regularly updated to protect against newly discovered vulnerabilities.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Correct SSL Certificate Configuration (RISK-003):}
+    \begin{itemize}
+        \item \textbf{Immediate:} Replace the current SSL certificate on the web server with a valid certificate issued for the domain \url{www.OasisWellness.net}.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

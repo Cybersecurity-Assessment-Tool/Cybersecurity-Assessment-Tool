@@ -1,0 +1,182 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For potential logos/images
+\usepackage{fancyhdr} % For headers and footers
+
+% --- Document Setup ---
+
+% Define colors for severity levels
+\definecolor{sev_critical}{HTML}{940000}
+\definecolor{sev_high}{HTML}{D14000}
+\definecolor{sev_medium}{HTML}{E8A100}
+\definecolor{sev_low}{HTML}{3584E4}
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{For: Skyward Bound}
+\fancyfoot[C]{\thepage}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Posture Assessment Report}}
+    \vspace{1.5cm}
+    \large
+    \begin{center}
+        \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder for company logo
+    \end{center}
+    \vspace{1.5cm}
+    \textbf{Prepared for:}\\
+    Skyward Bound
+    \vspace{2cm}
+    \textbf{Date of Report:}\\
+    \today
+    \vfill
+    \textit{This report contains sensitive information and should be handled with care.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for Skyward Bound, based on network scans, a security controls questionnaire, and a review of pre-existing risks. The analysis reveals several critical vulnerabilities that expose the organization to significant threats, including unauthorized access, data breaches, and system compromise.
+
+The most severe findings include a complete lack of Multi-Factor Authentication (MFA) across all critical systems (email, computers, and sensitive data access) and an externally exposed service on a misconfigured localhost interface. This combination represents a direct and immediate path for attackers to gain privileged access. Furthermore, foundational governance is weak, evidenced by the absence of an employee Acceptable Use Policy.
+
+While the organization has implemented security awareness training, its effectiveness is severely undermined by these fundamental control gaps. Immediate and decisive action is required to remediate the identified critical risks and establish a baseline of security. This report outlines specific, actionable recommendations to address these findings and improve the overall security posture.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{table}[h!]
+\centering
+\caption{Client Organizational Data}
+\label{tab:org_data}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name    & Skyward Bound \\
+Email Domain         & \seqsplit{\texttt{SkywardBound.net}} \\
+Website Domain       & \seqsplit{\texttt{www.SkywardBound.net}} \\
+External IP Address  & \seqsplit{\texttt{18.151.178.123}} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+A security questionnaire was completed to assess the implementation of key administrative and technical controls. The responses are summarized below. Answers marked with a cross (\ding{55}) indicate significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\begin{tabular}{@{}p{0.8\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{55} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The questionnaire reveals critical deficiencies in access control management. The absence of Multi-Factor Authentication (MFA) for email, computer logins, and sensitive systems dramatically increases the risk of account compromise via credential theft or brute-force attacks. Additionally, the lack of an Acceptable Use Policy indicates a gap in security governance, leaving employees without clear guidelines for the safe use of company assets.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services on the target infrastructure. The findings are detailed below.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on Target: \seqsplit{\texttt{127.0.0.1}}}
+\label{tab:scan_results}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{IP Address} & \textbf{Port/Proto} & \textbf{State} & \textbf{Service / Product / Version} \\ \midrule
+\seqsplit{\texttt{127.0.0.1}} & 22/tcp & open & SSH (Secure Shell) - Version details not available \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified Port 22 (SSH) as open. The target IP being \texttt{127.0.0.1} (localhost) indicates a severe network misconfiguration, as this interface should not be accessible from an external scan. This finding correlates directly with the pre-existing risk "Localhost Exposed" and represents a critical vulnerability. An exposed SSH service, especially when not protected by MFA, is a primary target for automated brute-force attacks, which could lead to a full system compromise.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+By correlating the questionnaire findings, technical scan results, and pre-existing risk data, we have compiled a summary of the most significant risks to the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risk_summary}
+\begin{tabular}{@{}p{0.3\textwidth}p{0.5\textwidth}l@{}}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\textbf{Exposed SSH on Localhost} & The SSH service is incorrectly bound to an external interface via the localhost IP, allowing direct remote access attempts. & \textcolor{sev_critical}{\textbf{Critical}} \\
+\addlinespace
+\textbf{No Multi-Factor Authentication (MFA)} & The absence of MFA on all critical systems (email, endpoints, data) makes them highly susceptible to credential-based attacks. & \textcolor{sev_critical}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy} & Lack of a formal policy creates ambiguity regarding secure practices for employees, increasing the risk of insider threats and unintentional errors. & \textcolor{sev_high}{\textbf{High}} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and strengthen the overall security posture of Skyward Bound. Recommendations are prioritized based on severity and impact.
+
+\subsection{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Remediate Exposed SSH Service:} Immediately investigate the network configuration of the host at \seqsplit{\texttt{18.151.178.123}} that is exposing the localhost interface (\seqsplit{\texttt{127.0.0.1}}). The SSH service (port 22) must be firewalled from external access unless absolutely necessary for business operations. If required, access should be restricted to specific, trusted IP addresses.
+    
+    \item \textbf{Deploy Multi-Factor Authentication (MFA) Urgently:}
+    \begin{itemize}
+        \item Enable MFA across the entire email environment (\seqsplit{\texttt{SkywardBound.net}}).
+        \item Implement MFA for all remote access solutions (e.g., VPN).
+        \item Enforce MFA for logging into all company computers (endpoints).
+        \item Protect all systems containing sensitive data with MFA.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP that clearly defines the rules and responsibilities for all employees when using company technology and data. This policy should be a prerequisite for system access and integrated into the employee onboarding process.
+\end{enumerate}
+
+\subsection{Medium Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{Enhance Vulnerability Scanning:} Implement a robust vulnerability management program that includes authenticated internal scans. Authenticated scans provide much deeper insight than external scans, allowing for the identification of outdated software versions, missing patches, and insecure configurations that are not visible from the outside.
+\end{enumerate}
+
+\end{document}
+```

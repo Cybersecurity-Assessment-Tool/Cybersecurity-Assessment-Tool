@@ -1,0 +1,198 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings in tt font
+
+% Document Metadata and Hyperlink Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Nmap, Risk Assessment},
+    bookmarks=true
+}
+
+\begin{document}
+
+% --- Title Section ---
+\begin{center}
+    \vspace*{1cm}
+    \huge{\textbf{Cybersecurity Posture Report}}
+    \vspace{0.5cm}
+    \large{\textbf{Prepared for: Golden Gate Gaming}}
+    \vspace{1.5cm}
+    
+    \textbf{Date of Report:} \today \\
+    \textbf{Date of Scan:} 2025-11-22
+    
+    \vspace{2cm}
+    
+    \hrule
+    \vspace{0.5cm}
+    \begin{abstract}
+        \noindent This report provides a comprehensive analysis of the cybersecurity posture of Golden Gate Gaming. It is based on the correlation of a network vulnerability scan, a review of organizational security controls, and an assessment of existing risks. The findings indicate a mixed security posture with commendable practices in user authentication and training, but critical gaps in access control for sensitive systems, policy documentation, and software patch management. Immediate action is required to remediate the identified high-severity risks.
+    \end{abstract}
+    \vspace{0.5cm}
+    \hrule
+\end{center}
+
+\newpage
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- Section 1: Overview ---
+\section*{1. Executive Summary}
+
+The assessment of Golden Gate Gaming reveals a security posture with several positive controls, including the enforcement of Multi-Factor Authentication (MFA) for email and computer access, and a consistent security awareness training program. These measures establish a solid foundation for user-level security.
+
+However, three significant risks were identified that require immediate attention:
+\begin{itemize}
+    \item \textbf{Critical Risk:} The absence of MFA for accessing sensitive data systems exposes critical assets to unauthorized access.
+    \item \textbf{High Risk:} The external-facing web server is running an outdated version of Nginx (1.18.0), which is known to have multiple security vulnerabilities.
+    \item \textbf{High Risk:} The lack of a formal Acceptable Use Policy (AUP) creates ambiguity regarding the secure and appropriate use of company assets, increasing the risk of insider threats and misconfigurations.
+\end{itemize}
+This report details these findings and provides actionable recommendations to mitigate the identified risks and strengthen the overall security posture.
+
+% --- Section 2: Organizational Information ---
+\section*{2. Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context for the technical and administrative findings.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Golden Gate Gaming \\
+    Primary Email Domain & \texttt{GoldenGateGaming.org} \\
+    Primary Website Domain & \texttt{www.GoldenGateGaming.org} \\
+    External IP Address & \texttt{143.89.159.47} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section*{3. Security Control Review}
+
+A review of administrative and technical security controls was conducted via a questionnaire. The responses indicate the current state of implemented policies and procedures. Gaps in these controls often represent significant organizational risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} \\
+    Do you require MFA to log into computers? & \ding{51} \\
+    \textbf{Do you require MFA to access sensitive data systems?} & \textbf{\ding{55}} \\
+    \textbf{Does your organization have an employee acceptable use policy?} & \textbf{\ding{55}} \\
+    Does your organization do security awareness training for new employees? & \ding{51} \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Security Control Questionnaire. (\ding{51} = Yes, \ding{55} = No)}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{MFA for Sensitive Data:} The lack of MFA on systems containing sensitive data is a critical security failure. Should an attacker compromise a user's credentials, they would have direct access to the organization's most valuable information.
+    \item \textbf{Acceptable Use Policy (AUP):} An AUP is a foundational administrative control. Its absence means there are no formal guidelines for employees on how to handle company data, use network resources, or what constitutes prohibited activity. This increases the likelihood of accidental data breaches and malicious insider activity.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section*{4. Technical Scan Results}
+
+An external network scan was performed to identify open ports, running services, and potential vulnerabilities on the public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.10.5}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    443/tcp & open & https & nginx & 1.18.0 \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports and Services Identified on the Target System.}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified one open port running an Nginx web server. Two key issues were noted:
+\begin{enumerate}
+    \item \textbf{Outdated Software:} Nginx version \textbf{1.18.0} was released in April 2020. This version is significantly outdated and is missing years of critical security patches. It is susceptible to numerous publicly disclosed vulnerabilities (e.g., CVE-2021-23017), which could allow an attacker to achieve request smuggling, denial of service, or other impacts.
+    \item \textbf{SSL Certificate Mismatch:} The SSL certificate presented by the server has a Common Name of \texttt{www.acme-corp.com}, which does not match the organization's domain (\texttt{www.GoldenGateGaming.org}). This misconfiguration will cause browser trust errors for visitors and may indicate that the server is not correctly configured.
+\end{enumerate}
+
+% --- Section 5: Risk Assessment ---
+\section*{5. Risk Assessment Summary}
+
+The following table synthesizes the findings from the security control review and the technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\linewidth}p{0.3\linewidth}p{0.15\linewidth}p{0.35\linewidth}@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+    \midrule
+    RISK-001 & Lack of MFA for Sensitive Data & \textbf{Critical} & The absence of a secondary authentication factor for sensitive systems allows for single-point-of-failure credential compromise. \\
+    \addlinespace
+    RISK-002 & Outdated Web Server Software & \textbf{High} & The public-facing Nginx server is running a vulnerable version (1.18.0), exposing the organization to remote attacks. \\
+    \addlinespace
+    RISK-003 & Missing Acceptable Use Policy & \textbf{High} & Lack of a formal AUP creates significant insider threat and compliance risk due to undefined rules for employee behavior. \\
+    \bottomrule
+\end{tabular}
+\caption{Prioritized List of Identified Risks.}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section*{6. Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of Golden Gate Gaming. Recommendations are prioritized by severity.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement MFA for All Sensitive Systems (RISK-001):}
+    \begin{itemize}
+        \item Immediately deploy a robust MFA solution across all applications, databases, and administrative interfaces that process or store sensitive data.
+        \item This should be the highest priority remediation effort.
+    \end{itemize}
+    
+    \item \textbf{[High] Upgrade Web Server Software (RISK-002):}
+    \begin{itemize}
+        \item Plan and execute an upgrade of the Nginx server from version 1.18.0 to the latest stable version.
+        \item Establish a formal patch management policy to ensure all internet-facing systems are updated in a timely manner.
+    \end{itemize}
+    
+    \item \textbf{[High] Develop and Implement an Acceptable Use Policy (RISK-003):}
+    \begin{itemize}
+        \item Draft a comprehensive AUP that clearly defines rules for using company technology, handling data, and accessing the internet.
+        \item Require all current and new employees to read and formally acknowledge the policy.
+    \end{itemize}
+    
+    \item \textbf{[Medium] Correct SSL Certificate Configuration:}
+    \begin{itemize}
+        \item Replace the current SSL certificate on the web server with one that correctly corresponds to the \texttt{www.GoldenGateGaming.org} domain to resolve trust errors and ensure proper encryption.
+    \end{itemize}
+\end{enumerate}
+
+% --- Section 7: Conclusion ---
+\section*{7. Conclusion}
+
+Golden Gate Gaming has implemented several effective security controls, particularly regarding user authentication and awareness. However, critical and high-severity risks associated with access control, patch management, and foundational security policies threaten to undermine these strengths. By implementing the recommendations outlined in this report, the organization can significantly reduce its attack surface, mitigate the most pressing threats, and build a more resilient and defensible security posture.
+
+\end{document}
+```

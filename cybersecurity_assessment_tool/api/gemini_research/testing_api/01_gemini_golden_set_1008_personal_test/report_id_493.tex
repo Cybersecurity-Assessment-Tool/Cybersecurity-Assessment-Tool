@@ -1,0 +1,142 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings without spaces
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{Fable \& Lore}, conducted on November 22, 2025. The analysis correlates findings from a technical network scan, a review of organizational security controls, and a list of pre-existing risks.
+
+The assessment reveals several critical and high-risk gaps in the organization's security posture. Key findings include the lack of multi-factor authentication (MFA) for email access, which exposes the organization to significant risk of account compromise and phishing attacks. Furthermore, a public-facing web server was found to be running an outdated and vulnerable version of Nginx (1.18.0).
+
+Procedural weaknesses were also identified, including the absence of a formal employee acceptable use policy and a lack of security awareness training for new hires. These gaps create an environment where both technical and human-related risks are elevated.
+
+Immediate remediation is required to address these findings. Recommendations focus on implementing foundational security controls, patching vulnerable systems, and formalizing security policies and training programs to build a more resilient security posture.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} Fable \& Lore
+    \item \textbf{Email Domain:} \texttt{FableLore.net}
+    \item \textbf{External IP Address:} \texttt{203.217.180.45}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of administrative and procedural security controls was conducted based on a questionnaire. The responses highlight significant gaps in foundational security practices. A "No" response indicates a deviation from security best practices and represents a potential risk.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Controls Questionnaire}
+\label{tab:controls}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees annually? & \textcolor{green}{\ding{51}} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{192.168.10.5}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+\subsection{Open Ports and Services}
+The following table details the services discovered during the scan.
+
+\begin{table}[h!]
+\centering
+\caption{Discovered Network Services}
+\label{tab:nmap}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+443/tcp & open & https & nginx & 1.18.0 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Technical Analysis}
+The scan identified a single open port (443/tcp) running an Nginx web server, version \textbf{1.18.0}. This version was released in April 2020 and is now significantly outdated. It is known to be affected by multiple publicly disclosed vulnerabilities, including but not limited to CVE-2021-23017. Running outdated software on internet-facing systems presents a high risk of compromise, as attackers can exploit known flaws to gain unauthorized access, execute arbitrary code, or cause a denial of service.
+
+% --- 5. Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from the security control review and the technical scan. No previously documented risks were provided for this assessment. The following table summarizes the newly identified risks, prioritized by severity.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Description} & \textbf{Severity} & \textbf{Source} \\ \midrule
+R-01 & Lack of MFA on email accounts. & \textbf{Critical} & Questionnaire \\
+R-02 & Outdated Nginx web server (v1.18.0) is exposed. & \textbf{High} & Network Scan \\
+R-03 & Missing employee Acceptable Use Policy (AUP). & \textbf{High} & Questionnaire \\
+R-04 & No security awareness training for new hires. & \textbf{Medium} & Questionnaire \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Fable \& Lore}.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement MFA for Email:} Immediately enforce MFA for all user accounts across the \texttt{FableLore.net} email domain. This is the single most effective control to prevent unauthorized account access resulting from credential theft or phishing.
+    
+    \item \textbf{[High] Upgrade Nginx Server:} The Nginx server on host \texttt{192.168.10.5} must be upgraded from version 1.18.0 to the latest stable version. A patch management process should be established to ensure all internet-facing systems are updated in a timely manner.
+    
+    \item \textbf{[High] Develop and Implement an AUP:} Create a formal Acceptable Use Policy that clearly defines the rules and responsibilities for all employees when using company IT assets. This policy should be communicated to all staff and acknowledged in writing.
+    
+    \item \textbf{[Medium] Integrate Security Training into Onboarding:} Incorporate mandatory security awareness training into the new employee onboarding process. This ensures that all new staff members are aware of critical security policies, common threats like phishing, and their role in protecting the organization from day one.
+\end{enumerate}
+
+% --- 7. Conclusion ---
+\section{Conclusion}
+The assessment identified significant risks stemming from both technical vulnerabilities and procedural deficiencies. While some security controls are in place, critical gaps related to email security, patch management, and employee policies leave \textbf{Fable \& Lore} vulnerable to common cyber threats.
+
+We strongly advise prioritizing the remediation steps outlined in this report, starting with the critical and high-severity findings. A proactive approach to addressing these issues will substantially strengthen the organization's defenses against cyberattacks.
+
+\end{document}
+```

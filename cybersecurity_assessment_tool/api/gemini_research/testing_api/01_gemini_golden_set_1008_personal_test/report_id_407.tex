@@ -1,0 +1,161 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks (\ding{51}) and crosses (\ding{55})
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url}      % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{xcolor}   % For custom colors
+
+% Hyperlink Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+}
+
+% Document Title Block
+\title{Cybersecurity Posture Assessment Report \\ \large For: Oasis Wellness}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+\setcounter{page}{1}
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for Oasis Wellness, based on an analysis of organizational security controls, technical network scan results, and pre-existing risk data. The assessment reveals several critical and high-risk areas requiring immediate attention.
+
+Key findings indicate significant gaps in administrative controls. The absence of Multi-Factor Authentication (MFA) for email access represents a \textbf{critical vulnerability} to account takeover and phishing attacks. This risk is compounded by a complete lack of a security awareness training program for employees, which is identified as a \textbf{high-risk} deficiency.
+
+From a technical perspective, a network scan identified an open SSH port (22/tcp) on a loopback interface (\texttt{127.0.0.1}). This finding directly correlates with a pre-existing documented risk, "Localhost Exposed," which is rated at a maximum CVSS score of 10.0 (\textbf{Critical}).
+
+Immediate remediation should focus on implementing MFA for all email accounts, establishing a mandatory security awareness training program, and investigating the exposed localhost service to ensure it is not accessible externally and is properly secured.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Oasis Wellness \\
+Email Domain & \seqsplit{\texttt{OasisWellness.com}} \\
+Website Domain & \seqsplit{\url{www.OasisWellness.com}} \\
+External IP Address & \seqsplit{\texttt{217.249.123.63}} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a standardized questionnaire. The results below highlight implemented controls and identify significant gaps. A red 'X' (\ding{55}) indicates a control that is not in place and represents a potential security risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.8\textwidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\caption{Organizational Security Control Status}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The questionnaire reveals two primary areas of concern:
+\begin{itemize}
+    \item \textbf{Email Security:} The lack of MFA on email is a critical oversight. Email accounts are a primary target for attackers seeking to gain an initial foothold, conduct business email compromise (BEC), or launch further attacks.
+    \item \textbf{Security Awareness:} The absence of any security awareness training program means employees are likely unprepared to identify and respond to common threats like phishing, social engineering, and malware.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and services visible on the target system. The results provide insight into the technical attack surface.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{127.0.0.1}
+    \item \textbf{Scan Date:} Not provided in scan data.
+    \item \textbf{Host Status:} UP
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+\midrule
+22/tcp & open & SSH & No version information was available. \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{127.0.0.1}}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified an open Secure Shell (SSH) port on the localhost interface. While this service is typically used for secure remote administration, its presence on a system flagged with a "Localhost Exposed" vulnerability is a \textbf{critical concern}. It implies that this service may be misconfigured or unintentionally exposed. Further investigation is required to determine the business need for this service and to ensure it is not accessible from untrusted networks.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of security risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.25\textwidth}p{0.55\textwidth}l}
+\toprule
+\textbf{Identified Risk} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Localhost Exposed} & The network scan confirms an open SSH port on \texttt{127.0.0.1}, directly correlating with a pre-existing risk rated at CVSS 10.0. This could allow an attacker to gain unauthorized remote access. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of MFA for Email Access} & The absence of MFA on email accounts makes them highly susceptible to compromise via credential stuffing or phishing, leading to data breaches and financial fraud. & \textbf{Critical} \\
+\addlinespace
+\textbf{Inadequate Security Awareness Training} & The organization does not conduct security training for new or existing employees. This elevates the risk of human error leading to security incidents. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Security Risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks and improve the overall security posture of Oasis Wellness.
+
+\subsection{Remediate Exposed Service (Critical)}
+\begin{enumerate}
+    \item \textbf{Immediate Action:} Investigate the SSH service running on port 22 of \texttt{127.0.0.1}. Determine its purpose and why it was flagged as a critical vulnerability.
+    \item \textbf{Containment:} If the service is not required, disable it immediately.
+    \item \textbf{Long-Term Fix:} If the service is required, ensure it is firewalled from all external access and configured according to security best practices (e.g., disable root login, use key-based authentication).
+\end{enumerate}
+
+\subsection{Implement MFA for Email (Critical)}
+\begin{enumerate}
+    \item \textbf{Immediate Action:} Enable MFA for all email accounts, starting with administrative and executive accounts.
+    \item \textbf{Policy:} Update IT policy to mandate MFA for all new and existing email accounts.
+    \item \textbf{Implementation:} Prioritize user-friendly MFA methods, such as authenticator apps (e.g., Google Authenticator, Microsoft Authenticator) or hardware tokens, to encourage adoption.
+\end{enumerate}
+
+\subsection{Establish Security Awareness Program (High)}
+\begin{enumerate}
+    \item \textbf{Immediate Action:} Procure and deploy a security awareness training module for all current employees covering essential topics like phishing, password security, and acceptable use.
+    \item \textbf{Onboarding:} Integrate mandatory security awareness training into the new employee onboarding process.
+    \item \textbf{Long-Term Fix:} Schedule annual refresher training and conduct periodic phishing simulations to measure effectiveness and maintain a high level of security consciousness among staff.
+\end{enumerate}
+
+\end{document}
+```

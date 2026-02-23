@@ -1,0 +1,168 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGE IMPORTS ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ===================================================================
+% 1. EXECUTIVE SUMMARY
+% ===================================================================
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, based on a network scan, a review of administrative security controls, and an analysis of pre-existing risks.
+
+The assessment reveals a mixed security posture. The organization demonstrates strong foundational security in its identity and access management, with Multi-Factor Authentication (MFA) widely implemented across key systems. The external network scan of \texttt{[Client IP]} did not reveal any open, vulnerable ports; specifically, a previously identified risk concerning an open Port 80 appears to have been remediated as the port was found to be closed.
+
+However, a critical gap was identified in the employee onboarding process. The lack of mandatory security awareness training for new employees represents a significant administrative vulnerability. This gap exposes the organization to a heightened risk of social engineering attacks, such as phishing, and unintentional policy violations.
+
+Our primary recommendation is to immediately implement a mandatory security awareness training module into the new employee onboarding process. This will ensure that all personnel are equipped with the fundamental knowledge required to protect organizational assets from day one.
+
+% ===================================================================
+% 2. ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+This section details the information provided by the client organization. The data has been anonymized as per the engagement protocol.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% ===================================================================
+% 3. SECURITY CONTROL REVIEW
+% ===================================================================
+\section{Security Control Review (Questionnaire)}
+
+The following table summarizes the organization's responses to a security controls questionnaire. This review provides insight into the administrative and policy-based security measures currently in place.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textbf{\color{red}\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The organization has effectively implemented MFA across critical access points, which significantly reduces the risk of unauthorized access via compromised credentials. However, the lack of security awareness training for new employees (\textbf{marked in red}) is a critical deficiency. New hires are often prime targets for social engineering attacks, and without initial training, they are more likely to fall victim to phishing, mishandle sensitive data, or violate acceptable use policies unknowingly. This gap undermines the effectiveness of other security controls.
+
+% ===================================================================
+% 4. TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed using Nmap to identify open ports and services visible on the public internet.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} As per scan metadata
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+\subsection*{Port Scan Details}
+The scan results indicate a minimal external attack surface, which is a positive security finding.
+
+\begin{table}[h!]
+\centering
+\caption{Nmap Port Scan Results for \texttt{[Target IP]}}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} \\
+\midrule
+80/tcp & closed & http \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan confirmed that port 80 (HTTP) is \textbf{closed} to external traffic. This is a strong security practice, as it prevents unencrypted web communication. This finding directly contradicts a pre-existing risk entry (see Section 5), suggesting that the risk has been successfully remediated or was a false positive in a previous assessment. No other open ports were discovered during this scan.
+
+% ===================================================================
+% 5. CONSOLIDATED RISK ASSESSMENT
+% ===================================================================
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, the technical scan, and pre-existing risk data into a consolidated list.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.3\linewidth}p{0.4\linewidth}p{0.15\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of Onboarding Security Training} & New employees do not receive security awareness training, making them highly susceptible to social engineering and unintentional policy violations. This represents a significant gap in administrative controls. & \textbf{High} \\
+\addlinespace
+\textbf{Unencrypted Web Server (Port 80)} & \textit{Pre-existing risk.} The current network scan found Port 80 to be \textbf{closed}, indicating this risk is likely remediated. The risk register should be updated to reflect this. & \textbf{Informational} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+% 6. RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+Based on the analysis, we provide the following prioritized recommendations to enhance the cybersecurity posture of \textbf{[Organization Name]}.
+
+\subsection*{Priority 1: Implement Onboarding Security Training (High)}
+\begin{itemize}
+    \item \textbf{Action:} Develop and integrate a mandatory security awareness training module into the formal onboarding process for all new employees and contractors.
+    \item \textbf{Details:} The training should cover, at a minimum:
+    \begin{itemize}
+        \item Phishing and social engineering awareness.
+        \item The organization's acceptable use policy.
+        \item Best practices for password management and MFA.
+        \item Procedures for reporting security incidents.
+    \end{itemize}
+    \item \textbf{Impact:} This will significantly reduce the risk of human error, which is a leading cause of security breaches, and ensure a consistent security baseline across the entire organization.
+\end{itemize}
+
+\subsection*{Priority 2: Update Risk Register (Informational)}
+\begin{itemize}
+    \item \textbf{Action:} Formally validate that the risk associated with the "Unencrypted Web Server" on Port 80 has been remediated.
+    \item \textbf{Details:} Based on our scan, Port 80 is closed. We recommend internal verification and updating the organization's risk register to mark this vulnerability as "Remediated" or "Closed".
+    \item \textbf{Impact:} Ensures the risk register is accurate and reflects the current security posture, allowing resources to be focused on active threats.
+\end{itemize}
+
+\end{document}
+```

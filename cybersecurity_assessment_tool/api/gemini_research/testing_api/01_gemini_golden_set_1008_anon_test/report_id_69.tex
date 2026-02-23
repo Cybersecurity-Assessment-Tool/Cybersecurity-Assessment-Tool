@@ -1,0 +1,199 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % Required for checkmark and cross symbols (\ding)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{seqsplit} % To handle long, unbreakable strings like hashes or URLs
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{datetime}
+
+% --- Custom Commands & Settings ---
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\definecolor{darkgreen}{rgb}{0.0, 0.35, 0.0}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=darkblue,      
+    urlcolor=darkblue,
+    citecolor=darkblue,
+}
+
+% Define macros for Yes/No symbols for clarity
+\newcommand{\yes}{\textcolor{darkgreen}{\ding{51}}}
+\newcommand{\no}{\textcolor{darkred}{\ding{55}}}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture Assessment Report} \\
+    \large For: \textbf{[Organization Name]}
+    \vspace{1cm}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on network scans, a security controls questionnaire, and a review of existing risk documentation. The assessment was conducted to identify vulnerabilities, policy gaps, and areas of non-compliance with security best practices.
+
+While the organization has implemented foundational security controls, such as requiring Multi-Factor Authentication (MFA) for email and computer access, several critical and high-risk issues were identified that require immediate attention.
+
+\textbf{Key Findings:}
+\begin{itemize}
+    \item \textbf{Critical Risk - Exposed Sensitive Service:} An external network scan identified an open service on port 8080 with a title suggesting it is a ``TOP SECRET DB''. This exposed interface presents a direct and severe threat of a data breach. This finding directly contradicts the existing risk register, which incorrectly lists this port as secure.
+    \item \textbf{High Risk - Insufficient Access Controls:} The organization does not require MFA for accessing sensitive data systems. When combined with the exposed service mentioned above, this gap significantly increases the risk of unauthorized access to critical information.
+    \item \textbf{High Risk - Policy Gap:} The absence of a formal Employee Acceptable Use Policy (AUP) creates ambiguity regarding security responsibilities and acceptable behavior, increasing the likelihood of insider threats, whether intentional or accidental.
+\end{itemize}
+
+This report details these findings and provides actionable recommendations to mitigate the identified risks and strengthen the overall security posture.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+This section outlines the basic information provided for the assessment. The data has been anonymized as per the engagement protocol.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \texttt{[Domain]} \\
+    External IP Address Scanned & \texttt{[Client IP]} \\
+    Target IP in Scan Data & \texttt{[Target IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to the security controls questionnaire. A \yes\ indicates a positive control in place, while a \no\ indicates a potential gap that requires attention.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Summary}
+\begin{tabular}{@{}p{0.7\linewidth}cc@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & Yes & \yes \\
+    Do you require MFA to log into computers? & Yes & \yes \\
+    Do you require MFA to access sensitive data systems? & No & \no \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & No & \no \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & Yes & \yes \\
+    Does your organization do security awareness training for all employees at least once per year? & Yes & \yes \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The lack of MFA for sensitive systems and the absence of an Acceptable Use Policy are significant findings that directly contribute to the organization's risk profile.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed against the target IP address \texttt{[Target IP]}. The scan identified the following open port and service.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service Info / Notes} \\
+    \midrule
+    8080/tcp & Open & \textbf{Critical Finding:} The HTTP service running on this port \\
+    & & returned the title: \textbf{``TOP SECRET DB''}. This strongly \\
+    & & indicates a highly sensitive, and potentially unsecured, \\
+    & & database interface is exposed to the public internet. \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The discovery of a publicly accessible service with such a sensitive title is a critical vulnerability. This finding contradicts the information in the current risk register (\textit{Input\_3\_Current\_Risks\_JSON}), which states this port is secure. The technical evidence from the live scan supersedes the outdated risk documentation.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+
+This section synthesizes findings from the security questionnaire, technical scans, and existing risk data to provide a holistic view of the current risk landscape.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.15\linewidth}p{0.25\linewidth}p{0.5\linewidth}@{}}
+    \toprule
+    \textbf{Severity} & \textbf{Risk Name} & \textbf{Description} \\
+    \midrule
+    \textbf{Critical} & Exposed Sensitive Database Interface & An open service on port 8080 is titled ``TOP SECRET DB'', indicating a high-value target is publicly accessible. This contradicts existing documentation. \\
+    \addlinespace
+    \textbf{High} & Lack of MFA for Sensitive Systems & The absence of MFA on critical data systems, as confirmed by the questionnaire, makes these systems vulnerable to credential theft and unauthorized access. \\
+    \addlinespace
+    \textbf{High} & Missing Acceptable Use Policy & Without a formal AUP, there is no enforceable policy governing the use of company assets, increasing the risk of data misuse and security incidents. \\
+    \addlinespace
+    \textbf{Informational} & Inaccurate Risk Register & The existing risk register incorrectly classifies Port 8080 as secure. This indicates a flawed or outdated risk management process. \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity.
+
+\subsection{Immediate Actions (Critical Risk)}
+\begin{description}
+    \item[Risk Addressed:] Exposed Sensitive Database Interface (Port 8080)
+    \item[Recommendation:]
+    \begin{enumerate}
+        \item \textbf{Containment:} Immediately restrict all public access to port 8080 at the network firewall. Access should only be permitted from trusted, internal IP addresses if absolutely necessary.
+        \item \textbf{Investigation:} Urgently investigate the service running on this port to determine its purpose, the data it contains, and whether it has been compromised.
+        \item \textbf{Remediation:} If the service is required, ensure it is protected with strong authentication, encryption (HTTPS), and robust access controls. If it is not required, decommission it completely.
+    \end{enumerate}
+\end{description}
+
+\subsection{High-Priority Actions}
+\begin{description}
+    \item[Risk Addressed:] Lack of MFA for Sensitive Systems
+    \item[Recommendation:]
+    \begin{enumerate}
+        \item \textbf{Policy Update:} Update the access control policy to mandate MFA for all systems classified as containing sensitive or critical data.
+        \item \textbf{Implementation:} Procure and deploy an MFA solution for all sensitive systems. Prioritize systems accessible from the internet.
+    \end{enumerate}
+    \vspace{0.5cm}
+    \item[Risk Addressed:] Missing Acceptable Use Policy
+    \item[Recommendation:]
+    \begin{enumerate}
+        \item \textbf{Development:} Draft a comprehensive Acceptable Use Policy (AUP) that clearly defines rules for computer, network, and data usage.
+        \item \textbf{Implementation:} Communicate the policy to all employees and require them to formally acknowledge it. Integrate AUP training into the new employee onboarding process.
+    \end{enumerate}
+\end{description}
+
+\subsection{Process Improvement Recommendations}
+\begin{description}
+    \item[Risk Addressed:] Inaccurate Risk Register
+    \item[Recommendation:]
+    \begin{enumerate}
+        \item \textbf{Update Register:} Immediately update the risk register to reflect the critical finding on Port 8080. The old entry should be archived or marked as superseded.
+        \item \textbf{Review Process:} Implement a recurring process to validate risk register entries against live technical data (e.g., quarterly vulnerability scans) to ensure accuracy.
+    \end{enumerate}
+\end{description}
+
+\end{document}
+```

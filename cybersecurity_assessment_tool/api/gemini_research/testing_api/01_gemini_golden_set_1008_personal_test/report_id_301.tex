@@ -1,0 +1,179 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{datetime}
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Custom commands for severity
+\newcommand{\sevCRITICAL}{\textcolor{red}{\textbf{CRITICAL}}}
+\newcommand{\sevHIGH}{\textcolor{orange}{\textbf{HIGH}}}
+\newcommand{\sevMEDIUM}{\textcolor{yellow!80!black}{\textbf{MEDIUM}}}
+\newcommand{\sevLOW}{\textcolor{green}{\textbf{LOW}}}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder for company logo
+    \vfill
+    \huge\bfseries
+    Cybersecurity Assessment Report
+    \vspace{1cm}
+    \Large
+    Prepared for: Vertex Solutions
+    \vspace{2cm}
+    \normalsize
+    Report Date: \today \\
+    Scan Date: 2025-11-22
+    \vfill
+    \small
+    This document contains sensitive and confidential information. \\
+    Distribution is restricted to authorized personnel only.
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for Vertex Solutions, based on an analysis of organizational data, a network vulnerability scan, and a review of current risks. The assessment was conducted on \today, utilizing data from a network scan performed on 2025-11-22.
+
+The overall security posture of Vertex Solutions is considered to be at a \sevHIGH{} risk level. This is primarily due to several critical deficiencies identified in both procedural and technical security controls.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Gaps in Access Control:} Multi-Factor Authentication (MFA) is not enforced for accessing email or other sensitive data systems. This exposes the organization to significant risks of account takeover and data breaches.
+    \item \textbf{Vulnerable External Services:} The external-facing web server is running an outdated and vulnerable version of Nginx (1.18.0), which has known security vulnerabilities.
+    \item \textbf{Policy and Training Deficiencies:} The organization lacks a formal Acceptable Use Policy and does not conduct mandatory annual security awareness training for all employees, increasing the likelihood of human error leading to a security incident.
+    \item \textbf{Technical Misconfiguration:} The SSL certificate for the web server does not match the organization's domain, which erodes user trust and can be indicative of improper system management.
+\end{itemize}
+
+Immediate remediation of these issues is strongly recommended to reduce the organization's attack surface and mitigate the risk of a significant security incident. Detailed findings and actionable recommendations are provided in the subsequent sections of this report.
+
+% --- Organizational Information ---
+\section{Organizational Information}
+The following information was provided by the client and used as a baseline for this assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Client Organizational Data}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & Vertex Solutions \\
+Email Domain & \texttt{VertexSolutions.org} \\
+Website Domain & \url{www.VertexSolutions.org} \\
+External IP Address & \texttt{125.107.153.214} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security practices was conducted via a questionnaire. The responses highlight significant gaps in foundational security controls. A green checkmark (\ding{51}) indicates a positive control, while a red cross (\ding{55}) indicates a control gap.
+
+\begin{table}[h!]
+\centering
+\caption{Security Questionnaire Analysis}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The lack of MFA on email and sensitive data systems represents a \sevCRITICAL{} risk. Email is a primary target for attackers seeking to launch Business Email Compromise (BEC) attacks or gain a foothold for lateral movement. Similarly, sensitive data systems without MFA are highly vulnerable to credential stuffing and password spray attacks. The absence of an Acceptable Use Policy and annual security training contributes to a weakened security culture, making employees more susceptible to social engineering attacks.
+
+% --- Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and services exposed to the internet.
+
+\subsection{Scan Summary}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{192.168.10.5}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+\subsection{Open Ports and Services}
+The following table details the services discovered on the target system.
+
+\begin{table}[h!]
+\centering
+\caption{Discovered Network Services}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+443/tcp & open & https & nginx & 1.18.0 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Technical Findings and Analysis}
+\begin{enumerate}
+    \item \textbf{Outdated Web Server Software:} The scan identified \textbf{Nginx version 1.18.0}. This version was released in April 2020 and is now considered end-of-life. It is known to be vulnerable to multiple security issues, including CVE-2021-23017, which could allow an attacker to bypass security restrictions. Running outdated software on internet-facing systems is a \sevHIGH{} risk.
+    \item \textbf{SSL Certificate Mismatch:} Analysis of the SSL certificate presented on port 443 revealed a misconfiguration. The certificate's Common Name is \texttt{www.acme-corp.com}, which does not match the organization's domain (\texttt{www.VertexSolutions.org}). This will cause browser trust errors for visitors and could be exploited in phishing campaigns.
+\end{enumerate}
+
+% --- Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review and the technical scan into a prioritized list of risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.1\linewidth}p{0.45\linewidth}p{0.2\linewidth}l@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Description} & \textbf{Affected Asset(s)} & \textbf{Severity} \\ \midrule
+\textbf{RISK-001} & Lack of Multi-Factor Authentication (MFA) on critical systems allows for account takeover via compromised credentials. & Email System, Sensitive Data Repositories & \sevCRITICAL \\
+\addlinespace
+\textbf{RISK-002} & The public-facing web server is running an outdated and vulnerable version of Nginx (1.18.0), exposing it to remote exploitation. & Web Server (\texttt{192.168.10.5}) & \sevHIGH \\
+\addlinespace
+\textbf{RISK-003} & Deficient security policies and training programs increase the risk of security incidents caused by employee error or negligence. & All Employees, Organizational Data & \sevMEDIUM \\
+\addlinespace
+\textbf{RISK-004} & The web server's SSL certificate does not match the company domain, eroding user trust and indicating poor configuration management. & Public Website, Brand Reputation & \sevMEDIUM \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of Vertex Solutions.
+
+\subsection{Immediate Actions (Next 30 Days)}
+\begin{description}
+    \item[For RISK-001:] \textbf{Enforce MFA on All Critical Systems.} Procure and deploy an MFA solution for all user accounts, prioritizing email (e.g., Office 365, Google Workspace) and any systems identified as containing sensitive data.
+    \item[For RISK-002:] \textbf{Upgrade Nginx Web Server.} Plan and execute an upgrade of the Nginx server from version 1.18.0 to the latest stable version. This will patch known vulnerabilities. A patch management policy should be established for all internet-facing systems.
+\end{description}
+
+\subsection{Strategic Actions (Next 90 Days)}
+\begin{description}
+    \item[For RISK-003:] \textbf{Develop and Implement Security Policies.} Create a formal Acceptable Use Policy (AUP) and ensure it is signed by all employees. Schedule and conduct mandatory annual security awareness training for the entire organization.
+    \item[For RISK-004:] \textbf{Correct SSL Certificate Configuration.} Procure and install a valid SSL certificate for the domain \texttt{www.VertexSolutions.org} on the web server. Ensure certificates are monitored for expiration and proper configuration.
+\end{description}
+
+\end{document}
+```

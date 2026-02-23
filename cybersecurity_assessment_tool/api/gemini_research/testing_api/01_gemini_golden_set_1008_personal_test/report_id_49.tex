@@ -1,0 +1,155 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage[T1]{fontenc}
+
+% Document Metadata
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+%======================================================================
+\section{Executive Summary}
+%======================================================================
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{Vivid Vision}. The assessment included a review of organizational security controls, an external network scan, and an analysis of pre-existing risks.
+
+The overall security posture is evaluated as \textbf{Moderate}. The organization demonstrates strong identity and access management controls, with mandatory Multi-Factor Authentication (MFA) for email, computer logins, and sensitive systems. Additionally, a robust security awareness training program is in place for all employees.
+
+However, two high-risk vulnerabilities were identified that require immediate attention. A critical administrative gap exists due to the lack of an employee Acceptable Use Policy (AUP), which increases the risk of insider threats and improper system usage. Furthermore, the external-facing web server was found to be running an outdated version of nginx (\texttt{1.18.0}), exposing the organization to publicly known vulnerabilities.
+
+Addressing these findings is crucial to mitigating potential security breaches and strengthening the organization's defensive capabilities. Detailed recommendations are provided in Section \ref{sec:recommendations}.
+
+%======================================================================
+\section{Organizational Information}
+%======================================================================
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Vivid Vision} \\
+Email Domain & \texttt{VividVision.org} \\
+Website Domain & \url{www.VividVision.org} \\
+External IP Address & \texttt{4.108.167.215} \\
+\bottomrule
+\end{tabular}
+
+%======================================================================
+\section{Security Control Review}
+%======================================================================
+
+A review of administrative and organizational security controls was conducted based on a standardized questionnaire. The results indicate a strong commitment to identity management and security training but highlight a critical policy gap.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Questionnaire Results}
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\ % Yes
+Do you require MFA to log into computers? & \ding{51} \\ % Yes
+Do you require MFA to access sensitive data systems? & \ding{51} \\ % Yes
+Does your organization have an employee acceptable use policy? & \textbf{\color{red}\ding{55}} \\ % No
+Does your organization do security awareness training for new employees? & \ding{51} \\ % Yes
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\ % Yes
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis}
+The lack of an employee Acceptable Use Policy (AUP) is a significant finding. An AUP is a foundational document that defines the rules and expectations for employees when using company technology and data. Without it, there is an increased risk of misuse of assets, data leakage, and legal ambiguity in the event of an internal security incident. This has been logged as a high-risk finding (RISK-001).
+
+%======================================================================
+\section{Technical Scan Results}
+%======================================================================
+
+An external network scan was performed on \textbf{November 22, 2025}, targeting the host at \texttt{192.168.10.5}. The scan identified one open port, which is detailed below.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services for Target: \texttt{192.168.10.5}}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & open & https & nginx & \textbf{\color{red}1.18.0} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis}
+The scan revealed that the web server is running \textbf{nginx version 1.18.0}. This version was released in April 2020 and is now significantly outdated. It is known to be vulnerable to multiple Common Vulnerabilities and Exposures (CVEs), including but not limited to issues related to request smuggling and DNS resolver flaws (e.g., CVE-2021-23017). Running outdated software on a publicly accessible service presents a high risk of compromise, as attackers can exploit known vulnerabilities to gain unauthorized access, exfiltrate data, or disrupt service. This has been logged as a high-risk finding (RISK-002).
+
+%======================================================================
+\section{Consolidated Risk Assessment}
+%======================================================================
+
+The following table summarizes the key risks identified during this assessment, combining findings from the security control review and the technical scan. No pre-existing risks were reported.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{@{}p{0.1\linewidth}p{0.25\linewidth}p{0.45\linewidth}l@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+RISK-001 & Lack of Acceptable Use Policy & The organization does not have a formal policy defining appropriate use of company IT assets. This increases the risk of insider threat and policy violations. & \textbf{High} \\
+\addlinespace
+RISK-002 & Outdated Web Server Software & The public-facing web server at \texttt{192.168.10.5} is running nginx 1.18.0, a version with multiple known public vulnerabilities. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%======================================================================
+\section{Recommendations}
+\label{sec:recommendations}
+%======================================================================
+
+To mitigate the identified risks and improve the overall security posture, the following actions are recommended with high priority.
+
+\begin{enumerate}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item \textbf{Action:} Draft a comprehensive AUP that clearly outlines the rules for using company networks, computers, email, and data. The policy should cover topics such as data privacy, prohibited activities, and consequences for violation.
+        \item \textbf{Rationale:} This will mitigate RISK-001 by establishing clear security expectations for all employees and providing a legal framework for enforcing security policies.
+        \item \textbf{Priority:} High
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Upgrade Web Server Software:}
+    \begin{itemize}
+        \item \textbf{Action:} Plan and execute an upgrade of the nginx server on host \texttt{192.168.10.5} from version \texttt{1.18.0} to the latest stable version. Ensure proper testing is conducted in a staging environment before deploying to production to avoid service disruption.
+        \item \textbf{Rationale:} This will mitigate RISK-002 by patching known vulnerabilities, significantly reducing the server's attack surface.
+        \item \textbf{Priority:} High
+    \end{itemize}
+\end{enumerate}
+
+%======================================================================
+\section{Conclusion}
+%======================================================================
+
+\textbf{Vivid Vision} has established a solid foundation for its cybersecurity program, particularly in the areas of access control and employee training. However, the high-risk findings related to a missing foundational policy and outdated public-facing software present clear and immediate threats to the organization.
+
+By promptly implementing the recommendations outlined in this report, the organization can effectively remediate these critical vulnerabilities, reduce its risk exposure, and mature its overall security posture.
+
+\end{document}
+```

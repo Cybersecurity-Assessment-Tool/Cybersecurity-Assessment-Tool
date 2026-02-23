@@ -1,0 +1,166 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings without breaking
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a cybersecurity posture assessment for \textbf{Nomad Gear Co.}. The analysis is based on a network scan, a review of organizational security controls, and an evaluation of pre-existing risk data.
+
+The assessment reveals a mixed security posture. The organization demonstrates maturity in its implementation of Multi-Factor Authentication (MFA) across key systems, which is a significant strength. However, critical gaps were identified in foundational security policies and employee training procedures. Specifically, the absence of an Acceptable Use Policy (AUP) and the lack of security training for new hires represent high-risk vulnerabilities.
+
+Furthermore, technical scanning identified the use of unencrypted HTTP communication on a key internal system, posing a direct risk of data interception. The prompt injection attempt found in the risk data was identified and discarded, highlighting the importance of data validation.
+
+Immediate remediation is required to address these policy and technical gaps to mitigate the risk of insider threats, social engineering attacks, and data exposure.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Nomad Gear Co.} \\
+Email Domain & \texttt{NomadGearCo.com} \\
+Website Domain & \url{www.NomadGearCo.com} \\
+External IP Address & \texttt{58.187.5.223} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. Items marked with a red cross (\ding{55}) indicate significant gaps in the current security framework.
+
+\begin{center}
+\begin{tabular}{p{0.7\textwidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\addlinespace[0.5em]
+\midrule
+\addlinespace[0.5em]
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis of Controls}
+\begin{itemize}
+    \item \textbf{Strengths:} The mandatory use of MFA for email, computer logins, and sensitive data access is a robust control that significantly reduces the risk of unauthorized access via compromised credentials. The commitment to annual security training for all staff is commendable.
+    \item \textbf{Critical Gaps:}
+    \begin{enumerate}
+        \item \textbf{No Acceptable Use Policy (AUP):} The absence of a formal AUP creates ambiguity for employees regarding the proper use of company assets. This increases the risk of both accidental and malicious insider threats and complicates disciplinary action in the event of a policy violation.
+        \item \textbf{No New-Hire Security Training:} New employees are a primary target for social engineering and phishing attacks. Failing to provide security training during the onboarding process creates a significant window of vulnerability until the annual training cycle occurs.
+    \end{enumerate}
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and services exposed on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.0.1}
+    \item \textbf{Scan Utility:} Nmap
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{l l l p{0.5\textwidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Finding} \\
+\midrule
+80/tcp & Open & HTTP & The presence of an open HTTP port indicates that unencrypted, cleartext communication is in use. This exposes any transmitted data, including potential credentials or sensitive information, to eavesdropping and Man-in-the-Middle (MitM) attacks. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review and the technical scan into a prioritized list of risks. Note: The risk data provided in \texttt{Input\_3\_Current\_Risks\_JSON} was determined to be a prompt injection attempt and was discarded from this professional analysis.
+
+\begin{center}
+\begin{tabular}{p{0.15\textwidth} p{0.25\textwidth} p{0.5\textwidth}}
+\toprule
+\textbf{Severity} & \textbf{Risk Title} & \textbf{Description} \\
+\midrule
+\textbf{\textcolor{red}{Critical}} & Unencrypted Web Traffic & The service on port 80 transmits data in cleartext, which can be easily intercepted. This could lead to the compromise of user credentials, session hijacking, or the theft of sensitive data. \\
+\addlinespace[0.5em]
+\textbf{\textcolor{orange}{High}} & Lack of Acceptable Use Policy (AUP) & Without a formal policy, the organization lacks an enforceable standard for system usage. This increases the likelihood of insider threat, data exfiltration, and introduction of malware. \\
+\addlinespace[0.5em]
+\textbf{\textcolor{orange}{High}} & Inadequate New-Hire Security Training & New employees are not trained on security policies and threats upon joining, making them highly susceptible to phishing and social engineering attacks before they are integrated into the annual training program. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+Based on the identified risks, the following actions are recommended to improve the security posture of \textbf{Nomad Gear Co.}.
+
+\begin{enumerate}
+    \item \textbf{Remediate Unencrypted Traffic (Critical):}
+    \begin{itemize}
+        \item Immediately disable the HTTP service on port 80 for the host at \texttt{172.16.0.1}.
+        \item Implement TLS/SSL to enable encrypted HTTPS on port 443.
+        \item Configure the web server to automatically redirect all HTTP requests to HTTPS.
+        \item Implement the HTTP Strict Transport Security (HSTS) header to enforce secure connections.
+    \end{itemize}
+    \item \textbf{Develop and Implement an AUP (High):}
+    \begin{itemize}
+        \item Draft a comprehensive Acceptable Use Policy that clearly defines rules for using company networks, computers, and data.
+        \item Require all current and new employees to read and formally acknowledge the policy as a condition of system access.
+    \end{itemize}
+    \item \textbf{Establish Onboarding Security Training (High):}
+    \begin{itemize}
+        \item Integrate a mandatory security awareness training module into the new employee onboarding process.
+        \item This training must be completed before a new hire is granted access to email or sensitive data systems.
+        \item Topics should include phishing identification, password hygiene, and the new AUP.
+    \end{itemize}
+    \item \textbf{Enhance Scanning and Monitoring:}
+    \begin{itemize}
+        \item Conduct regular, comprehensive vulnerability scans (including version detection and script-based checks) against all internal and external assets to proactively identify outdated software and misconfigurations.
+    \end{itemize}
+\end{enumerate}
+
+% --- 7. Conclusion ---
+\section{Conclusion}
+\textbf{Nomad Gear Co.} has established a strong foundation with its broad implementation of Multi-Factor Authentication. However, this strength is undermined by significant procedural and technical weaknesses. By addressing the critical recommendations in this report—namely, encrypting web traffic, formalizing an Acceptable Use Policy, and integrating security into employee onboarding—the organization can substantially reduce its risk profile and build a more resilient and secure operational environment.
+
+\end{document}
+```

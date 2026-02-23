@@ -1,0 +1,205 @@
+```latex
+\documentclass[12pt]{article}
+
+% 1. DOCUMENT SETUP & PACKAGES
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{fancyhdr} % For headers and footers
+\usepackage{lastpage} % To get the total number of pages
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For logos (placeholder)
+
+% --- Hyperlink Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Header and Footer Setup ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{\textbf{Cybersecurity Posture Assessment}}
+\fancyhead[R]{Ember Glow Hospitality}
+\fancyfoot[L]{\textit{Confidential}}
+\fancyfoot[C]{Page \thepage\ of \pageref{LastPage}}
+\fancyfoot[R]{\today}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}} % Checkmark
+\newcommand{\no}{\ding{55}}  % X-mark
+\newcommand{\riskcritical}[1]{\textcolor{red}{\textbf{#1}}}
+\newcommand{\riskhigh}[1]{\textcolor{orange}{\textbf{#1}}}
+\newcommand{\riskmedium}[1]{\textcolor{yellow!80!black}{\textbf{#1}}}
+
+\begin{document}
+
+% 2. TITLE PAGE
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for:
+    
+    \vspace{0.5cm}
+    
+    \textbf{Ember Glow Hospitality}
+    
+    \vfill
+    
+    \large
+    \textbf{Date of Report:} \today \\
+    \textbf{Analysis Period:} October 2023
+    
+    \vspace{1.5cm}
+    
+    \textit{This document contains sensitive and confidential information. Distribution is restricted to authorized personnel only.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% 3. EXECUTIVE SUMMARY
+\section{Executive Summary}
+This report details the findings of a cybersecurity posture assessment for \textbf{Ember Glow Hospitality}. The analysis combines a review of organizational security controls, technical network scanning, and a summary of pre-existing risks to provide a holistic view of the current security landscape.
+
+The assessment identified several critical-risk findings that require immediate attention. The most severe issue is the systemic lack of Multi-Factor Authentication (MFA) across all key access points, including computer logins, email, and sensitive data systems. This administrative gap is dangerously compounded by technical findings, specifically the discovery of a new host (\texttt{10.10.10.51}) exposing Remote Desktop Protocol (RDP) to the network. This mirrors a pre-existing risk on another host, indicating a pattern of misconfiguration.
+
+The combination of exposed RDP and the absence of MFA for computer logins creates a direct and high-probability pathway for ransomware attacks and unauthorized network access. An attacker who obtains a single user credential could gain significant control over internal systems.
+
+Overall, the security posture of \textbf{Ember Glow Hospitality} is considered to be at a \riskcritical{High Risk} level. Immediate remediation of the identified MFA and RDP vulnerabilities is strongly recommended to mitigate the threat of a significant security incident.
+
+% 4. ORGANIZATIONAL INFORMATION
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name    & \textbf{Ember Glow Hospitality} \\
+Email Domain         & \texttt{EmberGlowHospitality.org} \\
+Website Domain       & \seqsplit{\url{www.EmberGlowHospitality.org}} \\
+External IP Address  & \texttt{205.70.178.66} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Data.}
+\label{tab:org_data}
+\end{table}
+
+% 5. SECURITY CONTROL REVIEW (QUESTIONNAIRE)
+\section{Security Control Review}
+A review of the organization's administrative security controls was conducted via a questionnaire. The results highlight significant gaps in access control policies.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\textwidth}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\ \midrule
+Do you require MFA to access email? & \no & \riskcritical{Critical Gap} \\
+Do you require MFA to log into computers? & \no & \riskcritical{Critical Gap} \\
+Do you require MFA to access sensitive data systems? & \no & \riskcritical{Critical Gap} \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \yes & Implemented \\
+Does your organization do security awareness training for new employees? & \yes & Implemented \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Implemented \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis.}
+\label{tab:controls}
+\end{table}
+
+The lack of MFA for email, computer, and data system access represents a fundamental failure in identity and access management. While the organization's security awareness training program is a positive control, it is not sufficient to protect against credential compromise without the technical enforcement provided by MFA.
+
+% 6. TECHNICAL SCAN RESULTS
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\subsection{Target: \texttt{10.10.10.51}}
+The scan revealed the following open port on the specified internal host.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Analysis} \\ \midrule
+3389/tcp & open & \texttt{ms-wbt-server} & \riskhigh{High Risk}. This is the Microsoft Remote \\
+& & & Desktop Protocol (RDP). Exposing RDP without \\
+& & & compensating controls (e.g., VPN, MFA) is a \\
+& & & primary vector for ransomware attacks. \\ \bottomrule
+\end{tabular}
+\caption{Open Ports on \texttt{10.10.10.51}.}
+\label{tab:nmap_results}
+\end{table}
+
+% 7. CONSOLIDATED RISK ASSESSMENT
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk register into a consolidated list of key vulnerabilities.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.2\textwidth}p{0.2\textwidth}cp{0.3\textwidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Affected Asset(s)} & \textbf{Severity} & \textbf{Description} \\ \midrule
+\textbf{RISK-001} & \textbf{RDP Exposure on New Host} & \texttt{10.10.10.51} & \riskcritical{Critical (9.8)} & The scan discovered RDP exposed on a new host. This, combined with the lack of MFA for computer logins (RISK-003), makes the network highly vulnerable to compromise via stolen credentials. \\
+\addlinespace
+\textbf{RISK-002} & \textbf{Systemic RDP Exposure} & \texttt{10.10.10.50} & \riskcritical{Critical (9.0)} & A pre-existing finding confirms RDP is also exposed on another host. This indicates a systemic configuration issue, not an isolated incident. \\
+\addlinespace
+\textbf{RISK-003} & \textbf{No MFA for Computer Logins} & All Workstations \& Servers & \riskhigh{High (8.8)} & Lack of a second authentication factor for computer access allows an attacker with valid credentials to log in unimpeded, facilitating lateral movement and ransomware deployment. \\
+\addlinespace
+\textbf{RISK-004} & \textbf{No MFA for Email Access} & \texttt{[Domain]} & \riskhigh{High (8.5)} & The corporate email system is vulnerable to account takeover, leading to Business Email Compromise (BEC), internal phishing, and data exfiltration. \\
+\addlinespace
+\textbf{RISK-005} & \textbf{No MFA for Sensitive Data} & Internal Data Systems & \riskhigh{High (8.8)} & Critical business and client data lacks a fundamental access control, increasing the risk of a significant data breach. \\
+\bottomrule
+\end{tabular}
+\caption{Consolidated Risk Register.}
+\label{tab:risk_register}
+\end{table}
+
+% 8. RECOMMENDATIONS
+\section{Recommendations}
+Based on the consolidated risk assessment, the following remediation actions are recommended. They are prioritized to address the most critical threats first.
+
+\subsection{Immediate Priority (Remediate within 72 hours)}
+\begin{itemize}
+    \item \textbf{Contain RDP Exposure (RISK-001, RISK-002):} Immediately close TCP port 3389 on the network firewall for hosts \texttt{10.10.10.51} and \texttt{10.10.10.50}. If remote access is a business requirement, it must be placed behind a Virtual Private Network (VPN) that requires Multi-Factor Authentication.
+    \item \textbf{Deploy MFA for Privileged Access:} At a minimum, immediately enforce MFA for all administrator accounts and any remote access solutions (e.g., VPN).
+\end{itemize}
+
+\subsection{High Priority (Remediate within 30 days)}
+\begin{itemize}
+    \item \textbf{Full MFA Rollout (RISK-003, RISK-004, RISK-005):} Implement a project to roll out MFA across the entire organization. The priority should be:
+    \begin{enumerate}
+        \item Email accounts (e.g., Microsoft 365, Google Workspace).
+        \item All computer logins (e.g., via Windows Hello for Business, Duo).
+        \item All applications hosting sensitive data.
+    \end{enumerate}
+    \item \textbf{Network Vulnerability Scan:} Conduct a comprehensive, authenticated vulnerability scan of the entire internal network to identify other misconfigurations or unpatched systems.
+\end{itemize}
+
+\subsection{Medium Priority (Remediate within 90 days)}
+\begin{itemize}
+    \item \textbf{Review Network Segmentation:} Ensure that critical servers are on separate network segments from user workstations to limit an attacker's ability to move laterally after an initial compromise.
+    \item \textbf{Update Incident Response Plan:} Review and update the corporate Incident Response plan to specifically address scenarios for ransomware and Business Email Compromise, incorporating the new MFA and VPN controls.
+\end{itemize}
+
+\vfill
+\begin{center}
+    \textbf{--- End of Report ---}
+\end{center}
+
+\end{document}
+```

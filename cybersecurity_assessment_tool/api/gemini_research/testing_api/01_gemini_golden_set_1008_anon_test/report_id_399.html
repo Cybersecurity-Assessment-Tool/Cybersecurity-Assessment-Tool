@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive cybersecurity assessment for
+<strong>[Organization Name]</strong>, based on an analysis of network
+scan data, organizational security controls, and pre-existing risk
+documentation. The assessment reveals several critical and high-severity
+risks that require immediate attention to mitigate potential security
+breaches.</p>
+<p>Key findings indicate a significant external exposure of a core
+database service running an End-of-Life (EOL) software version, which no
+longer receives security updates. This is compounded by critical gaps in
+identity and access management, specifically the absence of Multi-Factor
+Authentication (MFA) for email and endpoint access.</p>
+<p>The overall security posture is considered weak due to these
+fundamental control failures. The recommendations outlined in this
+report provide a clear, actionable roadmap for remediating the
+identified vulnerabilities and strengthening the organization’s defenses
+against common cyber threats.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>This section details the organizational data used for this
+assessment. The information has been anonymized as per the engagement
+protocol.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Primary Email Domain:</strong>
+<code>[Domain]</code></p></li>
+<li><p><strong>Scanned External IP:</strong>
+<code>[Client IP]</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>An assessment of the organization’s self-reported security controls
+was conducted via a questionnaire. The following table summarizes the
+responses and highlights significant gaps in foundational security
+practices. A checkmark () indicates a positive control is in place,
+while an X () indicates a control gap.</p>
+<table>
+<caption>Organizational Security Control Questionnaire</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered" id="analysis-of-control-gaps">Analysis of Control
+Gaps</h2>
+<p>The lack of MFA for email and computer logins represents a critical
+vulnerability. Email is a primary target for phishing attacks leading to
+account compromise, while unprotected endpoint logins can lead to
+unauthorized access and lateral movement within the network.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed on the target IP address to
+identify open ports and exposed services.</p>
+<h2 class="unnumbered" id="scan-target-target-ip">Scan Target:
+<code>[Target IP]</code></h2>
+<p>The scan revealed the following open port:</p>
+<table>
+<caption>Open Ports and Services</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3306/tcp</td>
+<td style="text-align: left;">mysql</td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">5.7.33</td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered" id="technical-analysis">Technical Analysis</h2>
+<p>The scan confirms that a MySQL database server is directly exposed to
+the public internet on port 3306. This configuration is highly
+discouraged as it exposes the database to brute-force attacks,
+credential stuffing, and exploitation of potential vulnerabilities.</p>
+<p><strong>Critical Finding:</strong> The identified MySQL version,
+<strong>5.7.33</strong>, reached its official End-of-Life (EOL) in
+October 2023. This means it no longer receives security patches from the
+vendor, and any newly discovered vulnerabilities will remain unpatched,
+posing a severe and unmitigable risk to the data it contains.</p>
+<h1 id="consolidated-risk-assessment">Consolidated Risk Assessment</h1>
+<p>This section synthesizes findings from the security control review,
+technical scan, and pre-existing risk data into a consolidated list of
+key risks.</p>
+<table>
+<caption>Summary of Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk ID</strong></th>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Description</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">RISK-001</td>
+<td style="text-align: left;">Public Exposure of End-of-Life
+Database</td>
+<td style="text-align: left;">A MySQL 5.7.33 database (EOL) is
+accessible from the internet on port 3306, exposing it to attack and
+exploitation.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-002</td>
+<td style="text-align: left;">Lack of MFA for Email Access</td>
+<td style="text-align: left;">The absence of MFA on email accounts
+allows for account takeover via credential theft or phishing, leading to
+data breaches and further attacks.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-003</td>
+<td style="text-align: left;">Lack of MFA for Endpoint Logins</td>
+<td style="text-align: left;">The absence of MFA on computer logins
+allows attackers with stolen credentials to gain direct access to
+internal systems.</td>
+<td style="text-align: left;"><strong>High</strong></td>
+</tr>
+</tbody>
+</table>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actionable recommendations are provided to address the
+identified risks. Risks should be remediated in order of severity.</p>
+<h2 class="unnumbered"
+id="risk-001-public-exposure-of-end-of-life-database-critical">RISK-001:
+Public Exposure of End-of-Life Database (Critical)</h2>
+<ul>
+<li><p><strong>Immediate Action:</strong> Implement strict firewall
+rules to block all public access to TCP port 3306. Access should only be
+permitted from trusted internal IP addresses.</p></li>
+<li><p><strong>Short-Term Plan:</strong> Develop a migration plan to
+upgrade the MySQL 5.7 database to a currently supported version (e.g.,
+MySQL 8.x) to ensure security patches are available.</p></li>
+<li><p><strong>Long-Term Strategy:</strong> Enforce a policy where no
+database servers are directly exposed to the internet. All
+administrative or application access should be routed through a secure
+channel, such as a VPN or an authenticated bastion host.</p></li>
+</ul>
+<h2 class="unnumbered"
+id="risk-002-lack-of-mfa-for-email-access-critical">RISK-002: Lack of
+MFA for Email Access (Critical)</h2>
+<ul>
+<li><p><strong>Immediate Action:</strong> Procure and enforce an MFA
+solution for all user accounts on the primary email system. This is the
+single most effective control to prevent email account
+compromise.</p></li>
+<li><p><strong>Supporting Action:</strong> Conduct a phishing awareness
+campaign to educate users on the importance of MFA and how to identify
+and report suspicious emails.</p></li>
+</ul>
+<h2 class="unnumbered"
+id="risk-003-lack-of-mfa-for-endpoint-logins-high">RISK-003: Lack of MFA
+for Endpoint Logins (High)</h2>
+<ul>
+<li><p><strong>Immediate Action:</strong> Deploy and mandate MFA for all
+user logins to company-managed computers (desktops and laptops). This
+significantly raises the difficulty for an attacker to use stolen
+credentials to access the internal network.</p></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

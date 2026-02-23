@@ -1,0 +1,173 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{seqsplit}
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- CUSTOM COMMANDS ---
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\orgname}{\textbf{Prism Logic}}
+\newcommand{\orgdomain}{\texttt{PrismLogic.com}}
+\newcommand{\orgip}{\texttt{134.32.20.41}}
+\newcommand{\targetip}{\texttt{172.16.50.20}}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+\title{Cybersecurity Assessment Report \\ \large For \orgname}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+\hrule\vspace{1em}
+
+% =================================================================
+% 1. EXECUTIVE SUMMARY
+% =================================================================
+\section*{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \orgname, based on an analysis of network scan data, organizational security controls, and pre-existing risk documentation. The assessment was conducted to identify vulnerabilities, evaluate the current security posture, and provide actionable recommendations to mitigate identified risks.
+
+The analysis revealed several critical and high-risk findings that require immediate attention. Key issues include significant gaps in foundational security policies, such as the absence of an Acceptable Use Policy and a formal security awareness training program. Furthermore, a critical lack of Multi-Factor Authentication (MFA) on the primary email system exposes the organization to a high risk of account compromise and subsequent data breaches.
+
+Technical scans confirmed a pre-identified high-risk vulnerability: a publicly accessible MySQL database service on an internal host. This service is running an outdated version of MySQL (5.7.33), which is no longer receiving security updates and is susceptible to known exploits. The combination of policy gaps and technical vulnerabilities creates a significant attack surface that could be exploited by malicious actors.
+
+This report details these findings and provides a prioritized list of recommendations to strengthen the organization's security posture, reduce risk, and protect critical assets.
+
+% =================================================================
+% 2. ORGANIZATIONAL INFORMATION
+% =================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \orgname
+    \item \textbf{Email Domain:} \seqsplit{\orgdomain}
+    \item \textbf{Website Domain:} \seqsplit{\texttt{www.PrismLogic.com}}
+    \item \textbf{Known External IP:} \seqsplit{\orgip}
+\end{itemize}
+
+% =================================================================
+% 3. SECURITY CONTROL REVIEW
+% =================================================================
+\section{Security Control Review}
+
+A review of administrative and policy-based security controls was conducted based on a questionnaire. The results highlight critical gaps in the organization's security framework. "No" answers indicate a lack of a necessary control and represent a significant risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Control Questionnaire Results}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\xmark} \\
+Do you require MFA to log into computers? & \textcolor{green}{\cmark} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\cmark} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\xmark} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\xmark} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\xmark} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =================================================================
+% 4. TECHNICAL SCAN RESULTS
+% =================================================================
+\section{Technical Scan Results}
+
+A network scan was performed on the target system to identify open ports and exposed services. The findings below validate and expand upon the pre-existing risk data.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\targetip}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services on \targetip}
+\begin{tabular}{l l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+3306/tcp & Open & mysql & MySQL & 5.7.33 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan confirms that TCP port 3306 is open, exposing a MySQL database service directly to the network. The identified version, \textbf{MySQL 5.7.33}, is outdated. The MySQL 5.7 series reached its official End of Life (EOL) in October 2023, meaning it no longer receives security patches or bug fixes from the vendor. Running EOL software, especially for a critical database service, presents a severe risk as it is likely vulnerable to numerous publicly known exploits.
+
+% =================================================================
+% 5. CONSOLIDATED RISK ASSESSMENT
+% =================================================================
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk documentation into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.5\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Email} & The absence of MFA on the \orgdomain\ email system makes user accounts highly susceptible to phishing and password-based attacks. & \textcolor{red}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Database Exposure} & The MySQL database on \targetip\ is directly accessible over the network via port 3306, violating the principle of least privilege. & \textcolor{orange}{\textbf{High}} \\
+\addlinespace
+\textbf{Outdated Database Software} & The MySQL service is running version 5.7.33, which is End-of-Life (EOL) and no longer receives security updates. & \textcolor{orange}{\textbf{High}} \\
+\addlinespace
+\textbf{Insufficient Security Awareness Training} & The organization does not provide security training to new or existing employees, increasing susceptibility to social engineering and phishing. & \textcolor{orange}{\textbf{High}} \\
+\addlinespace
+\textbf{No Acceptable Use Policy} & The lack of a formal AUP creates ambiguity regarding security responsibilities and acceptable employee behavior, posing legal and operational risks. & \textcolor{orange}{\textbf{High}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =================================================================
+% 6. RECOMMENDATIONS
+% =================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity and potential impact.
+
+\subsection*{Priority 1: Remediate Critical Risks}
+\begin{description}
+    \item[Enforce MFA on Email:] \hfill \\
+    \textit{Action:} Immediately enable and enforce Multi-Factor Authentication (MFA) for all user accounts accessing the \orgdomain\ email system. This is the single most effective control to prevent unauthorized account access.
+\end{description}
+
+\subsection*{Priority 2: Remediate High-Risk Vulnerabilities}
+\begin{description}
+    \item[Secure and Update the MySQL Database:] \hfill \\
+    \textit{Immediate Action:} Implement firewall rules to restrict all access to TCP port 3306 on \targetip, allowing connections only from specific, authorized application servers. Public access should be completely blocked. \\
+    \textit{Short-Term Action:} Plan and execute an upgrade of the MySQL server from the EOL version 5.7.33 to a currently supported major version (e.g., MySQL 8.x) to ensure security patches are applied.
+    
+    \item[Implement Security Awareness Program:] \hfill \\
+    \textit{Action:} Procure and roll out a security awareness training program. All employees must complete an initial training module, and annual refresher training should be made mandatory.
+    
+    \item[Develop an Acceptable Use Policy (AUP):] \hfill \\
+    \textit{Action:} Draft and formalize an AUP that clearly defines the rules for using company IT assets, data handling, and security responsibilities. This policy must be distributed to all employees for acknowledgment.
+\end{description}
+
+\end{document}
+```

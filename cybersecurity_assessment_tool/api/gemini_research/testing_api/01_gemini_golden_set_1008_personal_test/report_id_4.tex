@@ -1,0 +1,159 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% METADATA & PACKAGES
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % To split long monospaced strings
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+}
+
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% ----------------------------------------------------------------------
+% DOCUMENT START
+% ----------------------------------------------------------------------
+\begin{document}
+
+\maketitle
+\newpage
+
+% ----------------------------------------------------------------------
+% TABLE OF CONTENTS
+% ----------------------------------------------------------------------
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% SECTION 1: EXECUTIVE OVERVIEW
+% ----------------------------------------------------------------------
+\section{Executive Overview}
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{Iron River Finance}. The assessment incorporated a review of organizational security controls via a questionnaire, an external network vulnerability scan, and an analysis of pre-existing risks.
+
+The overall security posture presents a mixed landscape. On one hand, the technical network scan of the target host revealed a strong perimeter defense, with no open ports detected. This indicates effective firewall configuration and a minimal network attack surface.
+
+However, the security control review identified several critical and high-risk gaps in administrative and identity management controls. The most severe findings are the absence of Multi-Factor Authentication (MFA) for email and sensitive data systems. These gaps expose the organization to a significant risk of account takeover, business email compromise (BEC), and data breaches. Additionally, the lack of a formal Acceptable Use Policy and mandatory annual security training for all staff weakens the organization's human firewall and overall security culture.
+
+Immediate remediation should focus on implementing MFA across all critical platforms. Following this, efforts should be directed toward establishing foundational security policies and a comprehensive, recurring training program.
+
+% ----------------------------------------------------------------------
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Iron River Finance
+    \item \textbf{Email Domain:} \seqsplit{\texttt{IronRiverFinance.com}}
+    \item \textbf{Website Domain:} \seqsplit{\url{www.IronRiverFinance.com}}
+    \item \textbf{Public IP Address:} \seqsplit{\texttt{221.118.17.190}}
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% SECTION 3: SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+A questionnaire was completed to evaluate the implementation of key administrative and technical security controls. The results are summarized below. Answers marked with \ding{55} (No) indicate significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Security Questionnaire Analysis}
+\begin{tabular}{p{0.7\linewidth} c c}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & No & \ding{55} \\
+Do you require MFA to log into computers? & Yes & \ding{51} \\
+Do you require MFA to access sensitive data systems? & No & \ding{55} \\
+Does your organization have an employee acceptable use policy? & No & \ding{55} \\
+Does your organization do security awareness training for new employees? & Yes & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & No & \ding{55} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The review reveals critical deficiencies in identity and access management, policy, and ongoing employee education. The lack of MFA on email and sensitive systems are the most urgent issues requiring immediate attention.
+
+% ----------------------------------------------------------------------
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{192.168.1.100}}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Target Status:} Up
+\end{itemize}
+
+\subsection{Summary of Findings}
+The scan concluded successfully, and the target host was responsive. However, \textbf{no open ports were discovered}. All 1000 scanned ports were reported as being in a "closed" state.
+
+\subsection{Analysis}
+This is a positive security finding. A host with no open ports presents a minimal attack surface to the network, significantly reducing the risk of network-based attacks. This suggests that a firewall (either network-based or host-based) is properly configured to deny all unsolicited incoming traffic.
+
+% ----------------------------------------------------------------------
+% SECTION 5: RISK ASSESSMENT SUMMARY
+% ----------------------------------------------------------------------
+\section{Risk Assessment Summary}
+The following table synthesizes risks identified from the security control review and technical analysis. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks}
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.15\linewidth} p{0.4\linewidth}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+RISK-001 & Lack of MFA on Email & \textbf{Critical} & Exposes the organization to business email compromise (BEC), phishing, and account takeover. A compromised email account can be a pivot point for further attacks. \\
+\addlinespace
+RISK-002 & Lack of MFA on Sensitive Systems & \textbf{Critical} & Increases the risk of unauthorized access and data exfiltration if an employee's credentials are stolen. This is a major compliance and data breach risk. \\
+\addlinespace
+RISK-003 & Missing Acceptable Use Policy (AUP) & \textbf{High} & Without an AUP, employees lack clear guidelines on security responsibilities, leading to inconsistent practices and increased risk of insider threat (both malicious and accidental). \\
+\addlinespace
+RISK-004 & Inadequate Security Awareness Training & \textbf{High} & Failure to conduct annual training for all employees leaves the organization vulnerable to evolving social engineering tactics as security knowledge degrades over time. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ----------------------------------------------------------------------
+% SECTION 6: RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+Based on the assessment findings, the following prioritized actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Iron River Finance}.
+
+\subsection{Priority 1: Critical}
+\begin{enumerate}
+    \item \textbf{Implement MFA for Email:} Immediately enable and enforce MFA for all user mailboxes. This is the single most effective control to prevent unauthorized access to email.
+    \item \textbf{Implement MFA for Sensitive Systems:} Deploy MFA on all applications and systems that store, process, or transmit sensitive company or client data. Prioritize systems accessible from the internet.
+\end{enumerate}
+
+\subsection{Priority 2: High}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP that clearly defines the rules for using company IT assets, data, and networks. Require all employees to read and formally acknowledge the policy.
+    \item \textbf{Establish an Annual Security Training Program:} Institute a mandatory security awareness training program for all employees to be completed at least once per year. The training should cover current threats such as phishing, social engineering, and password security.
+\end{enumerate}
+
+\subsection{Priority 3: Informational}
+\begin{enumerate}
+    \item \textbf{Maintain Network Security Posture:} Continue the current practices for network security that resulted in a clean external scan. Regularly review and test firewall rules to ensure they remain effective.
+\end{enumerate}
+
+% ----------------------------------------------------------------------
+% DOCUMENT END
+% ----------------------------------------------------------------------
+\end{document}
+```

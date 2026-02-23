@@ -1,0 +1,164 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx} % For potential logos
+\usepackage{fancyhdr} % For headers/footers
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Header and Footer Configuration
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{\textbf{CONFIDENTIAL} \\ \textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{[Organization Name]}, conducted on \today. The analysis is based on a combination of network scanning, a review of existing security risks, and an organizational security controls questionnaire.
+
+The assessment reveals a mixed security posture. The organization has successfully implemented several key security controls, including Multi-Factor Authentication (MFA) for email and sensitive systems, as well as a robust security awareness training program. These are commendable foundational practices.
+
+However, two significant areas of concern were identified that require immediate attention:
+\begin{itemize}
+    \item \textbf{Critical Control Gap:} Multi-Factor Authentication is not enforced for logging into company computers. This represents a critical vulnerability, as a single compromised password could grant an attacker network access, facilitating lateral movement and further compromise.
+    \item \textbf{Moderate Technical Risk:} An external network scan identified an open Secure Shell (SSH) port (22/TCP) on a public-facing asset. While SSH is a standard administrative tool, its exposure to the public internet creates a significant attack surface if not securely configured and monitored.
+\end{itemize}
+
+This report details these findings and provides actionable recommendations to mitigate the identified risks and strengthen the overall security posture of \textbf{[Organization Name]}.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following details were used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Domain & \texttt{[Domain]} \\
+    External IP Address Assessed & \texttt{[Client IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A security questionnaire was completed to evaluate the implementation of key administrative and technical controls. The responses indicate a strong foundation in policy and training, but highlight a critical gap in endpoint access security.
+
+\subsection{Questionnaire Results}
+
+\begin{tabular}{@{}p{0.75\linewidth}c}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} \\
+    Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} \\
+    Do you require MFA to access sensitive data systems? & \ding{51} \\
+    Does your organization have an employee acceptable use policy? & \ding{51} \\
+    Does your organization do security awareness training for new employees? & \ding{51} \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Analysis of Gaps}
+The single "No" response is a matter of high concern. The absence of MFA on computer logins means that user credentials (username and password) are the only barrier to accessing a workstation. If an employee's password is stolen through phishing, credential stuffing, or other means, an attacker could log into their machine unimpeded, gaining a foothold within the internal network.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed to identify exposed services on the organization's public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Scan data processed on \today
+    \item \textbf{Status:} Host is UP
+\end{itemize}
+
+\subsection{Open Ports}
+The following table details the ports found to be open and accessible from the public internet.
+
+\begin{tabular}{@{}llll}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\
+    \midrule
+    22/TCP & open & ssh & Unknown \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Technical Analysis}
+Port 22 is universally used for the Secure Shell (SSH) protocol, which provides encrypted remote administrative access to servers. Exposing SSH directly to the internet is a common practice but carries inherent risks:
+\begin{itemize}
+    \item \textbf{Brute-Force Attacks:} Automated tools constantly scan the internet for open SSH ports and attempt to guess credentials.
+    \item \textbf{Vulnerability Exploitation:} If the SSH server software is outdated, it may contain known vulnerabilities that could be exploited for remote code execution.
+    \item \textbf{Credential Stuffing:} If user credentials are compromised from another breach, attackers may attempt to reuse them on this exposed service.
+\end{itemize}
+The version of the SSH service could not be determined from the scan, preventing an assessment for known vulnerabilities.
+
+% --- 5. Current Risk Landscape ---
+\section{Risk Assessment}
+This section synthesizes the findings from the security control review and the technical scan. No pre-existing vulnerabilities were provided for this assessment.
+
+\begin{tabular}{@{}lp{0.4\linewidth}ll}
+    \toprule
+    \textbf{ID} & \textbf{Risk Description} & \textbf{Severity} & \textbf{Affected Asset(s)} \\
+    \midrule
+    R-01 & \textbf{Lack of MFA on Workstations:} A compromised password allows direct access to the internal network via an employee's computer. & \textbf{High} & User Endpoints, User Credentials, Internal Network \\
+    \addlinespace
+    R-02 & \textbf{Exposed SSH Service:} Publicly accessible administrative port creates a target for brute-force attacks and potential exploitation. & \textbf{Medium} & External Server (\texttt{[Target IP]}) \\
+    \bottomrule
+\end{tabular}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the organization's security posture. Recommendations are prioritized based on risk severity.
+
+\subsection{R-01: Implement MFA for Workstation Logins (High)}
+\begin{itemize}
+    \item \textbf{Action:} Procure and deploy a Multi-Factor Authentication solution for all Windows, macOS, and Linux workstation and server logins. Solutions like Windows Hello for Business, Duo, or other identity providers can fulfill this requirement.
+    \item \textbf{Justification:} This closes the most critical gap identified. It ensures that a stolen password alone is not sufficient for an attacker to gain access to the corporate network, dramatically reducing the risk of ransomware and data breaches.
+\end{itemize}
+
+\subsection{R-02: Secure the Exposed SSH Service (Medium)}
+\begin{itemize}
+    \item \textbf{Action 1 (Preferred):} If remote access is required, implement a Virtual Private Network (VPN) and place the SSH service behind it. Access should only be possible after a user authenticates to the VPN.
+    \item \textbf{Action 2 (Alternative):} If a VPN is not feasible, restrict access to the SSH port using a firewall. Create an explicit allow-list of trusted IP addresses (e.g., administrator home or office networks) and deny all other connections.
+    \item \textbf{Action 3 (Hardening):} Regardless of the access method, ensure the SSH service is configured securely:
+        \begin{itemize}
+            \item Disable password-based authentication and enforce the use of strong cryptographic keys.
+            \item Disable direct root login.
+            \item Ensure the SSH server software is updated to the latest stable version to patch known vulnerabilities.
+        \end{itemize}
+\end{itemize}
+
+% --- 7. Conclusion ---
+\section{Conclusion}
+\textbf{[Organization Name]} has established a solid foundation for its cybersecurity program, particularly in the areas of policy and user training. However, the identified gap in endpoint authentication (MFA on computers) and the exposed administrative service (SSH) present clear and significant risks to the organization.
+
+By implementing the prioritized recommendations in this report, \textbf{[Organization Name]} can effectively mitigate these risks, close critical security gaps, and substantially enhance its resilience against modern cyber threats.
+
+\end{document}
+```

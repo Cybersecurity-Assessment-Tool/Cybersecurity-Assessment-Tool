@@ -1,0 +1,200 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tabularx}
+
+% Define colors for severity
+\definecolor{critical}{HTML}{990000}
+\definecolor{high}{HTML}{D14124}
+\definecolor{medium}{HTML}{E89923}
+\definecolor{low}{HTML}{F2CF1F}
+\definecolor{info}{HTML}{3A74B8}
+
+% Setup hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define checkmark and cross symbols
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+% ----------------------------------------------------------------------
+% DOCUMENT START
+% ----------------------------------------------------------------------
+\begin{document}
+
+\title{
+    \vspace{-1.5cm}
+    \includegraphics[width=0.3\textwidth]{https://i.imgur.com/2Yqks4R.png} \\ % Generic security logo
+    \vspace{0.5cm}
+    \textbf{Cybersecurity Assessment Report} \\
+    \large For: \textbf{Midnight Oil Studios}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\maketitle
+\thispagestyle{empty}
+
+\newpage
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% SECTION 1: EXECUTIVE SUMMARY
+% ----------------------------------------------------------------------
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment for \textbf{Midnight Oil Studios}. The analysis is based on a network scan, a review of organizational security controls, and an evaluation of pre-existing risk documentation.
+
+The assessment has identified a \textbf{critical risk} that requires immediate attention. A network scan of the internal host \texttt{10.5.5.5} revealed an open service on port 8080 with the title \textbf{``TOP SECRET DB''}. This finding directly contradicts existing risk documentation which incorrectly lists this port as secure. The potential for unauthorized access to a system labeled as such presents a severe and immediate threat to the organization's data confidentiality and integrity.
+
+Furthermore, significant gaps were identified in the organization's access control policies. The lack of mandatory Multi-Factor Authentication (MFA) for computer logins and, more critically, for access to sensitive data systems, exposes the organization to significant risk from credential theft and unauthorized access.
+
+While some foundational security controls are in place, such as an acceptable use policy and MFA for email, the critical vulnerabilities discovered indicate a reactive and incomplete security posture. Immediate remediation of the identified risks is strongly recommended to protect \textbf{Midnight Oil Studios} from potential compromise.
+
+% ----------------------------------------------------------------------
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+
+The following details were provided for the assessment scope.
+
+\begin{tabularx}{\textwidth}{l X}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Midnight Oil Studios} \\
+    Email Domain & \texttt{MidnightOilStudios.net} \\
+    Website Domain & \seqsplit{\url{www.MidnightOilStudios.net}} \\
+    External IP Address & \texttt{221.111.192.125} \\
+    \bottomrule
+\end{tabularx}
+
+% ----------------------------------------------------------------------
+% SECTION 3: SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a standardized questionnaire. The responses highlight critical gaps in access control and employee training policies.
+
+\begin{tabularx}{\textwidth}{X c l}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{green}{\cmark} & Meets best practice. \\
+    \addlinespace
+    Do you require MFA to log into computers? & \textcolor{red}{\xmark} & \textbf{High Risk.} Lack of MFA on endpoints increases vulnerability to lateral movement after a credential compromise. \\
+    \addlinespace
+    Do you require MFA to access sensitive data systems? & \textcolor{red}{\xmark} & \textbf{Critical Gap.} Failure to protect sensitive data systems with MFA is a severe security oversight. \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \textcolor{green}{\cmark} & Meets best practice. \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & \textcolor{green}{\cmark} & Good foundational practice. \\
+    \addlinespace
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\xmark} & \textbf{High Risk.} Without recurring training, employee awareness of evolving threats diminishes over time. \\
+    \bottomrule
+\end{tabularx}
+
+% ----------------------------------------------------------------------
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+
+An internal network scan was performed to identify active services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.5.5.5}
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+The scan revealed the following open port:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l l l l}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Banner / Title} \\
+    \midrule
+    8080/tcp & Open & http & \textbf{TOP SECRET DB} \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports on Target \texttt{10.5.5.5}}
+\end{table}
+
+\subsection*{Analysis of Findings}
+The discovery of an open service on port 8080 with the title ``TOP SECRET DB'' is a finding of the highest severity. This indicates a potentially unsecured database or administrative interface containing sensitive information. 
+
+\textbf{Crucially, this finding directly contradicts the information provided in the \textit{Current Risks} documentation}, which stated: ``Port 8080 is confirmed secure and false positive.'' This discrepancy suggests a significant failure in the existing risk assessment and validation process. An active, exposed service with such an alarming title cannot be considered a false positive.
+
+% ----------------------------------------------------------------------
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% ----------------------------------------------------------------------
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes risks identified from the security control review, technical scan, and data correlation.
+
+\begin{tabularx}{\textwidth}{p{0.6in} X p{0.8in}}
+    \toprule
+    \textbf{Severity} & \textbf{Risk Description} & \textbf{Source} \\
+    \midrule
+    \colorbox{critical}{\textcolor{white}{\textbf{CRITICAL}}} & An exposed web service on internal host \texttt{10.5.5.5:8080} is titled ``TOP SECRET DB,'' suggesting a high-value data asset is accessible without proper network segmentation or access controls. & Technical Scan \\
+    \addlinespace
+    \colorbox{critical}{\textcolor{white}{\textbf{CRITICAL}}} & Sensitive data systems lack Multi-Factor Authentication (MFA), allowing access with only a username and password. This poses a severe risk of data breach via credential compromise. & Questionnaire \\
+    \addlinespace
+    \colorbox{high}{\textcolor{white}{\textbf{HIGH}}} & The organization's risk management process is flawed, as evidenced by the incorrect classification of the Port 8080 risk as a "false positive." This prevents accurate tracking and remediation of real threats. & Correlation \\
+    \addlinespace
+    \colorbox{high}{\textcolor{white}{\textbf{HIGH}}} & Employee computers do not require MFA for login. A single compromised password could grant an attacker initial access to the internal network. & Questionnaire \\
+    \addlinespace
+    \colorbox{high}{\textcolor{white}{\textbf{HIGH}}} & Security awareness training is not conducted annually for all employees, increasing the likelihood of successful phishing attacks and other social engineering tactics. & Questionnaire \\
+    \bottomrule
+\end{tabularx}
+
+% ----------------------------------------------------------------------
+% SECTION 6: RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+
+Based on the findings, the following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Midnight Oil Studios}.
+
+\subsection*{Immediate Actions (To Be Completed Within 72 Hours)}
+\begin{enumerate}
+    \item \textbf{Investigate and Secure Port 8080:} Immediately investigate the service running on \texttt{10.5.5.5:8080}.
+        \begin{itemize}
+            \item Identify the system owner and the nature of the data it contains.
+            \item If the system is critical, restrict access to authorized personnel only via firewall rules.
+            \item If the system is non-essential or unauthorized, it should be shut down and decommissioned.
+        \end{itemize}
+    \item \textbf{Deploy MFA on Sensitive Systems:} Begin an emergency rollout of MFA for all systems identified as containing sensitive data. This is the single most effective control to prevent unauthorized access.
+\end{enumerate}
+
+\subsection*{High-Priority Actions (To Be Completed Within 30 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Implement MFA for Endpoint Logon:} Enforce MFA for all employee computer and remote access logins to strengthen initial access controls.
+    \item \textbf{Establish Annual Security Training:} Develop and mandate an annual security awareness training program for all employees. This program should cover phishing, password security, and acceptable use policies.
+    \item \textbf{Overhaul Risk Assessment Process:} Review and improve the current risk identification and validation process. Ensure that technical scan results are properly verified and not dismissed without thorough investigation. All findings must be tracked until remediation is confirmed.
+\end{enumerate}
+
+% ----------------------------------------------------------------------
+% DOCUMENT END
+% ----------------------------------------------------------------------
+\end{document}
+```

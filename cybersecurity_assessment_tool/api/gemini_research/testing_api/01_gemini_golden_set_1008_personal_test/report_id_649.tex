@@ -1,0 +1,149 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long text strings
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+
+% --- DOCUMENT METADATA ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Security, Report, Analysis},
+    bookmarks=true
+}
+
+\newcommand{\yes}{\ding{51}} % Checkmark
+\newcommand{\no}{\ding{55}}  % Cross
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\title{Cybersecurity Assessment Report \\ \large For: \textbf{Astraeus Aerospace}}
+\author{Cybersecurity Analyst}
+\date{November 22, 2025}
+\maketitle
+
+\hrule
+\vspace{1em}
+\begin{abstract}
+This report provides a comprehensive cybersecurity assessment for \textbf{Astraeus Aerospace}, based on an analysis of network scan data, organizational security controls, and known risks. The assessment identified several critical and high-risk vulnerabilities that require immediate attention. Key findings include the lack of multi-factor authentication (MFA) on sensitive data systems, the use of outdated web server software, and a gap in the security training program for new employees. This document details these findings and provides actionable recommendations to mitigate the identified risks and improve the organization's overall security posture.
+\end{abstract}
+\vspace{1em}
+\hrule
+
+\tableofcontents
+\newpage
+
+% --- SECTION 1: OVERVIEW & SCOPE ---
+\section{Organizational Information}
+This section provides a summary of the organizational data used as a basis for this assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Astraeus Aerospace} \\
+Email Domain & \texttt{AstraeusAerospace.org} \\
+Website Domain & \url{www.AstraeusAerospace.org} \\
+External IP Address & \texttt{68.208.136.236} \\
+\bottomrule
+\end{tabular}
+
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. This review highlights existing security practices and identifies procedural gaps. Items marked with \no\ represent significant weaknesses in the current security framework.
+
+\begin{tabular}{@{}p{0.6\linewidth}cp{0.2\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \yes & Control in Place \\
+Do you require MFA to log into computers? & \yes & Control in Place \\
+Do you require MFA to access sensitive data systems? & \no & \textbf{Critical Gap} \\
+Does your organization have an employee acceptable use policy? & \yes & Control in Place \\
+Does your organization do security awareness training for new employees? & \no & \textbf{High-Risk Gap} \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Control in Place \\
+\bottomrule
+\end{tabular}
+
+\section{Technical Scan Results}
+A network scan was performed on \textbf{November 22, 2025}, targeting the host at \texttt{192.168.10.5}. The scan identified the following open ports and services, which represent the external attack surface of the assessed system.
+
+\subsection{Open Ports and Services}
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} & \textbf{Notes} \\
+\midrule
+443/tcp & open & https & nginx & 1.18.0 & 1. Outdated Version \\
+        &      &       &       &          & 2. SSL Cert Mismatch \\
+\bottomrule
+\end{tabular}
+
+\subsection{Technical Analysis}
+\begin{itemize}
+    \item \textbf{Outdated Nginx Version:} The web server is running Nginx version \texttt{1.18.0}, which was released in April 2020. This version is significantly outdated and is known to be vulnerable to multiple security exploits (e.g., CVE-2021-23017). Running unsupported software poses a high risk of compromise.
+    \item \textbf{SSL Certificate Mismatch:} The SSL certificate presented by the server has a Common Name of \texttt{www.acme-corp.com}, which does not match the organization's domain (\texttt{www.AstraeusAerospace.org}). This misconfiguration can lead to browser trust errors and may be indicative of a deployment issue.
+\end{itemize}
+
+\section{Risk Assessment}
+The following table synthesizes findings from the security control review and the technical scan into a prioritized list of identified risks. Each risk is assigned a severity level based on its potential impact and likelihood of exploitation.
+
+\begin{tabular}{@{}p{0.1\linewidth}p{0.25\linewidth}p{0.4\linewidth}l@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & Lack of MFA on Sensitive Systems & The absence of MFA on systems containing sensitive data allows an attacker with stolen credentials to gain direct access to critical assets, potentially leading to a major data breach. & \textbf{Critical} \\
+\addlinespace
+RISK-002 & Outdated Web Server Software & The public-facing web server is running an outdated version of Nginx with known vulnerabilities. This could allow an attacker to compromise the server, leading to service disruption or data exfiltration. & \textbf{High} \\
+\addlinespace
+RISK-003 & No Security Training for New Hires & New employees are not receiving security awareness training, making them highly susceptible to phishing and social engineering attacks. This gap increases the risk of initial compromise. & \textbf{High} \\
+\addlinespace
+RISK-004 & SSL Certificate Mismatch & The web server presents a certificate for a different domain, which erodes user trust and could be exploited in man-in-the-middle scenarios. It also indicates a lack of configuration management. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+
+\newpage
+\section{Recommendations}
+Based on the risks identified in this assessment, the following actions are recommended to strengthen the security posture of \textbf{Astraeus Aerospace}.
+
+\begin{itemize}
+    \item[\textbf{1.}] \textbf{(Critical) Implement MFA on All Sensitive Systems (RISK-001):}
+    \begin{itemize}
+        \item Immediately prioritize the deployment of a robust multi-factor authentication solution across all applications and systems that store, process, or transmit sensitive data.
+        \item This control is the single most effective measure to prevent unauthorized access resulting from credential compromise.
+    \end{itemize}
+    \vspace{1em}
+    \item[\textbf{2.}] \textbf{(High) Upgrade Web Server and Institute Patch Management (RISK-002):}
+    \begin{itemize}
+        \item Plan and execute an immediate upgrade of the Nginx web server from version \texttt{1.18.0} to the latest stable version.
+        \item Establish a formal patch management policy to ensure all public-facing systems are regularly updated to protect against newly discovered vulnerabilities.
+    \end{itemize}
+    \vspace{1em}
+    \item[\textbf{3.}] \textbf{(High) Implement Mandatory Onboarding Security Training (RISK-003):}
+    \begin{itemize}
+        \item Develop a security awareness training module and integrate it into the mandatory onboarding process for all new employees and contractors.
+        \item The training should cover, at a minimum, phishing identification, password hygiene, and the acceptable use policy.
+    \end{itemize}
+    \vspace{1em}
+    \item[\textbf{4.}] \textbf{(Medium) Correct SSL Certificate Configuration (RISK-004):}
+    \begin{itemize}
+        \item Investigate the SSL certificate misconfiguration on the web server at \texttt{192.168.10.5}.
+        \item Procure and deploy a valid SSL certificate that matches the organization's domain, \texttt{www.AstraeusAerospace.org}, to ensure encrypted connections are trusted by users and browsers.
+    \end{itemize}
+\end{itemize}
+
+% --- DOCUMENT END ---
+\end{document}
+```

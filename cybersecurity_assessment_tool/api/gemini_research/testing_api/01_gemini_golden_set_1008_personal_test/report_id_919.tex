@@ -1,0 +1,177 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages and Document Setup
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings like IPs
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+\setcounter{page}{1}
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Clear Path}, based on a technical network scan, a review of organizational security controls, and an assessment of known risks. The assessment was conducted on \today.
+
+The analysis reveals several critical and high-risk security gaps that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Lack of Multi-Factor Authentication (MFA):} MFA is not enforced for logging into computers or accessing sensitive data systems. This represents a critical vulnerability, as a single compromised password could lead to a significant data breach.
+    \item \textbf{Inadequate Security Policies and Training:} The organization lacks a formal employee acceptable use policy and does not conduct security awareness training. This significantly increases susceptibility to human-centered attacks like phishing and social engineering.
+    \item \textbf{Exposed Management Service:} The technical scan identified an open Secure Shell (SSH) port (22) on an external-facing IPv6 address. This service is a common target for automated brute-force attacks.
+\end{itemize}
+
+The combination of these findings indicates a weak security posture. The lack of foundational security controls (MFA, policies, training) dramatically elevates the risk posed by the externally exposed SSH service. We strongly recommend prioritizing the implementation of the corrective actions detailed in Section 6 of this report to mitigate these risks and strengthen the organization's defenses.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{Clear Path} \\
+Email Domain & \texttt{ClearPath.org} \\
+Website Domain & \seqsplit{\url{www.ClearPath.org}} \\
+Provided External IP (IPv4) & \seqsplit{\texttt{2.196.212.30}} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\label{tab:org_info}
+\end{table}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of administrative and technical security controls was conducted based on a standardized questionnaire. The results highlight significant gaps in foundational security practices. The symbol \ding{51} indicates a positive response (Yes), while \ding{55} indicates a negative response (No).
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textbf{\color{red}\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textbf{\color{red}\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textbf{\color{red}\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textbf{\color{red}\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results.}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The negative responses identify critical weaknesses:
+\begin{itemize}
+    \item \textbf{MFA Gaps:} While MFA for email is a good first step, its absence on computer logins and sensitive systems means that once an attacker compromises an employee's password, they can move laterally within the network and access critical data with little resistance.
+    \item \textbf{Policy and Training Gaps:} The lack of an acceptable use policy and security training program creates a high-risk environment. Employees are likely unaware of best practices for password security, identifying phishing attempts, and handling sensitive data, making them primary targets for attackers.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Scan Parameter} & \textbf{Value} \\ \midrule
+Target IP Address (IPv6) & \seqsplit{\texttt{2001:db8::1}} \\
+Scan Date & \today \\ \bottomrule
+\end{tabular}
+\caption{Scan Metadata.}
+\label{tab:scan_meta}
+\end{table}
+
+\subsection*{Open Ports Discovered}
+The following table details the open ports discovered on the target system.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Inferred Service} & \textbf{Notes} \\ \midrule
+22/tcp & Open & SSH (Secure Shell) & \begin{tabular}[c]{@{}l@{}}Exposing SSH to the internet creates a significant\\ attack surface for brute-force password attacks.\end{tabular} \\ \bottomrule
+\end{tabular}
+\caption{Discovered Open Ports on \seqsplit{\texttt{2001:db8::1}}.}
+\label{tab:ports}
+\end{table}
+
+\subsection*{Technical Findings Analysis}
+The primary finding is the exposure of the Secure Shell (SSH) service on port 22. SSH is a common protocol for remote server administration. While secure itself, its exposure to the public internet makes it a constant target for automated credential guessing (brute-force) and password spraying attacks. The risk is compounded by the lack of MFA on internal systems; a successful SSH login could grant an attacker a significant foothold in the network.
+
+% --- 5. Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes the findings from the security control review and the technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\linewidth}p{0.3\linewidth}p{0.15\linewidth}p{0.35\linewidth}@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\ \midrule
+RISK-001 & Lack of Multi-Factor Authentication (MFA) & \textbf{Critical} & The absence of MFA on computer and sensitive system logins allows for unauthorized access via a single compromised password. This is the most critical security gap. \\
+\addlinespace
+RISK-002 & Inadequate Security Awareness Program & \textbf{High} & Without a formal policy (AUP) or training, employees are highly vulnerable to phishing and social engineering, increasing the likelihood of credential compromise. \\
+\addlinespace
+RISK-003 & Exposed SSH Management Service & \textbf{High} & Port 22 (SSH) is open to the internet, inviting automated brute-force attacks. This risk is amplified by the internal lack of MFA (RISK-001). \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\label{tab:risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\begin{enumerate}
+    \item \textbf{Implement Comprehensive MFA (Mitigates RISK-001):}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately deploy a robust MFA solution for all employee computer logins and for access to all systems containing sensitive data.
+        \item \textbf{Priority:} \textbf{Critical.} This should be the top priority to prevent unauthorized access.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Establish a Security Awareness Program (Mitigates RISK-002):}
+    \begin{itemize}
+        \item \textbf{Action:} Draft and enforce an Acceptable Use Policy (AUP) that defines rules for passwords, data handling, and internet usage. Implement mandatory security awareness training for all new hires and conduct annual refresher courses for all staff.
+        \item \textbf{Priority:} \textbf{High.} This is a foundational control for reducing human-related risk.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Secure the Exposed SSH Service (Mitigates RISK-003):}
+    \begin{itemize}
+        \item \textbf{Action:} If remote SSH access is necessary, restrict it at the firewall to a whitelist of trusted source IP addresses. If it is not required from the public internet, block port 22 at the network perimeter.
+        \item \textbf{Action:} Enforce the use of public key authentication for SSH and disable password-based logins to prevent brute-force attacks.
+        \item \textbf{Priority:} \textbf{High.} This action directly reduces the external attack surface.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

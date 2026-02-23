@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive cybersecurity assessment for
+<strong>[Organization Name]</strong>, based on an analysis of network
+scan data, organizational security controls, and pre-existing risk
+information. The assessment synthesizes these data points to provide a
+holistic view of the organization’s current security posture.</p>
+<p>The analysis identified several areas of significant concern
+requiring immediate attention. A critical pre-existing vulnerability,
+"Localhost Exposed," with a CVSS score of 10.0, represents an extreme
+and immediate threat. Furthermore, a critical gap was identified in
+endpoint security: the absence of Multi-Factor Authentication (MFA) for
+computer logins. This weakness, combined with an externally exposed SSH
+service on host <code>[Target IP]</code>, creates a viable attack path
+for threat actors who manage to compromise user credentials.</p>
+<p>The findings in this report are categorized by severity to assist in
+prioritizing remediation efforts. We strongly recommend that
+<strong>[Organization Name]</strong> address the critical and high-risk
+items outlined in the Recommendations section as a matter of urgency to
+mitigate potential security breaches.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following details were used as the basis for this assessment. Due
+to the anonymized nature of the provided data, placeholders have been
+used where necessary.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Primary Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>External IP Address Scanned:</strong>
+<code>[Client IP]</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of the organization’s self-reported security controls was
+conducted via a questionnaire. The responses are summarized below. A
+checkmark () indicates a positive control is in place, while a cross ()
+indicates a control gap.</p>
+<table>
+<caption>Security Controls Questionnaire Results</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Do you require MFA to log into
+computers?</strong></td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered" id="analysis">Analysis</h2>
+<p>The organization has implemented several key security controls,
+including MFA for email and sensitive systems, and maintains a security
+awareness program. However, the lack of MFA for computer logins is a
+<strong>critical security gap</strong>. This exposes the organization to
+significant risk from stolen credentials, as a threat actor could gain
+direct access to an endpoint with only a username and password,
+bypassing other security measures.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed on the target IP address. The
+scan identified the following open ports and services.</p>
+<ul>
+<li><p><strong>Target IP:</strong> <code>[Target IP]</code></p></li>
+<li><p><strong>Scan Date:</strong> Not Provided</p></li>
+</ul>
+<table>
+<caption>Open Port Scan Results for <code>[Target IP]</code></caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service (Inferred)</strong></th>
+<th style="text-align: left;"><strong>Product / Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">22/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">SSH</td>
+<td style="text-align: left;">Not Detected</td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered" id="analysis-1">Analysis</h2>
+<p>The scan revealed that port 22 (SSH - Secure Shell) is open to the
+public internet. SSH is a common protocol for remote administration.
+Exposing this service directly increases the network’s attack surface
+and makes it a target for:</p>
+<ul>
+<li><p><strong>Brute-force attacks:</strong> Automated attempts to guess
+usernames and passwords.</p></li>
+<li><p><strong>Credential stuffing:</strong> Using credentials stolen
+from other data breaches to attempt logins.</p></li>
+<li><p><strong>Exploitation of vulnerabilities:</strong> If the SSH
+server software is outdated, it may be vulnerable to known exploits. The
+inability to detect the software version hinders passive vulnerability
+assessment.</p></li>
+</ul>
+<h1 id="consolidated-risk-assessment">Consolidated Risk Assessment</h1>
+<p>The following table correlates findings from the security control
+review, technical scan, and pre-existing risk data to provide a unified
+view of the primary risks facing the organization.</p>
+<table>
+<caption>Summary of Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk ID</strong></th>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Description</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">RISK-001</td>
+<td style="text-align: left;">Localhost Exposed</td>
+<td style="text-align: left;">A pre-existing critical vulnerability was
+identified on host <code>[Target IP]</code> with a CVSS score of
+10.0.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-002</td>
+<td style="text-align: left;">Lack of Endpoint MFA</td>
+<td style="text-align: left;">User computers do not require MFA for
+login. A compromised password could lead to direct endpoint and internal
+network access.</td>
+<td style="text-align: left;"><strong>High</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-003</td>
+<td style="text-align: left;">Exposed SSH Service</td>
+<td style="text-align: left;">The SSH service on port 22 is publicly
+accessible, making it a target for brute-force and other
+credential-based attacks. This risk is amplified by the lack of endpoint
+MFA (RISK-002).</td>
+<td style="text-align: left;"><strong>High</strong></td>
+</tr>
+</tbody>
+</table>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the consolidated risk assessment, we recommend the following
+actions, prioritized by severity.</p>
+<h2 id="immediate-priority-critical">Immediate Priority (Critical)</h2>
+<ol>
+<li><p><strong>Remediate "Localhost Exposed" Vulnerability
+(RISK-001):</strong> Immediately investigate and remediate the critical
+vulnerability identified as "Localhost Exposed" on
+<code>[Target IP]</code>. Given its CVSS score of 10.0, this should be
+considered the absolute highest priority.</p></li>
+</ol>
+<h2 id="high-priority">High Priority</h2>
+<ol start="2">
+<li><p><strong>Implement MFA for All Computer Logins
+(RISK-002):</strong> Deploy a mandatory Multi-Factor Authentication
+solution for all employee and privileged user computer logins. This
+single control will significantly mitigate the risk of unauthorized
+access from compromised credentials.</p></li>
+<li><p><strong>Restrict SSH Access (RISK-003):</strong> Limit access to
+the SSH service on <code>[Target IP]</code>. The preferred method is to
+place the service behind a Virtual Private Network (VPN). If direct
+access is required, implement a strict IP allow-list, permitting
+connections only from trusted administrative networks.</p></li>
+</ol>
+<h2 id="general-recommendations">General Recommendations</h2>
+<ol start="4">
+<li><p><strong>Enhance Service Discovery:</strong> Configure network
+services, including SSH, to provide version information where
+appropriate. This aids in ongoing vulnerability management and automated
+scanning.</p></li>
+<li><p><strong>Conduct Regular Vulnerability Scanning:</strong>
+Implement a program of regular, authenticated and unauthenticated
+vulnerability scanning across all external and internal assets to
+proactively identify and remediate security weaknesses.</p></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

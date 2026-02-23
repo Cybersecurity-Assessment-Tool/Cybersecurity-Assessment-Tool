@@ -1,0 +1,170 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx} % For potential logos
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- SECTION 1: EXECUTIVE OVERVIEW ---
+\section{Executive Overview}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The assessment incorporated an external network scan, a review of internal security controls via a questionnaire, and an analysis of pre-existing risks.
+
+The overall security posture is determined to be critically weak and requires immediate remediation. The key findings are:
+
+\begin{itemize}
+    \item \textbf{Critical External Vulnerability:} An externally facing FTP server at \texttt{[Client IP]} is running a dangerously outdated version of \texttt{vsftpd} (2.3.4). This specific version contains a well-known public backdoor (CVE-2011-2523) that allows an attacker to gain remote command execution. The server is further misconfigured to allow anonymous logins, drastically lowering the barrier to exploitation.
+    
+    \item \textbf{Critical Internal Control Gaps:} The organization lacks Multi-Factor Authentication (MFA) for both computer logins and, more critically, for access to sensitive data systems. This exposes the organization to significant risk from credential theft and unauthorized access.
+    
+    \item \textbf{Significant Policy Deficiencies:} Foundational security policies, such as an Acceptable Use Policy (AUP) and mandatory annual security awareness training for all employees, are not in place. This indicates a lack of a mature security culture and increases the risk of insider threats and human error.
+\end{itemize}
+
+Immediate action is required to address the vulnerable FTP server. Following this, a strategic initiative must be launched to implement MFA and develop core security policies to mitigate the severe risks identified.
+
+% --- SECTION 2: ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+
+This section contains the high-level information provided for the assessment. Due to the anonymized nature of the input data, placeholders have been used.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \texttt{[Domain]} \\
+External IP Scanned & \texttt{[Client IP]} \\ 
+Scan Target IP & \texttt{[Target IP]} \\
+Scan Date & Not specified in scan data \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\label{tab:org_info}
+\end{table}
+
+% --- SECTION 3: SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. A green checkmark (\textcolor{green}{\ding{51}}) indicates a positive control is in place, while a red cross (\textcolor{red}{\ding{55}}) indicates a control gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results.}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The identified control gaps are significant. The lack of MFA on computers and sensitive systems dramatically increases the risk of lateral movement and data breaches should a single user account be compromised. The absence of an Acceptable Use Policy and annual security training for all staff creates an environment where employees may be unaware of their security responsibilities, making them more susceptible to social engineering attacks like phishing.
+
+% --- SECTION 4: TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+
+An external network scan was performed on the target IP address \texttt{[Target IP]}. The scan identified one open port with a critically vulnerable service.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Notes} \\ \midrule
+21/tcp & Open & ftp & vsftpd 2.3.4 & Anonymous FTP login allowed \\ \bottomrule
+\end{tabular}
+\caption{Nmap Scan Results for \texttt{[Target IP]}.}
+\label{tab:nmap_results}
+\end{table}
+
+\subsection*{Vulnerability Analysis: vsftpd 2.3.4 Backdoor (CVE-2011-2523)}
+The version of \texttt{vsftpd} detected, \textbf{2.3.4}, is extremely dangerous. This specific version was compromised by an attacker who inserted a backdoor into the source code. When a username containing the sequence `:)` is sent, the backdoor is triggered, opening a command shell on port 6200. This provides an unauthenticated attacker with full remote control over the server.
+
+The additional finding that "Anonymous FTP login allowed" means any attacker on the internet can connect to the service and attempt to trigger this backdoor without needing any credentials. \textbf{This is a critical, exploitable vulnerability that must be addressed immediately.}
+
+% --- SECTION 5: CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the technical scan, control review, and pre-existing risk data into a consolidated list of identified risks, prioritized by severity.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\textbf{Exploitable FTP Server} & The public-facing FTP server is running \texttt{vsftpd 2.3.4}, which contains a known remote command execution backdoor (CVE-2011-2523). & \textbf{Critical} \\
+\textbf{No MFA on Sensitive Systems} & Lack of MFA on systems holding sensitive data exposes critical assets to unauthorized access via compromised credentials. & \textbf{Critical} \\
+\textbf{No MFA on Workstations} & Lack of MFA for computer logins allows for easier lateral movement within the network if an employee's password is stolen. & High \\
+\textbf{No Acceptable Use Policy} & The absence of a formal AUP means there are no clear rules for employees regarding the use of company assets, increasing insider risk. & High \\
+\textbf{No Annual Security Training} & Without regular training, employees' ability to recognize and respond to threats like phishing diminishes over time. & High \\
+\textbf{Outdated Windows Policy} & As per existing risk data, workstations are running Windows 7, which is an unsupported End-of-Life (EOL) operating system. & Medium \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\label{tab:risks}
+\end{table}
+
+% --- SECTION 6: RECOMMENDATIONS ---
+\section{Recommendations}
+
+Based on the consolidated risk assessment, the following remediation actions are recommended, prioritized by urgency.
+
+\subsection*{Immediate Actions (Within 24 Hours)}
+\begin{enumerate}
+    \item \textbf{Isolate the Vulnerable FTP Server:} Disconnect the server at \texttt{[Client IP]} from all networks immediately. Do not attempt to patch it while it is online.
+    \item \textbf{Preserve and Investigate:} Preserve the server's state for forensic analysis to determine if it has already been compromised.
+    \item \textbf{Decommission or Rebuild:} The server must be rebuilt from a trusted OS image. If the FTP service is a business necessity, a modern, patched FTP server solution must be deployed with a secure configuration (e.g., disabling anonymous access).
+\end{enumerate}
+
+\subsection*{High-Priority Actions (Next 30-90 Days)}
+\begin{enumerate}
+    \item \textbf{Implement MFA:}
+        \begin{itemize}
+            \item Prioritize the deployment of a robust MFA solution for all access to sensitive data systems.
+            \item Roll out MFA for all employee workstation logins.
+        \end{itemize}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Draft a formal AUP that all employees must read and sign. This policy should govern the use of email, internet, company devices, and data.
+    \item \textbf{Establish Annual Security Training:} Implement a mandatory security awareness training program for all employees to be completed annually. This should cover topics such as phishing, password security, and data handling.
+\end{enumerate}
+
+\subsection*{Medium-Priority Actions (Ongoing)}
+\begin{enumerate}
+    \item \textbf{Address Outdated Windows Policy:} Continue with the existing plan to upgrade or replace all workstations running Windows 7. This project should be tracked to completion to eliminate risks associated with unsupported operating systems.
+\end{enumerate}
+
+\end{document}
+```

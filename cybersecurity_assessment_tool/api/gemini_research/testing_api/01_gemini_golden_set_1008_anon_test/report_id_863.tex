@@ -1,0 +1,170 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required packages and document setup
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding{51}, \ding{55})
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage[utf8]{inputenc}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, an organizational security questionnaire, and a review of pre-existing risk documentation. The assessment was conducted on \today.
+
+The analysis reveals several critical and high-risk vulnerabilities that require immediate attention. The most significant findings include:
+
+\begin{itemize}
+    \item \textbf{Critical Gaps in Access Control:} Multi-Factor Authentication (MFA) is not enforced for accessing sensitive data systems. This represents a critical vulnerability, as a single compromised credential could lead to a major data breach.
+    \item \textbf{Critical Pre-existing Risk:} A documented vulnerability, "Localhost Exposed," is present with a maximum CVSS score of 10.0 (Critical). This indicates a severe, potentially exploitable flaw that must be prioritized for remediation.
+    \item \textbf{Foundational Policy Deficiencies:} The organization lacks a formal employee Acceptable Use Policy (AUP) and does not provide security awareness training for new hires. These gaps in administrative controls significantly increase the risk of human error and insider threats.
+    \item \textbf{Exposed Network Service:} A technical scan identified an open SSH port (22) on a target system. While necessary for administration, an improperly secured or unnecessary public-facing SSH service is a common vector for attack.
+\end{itemize}
+
+Immediate action is recommended to address the MFA gap and the "Localhost Exposed" vulnerability. Subsequently, focus should be placed on developing and implementing the missing security policies and training programs to establish a stronger foundational security posture.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+This section details the information provided about the organization. Note that some data was anonymized for this report.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \texttt{[Domain]} \\
+    External IP Address & \texttt{[Client IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review (Questionnaire Analysis) ---
+\section{Security Control Review (Questionnaire Analysis)}
+
+A review of the organization's security practices was conducted via a questionnaire. The results highlight significant gaps in administrative and access controls. A "No" answer indicates a deviation from security best practices and a potential risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}p{0.7\linewidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} \\ % Yes
+    Do you require MFA to log into computers? & \ding{51} \\ % Yes
+    Do you require MFA to access sensitive data systems? & \textbf{\color{red}\ding{55}} \\ % No
+    Does your organization have an employee acceptable use policy? & \textbf{\color{red}\ding{55}} \\ % No
+    Does your organization do security awareness training for new employees? & \textbf{\color{red}\ding{55}} \\ % No
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\ % Yes
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{MFA on Sensitive Systems (Critical Risk):} The absence of MFA on systems containing sensitive data is the most critical finding from this review. It nullifies many other security efforts, as a single stolen password could grant an attacker direct access to the organization's most valuable information.
+    \item \textbf{Acceptable Use Policy (High Risk):} Lacking an AUP means there are no formally documented rules for how employees should use company assets. This creates ambiguity and makes it difficult to enforce security standards or take corrective action against policy violations.
+    \item \textbf{New Employee Training (High Risk):} New hires are often prime targets for social engineering attacks. Without immediate security training during onboarding, they are more likely to fall victim to phishing or other attacks, inadvertently introducing risk to the organization from their first day.
+\end{itemize}
+
+% --- 4. Technical Network Scan Results ---
+\section{Technical Network Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\begin{tabular}{@{}clll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+    \midrule
+    22/tcp & open & SSH (Secure Shell) & Remote administration protocol. \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified that port 22, commonly used for SSH, is open. SSH is a powerful tool for remote server administration. However, if this service is exposed to the public internet, it becomes a primary target for attackers. Potential risks include:
+\begin{itemize}
+    \item \textbf{Brute-Force Attacks:} Automated attacks that attempt to guess usernames and passwords.
+    \item \textbf{Credential Stuffing:} Using credentials stolen from other data breaches to gain access.
+    \item \textbf{Exploitation of Vulnerabilities:} If the SSH server software is outdated, it may contain known, exploitable vulnerabilities.
+\end{itemize}
+The risk associated with this finding is amplified by the lack of security training for new employees, who may use weak or reused passwords for administrative access.
+
+% --- 5. Overall Risk Assessment ---
+\section{Overall Risk Assessment}
+
+This section synthesizes findings from the questionnaire, technical scan, and pre-existing risk documentation into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Consolidated Risk Summary}
+\begin{tabular}{@{}p{0.25\linewidth}p{0.5\linewidth}l@{}}
+    \toprule
+    \textbf{Risk / Vulnerability} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    \textbf{Localhost Exposed} & A pre-existing vulnerability with a CVSS score of 10.0, indicating a flaw of maximum severity. The name suggests a critical service may be improperly exposed. & \textbf{Critical} \\
+    \addlinespace
+    \textbf{No MFA on Sensitive Systems} & Lack of a secondary authentication factor for critical data systems. A compromised password leads directly to a data breach. & \textbf{Critical} \\
+    \addlinespace
+    \textbf{Missing New Hire Security Training} & New employees are not trained on security best practices, making them highly susceptible to social engineering and phishing attacks. & \textbf{High} \\
+    \addlinespace
+    \textbf{Missing Acceptable Use Policy} & No formal policy governs the use of company IT assets, leading to inconsistent security practices and lack of enforceability. & \textbf{High} \\
+    \addlinespace
+    \textbf{Exposed SSH Service} & Port 22 is open on \texttt{[Target IP]}, presenting a target for brute-force attacks and unauthorized access attempts. & \textbf{High} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+Based on the analysis, the following actions are recommended to mitigate the identified risks. They are prioritized by severity and potential impact.
+
+\subsection*{Priority 1: Immediate Actions (0-7 Days)}
+\begin{enumerate}
+    \item \textbf{Remediate "Localhost Exposed" Vulnerability:} Immediately investigate the critical "Localhost Exposed" finding. Identify the affected systems and apply the necessary patches or configuration changes to eliminate this risk.
+    \item \textbf{Implement MFA on Sensitive Systems:} Deploy MFA across all sensitive data systems without delay. This is the single most effective control to prevent unauthorized access resulting from compromised credentials.
+\end{enumerate}
+
+\subsection*{Priority 2: High-Impact Actions (1-4 Weeks)}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Draft a clear and concise AUP that defines the rules for using company technology. Require all employees to read and acknowledge the policy.
+    \item \textbf{Institute New Hire Security Training:} Create a mandatory security awareness training module as part of the employee onboarding process. This training should cover phishing, password hygiene, and the new AUP.
+    \item \textbf{Secure the Exposed SSH Service:}
+        \begin{itemize}
+            \item Review the business need for the SSH service on \texttt{[Target IP]} to be accessible from the internet. If not required, block it at the firewall.
+            \item If required, restrict access to known, trusted IP addresses (VPN, corporate offices).
+            \item Enforce the use of SSH keys instead of passwords for authentication.
+        \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 3: Continuous Improvement (Ongoing)}
+\begin{enumerate}
+    \item \textbf{Enhance Annual Security Training:} While annual training exists, ensure it is updated to reflect current threats and reinforces the policies established in the new AUP.
+    \item \textbf{Conduct Regular Vulnerability Scanning:} Implement a program of regular, automated vulnerability scanning for all external and internal systems to proactively identify and remediate technical flaws.
+\end{enumerate}
+
+\end{document}
+```

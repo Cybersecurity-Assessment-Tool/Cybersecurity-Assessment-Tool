@@ -1,0 +1,166 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[hidelinks]{hyperref} % For clickable links without boxes
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xcolor}
+
+% Define colors for severity levels
+\definecolor{criticalred}{HTML}{D32F2F}
+\definecolor{highorange}{HTML}{F57C00}
+\definecolor{mediumyellow}{HTML}{FBC02D}
+\definecolor{lowblue}{HTML}{1976D2}
+\definecolor{infogray}{HTML}{616161}
+
+% Header and Footer Configuration
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{For: \textbf{Infinity Loop}}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+% Title Page
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:} \\
+    \vspace{0.5cm}
+    \seqsplit{\textbf{Infinity Loop}}
+    \vspace{2cm}
+    \large
+    \textbf{Prepared by:} \\
+    \vspace{0.5cm}
+    Cybersecurity Analysis Division
+    \vfill
+    \large
+    \textbf{Date of Report:} \\
+    \vspace{0.5cm}
+    \today
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+This report details the findings of a cybersecurity posture assessment for \textbf{Infinity Loop}. The assessment combined a review of organizational security controls via a questionnaire, an external network vulnerability scan, and an analysis of pre-existing risks.
+
+The external network scan of the target IP address, \texttt{[Target IP]}, yielded positive results, indicating no open ports or exposed services. This suggests a well-configured network perimeter, which significantly reduces the external attack surface.
+
+However, the security control review revealed several critical and high-risk gaps in the organization's internal security policies and procedures. The most significant findings include:
+\begin{itemize}
+    \item \textbf{Lack of Multi-Factor Authentication (MFA) on Computers:} The absence of mandatory MFA for computer logins presents a critical risk, as compromised credentials could lead to direct endpoint and network access.
+    \item \textbf{Absence of an Acceptable Use Policy (AUP):} Without a formal AUP, there is no defined standard for employee behavior regarding company assets, which can lead to unintentional security incidents and insider threats.
+    \item \textbf{Deficient Security Awareness Training:} The organization does not provide security awareness training for new or existing employees. This is a high-risk gap, as it leaves the organization highly susceptible to social engineering attacks like phishing.
+\end{itemize}
+
+While the external posture is strong, immediate action is required to address these internal policy and procedural weaknesses to build a defense-in-depth security strategy and mitigate significant business risk.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{Infinity Loop} \\
+Email Domain & \seqsplit{\texttt{InfinityLoop.net}} \\
+Website Domain & \seqsplit{\texttt{www.InfinityLoop.net}} \\
+External IP Address & \seqsplit{\texttt{161.140.185.141}} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_data}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the responses to the security questionnaire. A green checkmark (\textcolor{green}{\ding{51}}) indicates a positive control is in place, while a red 'X' (\textcolor{red}{\ding{55}}) highlights a security gap that requires attention.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.7\linewidth} c c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & No & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & No & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & No & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & No & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify potential vulnerabilities on the public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Not specified in scan data.
+\end{itemize}
+
+\subsection{Findings}
+The network scan of the target IP address did not identify any open ports or running services. This indicates a strong network perimeter configuration with no exposed services detected at the time of the scan. While this is a positive security posture from an external perspective, it does not preclude vulnerabilities in web applications or other services that may be hosted behind a firewall or load balancer.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from all data sources. No pre-existing vulnerabilities were reported. The risks below were identified during this assessment based on the security control review.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.15\linewidth} p{0.55\linewidth} p{0.15\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\ \midrule
+\textbf{Lack of Endpoint MFA} & The absence of MFA for computer logins means a single compromised password could grant an attacker full access to an employee's workstation and potentially the internal network. & \colorbox{criticalred}{\color{white}\textbf{CRITICAL}} \\
+\addlinespace
+\textbf{No Acceptable Use Policy (AUP)} & Without a formal AUP, employees lack clear guidelines on the secure and appropriate use of company systems, data, and network resources, increasing the risk of misuse and data breaches. & \colorbox{criticalred}{\color{white}\textbf{CRITICAL}} \\
+\addlinespace
+\textbf{Deficient Security Awareness Training} & Employees are not trained to recognize or respond to cyber threats like phishing, malware, or social engineering. This makes them the primary vector for a potential security breach. & \colorbox{highorange}{\color{white}\textbf{HIGH}} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the risks identified in Section 5, the following actions are recommended to improve the cybersecurity posture of \textbf{Infinity Loop}.
+
+\subsection{Immediate Actions (1-30 Days)}
+\begin{description}
+    \item[Implement MFA for Computer Logins:]
+    \textit{Risk Mitigated: Lack of Endpoint MFA (Critical).} \\
+    Deploy a mandatory Multi-Factor Authentication solution for all employee computer and laptop logins. This dramatically reduces the risk of unauthorized access from stolen credentials. Solutions like Windows Hello for Business, Duo, or other third-party authenticators should be evaluated.
+
+    \item[Develop and Implement an Acceptable Use Policy (AUP):]
+    \textit{Risk Mitigated: No Acceptable Use Policy (Critical).} \\
+    Draft a comprehensive AUP that clearly defines the rules and responsibilities for all employees when using company technology and data. This policy should be formally communicated to all staff and acknowledged via signature.
+\end{description}
+
+\subsection{Short-Term Actions (30-90 Days)}
+\begin{description}
+    \item[Establish a Security Awareness Training Program:]
+    \textit{Risk Mitigated: Deficient Security Awareness Training (High).} \\
+    Implement a mandatory security awareness training program for all employees. This program should be required for all new hires during onboarding and conducted annually for all existing staff. The training should cover key topics such as phishing, password security, and data handling.
+\end{description}
+
+\end{document}
+```

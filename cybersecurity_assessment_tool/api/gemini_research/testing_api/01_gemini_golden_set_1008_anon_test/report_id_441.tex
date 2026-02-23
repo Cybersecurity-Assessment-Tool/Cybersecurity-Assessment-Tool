@@ -1,0 +1,171 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links and ToC
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in \texttt
+\usepackage{xcolor} % For colors in text
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Document Title Block
+\title{Cybersecurity Posture Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ==============================================================================
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on network scans, a security controls questionnaire, and a review of existing risk documentation.
+
+The assessment reveals a mixed security posture. The organization demonstrates strong foundational controls, particularly in the mandatory use of Multi-Factor Authentication (MFA) across key systems. However, two critical areas of concern were identified that require immediate attention:
+
+\begin{enumerate}
+    \item \textbf{Critical Service Exposure:} A network scan of the external IP address \texttt{[Client IP]} identified an open service on port 8080 with the title \textbf{``TOP SECRET DB''}. This represents a severe information disclosure vulnerability and directly contradicts the existing risk documentation, which incorrectly labels this port as secure. This finding indicates a potentially compromised sensitive system and a flawed risk validation process.
+    
+    \item \textbf{Onboarding Security Gap:} The organization does not provide security awareness training to new employees. This is a significant gap in the security program, as new hires are often prime targets for social engineering attacks. While annual training is in place for existing staff, the lack of initial training leaves a critical window of vulnerability.
+\end{enumerate}
+
+Immediate remediation of the exposed service is paramount. Following this, we strongly recommend implementing a mandatory security training module into the employee onboarding process and conducting a full review of the risk management lifecycle.
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+This assessment was conducted for the following entity. As identity data was not provided, placeholders are used.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Address Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. The status indicates alignment with standard cybersecurity best practices. A red cross (\ding{55}) signifies a potential control gap that increases risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.8\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The primary control gap identified is the \textbf{lack of security awareness training during the employee onboarding process}. New employees are not formally trained on security policies, threat identification (e.g., phishing), or acceptable use. This significantly increases the "human factor" risk, as untrained personnel are more susceptible to social engineering attacks and accidental data breaches. While annual training is commendable, it does not cover the initial high-risk period of a new employee's tenure.
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed on the target IP address to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Scan data provided on \today
+\end{itemize}
+
+The following table details the significant findings from the scan.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services Detected}
+\begin{tabular}{llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service/Product} & \textbf{Details} \\
+\midrule
+8080 & Open & http (title) & \textbf{Critical Finding:} The HTTP title script \\
+& & & returned the string: ``TOP SECRET DB''. \\
+& & & This suggests a highly sensitive, \\
+& & & publicly exposed database or application. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The discovery of an open service on port 8080 with a title explicitly mentioning a ``TOP SECRET DB'' is a critical vulnerability. This level of information disclosure could allow an attacker to identify and target a high-value asset. This finding is especially concerning as it directly contradicts the information provided in the organization's existing risk documentation (Input 3), which states: \textit{``Port 8080 is confirmed secure and false positive.''} This points to a severe failure in the risk assessment and validation process.
+
+% ==============================================================================
+% SECTION 5: RISK ASSESSMENT SUMMARY
+% ==============================================================================
+\section{Risk Assessment Summary}
+
+Based on the correlation of all data inputs, the following risks have been identified and prioritized.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Cybersecurity Risks}
+\begin{tabular}{p{0.25\linewidth}p{0.5\linewidth}l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Sensitive Data Exposure on Port 8080} & An externally accessible service on port 8080 reveals a title suggesting it is a top-secret database, creating a high-value target for attackers. & \textbf{Critical} \\
+\addlinespace
+\textbf{Inadequate New Employee Onboarding Security} & The absence of security awareness training for new hires creates a significant vulnerability to social engineering, phishing, and accidental policy violations. & \textbf{High} \\
+\addlinespace
+\textbf{Outdated Risk Register} & The existing risk documentation incorrectly classifies a critical exposure as a secure false positive, indicating that the risk management process is flawed and unreliable. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\begin{enumerate}
+    \item \textbf{Immediate (within 24 hours):}
+    \begin{itemize}
+        \item \textbf{Investigate and Secure Port 8080:} Immediately investigate the service running on port 8080 on host \texttt{[Target IP]}.
+        \item If the service is not required for public access, block it at the firewall.
+        \item If it is required, ensure access is restricted via VPN or IP whitelisting and that robust authentication is enforced. Remove or change the revealing HTTP title.
+    \end{itemize}
+    \item \textbf{High Priority (within 30 days):}
+    \begin{itemize}
+        \item \textbf{Implement Onboarding Security Training:} Develop and integrate a mandatory security awareness training module into the new employee onboarding process. This module should cover, at a minimum, phishing identification, acceptable use policies, and data handling procedures.
+    \end{itemize}
+    \item \textbf{Medium Priority (within 90 days):}
+    \begin{itemize}
+        \item \textbf{Review Risk Management Process:} Conduct a full review of the organization's risk assessment and validation procedures. Ensure that technical scans are used to validate assumptions and that the risk register is a living document, updated regularly to reflect the current threat landscape.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

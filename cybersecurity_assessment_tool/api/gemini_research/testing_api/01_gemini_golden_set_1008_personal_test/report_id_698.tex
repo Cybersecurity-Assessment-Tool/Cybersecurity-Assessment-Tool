@@ -1,0 +1,196 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding{51} (checkmark) and \ding{55} (cross)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings in \texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% Document Metadata and Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Nmap, Risk, Assessment},
+    pdftoolbar=true,
+}
+
+% Header and Footer Configuration
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{True North Travel}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Document Start
+\begin{document}
+
+\title{Cybersecurity Posture Assessment Report \\ \large For: True North Travel}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+\thispagestyle{empty}
+\tableofcontents
+\newpage
+
+% ------------------------------------------------------------------------------
+% Section 1: Executive Summary
+% ------------------------------------------------------------------------------
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity posture assessment conducted for True North Travel. The assessment combines an analysis of self-reported security controls, an external network scan, and a review of pre-existing risks to provide a holistic view of the organization's security posture.
+
+The assessment identified several \textbf{critical vulnerabilities} that require immediate remediation. A public-facing FTP server was discovered running a dangerously outdated version of \texttt{vsftpd} (2.3.4), which is known to contain a critical backdoor vulnerability (CVE-2011-2523). The server is also misconfigured to allow anonymous logins, significantly increasing the risk of a data breach or system compromise.
+
+Furthermore, critical gaps were identified in organizational security controls. The lack of Multi-Factor Authentication (MFA) on email accounts exposes the organization to significant risk from phishing and Business Email Compromise (BEC) attacks. This is compounded by the absence of mandatory annual security awareness training for all employees.
+
+The overall security posture is considered \textbf{poor}, with multiple high-impact vulnerabilities that could be easily exploited by malicious actors. We strongly urge the immediate implementation of the recommendations outlined in this report to mitigate these risks.
+
+\newpage
+
+% ------------------------------------------------------------------------------
+% Section 2: Organizational Information
+% ------------------------------------------------------------------------------
+\section{Organizational Information}
+
+This section contains the organizational details provided for this assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & True North Travel \\
+Email Domain & \texttt{TrueNorthTravel.org} \\
+Website Domain & \url{www.TrueNorthTravel.org} \\
+External IP Address & \texttt{230.161.185.20} \\
+\bottomrule
+\end{tabular}
+
+% ------------------------------------------------------------------------------
+% Section 3: Security Control Review
+% ------------------------------------------------------------------------------
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. Gaps in these controls often represent significant organizational risk. Items marked with \ding{55} indicate a deviation from security best practices and are addressed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\textwidth}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & No & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & No & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+\newpage
+
+% ------------------------------------------------------------------------------
+% Section 4: Technical Scan Results
+% ------------------------------------------------------------------------------
+\section{Technical Scan Results}
+An external network scan was performed against the target IP address \texttt{10.0.0.15}. The scan identified one open port with a critically vulnerable service.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} & \textbf{Finding} \\
+\midrule
+21/tcp & Open & ftp & vsftpd 2.3.4 & \parbox[t]{0.4\textwidth}{\textbf{Critical Vulnerability.} Anonymous FTP login is allowed. This version contains a known backdoor (CVE-2011-2523).} \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports and Services Detected on \texttt{10.0.0.15}}
+\end{table}
+
+\subsection{Detailed Findings}
+\begin{itemize}
+    \item \textbf{Insecure Protocol (FTP):} The File Transfer Protocol (FTP) is inherently insecure as it transmits credentials and data in cleartext, making it susceptible to eavesdropping.
+    \item \textbf{Anonymous FTP Enabled:} The server is configured to allow anonymous logins. This misconfiguration could allow an attacker to access, download, or upload files without authentication, potentially leading to data exfiltration or malware distribution.
+    \item \textbf{Known Backdoor Vulnerability (CVE-2011-2523):} Version 2.3.4 of \texttt{vsftpd} was compromised by attackers who inserted a backdoor. When a username ending in the sequence `:)` is entered, a command shell is opened on port 6200, granting the attacker remote command execution on the server. This is a critical, easily exploitable vulnerability.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------
+% Section 5: Consolidated Risk Assessment
+% ------------------------------------------------------------------------------
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.45\textwidth}l@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name \& Description} & \textbf{Severity} \\
+\midrule
+\textbf{R-01} & \textbf{Vulnerable FTP Service (CVE-2011-2523)} & \textbf{Critical} \\
+& \small The public-facing FTP server is running a version with a known backdoor and allows anonymous login. & \\
+\addlinespace
+\textbf{R-02} & \textbf{Lack of MFA on Email} & \textbf{Critical} \\
+& \small Email accounts are protected only by passwords, exposing them to takeover via phishing or credential stuffing. & \\
+\addlinespace
+\textbf{R-03} & \textbf{Inadequate Security Training} & \textbf{High} \\
+& \small Employees do not receive annual security training, increasing susceptibility to social engineering attacks. & \\
+\addlinespace
+\textbf{R-04} & \textbf{Outdated Windows Policy} & \textbf{Medium} \\
+& \small \textit{(Pre-existing)} Workstations are running Windows 7, an unsupported OS lacking security patches. & \\
+\bottomrule
+\end{tabular}
+\caption{Prioritized Risk Register}
+\end{table}
+
+\newpage
+
+% ------------------------------------------------------------------------------
+% Section 6: Recommendations
+% ------------------------------------------------------------------------------
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity.
+
+\subsection{R-01: Vulnerable FTP Service (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action (0-24 Hours):} Take the FTP server offline immediately. Disconnect it from the network to prevent exploitation.
+    \item \textbf{Short-Term Action (1-3 Days):} If the service is business-critical, deploy a firewall rule to restrict access to only known, trusted IP addresses while a permanent solution is developed.
+    \item \textbf{Long-Term Solution (1-2 Weeks):} Decommission the FTP server permanently. Migrate the functionality to a secure alternative such as SFTP (SSH File Transfer Protocol) or a managed, secure cloud file-sharing service that enforces strong authentication.
+\end{itemize}
+
+\subsection{R-02: Lack of MFA on Email (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action (0-72 Hours):} Procure and enable MFA for all email accounts. Prioritize deployment for executives, finance department personnel, and system administrators.
+    \item \textbf{Policy Action:} Update the organization's access control policy to mandate the use of MFA for all services that handle sensitive company or client data, especially email.
+\end{itemize}
+
+\subsection{R-03: Inadequate Security Training (High)}
+\begin{itemize}
+    \item \textbf{Short-Term Action (1-2 Weeks):} Enroll all current employees in a comprehensive security awareness training program covering phishing, password hygiene, and acceptable use.
+    \item \textbf{Long-Term Solution:} Establish a formal, recurring security awareness training program that is mandatory for all employees on an annual basis. Supplement this with periodic phishing simulation campaigns to test and reinforce the training.
+\end{itemize}
+
+\subsection{R-04: Outdated Windows Policy (Medium)}
+\begin{itemize}
+    \item \textbf{Short-Term Action (1-4 Weeks):} Ensure all Windows 7 machines are isolated on a separate network segment with restricted access to critical systems until they can be upgraded.
+    \item \textbf{Long-Term Solution:} Execute the existing plan to upgrade all workstations to a modern, supported operating system (e.g., Windows 10/11). Implement a robust patch management policy to ensure all systems receive timely security updates.
+\end{itemize}
+
+\end{document}
+```

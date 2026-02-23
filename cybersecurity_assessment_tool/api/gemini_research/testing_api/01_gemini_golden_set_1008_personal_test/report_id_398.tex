@@ -1,0 +1,216 @@
+```latex
+\documentclass[12pt]{article}
+
+% -----------------------------------------------------------------------------
+% PREAMBLE
+% -----------------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+% --- Document Metadata ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Report},
+    pdfkeywords={Security, Assessment, Nmap, Risk},
+}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- Header & Footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Posture Assessment}
+\rhead{\textbf{Wildfire Communications}}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% -----------------------------------------------------------------------------
+% DOCUMENT START
+% -----------------------------------------------------------------------------
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder logo
+    \vfill
+    \huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{0.5cm}
+    \LARGE For
+    \vspace{0.5cm}
+    \huge\textbf{Wildfire Communications}
+    \vfill
+    \large
+    \begin{tabular}{ll}
+        \textbf{Report Date:} & \today \\
+        \textbf{Analysis Period:} & November 2023 \\
+        \textbf{Classification:} & Confidential \\
+    \end{tabular}
+    \vspace*{1cm}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% -----------------------------------------------------------------------------
+% 1. EXECUTIVE SUMMARY
+% -----------------------------------------------------------------------------
+\section*{1. Executive Summary}
+This report provides a comprehensive assessment of the cybersecurity posture for \textbf{Wildfire Communications}. The analysis is based on a correlation of network scan data, a security controls questionnaire, and a review of pre-existing risks.
+
+The overall security posture is determined to be \textbf{critically weak}. Several high-impact vulnerabilities and procedural gaps were identified that expose the organization to significant risk of data breach, ransomware, and unauthorized access.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Exposed Vulnerable Service:} A public-facing FTP server running an outdated and notoriously vulnerable version of \texttt{vsftpd} (2.3.4) was discovered. This service is misconfigured to allow anonymous access, presenting a direct and immediate threat.
+    \item \textbf{Insufficient Access Controls:} Multi-Factor Authentication (MFA) is not enforced for employee email or computer logins. This is a critical gap that severely weakens defenses against credential theft and phishing attacks.
+    \item \textbf{Lack of Security Training:} The organization does not conduct security awareness training for new or existing employees. This increases the likelihood of human error leading to security incidents.
+    \item \textbf{Outdated Systems:} A known risk of workstations running the end-of-life Windows 7 operating system persists, leaving them unpatched against modern threats.
+\end{itemize}
+Immediate remediation of the identified technical vulnerabilities and policy gaps is strongly recommended to reduce the organization's attack surface and mitigate the high probability of a security incident.
+
+\newpage
+
+% -----------------------------------------------------------------------------
+% 2. ORGANIZATIONAL INFORMATION
+% -----------------------------------------------------------------------------
+\section*{2. Organizational Information}
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Wildfire Communications} \\
+    Email Domain & \seqsplit{\texttt{WildfireCommunications.com}} \\
+    Website Domain & \seqsplit{\url{www.WildfireCommunications.com}} \\
+    External IP Address & \seqsplit{\texttt{5.240.78.226}} \\
+    \bottomrule
+\end{tabular}
+
+% -----------------------------------------------------------------------------
+% 3. SECURITY CONTROL REVIEW
+% -----------------------------------------------------------------------------
+\section*{3. Security Control Review}
+A review of organizational security controls was conducted via a questionnaire. The responses indicate significant gaps in fundamental security practices, particularly in identity management and employee security awareness.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}lc}
+    \toprule
+    \textbf{Control Question} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{red}{\no} \\
+    Do you require MFA to log into computers? & \textcolor{red}{\no} \\
+    Do you require MFA to access sensitive data systems? & \textcolor{green}{\yes} \\
+    Does your organization have an employee acceptable use policy? & \textcolor{green}{\yes} \\
+    Does your organization do security awareness training for new employees? & \textcolor{red}{\no} \\
+    Does your organization do security awareness training for all employees annually? & \textcolor{red}{\no} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The lack of MFA on email and computer logins is a critical deficiency. Email is a primary target for phishing attacks, and compromised accounts can be used for lateral movement and data exfiltration. The complete absence of a security awareness training program leaves the organization highly susceptible to social engineering attacks, as employees are not equipped to identify or report threats.
+
+% -----------------------------------------------------------------------------
+% 4. TECHNICAL SCAN RESULTS
+% -----------------------------------------------------------------------------
+\section*{4. Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services. The scan targeted the internal IP address \seqsplit{\texttt{10.0.0.15}}.
+
+\subsection*{Host: \texttt{10.0.0.15}}
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services Detected}
+\begin{tabular}{@{}lllll}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Finding} \\
+    \midrule
+    21/tcp & Open & ftp & vsftpd 2.3.4 & Anonymous FTP login allowed \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified a single, critically vulnerable service:
+\begin{itemize}
+    \item \textbf{vsftpd version 2.3.4:} This specific version is widely known to contain a critical backdoor vulnerability (\textbf{CVE-2011-2523}). If exploited, this vulnerability allows an attacker to execute arbitrary commands on the server with root-level privileges, leading to a full system compromise.
+    \item \textbf{Anonymous FTP Login:} The server is configured to allow anonymous (unauthenticated) users to log in. This misconfiguration can be used to exfiltrate sensitive data, or worse, to upload malicious files (e.g., ransomware, web shells) into the network.
+\end{itemize}
+The combination of a known backdoor and anonymous access makes this server an immediate and severe threat to the entire network infrastructure.
+
+\newpage
+
+% -----------------------------------------------------------------------------
+% 5. CONSOLIDATED RISK ASSESSMENT
+% -----------------------------------------------------------------------------
+\section*{5. Consolidated Risk Assessment}
+The following table synthesizes findings from the technical scan, control review, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.5cm} p{3.5cm} p{6.5cm} p{1.5cm}}
+    \toprule
+    \textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    R-01 & \textbf{Vulnerable FTP Server} & The FTP server is running vsftpd 2.3.4, which contains a critical backdoor (CVE-2011-2523) allowing remote code execution. & \textbf{Critical} \\
+    \addlinespace
+    R-02 & \textbf{Anonymous FTP Access} & The FTP server is misconfigured to allow unauthenticated access, enabling potential data theft or malware uploads. & \textbf{Critical} \\
+    \addlinespace
+    R-03 & \textbf{No MFA for Email} & Lack of MFA on email accounts exposes the organization to account takeovers via phishing and credential stuffing. & \textbf{Critical} \\
+    \addlinespace
+    R-04 & \textbf{No MFA for Workstations} & Lack of MFA on computer logins allows attackers with stolen credentials to easily access internal network resources. & \textbf{High} \\
+    \addlinespace
+    R-05 & \textbf{No Security Training} & Employees are not trained to recognize or report phishing and other social engineering attacks, increasing organizational risk. & \textbf{High} \\
+    \addlinespace
+    R-06 & \textbf{Outdated Windows OS} & Workstations are running Windows 7, an unsupported OS that no longer receives security updates, making them easy targets for exploitation. & \textbf{Medium} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% -----------------------------------------------------------------------------
+% 6. RECOMMENDATIONS
+% -----------------------------------------------------------------------------
+\section*{6. Recommendations}
+Based on the consolidated risk assessment, the following remediation actions are recommended in order of priority.
+
+\subsection*{Immediate Priority (Remediate within 72 hours)}
+\begin{enumerate}
+    \item \textbf{Mitigate FTP Server (R-01, R-02):} Immediately take the FTP server at \texttt{10.0.0.15} offline. If the service is business-critical, it must be upgraded to a modern, patched version, and anonymous access must be disabled. A secure alternative like SFTP should be implemented.
+    \item \textbf{Enforce MFA for Email (R-03):} Immediately enable and enforce MFA for all user accounts on the \texttt{WildfireCommunications.com} email domain.
+\end{enumerate}
+
+\subsection*{High Priority (Remediate within 30 days)}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Enforce MFA for Endpoints (R-04):} Implement and require MFA for all workstation logins, VPN access, and other remote access solutions.
+    \item \textbf{Implement Security Awareness Training (R-05):} Procure and deploy a security awareness training program. All employees must complete an initial training module, with annual refreshers thereafter.
+\end{enumerate}
+
+\subsection*{Medium Priority (Remediate within 90 days)}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item \textbf{Upgrade Outdated Workstations (R-06):} Accelerate the project to upgrade or replace all workstations running Windows 7. All endpoints should run a modern, supported operating system (e.g., Windows 11).
+\end{enumerate}
+
+\end{document}
+```

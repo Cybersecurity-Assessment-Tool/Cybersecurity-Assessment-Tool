@@ -1,0 +1,210 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Report}
+\fancyhead[R]{Vanguard Heritage}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{\stretch{1.0}}
+    {\Huge\bfseries Cybersecurity Posture Report\par}
+    \vspace{1.5cm}
+    {\Large\bfseries Prepared for:\par}
+    \vspace{0.5cm}
+    {\Large Vanguard Heritage\par}
+    \vspace{2.0cm}
+    {\large\bfseries Date of Report:\par}
+    \vspace{0.5cm}
+    {\large \today\par}
+    \vspace*{\stretch{2.0}}
+    \vfill
+    \begin{center}
+        \small This document contains sensitive information and is intended for the exclusive use of the recipient.
+    \end{center}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Vanguard Heritage}, based on data collected from network scans, organizational questionnaires, and a review of pre-existing risks. The assessment was conducted to identify vulnerabilities, security control gaps, and potential threats to the organization's information assets.
+
+The analysis revealed several high-priority risks that require immediate attention. The most critical findings include:
+\begin{itemize}
+    \item \textbf{Complete Lack of Multi-Factor Authentication (MFA):} The organization does not enforce MFA for email, computer logins, or access to sensitive data systems. This represents a critical vulnerability, significantly increasing the risk of unauthorized access and account compromise.
+    \item \textbf{Vulnerable Public-Facing Service:} An external network scan identified an FTP server (\texttt{vsftpd 2.3.4}) running on port 21. This specific version is known to contain a critical backdoor vulnerability (CVE-2011-2523), which could allow an attacker to gain full control of the server.
+    \item \textbf{Insecure Service Configuration:} The FTP server is configured to allow anonymous logins, permitting unauthenticated users to access files. This is a severe misconfiguration that exposes the organization to data breaches.
+\end{itemize}
+
+While the organization has implemented positive controls such as security awareness training and an acceptable use policy, these are undermined by the critical technical and procedural gaps identified. This report outlines actionable recommendations to mitigate these risks and strengthen the overall security posture.
+
+\newpage
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following information was provided and used as a baseline for this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Vanguard Heritage \\
+Email Domain & \texttt{VanguardHeritage.com} \\
+Website Domain & \url{www.VanguardHeritage.com} \\
+External IP Address & \texttt{21.249.4.18} \\
+\bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_data}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of organizational security controls was conducted based on a standardized questionnaire. The results highlight significant gaps in access control measures. A green checkmark (\ding{51}) indicates a positive control is in place, while a red X (\ding{55}) indicates a gap.
+
+\begin{table}[h!]
+\centering
+\rowcolors{2}{gray!10}{white}
+\begin{tabular}{@{}p{0.8\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis}
+The absence of Multi-Factor Authentication (MFA) across all critical access points (email, endpoints, and sensitive data systems) is a \textbf{critical risk}. Stolen or weak credentials are a primary vector for cyberattacks, and MFA is the single most effective control to mitigate this threat. Without it, the organization is highly susceptible to phishing, credential stuffing, and brute-force attacks leading to unauthorized access and potential data breaches.
+
+\newpage
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the target system to identify open ports and exposed services.
+
+\subsection*{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.0.0.15}
+    \item \textbf{Scan Date:} Data provided for report generation on \today.
+\end{itemize}
+
+\subsection*{Open Ports and Services}
+The following table details the services discovered during the scan.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} & \textbf{Notes} \\
+\midrule
+21/tcp & Open & ftp & \seqsplit{\texttt{vsftpd 2.3.4}} & \textbf{Critical:} Anonymous FTP login allowed. \\
+ & & & & Version is vulnerable to CVE-2011-2523. \\
+\bottomrule
+\end{tabular}
+\caption{Network Scan Findings}
+\label{tab:scan_results}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified an FTP server running \texttt{vsftpd version 2.3.4}. This version is affected by a well-known, critical backdoor vulnerability (\textbf{CVE-2011-2523}). If an attacker connects to the server with a username ending in `:)`, they can gain a command shell on the system. Compounding this issue, the server is configured to allow \textbf{anonymous FTP login}, which means any unauthenticated user on the internet can connect and potentially access, upload, or download files. This configuration poses an immediate and severe threat to the integrity and confidentiality of the server and any data it contains.
+
+\newpage
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data. Risks are prioritized by severity to guide remediation efforts.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.4\textwidth}ll@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name \& Description} & \textbf{Severity} & \textbf{Affected Systems} \\
+\midrule
+\rowcolor{red!20}
+RISK-001 & \textbf{Vulnerable FTP Server (CVE-2011-2523)} \newline A public-facing FTP server is running a version with a known remote code execution backdoor. & Critical & Server at \texttt{10.0.0.15} \\
+\addlinespace
+\rowcolor{red!20}
+RISK-002 & \textbf{Lack of Multi-Factor Authentication} \newline No MFA is enforced for email, endpoints, or sensitive systems, enabling account takeovers. & Critical & All Users, Endpoints, Email System \\
+\addlinespace
+\rowcolor{orange!25}
+RISK-003 & \textbf{Insecure Anonymous FTP Access} \newline The FTP server allows unauthenticated access, exposing files to unauthorized users. & High & Server at \texttt{10.0.0.15} \\
+\addlinespace
+\rowcolor{yellow!30}
+RISK-004 & \textbf{Outdated Windows Policy} \newline Workstations are running Windows 7, which is an unsupported and vulnerable operating system. & Medium & Workstations \\
+\bottomrule
+\end{tabular}
+\caption{Consolidated Risk Register}
+\label{tab:risk_register}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. They are prioritized to address the most critical threats first.
+
+\subsection*{RISK-001 \& RISK-003: Vulnerable and Insecure FTP Server}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Take the FTP server offline immediately to prevent exploitation. If this is not possible, apply firewall rules to restrict access to only trusted IP addresses.
+    \item \textbf{Short-Term Fix:} Upgrade the \texttt{vsftpd} service to the latest stable version to patch the backdoor vulnerability. Simultaneously, disable anonymous FTP access in the server's configuration file.
+    \item \textbf{Long-Term Strategy:} Decommission the FTP service entirely. Migrate all file transfer functionality to a secure protocol such as SFTP (SSH File Transfer Protocol) or FTPS (FTP over SSL/TLS), which encrypts both credentials and data in transit.
+\end{itemize}
+
+\subsection*{RISK-002: Lack of Multi-Factor Authentication}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Begin a phased rollout of MFA across the organization. Prioritize implementation for all administrator accounts and external-facing services, especially email (e.g., Office 365, Google Workspace).
+    \item \textbf{Short-Term Fix:} Enforce MFA for access to all systems containing sensitive or critical data.
+    \item \textbf{Long-Term Strategy:} Develop a corporate policy that mandates MFA for all employees for all services, including computer logins, VPN access, and cloud applications.
+\end{itemize}
+
+\subsection*{RISK-004: Outdated Windows Policy}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Isolate Windows 7 machines from the main network if they cannot be upgraded immediately to reduce their attack surface.
+    \item \textbf{Short-Term Fix:} Execute the existing plan to upgrade all remaining Windows 7 workstations to a supported version of Windows (e.g., Windows 10 or 11).
+    \item \textbf{Long-Term Strategy:} Implement a formal patch and lifecycle management program to ensure all operating systems and software are kept up-to-date and replaced before they reach end-of-life.
+\end{itemize}
+
+\end{document}
+```

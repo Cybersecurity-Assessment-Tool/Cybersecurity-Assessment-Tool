@@ -1,0 +1,143 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings without breaking words
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Cinder \& Ash}. The assessment is based on a synthesis of organizational data from a security questionnaire, results from an external network penetration scan, and a review of pre-existing risks. The findings indicate a mixed security posture with several effective controls in place but also reveals critical gaps that require immediate attention. Key risks identified include the absence of multi-factor authentication for computer logins and the lack of security awareness training for new employees.
+\end{abstract}
+
+\newpage
+
+% Table of Contents
+\tableofcontents
+
+\newpage
+
+% Section 1: Executive Overview
+\section*{1. Executive Overview}
+The purpose of this assessment was to evaluate the external security posture and internal security controls of \textbf{Cinder \& Ash}.
+
+\textbf{Strengths:} The organization has implemented crucial security controls, including Multi-Factor Authentication (MFA) for email and sensitive data systems, and conducts annual security awareness training for all staff. These measures significantly reduce the risk of account compromise and help maintain a security-conscious culture among existing employees.
+
+\textbf{Weaknesses:} Two significant vulnerabilities were identified through the security questionnaire.
+\begin{enumerate}
+    \item \textbf{Critical Risk:} The lack of MFA for computer logins exposes the organization to significant risk from compromised credentials. An attacker with a valid password could gain direct access to an endpoint and the internal network.
+    \item \textbf{High Risk:} New employees do not receive security awareness training upon being hired. This creates a window of vulnerability where new staff are more susceptible to social engineering and phishing attacks.
+\end{enumerate}
+
+The external network scan against the target IP address did not identify any open ports, suggesting a well-configured firewall or that the host was not responsive at the time of the scan. No pre-existing vulnerabilities were noted.
+
+This report details these findings and provides actionable recommendations to mitigate the identified risks and strengthen the overall security posture.
+
+% Section 2: Organizational & Assessment Information
+\section*{2. Organizational \& Assessment Information}
+This section provides context for the assessment, detailing the information provided by the client organization.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Information}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name    & \textbf{Cinder \& Ash} \\
+Email Domain         & \texttt{CinderAsh.net} \\
+Website Domain       & \url{www.CinderAsh.net} \\
+External IP Address  & \seqsplit{\texttt{70.92.59.163}} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% Section 3: Security Control Review (Questionnaire)
+\section*{3. Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. Items marked with \ding{55} represent significant gaps in the security framework and are discussed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \ding{51} \\
+\textbf{Do you require MFA to log into computers?} & \textbf{\color{red}\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textbf{\color{red}\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% Section 4: Technical Scan Results
+\section*{4. Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} [Scan Date]
+\end{itemize}
+
+\subsection*{Findings}
+The scan completed successfully but returned \textbf{no open ports}. This result typically indicates one of the following scenarios:
+\begin{itemize}
+    \item The target host is protected by a well-configured firewall that drops or rejects all unsolicited incoming traffic (a positive security posture).
+    \item The target host was offline or not responsive during the scan period.
+    \item An Intrusion Prevention System (IPS) may have blocked the scan traffic.
+\end{itemize}
+While no vulnerabilities were discovered, it is recommended to confirm that this result is intentional and not due to a network or configuration issue.
+
+% Section 5: Risk Assessment
+\section*{5. Risk Assessment}
+This section synthesizes the findings from the security control review and technical scan to provide a consolidated list of identified risks. No pre-existing risks were reported.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.25\textwidth}p{0.15\textwidth}p{0.5\textwidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Overview} \\ \midrule
+\textbf{Lack of MFA for Workstation Login} & \textbf{Critical} & The absence of MFA on computer logins means that a compromised password is all an attacker needs to gain access to a user's workstation and, potentially, the entire internal network. This greatly increases the impact of phishing and credential stuffing attacks. \\
+\addlinespace
+\textbf{No Onboarding Security Training} & \textbf{High} & New employees are not provided with security awareness training upon hiring. This makes them highly susceptible to social engineering attacks as they are unfamiliar with corporate security policies, procedures, and common threats, creating an immediate and exploitable vulnerability. \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% Section 6: Recommendations
+\section*{6. Recommendations}
+The following actionable recommendations are provided to address the identified risks and improve the overall security posture of \textbf{Cinder \& Ash}.
+
+\subsection*{R-01: Implement MFA for Workstation Login (Critical)}
+\begin{itemize}
+    \item \textbf{Action:} Deploy a mandatory Multi-Factor Authentication (MFA) solution for all employee and privileged user logins to company workstations and laptops.
+    \item \textbf{Justification:} This control acts as a critical compensating measure against credential theft. Even if an attacker obtains a user's password, they will be unable to log in without the second factor (e.g., a mobile push notification, authenticator code, or hardware token).
+    \item \textbf{Suggested Solutions:} Windows Hello for Business, Duo Security, Okta, or other third-party identity providers that integrate with Active Directory or local login providers.
+\end{itemize}
+
+\subsection*{R-02: Institute Mandatory New Hire Security Training (High)}
+\begin{itemize}
+    \item \textbf{Action:} Develop and integrate a mandatory security awareness training module into the new employee onboarding process. This training must be completed before a new hire is granted full access to company systems.
+    \item \textbf{Justification:} Equipping new employees with security knowledge from day one is essential to building a strong human firewall. It reduces the likelihood of them falling victim to early-stage phishing or social engineering attempts.
+    \item \textbf{Topics to Cover:} Phishing and spear-phishing identification, acceptable use of company assets, password security policies, and the official procedure for reporting security incidents.
+\end{itemize}
+
+\subsection*{R-03: Verify External Network Scan Configuration}
+\begin{itemize}
+    \item \textbf{Action:} Internally verify that the scan target \texttt{[Target IP]} was correct and that no network issues prevented the scan from reaching the host.
+    \item \textbf{Justification:} While no open ports is a positive sign, it is crucial to confirm that this is the expected behavior. A follow-up authenticated vulnerability scan from an internal perspective is recommended for a more comprehensive assessment of system patch levels and configurations.
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,144 @@
+```latex
+\documentclass[12pt]{article}
+
+% 1. DOCUMENT SETUP & PACKAGES
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % Required for checkmark and X symbols (\ding)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For creating hyperlinks in the document
+\usepackage{url}      % For formatting URLs
+\usepackage{seqsplit} % To split long monospaced strings without breaking
+
+% 2. CUSTOM COMMANDS & HYPERREF SETUP
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define custom commands for Yes/No symbols to improve readability
+\newcommand{\yes}{\ding{51}} % Checkmark
+\newcommand{\no}{\ding{55}}  % X mark
+
+% 3. DOCUMENT START
+\begin{document}
+
+% 4. TITLE PAGE
+\title{Cybersecurity Posture Assessment Report \\ \large For: \textbf{[Organization Name]}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+% 5. EXECUTIVE SUMMARY
+\section*{Executive Summary}
+This report provides a cybersecurity posture assessment for \textbf{[Organization Name]}, synthesizing data from organizational questionnaires, network scans, and pre-existing risk registers. The analysis reveals a mixed security landscape with several areas of strength but also significant, actionable risks that require immediate attention.
+
+A critical pre-existing vulnerability, ``Localhost Exposed,'' with a CVSS score of 10.0, represents the most severe threat and must be prioritized for remediation. Furthermore, a procedural gap was identified: the lack of mandatory security awareness training for new employees, which exposes the organization to human-centric threats from day one of employment.
+
+Technical scans of the external perimeter at \seqsplit{\texttt{[Client IP]}} identified an open SSH port on target \seqsplit{\texttt{[Target IP]}}. While necessary for remote administration, this service is a common attack vector and must be properly hardened. The following report details these findings and provides prioritized, actionable recommendations to enhance the organization's overall security posture.
+
+% 6. ORGANIZATIONAL INFORMATION
+\section*{Organizational Information}
+The following details were used as the basis for this assessment. As per the provided data, placeholder values are used where specific information was not available.
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \seqsplit{\texttt{[Domain]}}
+    \item \textbf{Client External IP:} \seqsplit{\texttt{[Client IP]}}
+\end{itemize}
+
+% 7. SECURITY CONTROL REVIEW (FROM QUESTIONNAIRE)
+\section*{Security Control Review}
+The following table summarizes the organization's self-reported security controls based on the provided questionnaire. A checkmark (\yes) indicates a positive control is in place, while an X (\no) indicates a gap.
+
+\begin{center}
+\begin{tabular}{l p{0.8\textwidth}}
+\toprule
+\textbf{Status} & \textbf{Control Question} \\
+\midrule
+\yes & Do you require MFA to access email? \\
+\yes & Do you require MFA to log into computers? \\
+\yes & Do you require MFA to access sensitive data systems? \\
+\yes & Does your organization have an employee acceptable use policy? \\
+\no & \textbf{Does your organization do security awareness training for new employees?} \\
+\yes & Does your organization do security awareness training for all employees at least once per year? \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis of Controls}
+The organization has implemented strong identity and access management controls, with Multi-Factor Authentication (MFA) enforced across key systems. However, the absence of security awareness training during employee onboarding is a critical oversight. New hires are often prime targets for social engineering attacks, and this gap leaves the organization vulnerable.
+
+% 8. TECHNICAL SCAN RESULTS
+\section*{Technical Scan Results}
+An external network scan was performed to identify exposed services and potential vulnerabilities.
+\begin{itemize}
+    \item \textbf{Scan Target:} \seqsplit{\texttt{[Target IP]}}
+    \item \textbf{Scanner Used:} Nmap
+\end{itemize}
+
+The following table details the open ports discovered on the target host.
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Port/Proto} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+\midrule
+22/tcp & open & SSH & Secure Shell for remote administration. \\
+ & & & No version information was available. \\
+ & & & This is a high-value target for attackers. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% 9. CONSOLIDATED RISK ASSESSMENT
+\section*{Risk Assessment}
+The following table consolidates findings from the security control review, technical scans, and the pre-existing risk register.
+
+\begin{center}
+\begin{tabular}{p{0.25\linewidth} p{0.15\linewidth} p{0.5\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+\textbf{Localhost Exposed} & \textbf{Critical (10.0)} & A pre-existing, documented vulnerability indicates a critical service is improperly exposed. This represents a severe and immediate threat to the integrity and confidentiality of the affected systems. \\
+\addlinespace
+\textbf{Lack of Onboarding Security Training} & High & New employees are not provided with security awareness training upon hiring. This creates a significant vulnerability to phishing, social engineering, and unintentional policy violations. \\
+\addlinespace
+\textbf{Exposed SSH Service} & Medium & The Secure Shell (SSH) service is exposed to the public internet. Without proper hardening, it is susceptible to brute-force password attacks, credential stuffing, and exploitation of potential software vulnerabilities. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% 10. RECOMMENDATIONS
+\section*{Recommendations}
+Based on the consolidated risk assessment, the following actions are recommended to mitigate the identified risks and improve the overall security posture.
+
+\begin{itemize}
+    \item \textbf{Remediate "Localhost Exposed" Vulnerability (Critical Priority):}
+        \begin{itemize}
+            \item Immediately assemble an incident response team to investigate the nature and impact of this vulnerability.
+            \item Apply the necessary configuration changes or patches to ensure the service is no longer exposed.
+            \item Conduct a post-mortem analysis to understand the root cause and prevent recurrence.
+        \end{itemize}
+    
+    \item \textbf{Implement Onboarding Security Training (High Priority):}
+        \begin{itemize}
+            \item Develop or procure a mandatory security awareness training module for all new hires.
+            \item Integrate this training into the formal onboarding checklist to ensure 100\% completion before system access is granted.
+            \item Topics should include phishing identification, acceptable use policies, and password hygiene.
+        \end{itemize}
+
+    \item \textbf{Harden Exposed SSH Service (Medium Priority):}
+        \begin{itemize}
+            \item If not required for public access, restrict SSH access to trusted IP addresses using firewall rules.
+            \item Disable password-based authentication and enforce the use of public key cryptography.
+            \item Disable root login over SSH (`PermitRootLogin no`).
+            \item Implement an intrusion prevention tool like Fail2Ban to automatically block IPs that exhibit malicious behavior (e.g., multiple failed login attempts).
+        \end{itemize}
+\end{itemize}
+
+% 11. DOCUMENT END
+\end{document}
+```

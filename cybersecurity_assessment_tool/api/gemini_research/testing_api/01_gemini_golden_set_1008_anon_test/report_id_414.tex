@@ -1,0 +1,170 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{xcolor} % For colors
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+
+% Document Metadata and Styling
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+\title{Cybersecurity Posture Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on technical network scans, a security controls questionnaire, and a review of pre-existing risk data. The assessment was conducted to identify vulnerabilities, policy gaps, and areas for security enhancement.
+
+\textbf{Key Findings:}
+\begin{itemize}
+    \item \textbf{Positive Technical Posture:} The external network scan of the target IP address \texttt{[Target IP]} revealed a minimal attack surface. No open ports were detected, which indicates effective firewall configuration and network hardening.
+    \item \textbf{Critical Policy Gaps:} The organization lacks a formal Employee Acceptable Use Policy (AUP). Furthermore, new employees do not receive mandatory security awareness training during their onboarding process. These gaps represent a significant risk, as they increase the likelihood of insider threats and susceptibility to social engineering.
+    \item \textbf{Strong Identity and Access Management:} The organization has successfully implemented Multi-Factor Authentication (MFA) across key systems, including email, computer logins, and access to sensitive data. This is a commendable and critical security control.
+    \item \textbf{Risk Register Discrepancy:} A notable discrepancy was found between the pre-existing risk data and the current technical scan. The risk register listed an "Unencrypted Web Server" (Port 80) as an active vulnerability; however, our scan confirmed that Port 80 is closed. This suggests the risk has been remediated but not updated in the register, highlighting a potential gap in the risk management lifecycle.
+\end{itemize}
+
+In summary, while the organization demonstrates strong technical controls on its network perimeter and in access management, critical administrative and procedural controls are missing. The primary recommendations focus on developing and implementing foundational security policies and training programs to mitigate human-centric risks.
+
+\section{Organizational Information}
+
+This report pertains to the following entity and assets:
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{Scanned External IP:} \texttt{[Client IP]}
+\end{itemize}
+
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. Items marked with a red cross (\no) indicate significant gaps that require immediate attention.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \yes \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\no} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\no} \\
+Does your organization do security awareness training for all employees at least once per year? & \yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Control Gaps}
+The primary weaknesses identified are administrative. The absence of an \textbf{Acceptable Use Policy} creates ambiguity regarding the proper use of company assets and data. The lack of \textbf{security training for new hires} leaves the organization most vulnerable when employees are new and unfamiliar with corporate policies, making them prime targets for phishing and other attacks.
+
+\section{Technical Scan Results}
+
+A network scan was performed using Nmap to identify the external attack surface of the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Data not provided in scan results.
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Port Scan Findings for \texttt{[Target IP]}}
+\label{tab:ports}
+\begin{tabular}{l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service/Product/Version} \\
+\midrule
+80/tcp & closed & http \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Technical Analysis}
+The scan results are positive, indicating a well-hardened external perimeter. The fact that Port 80 (HTTP) is closed is a good security practice, mitigating risks associated with unencrypted web traffic. No other open ports were discovered in the scope of this scan. This finding directly contradicts a pre-existing risk entry, which is addressed in the following section.
+
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security questionnaire, the technical scan, and the pre-existing risk data. Risks are prioritized based on their potential impact on the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{0.25\linewidth} p{0.55\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of New Hire Security Training} & New employees are not equipped with the knowledge to identify and avoid common cyber threats (e.g., phishing), making them a high-risk entry point for attackers. & \textbf{High} \\
+\addlinespace
+\textbf{No Employee Acceptable Use Policy (AUP)} & Without a formal AUP, there are no clear guidelines for employees on the proper use of IT assets, data handling, and security responsibilities, increasing the risk of insider threat and data mishandling. & \textbf{High} \\
+\addlinespace
+\textbf{Outdated Risk Register} & The technical scan invalidated a known risk ("Unencrypted Web Server"). This indicates that the risk management process is not being followed, and the register does not reflect the true security posture. & Medium \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Recommendations}
+
+Based on the analysis, we provide the following actionable recommendations to enhance the security posture of \textbf{[Organization Name]}.
+
+\subsection{Immediate Actions (Next 30 Days)}
+\begin{enumerate}
+    \item \textbf{Develop an Employee Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item \textbf{Action:} Draft a formal AUP that clearly defines rules for computer, network, email, and internet usage. It should also cover data handling and security incident reporting procedures.
+        \item \textbf{Impact:} Establishes a baseline for secure employee behavior and provides a legal framework for enforcing security policies.
+    \end{itemize}
+    \item \textbf{Implement Onboarding Security Training:}
+    \begin{itemize}
+        \item \textbf{Action:} Create or procure a mandatory security awareness training module for all new employees. This should be a required step in the onboarding process before full access to systems is granted.
+        \item \textbf{Impact:} Significantly reduces the risk of new hires falling victim to social engineering attacks.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Strategic Actions (Next 90 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{2}{2}
+    \item \textbf{Establish a Risk Management Lifecycle:}
+    \begin{itemize}
+        \item \textbf{Action:} Implement a formal process for risk register management. This process should include regular reviews (e.g., quarterly) and a clear procedure for updating or closing risks based on remediation activities and validation scans.
+        \item \textbf{Impact:} Ensures that security efforts are focused on current, relevant threats and that the organization maintains an accurate understanding of its risk landscape.
+    \end{itemize}
+    \item \textbf{Distribute and Enforce the AUP:}
+    \begin{itemize}
+        \item \textbf{Action:} Once the AUP is finalized, distribute it to all current employees for acknowledgement and integrate it into the new hire paperwork.
+        \item \textbf{Impact:} Ensures universal awareness and accountability for security policies across the organization.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

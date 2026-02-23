@@ -1,0 +1,180 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment},
+    pdfpagemode=FullScreen,
+}
+
+% Define check and cross symbols for convenience
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+% Document Title
+\title{Cybersecurity Posture Assessment Report \\ \large For: \textbf{Radiant Life}}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ------------------------------------------------------------------------------
+% 1. Executive Summary
+% ------------------------------------------------------------------------------
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Radiant Life}, synthesizing data from organizational questionnaires, network scans, and pre-existing risk registers. The analysis was conducted on [Scan Date] against the target host \texttt{127.0.0.1}.
+
+The organization demonstrates a foundational level of security by implementing Multi-Factor Authentication (MFA) for email and computer access, alongside annual security training for all employees. However, several critical and high-risk gaps were identified that significantly increase the organization's risk exposure.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Policy Gaps:} The absence of an employee Acceptable Use Policy (AUP) and a mandatory security training program for new hires creates a significant vulnerability to insider threats and human error.
+    \item \textbf{Insufficient Access Controls:} Sensitive data systems lack the protection of MFA, failing a critical defense-in-depth principle and exposing crown jewel assets to potential compromise.
+    \item \textbf{Technical Misconfiguration:} A network service (port 22/TCP) was found exposed on the localhost interface, which correlates with a pre-existing critical risk rated 10.0 CVSS. This indicates a potentially severe system misconfiguration.
+\end{itemize}
+
+Immediate remediation is required to address these deficiencies. Recommendations focus on implementing robust access controls, formalizing security policies, and enhancing the employee onboarding process.
+
+% ------------------------------------------------------------------------------
+% 2. Organizational Information
+% ------------------------------------------------------------------------------
+\section{Organizational Information}
+
+The following details were provided by the client and used as a baseline for this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{Radiant Life} \\
+Email Domain & \seqsplit{\texttt{RadiantLife.com}} \\
+Website Domain & \href{http://www.RadiantLife.com}{\seqsplit{\texttt{www.RadiantLife.com}}} \\
+External IP Address & \seqsplit{\texttt{140.100.99.216}} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\end{table}
+
+% ------------------------------------------------------------------------------
+% 3. Security Control Review (Questionnaire)
+% ------------------------------------------------------------------------------
+\section{Security Control Review}
+
+The following table summarizes the organization's self-reported security controls. Answers marked with a red cross (\xmark) indicate significant gaps in the security posture and are addressed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.7\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \textcolor{green}{\cmark} \\
+Do you require MFA to log into computers? & \textcolor{green}{\cmark} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\xmark} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\xmark} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\xmark} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\cmark} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+% ------------------------------------------------------------------------------
+% 4. Technical Scan Results
+% ------------------------------------------------------------------------------
+\section{Technical Scan Results}
+
+An external network scan was performed to identify exposed services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{127.0.0.1}}
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+The scan revealed the following open port(s):
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port / Protocol} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\ \midrule
+22/tcp & Open & SSH & No version information was available. Service running on the loopback interface. \\ \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \seqsplit{\texttt{127.0.0.1}}}
+\end{table}
+
+\textbf{Analysis:} The presence of an open port on the localhost interface (\texttt{127.0.0.1}) is highly unusual for an external assessment and points to a significant misconfiguration. This finding directly correlates with the pre-existing risk "Localhost Exposed" and is considered a critical issue.
+
+% ------------------------------------------------------------------------------
+% 5. Correlated Risk Assessment
+% ------------------------------------------------------------------------------
+\section{Correlated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scans, and the existing risk register into a prioritized list of risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\textwidth}p{0.4\textwidth}p{0.2\textwidth}p{0.2\textwidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Description} & \textbf{Severity} & \textbf{Affected Asset / Control} \\ \midrule
+\textbf{R-01} & A network service (SSH) is exposed on the localhost interface, indicating a severe system misconfiguration. & \textbf{Critical (10.0)} & Server Configuration (\texttt{127.0.0.1}) \\
+\textbf{R-02} & Sensitive data systems are not protected by Multi-Factor Authentication (MFA), exposing critical data to unauthorized access. & High & Access Control Policy \\
+\textbf{R-03} & The organization lacks a formal Acceptable Use Policy (AUP), leading to ambiguity in employee responsibilities and potential misuse of assets. & High & Governance \& Policy \\
+\textbf{R-04} & New employees do not receive security awareness training, creating an immediate and ongoing risk from human error. & High & Onboarding Process \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% ------------------------------------------------------------------------------
+% 6. Recommendations
+% ------------------------------------------------------------------------------
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Radiant Life}.
+
+\subsection{R-01: Remediate Exposed Localhost Service}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Investigate the service running on \texttt{127.0.0.1:22}. Determine its business purpose. If it is not required, disable the service immediately.
+    \item \textbf{Long-Term Fix:} If the service is required for local operations, ensure that its network binding is strictly limited to the localhost interface and that firewall rules prevent any external or unintended internal access. Conduct a full configuration review of the host system to identify other potential misconfigurations.
+\end{itemize}
+
+\subsection{R-02: Implement MFA for Sensitive Systems}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Prioritize and enforce MFA on all systems classified as containing sensitive or critical data. This includes databases, financial applications, and administrative portals.
+    \item \textbf{Long-Term Fix:} Develop a corporate policy that mandates MFA for all systems, with a clearly defined exception process for legacy applications where MFA is not technically feasible.
+\end{itemize}
+
+\subsection{R-03: Develop and Enforce an Acceptable Use Policy}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Draft an Acceptable Use Policy (AUP) that clearly defines the rules for using company networks, systems, and data.
+    \item \textbf{Long-Term Fix:} Integrate the AUP into the employee handbook and require all current and new employees to read and formally acknowledge it. Review and update the AUP annually.
+\end{itemize}
+
+\subsection{R-04: Establish New Hire Security Training}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Create a foundational security awareness training module covering topics such as phishing, password hygiene, and the new AUP.
+    \item \textbf{Long-Term Fix:} Mandate the completion of this training module for all new employees as a required part of the formal onboarding process, before system access is granted.
+\end{itemize}
+
+\end{document}
+```

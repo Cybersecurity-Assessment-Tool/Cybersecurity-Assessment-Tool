@@ -1,0 +1,189 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmarks and crosses (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For clickable links and references
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % To split long monospaced strings
+\usepackage[T1]{fontenc}          % Font encoding
+\usepackage{xcolor}               % For colors
+\usepackage{graphicx}             % For including images (e.g., logos)
+\usepackage{fancyhdr}             % For custom headers/footers
+
+% Document Configuration
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Posture Assessment}
+\rhead{\textbf{Granite Shield}}
+\cfoot{\thepage}
+
+% --- START OF DOCUMENT ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \begin{tabular}{ll}
+        \textbf{Client:} & Granite Shield \\
+        \textbf{Date of Report:} & \today \\
+        \textbf{Report ID:} & CSR-2023-001 \\
+    \end{tabular}
+    \vfill
+    \large
+    \textbf{CONFIDENTIAL}
+    \vspace{0.5cm}
+    \hrule
+    \vspace{0.2cm}
+    \textit{This document contains sensitive information and is intended solely for the use of Granite Shield. Distribution without prior written consent is prohibited.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- SECTION 1: EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity posture assessment conducted for Granite Shield. The assessment combined a review of organizational security controls, an analysis of pre-existing risks, and a technical network scan.
+
+The overall security posture is assessed as \textbf{HIGH RISK}. Several critical vulnerabilities and control gaps were identified that expose the organization to significant threats, including ransomware, data breaches, and unauthorized access.
+
+\textbf{Key Findings:}
+\begin{itemize}
+    \item \textbf{Critical - Systemic Lack of Multi-Factor Authentication (MFA):} The organization does not enforce MFA for email, computer logins, or access to sensitive data systems. This is a critical security gap that dramatically increases the risk of account compromise.
+    \item \textbf{Critical - Newly Discovered RDP Exposure:} The technical scan identified a new system (\texttt{10.10.10.51}) with Remote Desktop Protocol (RDP) open. This, combined with a previously known exposed system (\texttt{10.10.10.50}), indicates a pattern of insecure remote access configurations. Exposed RDP is a primary vector for ransomware attacks.
+    \item \textbf{High - Missing Foundational Policies:} The absence of an employee Acceptable Use Policy represents a significant governance gap, leaving the organization without a formal framework to manage user behavior and enforce security standards.
+\end{itemize}
+
+Immediate remediation is required to address these findings. Recommendations are prioritized to mitigate the most severe risks first. The primary focus should be on securing all remote access points and implementing a comprehensive MFA solution.
+
+% --- SECTION 2: ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Granite Shield \\
+    Email Domain & \seqsplit{\texttt{GraniteShield.com}} \\
+    External IP Address & \seqsplit{\texttt{217.238.138.142}} \\
+    \bottomrule
+\end{tabular}
+
+% --- SECTION 3: SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+
+A review of administrative and organizational security controls was conducted via a questionnaire. The responses reveal critical gaps in the organization's identity and access management framework.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Questionnaire}
+\begin{tabular}{@{}p{0.6\textwidth} c l@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+    Do you require MFA to log into computers? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+    Do you require MFA to access sensitive data systems? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \ding{55} & \textcolor{orange}{High Risk} \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & \ding{51} & Best Practice Met \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Best Practice Met \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- SECTION 4: TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+
+A network scan was performed to identify active services and potential vulnerabilities on the target system.
+
+\subsection*{Nmap Scan of \texttt{10.10.10.51}}
+The scan revealed the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports on \texttt{10.10.10.51}}
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Description} \\
+    \midrule
+    3389/tcp & open & \texttt{ms-wbt-server} & Microsoft Remote Desktop Protocol (RDP) \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The presence of an open RDP port is a significant finding. RDP is a frequent target for attackers who use brute-force password attacks or exploit known vulnerabilities to gain unauthorized remote access to internal systems. When combined with the lack of MFA, this finding represents a critical risk.
+
+% --- SECTION 5: CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.1\textwidth} p{0.25\textwidth} p{0.4\textwidth} p{0.1\textwidth}@{}}
+    \toprule
+    \textbf{Severity} & \textbf{Risk Name} & \textbf{Description} & \textbf{Affected Systems} \\
+    \midrule
+    \textcolor{red}{\textbf{Critical}} & Lack of Multi-Factor Authentication & No MFA is enforced for email, computer, or sensitive system access, leaving accounts vulnerable to compromise via stolen credentials. & Organization-wide \\
+    \addlinespace
+    \textcolor{red}{\textbf{Critical}} & Newly Discovered RDP Exposure & RDP is exposed on a newly identified server, providing a direct vector for remote attacks. This indicates a systemic issue. & \texttt{10.10.10.51} \\
+    \addlinespace
+    \textcolor{red}{\textbf{Critical}} & Pre-existing RDP Exposure & A previously identified server has RDP exposed, confirming a pattern of insecure remote access configurations. & \texttt{10.10.10.50} \\
+    \addlinespace
+    \textcolor{orange}{\textbf{High}} & Missing Acceptable Use Policy & The absence of a foundational AUP policy creates ambiguity regarding secure practices for employees and limits enforceability. & Organization-wide \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- SECTION 6: RECOMMENDATIONS ---
+\section{Recommendations}
+
+The following prioritized recommendations are provided to address the identified risks and improve the overall security posture of Granite Shield.
+
+\subsection*{Priority 1: Immediate (0-30 Days)}
+\begin{enumerate}
+    \item \textbf{Secure RDP Access:} Immediately close port 3389 to the public internet on all identified systems (\texttt{10.10.10.50}, \texttt{10.10.10.51}) and any others found. If remote access is required, it must be placed behind a secure gateway, such as a VPN.
+    \item \textbf{Deploy Multi-Factor Authentication (MFA):} Begin the phased rollout of MFA for all users. Prioritize the following systems:
+    \begin{itemize}
+        \item Email (e.g., Office 365, G Suite)
+        \item VPN and other remote access solutions
+        \item All administrative accounts
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 2: Near-Term (30-90 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Establish a Secure Remote Access Solution:} Implement and mandate the use of a Virtual Private Network (VPN) with MFA for all remote administrative access to the internal network.
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP that defines rules for computer, network, and data usage. Ensure all employees read and acknowledge the policy.
+\end{enumerate}
+
+\subsection*{Priority 3: Long-Term (90+ Days)}
+\begin{enumerate}
+    \setcounter{enumi}{4} % Continue numbering
+    \item \textbf{Conduct Comprehensive Vulnerability Scanning:} Schedule regular, authenticated internal and external vulnerability scans across the entire network to proactively identify and remediate misconfigurations and vulnerabilities.
+\end{enumerate}
+
+\end{document}
+```

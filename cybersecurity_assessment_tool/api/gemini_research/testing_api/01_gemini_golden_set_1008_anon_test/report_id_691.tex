@@ -1,0 +1,159 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity posture assessment for \textbf{[Organization Name]}. The assessment combined a review of organizational security controls, an external network scan, and an analysis of pre-existing risks.
+
+The overall security posture is determined to be critically low. Several fundamental security controls are absent, creating significant and immediate risk to the organization. The most critical findings include a complete lack of Multi-Factor Authentication (MFA) for email, computer logins, and sensitive data systems. This is compounded by the absence of a formal security awareness training program for employees.
+
+An external network scan identified an exposed Secure Shell (SSH) service. When combined with the lack of MFA and potential for weak user credentials, this exposed service presents a viable entry point for unauthorized access.
+
+Immediate and decisive action is required to remediate these critical vulnerabilities. Recommendations focus on implementing foundational security controls to establish a baseline level of defense against common cyber threats.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+This section provides the organizational details used as the basis for this assessment. Due to the anonymized nature of the input data, placeholders have been used where necessary.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{[Organization Name]} \\
+Email Domain & \texttt{[Domain]} \\
+External IP Address & \texttt{[Client IP]} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of administrative and organizational security controls was conducted via a questionnaire. The responses indicate major gaps in the organization's security framework. A "No" response highlights a missing control and a significant area of risk.
+
+\begin{tabular}{@{}p{0.6\linewidth}ccp{0.2\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} & \textbf{Analyst Note} \\
+\midrule
+Do you require MFA to access email? & No & \ding{55} & Critical Gap \\
+Do you require MFA to log into computers? & No & \ding{55} & Critical Gap \\
+Do you require MFA to access sensitive data systems? & No & \ding{55} & Critical Gap \\
+Does your organization have an employee acceptable use policy? & Yes & \ding{51} & Control in Place \\
+Does your organization do security awareness training for new employees? & No & \ding{55} & High Risk \\
+Does your organization do security awareness training for all employees at least once per year? & No & \ding{55} & High Risk \\
+\bottomrule
+\end{tabular}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network vulnerability scan was performed to identify exposed services and potential entry points.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Scanner:} Nmap
+\end{itemize}
+
+The scan revealed the following open port:
+
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/tcp & open & ssh & Secure Shell service is exposed to the public internet. \\
+& & & No version information was available in the scan data. \\
+\bottomrule
+\end{tabular}
+
+\subsection{Analysis}
+The presence of an open SSH port (22) is a significant finding. This service is a common target for brute-force password attacks. Without strong password policies, key-based authentication, and IP address restrictions, it represents a high-risk entry point into the organization's network.
+
+% --- 5. Risk Assessment ---
+\section{Risk Assessment}
+
+This section synthesizes the findings from the security control review and the technical scan into a prioritized list of risks. The pre-existing risk register was empty, indicating all identified risks are new findings.
+
+\begin{tabular}{@{}p{0.1\linewidth}p{0.3\linewidth}p{0.15\linewidth}p{0.35\linewidth}@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+RISK-001 & Widespread Lack of Multi-Factor Authentication (MFA) & \textbf{Critical} & The absence of MFA on email, computers, and sensitive systems makes the organization highly vulnerable to credential theft and account takeover attacks. \\
+\addlinespace
+RISK-002 & Inadequate Security Awareness Training Program & \textbf{High} & Without training, employees are more susceptible to phishing, social engineering, and other common attacks, making them an unintentional insider threat. \\
+\addlinespace
+RISK-003 & Exposed SSH Management Port & \textbf{Medium} & An externally accessible SSH port is a frequent target for automated brute-force attacks. This risk is elevated by the lack of other compensating controls like MFA. \\
+\bottomrule
+\end{tabular}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{RISK-001: Remediate Lack of MFA (Critical)}
+\begin{enumerate}
+    \item \textbf{Immediate Priority:} Procure and implement an MFA solution for all employees.
+    \item \textbf{Phase 1 (0-30 days):} Enforce MFA for access to all email accounts (e.g., Office 365, Google Workspace) and any remote access systems (e.g., VPN).
+    \item \textbf{Phase 2 (30-90 days):} Expand MFA enforcement to all computer logins and access to systems containing sensitive or critical business data.
+\end{enumerate}
+
+\subsection{RISK-002: Implement Security Awareness Training (High)}
+\begin{enumerate}
+    \item \textbf{Immediate Priority:} Develop or procure a security awareness training program.
+    \item \textbf{Onboarding:} Integrate mandatory security awareness training into the new employee onboarding process.
+    \item \textbf{Annual Training:} Mandate that all employees complete a security awareness training module at least once per year.
+    \item \textbf{Phishing Simulations:} Conduct regular, simulated phishing campaigns to test and reinforce employee awareness.
+\end{enumerate}
+
+\subsection{RISK-003: Secure Exposed SSH Port (Medium)}
+\begin{enumerate}
+    \item \textbf{Review Business Need:} Determine if external access to the SSH service on \texttt{[Target IP]} is required. If not, block port 22 at the network firewall immediately.
+    \item \textbf{Restrict Access:} If access is required, implement a firewall rule to restrict access to only known, trusted IP addresses (e.g., administrator home or office IPs).
+    \item \textbf{Enforce Strong Authentication:} Disable password-based authentication for SSH and require the use of public key cryptography. This is significantly more resistant to brute-force attacks.
+\end{enumerate}
+
+% --- 7. Conclusion ---
+\section{Conclusion}
+
+The assessment for \textbf{[Organization Name]} reveals a security posture with fundamental weaknesses that require immediate attention. The lack of MFA and security training represents an existential threat to the organization's data and operations. The exposed SSH service provides a clear and present pathway for attackers to exploit these weaknesses.
+
+By implementing the recommendations outlined in this report, particularly the enforcement of MFA and the establishment of a security training program, the organization can take the first critical steps toward building a defensible and resilient security posture.
+
+\end{document}
+```

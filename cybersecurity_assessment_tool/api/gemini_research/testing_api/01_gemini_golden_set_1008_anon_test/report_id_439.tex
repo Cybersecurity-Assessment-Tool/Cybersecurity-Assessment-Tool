@@ -1,0 +1,155 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, organizational security controls, and existing risk registers. The assessment was conducted on \today.
+
+The analysis reveals several critical and high-risk security gaps that require immediate attention. Key findings include the absence of Multi-Factor Authentication (MFA) for computer logins and sensitive data systems, a lack of a formal security awareness training program, and the direct exposure of a Secure Shell (SSH) management port to the public internet.
+
+These deficiencies create significant vulnerabilities to credential theft, unauthorized access, and lateral movement within the network. While the organization has correctly implemented MFA for email access, this single control is insufficient to protect against modern threats. We have provided a series of prioritized, actionable recommendations to mitigate these risks and strengthen the overall security posture.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+This section details the organizational context for this assessment. The data provided was anonymized for the purpose of this template-based report generation.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of the organization's self-reported security controls was conducted via a questionnaire. The responses indicate significant gaps in foundational security policies and procedures. A "No" response (\ding{55}) highlights a missing control and a potential area of high risk.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Controls Questionnaire}
+\begin{tabular}{p{0.75\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Controls}
+The lack of MFA on computer logins and sensitive data systems represents a \textbf{critical risk}. Should an attacker compromise a user's password, there are no secondary authentication barriers to prevent unauthorized access to endpoints and critical information. Furthermore, the absence of a security awareness training program and an acceptable use policy indicates a weak security culture, making the organization more susceptible to social engineering attacks like phishing.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed on the target IP address to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} [Scan Date]
+\end{itemize}
+
+The following table details the open ports discovered during the scan.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\begin{tabular}{l l l p{0.5\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/tcp & open & ssh & The Secure Shell (SSH) service is exposed to the public internet. This is a common target for automated brute-force login attempts. Version information was not available from the scan data. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+Exposing SSH (Port 22) directly to the internet is a high-risk configuration. This service is a primary target for attackers who use automated tools to guess credentials. When combined with the lack of MFA on computer logins, a successful brute-force attack on this service could grant an adversary direct access to the internal network.
+
+% --- 5. Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data. No pre-existing vulnerabilities were reported. The following new risks have been identified and prioritized.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.2\linewidth} p{0.55\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Sensitive Systems} & The absence of MFA on systems holding sensitive data means a single compromised password could lead to a major data breach. & \textbf{Critical} \\
+\addlinespace
+\textbf{Exposed SSH Service} & The SSH management port is open to the internet, making it a prime target for brute-force attacks and exploitation, especially without MFA protection on endpoints. & \textbf{High} \\
+\addlinespace
+\textbf{Insufficient Security Training} & Without onboarding or annual security training, employees are more likely to fall victim to phishing and other social engineering attacks, leading to credential compromise. & \textbf{High} \\
+\addlinespace
+\textbf{Missing Foundational Policies} & The lack of an Acceptable Use Policy (AUP) creates ambiguity around security responsibilities and weakens the organization's ability to enforce secure practices. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+Based on the risk assessment, the following prioritized actions are recommended to mitigate the identified vulnerabilities and improve the overall security posture of \textbf{[Organization Name]}.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement MFA for Sensitive Systems:} Immediately deploy a robust MFA solution for all systems identified as containing sensitive or critical data. This is the highest priority action to prevent data breaches.
+
+    \item \textbf{[High] Secure the Exposed SSH Service:} Restrict access to the SSH port on \texttt{[Target IP]}. The best practice is to place it behind a Virtual Private Network (VPN) or a bastion host. At a minimum, implement a firewall rule to allow access only from trusted IP addresses and enforce strong, key-based authentication.
+
+    \item \textbf{[High] Deploy MFA for Endpoint Logins:} Enforce MFA for all user logins to company computers and servers. This measure is crucial for preventing lateral movement within the network after an initial compromise.
+
+    \item \textbf{[High] Establish a Security Awareness Program:} Develop and implement a mandatory security awareness training program. This must include training for all new hires during onboarding and an annual refresher course for all staff covering topics like phishing, password hygiene, and data handling.
+
+    \item \textbf{[Medium] Develop an Acceptable Use Policy (AUP):} Draft, approve, and disseminate a formal AUP that clearly defines the rules and responsibilities for all employees when using company technology and data.
+\end{enumerate}
+
+% --- 7. Conclusion ---
+\section{Conclusion}
+The assessment for \textbf{[Organization Name]} has identified significant and actionable security risks. While the organization has made a positive step by securing email with MFA, critical gaps remain in protecting endpoints, sensitive data, and educating employees. The direct exposure of management services like SSH further elevates the risk profile.
+
+By implementing the prioritized recommendations in this report, the organization can substantially reduce its attack surface, improve its resilience against common cyber threats, and build a stronger foundation for its long-term security strategy.
+
+\end{document}
+```

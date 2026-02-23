@@ -1,0 +1,167 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage[table]{xcolor} % For coloring table cells
+\usepackage{tocloft} % For table of contents formatting
+
+% --- Document Setup ---
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=darkblue,      
+    urlcolor=darkblue,
+    citecolor=darkblue,
+}
+
+% Define severity colors
+\definecolor{sev_critical}{HTML}{990000}
+\definecolor{sev_high}{HTML}{DD4B39}
+\definecolor{sev_medium}{HTML}{F4B400}
+\definecolor{sev_low}{HTML}{4285F4}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:} \\
+    \vspace{0.5cm}
+    \textbf{Gilded Cage Design}
+    \vspace{2.5cm}
+    
+    \textbf{Date of Report:} \\
+    \today
+    
+    \vfill
+    
+    \large
+    \textbf{CONFIDENTIAL} \\
+    \vspace{0.5cm}
+    \small
+    This document contains sensitive information and is intended solely for the use of the designated recipient(s). Unauthorized distribution is strictly prohibited.
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity assessment conducted for \textbf{Gilded Cage Design}. The assessment synthesized data from a network scan, a security controls questionnaire, and a list of pre-existing risks to provide a holistic view of the organization's security posture.
+
+The analysis revealed several critical and high-risk findings that require immediate attention. Most notably, the organization has significant gaps in its authentication controls, with \textbf{Multi-Factor Authentication (MFA) not enforced for email access or computer logins}. This weakness is compounded by the discovery of an additional server (\texttt{10.10.10.51}) with an exposed Remote Desktop Protocol (RDP) port. This indicates a systemic issue of insecure remote access configurations, expanding upon a previously identified risk.
+
+The combination of weak authentication and exposed services creates a direct and high-impact attack path for threat actors, potentially leading to account compromise, data breach, or a ransomware incident.
+
+On a positive note, the organization demonstrates a solid foundation in security policy and employee training. These existing controls are valuable but are insufficient to mitigate the technical vulnerabilities identified. This report provides a prioritized list of actionable recommendations to address these gaps and significantly improve the security posture of Gilded Cage Design.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Gilded Cage Design \\
+    Email Domain & \texttt{GildedCageDesign.org} \\
+    Website Domain & \url{www.GildedCageDesign.org} \\
+    External IP Address & \texttt{63.26.16.105} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted based on a questionnaire. The responses highlight critical gaps in access control policies. A "No" response indicates a deviation from security best practices and a potential risk.
+
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.25\linewidth}@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{red}{\ding{55}} & \textbf{Critical Gap.} Increases risk of business email compromise and phishing success. \\
+    \addlinespace
+    Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} & \textbf{High Risk.} Weakens defense against credential theft and lateral movement. \\
+    \addlinespace
+    Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} & Good Practice. \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} & Good Practice. \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} & Good Practice. \\
+    \addlinespace
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} & Good Practice. \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify active services on the target system.
+
+\subsection{Nmap Scan of \texttt{10.10.10.51}}
+The scan identified the following open port and service:
+
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Analysis} \\
+    \midrule
+    3389/tcp & open & \texttt{ms-wbt-server} & Microsoft Remote Desktop Protocol (RDP). \\
+    \bottomrule
+\end{tabular}
+
+\paragraph{Analysis:} The presence of an open RDP port is a significant security risk. RDP is a primary target for brute-force credential attacks and exploitation of vulnerabilities (e.g., BlueKeep, DejaBlue). This finding, when correlated with the pre-existing risk on host \texttt{10.10.10.50}, confirms a pattern of insecure RDP exposure within the network.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+The following table summarizes and prioritizes the identified risks by correlating findings from the questionnaire, network scan, and pre-existing risk data.
+
+\begin{tabular}{@{}p{0.1\linewidth} p{0.2\linewidth} p{0.45\linewidth} p{0.15\linewidth}@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    \textbf{RISK-001} & Systemic RDP Exposure & RDP is exposed on multiple internal servers (\texttt{10.10.10.50}, \texttt{10.10.10.51}). This service is a frequent target for ransomware and unauthorized access. & \cellcolor{sev_critical!25}\textbf{Critical} \\
+    \addlinespace
+    \textbf{RISK-002} & Lack of MFA on Email & The absence of MFA on the primary email system (\texttt{GildedCageDesign.org}) makes user accounts highly susceptible to phishing and credential theft. & \cellcolor{sev_critical!25}\textbf{Critical} \\
+    \addlinespace
+    \textbf{RISK-003} & Lack of MFA on Endpoints & The absence of MFA for computer logins allows an attacker with stolen credentials to easily access workstations, escalate privileges, and move laterally. & \cellcolor{sev_high!25}\textbf{High} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity and potential impact.
+
+\subsection{RISK-001: Systemic RDP Exposure (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} If remote access is not required, disable the Remote Desktop service on \texttt{10.10.10.50} and \texttt{10.10.10.51} and block port 3389/tcp at the host and network firewalls.
+    \item \textbf{Short-Term Fix:} If RDP is business-critical, restrict access to a whitelist of trusted IP addresses and enforce the use of a Virtual Private Network (VPN) for all remote administration.
+    \item \textbf{Long-Term Strategy:} Conduct a comprehensive internal network audit to identify and remediate all unintentionally exposed services. Implement a formal policy for secure remote access.
+\end{itemize}
+
+\subsection{RISK-002: Lack of MFA on Email (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Procure and enforce an MFA solution for all accounts on the \texttt{GildedCageDesign.org} email platform. This is the single most effective control to prevent email account takeovers.
+\end{itemize}
+
+\subsection{RISK-003: Lack of MFA on Endpoints (High)}
+\begin{itemize}
+    \item \textbf{Short-Term Fix:} Implement an MFA solution for all Windows/macOS computer logins. Solutions like Windows Hello for Business, Duo Security, or other third-party tools can be used to achieve this.
+    \item \textbf{Long-Term Strategy:} Integrate endpoint MFA with a broader Zero Trust access strategy, ensuring that authentication is verified for every access request, regardless of user or location.
+\end{itemize}
+
+\end{document}
+```

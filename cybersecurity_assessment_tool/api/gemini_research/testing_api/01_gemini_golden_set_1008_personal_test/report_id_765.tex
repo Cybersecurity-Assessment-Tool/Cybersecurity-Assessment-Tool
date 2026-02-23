@@ -1,0 +1,141 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+\section*{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Kinetix Robotics}, based on a combination of organizational data, a security controls questionnaire, and a network vulnerability scan. The analysis reveals a mixed security posture with some foundational controls in place, but several critical and high-risk gaps that require immediate attention.
+
+Key findings indicate significant weaknesses in access control, particularly the lack of Multi-Factor Authentication (MFA) for workstations and sensitive data systems. Furthermore, critical policy and training gaps exist, such as the absence of an Acceptable Use Policy and security training for new employees.
+
+Most alarmingly, a technical scan of the internal network asset at \texttt{10.5.5.5} discovered an open service on port \texttt{8080} with a title suggesting it is a database containing highly sensitive information (``TOP SECRET DB''). This finding directly contradicts a pre-existing risk assessment entry that incorrectly labels this port as secure. This discrepancy highlights a critical, unmitigated exposure and a potential failure in the risk management process.
+
+Immediate remediation is required to address the exposed service and implement robust MFA controls to protect organizational assets from unauthorized access.
+
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Kinetix Robotics} \\
+Email Domain & \texttt{KinetixRobotics.org} \\
+Website Domain & \url{www.KinetixRobotics.org} \\
+External IP Address & \texttt{152.118.21.62} \\
+\bottomrule
+\end{tabular}
+
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The results below highlight gaps in policy and technical controls. A checkmark (\ding{51}) indicates a positive control is in place, while a cross (\ding{55}) indicates a gap.
+
+\begin{tabular}{@{}p{0.75\textwidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{55} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+
+\section{Technical Scan Results}
+
+An internal network scan was performed to identify active services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.5.5.5}
+    \item \textbf{Status:} Host is Up
+\end{itemize}
+
+The following open ports and services were discovered:
+
+\begin{tabular}{@{}llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service/Product} & \textbf{Details} \\
+\midrule
+8080/tcp & Open & http & \textbf{Title:} TOP SECRET DB \\
+\bottomrule
+\end{tabular}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified a web service running on port \texttt{8080}. The title of the page, ``TOP SECRET DB,'' strongly suggests that this is an exposed database interface. This represents a critical risk, as it may allow unauthorized users to access or manipulate sensitive data. This finding also contradicts information in the existing risk register (Input 3), which incorrectly states this port is secure. This indicates a significant failure in the risk validation process.
+
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security questionnaire, technical scan, and pre-existing risk data.
+
+\begin{tabular}{@{}p{0.2\textwidth}p{0.5\textwidth}p{0.2\textwidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Potentially Exposed Sensitive Database} & An open service on port 8080 of host \texttt{10.5.5.5} is titled ``TOP SECRET DB''. This contradicts a previous risk assessment and indicates a high likelihood of a critical data exposure. & \textbf{Critical} \\
+\addlinespace
+\textbf{No MFA on Sensitive Systems} & The lack of MFA for accessing sensitive data systems exposes critical assets to compromise via stolen credentials. & \textbf{Critical} \\
+\addlinespace
+\textbf{No MFA on Workstations} & The absence of MFA on computer logins significantly increases the risk of unauthorized access to the internal network. & \textbf{High} \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy} & Without a formal AUP, there is no enforceable standard for employee behavior, increasing the risk of insider threat and misuse of assets. & \textbf{High} \\
+\addlinespace
+\textbf{No Onboarding Security Training} & New employees are not receiving security training, leaving them unaware of policies and best practices from their first day. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+
+\section{Recommendations}
+
+Based on the analysis, the following actions are recommended to mitigate the identified risks.
+
+\begin{enumerate}
+    \item \textbf{Remediate Exposed Database (Immediate Priority):}
+        \begin{itemize}
+            \item Immediately investigate the service running on \texttt{10.5.5.5:8080}.
+            \item If confirmed to be a database or sensitive system, restrict access immediately using host-based or network firewalls. Access should be limited to authorized personnel and systems only.
+            \item Update the organizational risk register to accurately reflect the critical nature of this finding, superseding the incorrect previous entry.
+        \end{itemize}
+
+    \item \textbf{Implement Comprehensive MFA (High Priority):}
+        \begin{itemize}
+            \item Deploy a robust MFA solution for all employee workstations and remote access solutions (e.g., VPN).
+            \item Enforce MFA for all systems identified as containing sensitive data, including the service discovered on port 8080.
+        \end{itemize}
+
+    \item \textbf{Develop and Implement Security Policies (Medium Priority):}
+        \begin{itemize}
+            \item Create a formal, documented Acceptable Use Policy (AUP) that all employees must read and acknowledge.
+            \item This policy should clearly define the rules for using company assets, data handling, and internet usage.
+        \end{itemize}
+
+    \item \textbf{Enhance Security Training Program (Medium Priority):}
+        \begin{itemize}
+            \item Integrate mandatory security awareness training into the new employee onboarding process.
+            \item This training should cover key topics from the AUP, phishing awareness, and password security.
+        \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

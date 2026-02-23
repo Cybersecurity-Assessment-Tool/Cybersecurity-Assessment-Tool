@@ -1,0 +1,182 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmarks and crosses (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage[hidelinks]{hyperref}  % For clickable links without boxes
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % For splitting long strings in texttt
+\usepackage{graphicx}             % For logos (placeholder)
+\usepackage{fancyhdr}             % For headers and footers
+
+% --- Document Metadata ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Header and Footer Configuration ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment for \textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{[Organization Name]}. The assessment combined a review of organizational security controls via a questionnaire, an external network vulnerability scan, and an analysis of pre-existing risks.
+
+The overall security posture presents a mixed landscape. The organization has implemented some foundational controls, such as requiring Multi-Factor Authentication (MFA) for computer logins and conducting annual security awareness training. However, several critical and high-risk gaps were identified that significantly increase the organization's exposure to common cyber threats.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical MFA Gaps:} Multi-Factor Authentication is not enforced for accessing email or other sensitive data systems. This exposes the organization to significant risk from credential compromise and business email compromise (BEC) attacks.
+    \item \textbf{Inadequate Employee Onboarding:} New employees do not receive security awareness training, leaving a critical window of vulnerability before they are included in the annual training cycle.
+    \item \textbf{Exposed Network Services:} The external network scan identified an open port for SSH (Port 22), a common target for brute-force and credential-based attacks.
+\end{itemize}
+
+This report provides a detailed breakdown of these findings and offers actionable recommendations to mitigate the identified risks and strengthen the overall security posture of \textbf{[Organization Name]}.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+This section contains the high-level information used as the basis for this assessment. As the provided data was anonymized, placeholders have been used.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \texttt{[Domain]} \\
+External IP Scanned & \texttt{[Client IP]} \\
+\bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_data}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. Items marked with a red cross (\ding{55}) indicate a deviation from security best practices and represent a gap in the organization's defenses.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.75\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to log into computers? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\midrule
+\textcolor{red}{Do you require MFA to access email?} & \textcolor{red}{\ding{55}} \\
+\textcolor{red}{Do you require MFA to access sensitive data systems?} & \textcolor{red}{\ding{55}} \\
+\textcolor{red}{Does your organization do security awareness training for new employees?} & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls_review}
+\end{table}
+
+The identified gaps in MFA for email and sensitive systems are considered critical vulnerabilities. The lack of security training during employee onboarding is a high-risk deficiency that could lead to early and preventable security incidents.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed against the target IP address to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Not specified in scan data.
+\end{itemize}
+
+\subsection{Open Ports}
+The scan revealed the following open port(s) accessible from the public internet:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Common Service} & \textbf{Notes} \\
+\midrule
+22/TCP & open & SSH (Secure Shell) & Exposing SSH to the internet is a high risk. \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\label{tab:nmap_results}
+\end{table}
+
+\subsection{Analysis}
+The presence of an open SSH port (22) is a significant finding. This service is a primary target for automated brute-force attacks, where attackers attempt to guess usernames and passwords to gain unauthorized remote access to the server. Without proper controls, such as IP whitelisting, strong password policies, and key-based authentication, this exposed service poses a direct threat to the integrity and confidentiality of the underlying system.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+
+This section synthesizes the findings from the security control review, technical scan, and any pre-existing vulnerabilities. Each identified risk is assigned a severity level based on its potential impact and likelihood of exploitation.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\textwidth}p{0.5\textwidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{No MFA on Email Access} & Lack of MFA on email accounts allows for account takeover if credentials are stolen, leading to data breaches and Business Email Compromise (BEC). & \textbf{Critical} \\
+\addlinespace
+\textbf{No MFA on Sensitive Data Systems} & Sensitive corporate and customer data is protected only by a password, making it highly vulnerable to unauthorized access via credential theft. & \textbf{Critical} \\
+\addlinespace
+\textbf{Exposed SSH Service} & Port 22 (SSH) is open to the public internet, making the system a target for brute-force attacks and unauthorized access attempts. & \textbf{High} \\
+\addlinespace
+\textbf{Lack of Onboarding Security Training} & New employees are not trained on security policies and threat identification upon hiring, creating a high-risk period for social engineering and policy violations. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risk_summary}
+\end{table}
+
+\textit{Note: The pre-existing risk input contained no vulnerabilities.}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following actionable recommendations are provided to address the identified risks. They are prioritized based on severity.
+
+\subsection{Critical Priority}
+\begin{enumerate}
+    \item \textbf{Implement MFA for Email and Sensitive Systems:}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately enable and enforce MFA for all user accounts on the primary email platform (e.g., Microsoft 365, Google Workspace) and all systems identified as containing sensitive data.
+        \item \textbf{Justification:} This is the single most effective control to prevent account takeovers resulting from stolen credentials, directly mitigating the risk of data breaches and BEC.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority}
+\begin{enumerate}
+    \item \textbf{Secure the Exposed SSH Service:}
+    \begin{itemize}
+        \item \textbf{Action:} If remote access via SSH is required, implement a firewall rule to restrict access to only known, trusted IP addresses (IP whitelisting). If it is not required, disable the service entirely.
+        \item \textbf{Justification:} This action removes the service from public exposure, eliminating the threat of internet-based brute-force attacks. Further hardening, such as enforcing public key authentication and disabling password-based logins, is also strongly advised.
+    \end{itemize}
+    \item \textbf{Establish a Security Training Program for New Hires:}
+    \begin{itemize}
+        \item \textbf{Action:} Develop a mandatory security awareness training module that is integrated into the employee onboarding process. This training should cover the acceptable use policy, phishing identification, password security, and incident reporting procedures.
+        \item \textbf{Justification:} Training employees from day one establishes a security-conscious culture and reduces the likelihood of human error leading to a security incident.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

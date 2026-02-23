@@ -1,0 +1,159 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For potential logos/images
+\usepackage{datetime} % For report date
+
+% --- Document Metadata ---
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ==============================================================================
+\section{Executive Summary}
+
+This report provides a cybersecurity assessment for \textbf{Hearth \& Home}. The analysis is based on a network scan, a review of organizational security controls, and an evaluation of pre-existing risk data.
+
+The assessment identified several critical-risk findings that require immediate attention. The primary concerns are the widespread lack of Multi-Factor Authentication (MFA) across all critical services (email, computer logins, and sensitive data systems) and the continued exposure of Remote Desktop Protocol (RDP) on internal network assets. The technical scan confirmed a new instance of an open RDP port on host \texttt{10.10.10.51}, compounding a previously identified risk.
+
+The absence of MFA drastically lowers the barrier for unauthorized access, especially when combined with exposed services like RDP, a common vector for ransomware attacks. Additionally, foundational governance gaps, such as the lack of an employee acceptable use policy, were noted.
+
+Immediate remediation should focus on securing all exposed RDP services and implementing MFA across the organization.
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Hearth \& Home
+    \item \textbf{Email Domain:} \texttt{HearthHome.net}
+    \item \textbf{Website Domain:} \url{www.HearthHome.net}
+    \item \textbf{External IP Address:} \texttt{189.70.76.181}
+\end{itemize}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses indicate significant gaps in access control and governance policies. A summary of the findings is presented in Table \ref{tab:controls}.
+
+\begin{table}[h!]
+\centering
+\caption{Security Control Questionnaire Results}
+\label{tab:controls}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees annually? & \textcolor{green}{\ding{51}} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+The lack of MFA for email, computer, and sensitive data access represents a critical vulnerability. The absence of an acceptable use policy creates ambiguity for employees regarding security responsibilities.
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+A network scan was performed on the target host \texttt{10.10.10.51}. The scan identified one open port, which is detailed in Table \ref{tab:scan}.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Findings for Target: \texttt{10.10.10.51}}
+\label{tab:scan}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\ \midrule
+3389/tcp & open & ms-wbt-server & Microsoft Remote Desktop Protocol (RDP) \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The scan confirms that the host \texttt{10.10.10.51} is accessible via RDP. This finding is highly significant as exposed RDP is a primary target for threat actors seeking to gain initial access for ransomware deployment and data exfiltration. This finding correlates with and expands upon a pre-existing risk identified within the organization.
+
+% ==============================================================================
+% SECTION 5: CORRELATED RISK ASSESSMENT
+% ==============================================================================
+\section{Correlated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of key risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{@{}p{0.25\linewidth}p{0.45\linewidth}p{0.2\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\textbf{Systemic RDP Exposure} & RDP is exposed on multiple internal systems (\texttt{10.10.10.50}, \texttt{10.10.10.51}). This allows a direct path for attackers to attempt credential-based attacks. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Multi-Factor Authentication} & MFA is not enforced for email, computer logins, or sensitive systems. This critically weakens credential security and makes successful brute-force or phishing attacks much more likely. & \textbf{Critical} \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy} & The absence of a formal policy creates a governance gap. Employees may be unaware of their responsibilities for protecting company assets, leading to unintentional security incidents. & \textbf{Medium} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+The following prioritized recommendations are provided to mitigate the identified risks.
+
+\begin{enumerate}
+    \item \textbf{Immediate Priority: Secure Exposed RDP Services}
+    \begin{itemize}
+        \item Immediately disable or firewall port 3389 on \texttt{10.10.10.51} and any other systems where RDP is not strictly required for business operations.
+        \item For systems requiring remote access, implement a secure solution such as a Virtual Private Network (VPN) with MFA. Do not expose RDP directly to any untrusted network.
+    \end{itemize}
+    \item \textbf{High Priority: Implement Multi-Factor Authentication}
+    \begin{itemize}
+        \item Prioritize the deployment of MFA for all remote access solutions (VPN), email access (e.g., Office 365, G Suite), and access to systems containing sensitive data.
+        \item Develop a roadmap to enforce MFA for all employee computer logins.
+    \end{itemize}
+    \item \textbf{Medium Priority: Develop and Implement Governance Policies}
+    \begin{itemize}
+        \item Create a formal Acceptable Use Policy (AUP) that defines rules for the use of company technology and data.
+        \item Require all employees to read and acknowledge the AUP as part of the annual security awareness training program.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,150 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % For splitting long text strings
+\usepackage{graphicx} % For logo
+\usepackage{fancyhdr} % For header/footer
+
+% --- Document Metadata ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{[Organization Name]}. The assessment combined a review of organizational security controls, an external network scan, and an analysis of pre-existing risks.
+
+The overall security posture is determined to be critically deficient. The analysis revealed a complete absence of fundamental security controls, including Multi-Factor Authentication (MFA) across all critical systems, employee security policies, and security awareness training. These gaps create a high susceptibility to account compromise, phishing, and insider threats.
+
+Furthermore, technical scanning identified an exposed management service (SSH on port 22) on the external IP address \texttt{[Client IP]}. When combined with the lack of MFA, this exposure presents a significant and immediate risk of unauthorized access to internal systems. A pre-existing critical risk, "Localhost Exposed," was also noted, indicating potential severe internal misconfigurations.
+
+Immediate and decisive action is required to remediate these critical vulnerabilities. Recommendations focus on implementing MFA, securing the network perimeter, and establishing a baseline security governance framework through policies and training.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following information was used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name  & \textbf{[Organization Name]} \\
+Primary Domain     & \texttt{[Domain]} \\
+External IP Scanned & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\label{tab:org_info}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+A security questionnaire was completed to evaluate the implementation of essential administrative and technical controls. The results, detailed in Table \ref{tab:controls}, indicate critical gaps in the organization's security framework. Every question, representing a foundational security best practice, was answered in the negative. This highlights a lack of maturity in the current security program.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Implemented} \\ \midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{55} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\ \bottomrule
+\end{tabular}
+\caption{Security Control Implementation Status (\ding{51}=Yes, \ding{55}=No)}
+\label{tab:controls}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed against the target IP address \texttt{[Target IP]} to identify exposed services. The scan revealed one open port, which presents a direct vector for external attacks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Analysis} \\ \midrule
+22/tcp & Open & ssh & Secure Shell (SSH) is a management protocol. \\
+& & & Exposing SSH directly to the internet is highly \\
+& & & discouraged as it is a constant target for \\
+& & & automated brute-force login attempts. \\ \bottomrule
+\end{tabular}
+\caption{Open Ports on Target: \texttt{[Target IP]}}
+\label{tab:scan_results}
+\end{table}
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data. The identified risks are prioritized by severity to guide remediation efforts.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\linewidth}p{0.15\linewidth}p{0.45\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Overview} \\ \midrule
+\textbf{Localhost Exposed} & \textbf{Critical} & A pre-existing risk indicating a critical internal service is improperly exposed. This could allow for severe system compromise. \\
+\addlinespace
+\textbf{Absence of Multi-Factor Authentication (MFA)} & \textbf{Critical} & The lack of MFA for email, computer, and data system access makes user accounts highly vulnerable to compromise via stolen credentials. \\
+\addlinespace
+\textbf{Exposed SSH Management Port} & High & The SSH service on port 22 at \texttt{[Target IP]} is open to the public internet, inviting brute-force attacks that could lead to unauthorized server access. \\
+\addlinespace
+\textbf{Lack of Security Policies and Training} & High & The absence of an Acceptable Use Policy and security awareness training means employees are unaware of their security responsibilities, increasing the likelihood of human error leading to a breach. \\ \bottomrule
+\end{tabular}
+\caption{Synthesized Risk Register}
+\label{tab:risk_register}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following actionable recommendations are provided to address the identified risks. They are prioritized to focus on the most critical vulnerabilities first.
+
+\subsection{Immediate Priority (Remediate within 7 days)}
+\begin{itemize}
+    \item \textbf{Implement MFA:} Immediately enforce MFA for all users on all critical systems, especially for email access, VPN, and any administrative interfaces. This is the single most effective control to mitigate the risk of account compromise.
+    \item \textbf{Restrict SSH Access:} The SSH service on port 22 at \texttt{[Target IP]} must be firewalled immediately. Access should be restricted to a whitelist of trusted IP addresses or, preferably, be made available only through a secure Virtual Private Network (VPN).
+\end{itemize}
+
+\subsection{Short-Term Priority (Remediate within 30 days)}
+\begin{itemize}
+    \item \textbf{Develop an Acceptable Use Policy (AUP):} Establish and distribute a formal AUP that defines the rules for using company IT assets. All employees must read and acknowledge this policy.
+    \item \textbf{Conduct Security Awareness Training:} Enroll all employees in a foundational security awareness training program. This should cover key topics such as phishing, password hygiene, and social engineering.
+\end{itemize}
+
+\subsection{Long-Term Recommendations}
+\begin{itemize}
+    \item \textbf{Establish a Policy Framework:} Expand beyond the AUP to develop a comprehensive set of information security policies covering data classification, incident response, and access control.
+    \item \textbf{Implement a Vulnerability Management Program:} Regularly scan internal and external assets for vulnerabilities to proactively identify and remediate security weaknesses before they can be exploited.
+\end{itemize}
+
+\end{document}
+```

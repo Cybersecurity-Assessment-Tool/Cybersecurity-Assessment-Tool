@@ -1,0 +1,194 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Security, Assessment, Network Scan, Risk}
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{Executive Summary}
+% ==============================================================================
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{Iron Oak Furniture}. The analysis is based on a combination of network scanning data, a security controls questionnaire, and a review of pre-existing documented risks.
+
+The assessment reveals a mixed security posture. The organization has implemented some essential foundational controls, such as requiring Multi-Factor Authentication (MFA) for email and computer access. However, several critical and high-risk gaps were identified that significantly increase the organization's exposure to cyber threats.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Risk:} A pre-existing risk, "Localhost Exposed," was technically confirmed by the discovery of an open SSH port on the local loopback interface (\texttt{127.0.0.1}).
+    \item \textbf{Critical Gap:} Multi-Factor Authentication is not enforced for access to sensitive data systems, leaving the organization's most valuable assets vulnerable to unauthorized access.
+    \item \textbf{High-Risk Gaps:} The absence of an employee Acceptable Use Policy and the lack of mandatory annual security awareness training for all staff create significant operational and human-centric risks.
+\end{itemize}
+
+Immediate remediation of these identified vulnerabilities is strongly recommended to reduce the attack surface and enhance the overall security resilience of the organization. Detailed findings and actionable recommendations are provided in the subsequent sections of this report.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Iron Oak Furniture} \\
+    Email Domain & \texttt{IronOakFurniture.net} \\
+    Website Domain & \url{www.IronOakFurniture.net} \\
+    External IP Address & \texttt{201.159.131.180} \\
+    \bottomrule
+\end{tabular}
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+
+A security questionnaire was completed to evaluate the implementation of key administrative and technical controls. The results are summarized below. Answers marked with \ding{55} represent significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\textwidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} \\
+    Do you require MFA to log into computers? & \ding{51} \\
+    Do you require MFA to access sensitive data systems? & \textbf{\color{red}\ding{55}} \\
+    Does your organization have an employee acceptable use policy? & \textbf{\color{red}\ding{55}} \\
+    Does your organization do security awareness training for new employees? & \ding{51} \\
+    Does your organization do security awareness training for all employees at least once per year? & \textbf{\color{red}\ding{55}} \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+The review identified three primary areas of concern:
+\begin{itemize}
+    \item \textbf{MFA on Sensitive Systems:} The failure to enforce MFA on systems containing sensitive data is a critical vulnerability. This control is a fundamental defense against credential theft and unauthorized access to critical information.
+    \item \textbf{Acceptable Use Policy (AUP):} The lack of a formal AUP creates ambiguity regarding the proper use of company assets. This can lead to unintentional insider threats, legal liabilities, and inconsistent security practices.
+    \item \textbf{Annual Security Training:} While training for new hires is in place, the absence of annual refresher training for all employees means that the workforce's ability to recognize and respond to evolving threats (like new phishing techniques) will degrade over time.
+\end{itemize}
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+
+A network scan was performed to identify open ports and exposed services on the specified target.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Scan Parameter} & \textbf{Value} \\
+    \midrule
+    Target IP Address & \texttt{127.0.0.1} \\
+    Scan Date & \today \\
+    \bottomrule
+\end{tabular}
+
+\subsection*{Open Ports Discovered}
+The following table details the open ports found on the target system.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Product / Version} \\
+    \midrule
+    22/tcp & open & SSH & Not Available \\
+    \bottomrule
+\end{tabular}
+\caption{Scan results for target \texttt{127.0.0.1}.}
+\end{table}
+
+\subsection*{Technical Analysis}
+The scan confirmed that port 22 (SSH - Secure Shell) is open on the localhost interface (\texttt{127.0.0.1}). This finding directly correlates with and validates the pre-existing risk documented as "Localhost Exposed." While SSH on localhost can be used for legitimate purposes like development or tunneling, its exposure without a clear business need or proper configuration represents a significant security risk. Further investigation is required to determine if the SSH service version is vulnerable to known exploits.
+
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+% ==============================================================================
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.15\textwidth}p{0.2\textwidth}p{0.55\textwidth}@{}}
+    \toprule
+    \textbf{Severity} & \textbf{Risk Name} & \textbf{Description} \\
+    \midrule
+    \textbf{Critical} & Exposed Localhost Service (SSH) & A pre-existing CVSS 10.0 risk is confirmed by the technical scan, which found an open SSH port on \texttt{127.0.0.1}. This indicates a severe misconfiguration that could be exploited by local processes or other vulnerabilities. \\
+    \addlinespace
+    \textbf{Critical} & Lack of MFA on Sensitive Systems & The absence of MFA on critical data systems exposes the organization's most valuable assets to compromise via stolen credentials, representing a direct path to a major data breach. \\
+    \addlinespace
+    \textbf{High} & No Annual Security Awareness Training & Without ongoing training, employees become increasingly vulnerable to social engineering and phishing attacks, which are primary vectors for initial network compromise. \\
+    \addlinespace
+    \textbf{High} & No Acceptable Use Policy (AUP) & The absence of a formal AUP creates operational and legal risks by failing to establish clear rules for employee use of corporate IT resources, potentially leading to misuse and insider threats. \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+% ==============================================================================
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Iron Oak Furniture}.
+
+\subsection*{Immediate Actions (0-30 Days)}
+\begin{enumerate}
+    \item \textbf{Remediate Exposed Service:}
+        \begin{itemize}
+            \item \textbf{Investigate:} Immediately determine the business purpose of the SSH service running on \texttt{127.0.0.1}.
+            \item \textbf{Disable or Secure:} If the service is not required, disable it. If it is required, ensure it is configured securely, bound only to necessary interfaces, and firewalled from unauthorized access.
+        \end{itemize}
+    \item \textbf{Deploy MFA on Sensitive Systems:}
+        \begin{itemize}
+            \item \textbf{Prioritize:} Identify all systems classified as containing sensitive data.
+            \item \textbf{Implement:} Begin a phased rollout of MFA enforcement for all user accounts (including administrative) accessing these systems. This should be treated as the highest priority project.
+        \end{itemize}
+\end{enumerate}
+
+\subsection*{Strategic Actions (30-90 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering from previous list
+    \item \textbf{Establish an Acceptable Use Policy (AUP):}
+        \begin{itemize}
+            \item \textbf{Draft:} Develop a clear and comprehensive AUP that governs the use of all company IT assets, including networks, computers, and data.
+            \item \textbf{Distribute \& Acknowledge:} Require all current employees to read and formally acknowledge the policy. Incorporate this into the new-hire onboarding process.
+        \end{itemize}
+    \item \textbf{Implement Annual Security Training:}
+        \begin{itemize}
+            \item \textbf{Procure/Develop Content:} Select or create a security awareness training module that covers current threats such as phishing, ransomware, and proper data handling.
+            \item \textbf{Rollout:} Mandate that all employees complete the training annually and track completion to ensure 100\% compliance.
+        \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,155 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and ToC
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{datetime}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Overview ---
+\section{Executive Overview}
+This report provides a comprehensive cybersecurity assessment for \textbf{Phoenix Rising}, based on a correlation of network scan data, organizational security control questionnaires, and a review of existing risks. The analysis was conducted on \today.
+
+The overall security posture is assessed as \textbf{High-Risk}. This is primarily driven by two critical findings:
+\begin{enumerate}
+    \item \textbf{Critical Service Exposure:} A network scan identified an externally accessible MySQL database server (\texttt{172.16.50.20}) on port \texttt{3306}. The detected version, MySQL 5.7.33, is officially End-of-Life (EOL) and no longer receives security updates, exposing it to numerous known vulnerabilities.
+    \item \textbf{Significant Control Gaps:} The organization lacks mandatory Multi-Factor Authentication (MFA) for accessing email and other sensitive data systems. This significantly increases the risk of account compromise and unauthorized data access. Furthermore, the absence of security awareness training for new employees creates an immediate vulnerability during the critical onboarding period.
+\end{enumerate}
+
+These findings indicate an elevated risk of data breach, ransomware, and unauthorized system access. Immediate remediation is required to address the exposed database and implement foundational security controls like MFA.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{Phoenix Rising} \\
+Primary Email Domain & \texttt{PhoenixRising.net} \\
+External IP Address & \texttt{15.240.199.89} \\
+Website Domain & \url{www.PhoenixRising.net} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\label{tab:org_details}
+\end{table}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a standardized questionnaire. The results highlight critical gaps in identity and access management and employee security training.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Response} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & No & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & No & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & No & \textcolor{red}{\ding{55}} \\
+Does your organization do training for all employees annually? & Yes & \textcolor{green}{\ding{51}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results.}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis}
+The lack of MFA on email and sensitive data systems represents a \textbf{Critical Risk}. Email is a primary vector for phishing attacks, and its compromise can lead to the takeover of other connected services. The absence of security training for new hires creates a window of vulnerability where new staff are most susceptible to social engineering attacks.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An Nmap scan was performed against the target IP address \texttt{172.16.50.20} to identify open ports and running services.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+3306/tcp & open & mysql & MySQL & 5.7.33 \\ \bottomrule
+\end{tabular}
+\caption{Open Ports and Services on \texttt{172.16.50.20}.}
+\label{tab:nmap_results}
+\end{table}
+
+\subsection*{Analysis}
+The scan confirms that port \texttt{3306}, the default port for MySQL, is open to the network. This finding directly corroborates the pre-existing risk "Database Exposure."
+
+\textbf{Crucially, MySQL version 5.7 reached its official End-of-Life (EOL) in October 2023.} This means it no longer receives security patches from the vendor. Version 5.7.33 is known to be vulnerable to multiple publicly disclosed exploits. Exposing an EOL database service to the network is a critical security flaw that could lead to a full system compromise and data exfiltration.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the technical scan, control review, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\textwidth}p{0.5\textwidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\textbf{End-of-Life Database Exposure} & An EOL version of MySQL (5.7.33) is running on a publicly accessible port (\texttt{3306}), exposing it to unpatchable vulnerabilities. & \textbf{Critical} \\
+\textbf{Lack of MFA on Critical Systems} & MFA is not enforced on email or sensitive data systems, enabling account takeover attacks. & \textbf{Critical} \\
+\textbf{Inadequate Employee Onboarding} & New employees do not receive security awareness training, making them prime targets for phishing and social engineering. & \textbf{High} \\
+\textbf{Database Exposure} & The MySQL port \texttt{3306} is open to the network, violating the principle of least privilege. (CVSS: 7.5) & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\label{tab:risk_summary}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+Based on the consolidated risk assessment, the following actions are recommended to mitigate the identified vulnerabilities and improve the overall security posture of \textbf{Phoenix Rising}.
+
+\subsection{Immediate Actions (To Be Completed within 72 Hours)}
+\begin{itemize}
+    \item \textbf{Restrict Database Access:} Immediately apply firewall rules to block all public access to port \texttt{3306} on server \texttt{172.16.50.20}. Access should be restricted to only trusted internal application servers.
+    \item \textbf{Enforce MFA on Email:} Enable and enforce MFA for all user accounts on the \texttt{PhoenixRising.net} email domain.
+\end{itemize}
+
+\subsection{Medium-Term Actions (To Be Completed within 90 Days)}
+\begin{itemize}
+    \item \textbf{Upgrade MySQL Server:} Plan and execute the migration of the database from the EOL MySQL 5.7 to a fully supported version (e.g., MySQL 8.x or a managed database service).
+    \item \textbf{Implement MFA on All Sensitive Systems:} Conduct an inventory of all systems handling sensitive data and enforce MFA for access.
+    \item \textbf{Develop New Hire Security Training:} Create and mandate a security awareness training module as a required step in the employee onboarding process.
+\end{itemize}
+
+\subsection{Long-Term Strategic Actions (Ongoing)}
+\begin{itemize}
+    \item \textbf{Implement Network Segmentation:} Review and enhance the network architecture to properly segment critical infrastructure, like databases, from user-facing networks.
+    \item \textbf{Establish a Vulnerability Management Program:} Implement a recurring, automated process for scanning internal and external assets to proactively identify and remediate vulnerabilities.
+\end{itemize}
+
+\end{document}
+```

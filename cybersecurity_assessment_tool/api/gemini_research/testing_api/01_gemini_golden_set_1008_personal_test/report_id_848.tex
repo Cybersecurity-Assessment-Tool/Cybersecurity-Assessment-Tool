@@ -1,0 +1,191 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{xcolor} % For colors
+\usepackage{fancyhdr} % For header/footer
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Assessment Report}
+\rhead{\textbf{Arcane Security}}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    \Huge \textbf{Cybersecurity Assessment Report}
+    \vspace{1.5cm}
+    
+    \Large Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{Arcane Security}
+    
+    \vfill
+    
+    \large
+    \begin{tabular}{ll}
+        \textbf{Report Date:} & \today \\
+        \textbf{Analysis Period:} & [Scan Date] \\
+        \textbf{Version:} & 1.0 \\
+    \end{tabular}
+    
+    \vspace{2cm}
+    
+    \textit{This document contains sensitive information. Distribution should be limited to authorized personnel only.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the security posture of \textbf{Arcane Security}, based on network scan data, a security controls questionnaire, and a review of pre-existing risks. The assessment identified several critical and high-risk vulnerabilities that require immediate attention.
+
+Key findings indicate significant gaps in fundamental security controls. The lack of Multi-Factor Authentication (MFA) on critical systems, including email and sensitive data repositories, exposes the organization to a high risk of account compromise and data breach. Furthermore, the absence of a formal employee acceptable use policy and security awareness training program creates a culture that is vulnerable to social engineering and insider threats.
+
+Technical analysis revealed the use of an unencrypted web service (HTTP on port 80), which places data in transit at risk of interception.
+
+Immediate remediation of these issues is strongly recommended to reduce the organization's attack surface and improve its overall resilience against common cyber threats. This report outlines actionable recommendations to address each identified risk.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Client Organizational Data}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{Arcane Security} \\
+Email Domain      & \texttt{ArcaneSecurity.net} \\
+Website Domain    & \url{www.ArcaneSecurity.net} \\
+External IP Address & \texttt{99.26.96.166} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight critical gaps in administrative and technical controls. A "No" response indicates a missing control that elevates organizational risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{@{}p{0.65\textwidth}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & No & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & No & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & No & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & No & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & No & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{Multi-Factor Authentication (MFA):} The absence of MFA on email and sensitive data systems is a critical vulnerability. Email is a primary target for phishing attacks, and a compromised account can lead to widespread system access and data exfiltration.
+    \item \textbf{Policies and Training:} The lack of an acceptable use policy and a security awareness training program indicates a significant weakness in the human element of security. Employees may be unaware of security best practices, making them susceptible to social engineering attacks and accidental data disclosure.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and services on the target system. The results indicate the presence of an unencrypted web service.
+
+\begin{table}[h!]
+\centering
+\caption{Nmap Scan Findings}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Target IP} & \textbf{Port/Protocol} & \textbf{State} & \textbf{Service (Inferred)} \\ \midrule
+\texttt{172.16.0.1} & 80/tcp & Open & HTTP \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified that port 80 (HTTP) is open. HTTP is an unencrypted protocol, meaning any data transmitted between a client and the server, including usernames, passwords, and other sensitive information, is sent in cleartext. This exposes the data to interception and eavesdropping attacks (e.g., Man-in-the-Middle). It is a critical security risk to host any service that handles sensitive data over HTTP.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security control review and technical scan into a prioritized list of risks. Note: The pre-existing risk data provided in the input was identified as a non-pertinent system instruction and has been disregarded in favor of an accurate assessment based on valid data.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.15\textwidth}p{0.65\textwidth}l@{}}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\textbf{Critical MFA Gaps} & Lack of MFA on email and sensitive data systems allows for account takeover via credential theft or phishing, leading to potential data breach. & \textbf{\textcolor{red}{Critical}} \\
+\addlinespace
+\textbf{Lack of Security Policies \& Training} & The absence of an acceptable use policy and security awareness training leaves the organization vulnerable to insider threats and social engineering. & \textbf{\textcolor{orange}{High}} \\
+\addlinespace
+\textbf{Unencrypted Web Traffic} & The active HTTP service on port 80 transmits data in cleartext, exposing credentials and sensitive information to interception. & \textbf{\textcolor{orange}{High}} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and strengthen the overall security posture of \textbf{Arcane Security}.
+
+\subsection*{Immediate Actions (Next 30 Days)}
+\begin{enumerate}
+    \item \textbf{Enforce MFA on Critical Systems:}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately enable and enforce MFA for all user accounts with access to email (e.g., Office 365, G Suite) and any systems identified as containing sensitive data.
+        \item \textbf{Risk Mitigated:} Critical MFA Gaps.
+    \end{itemize}
+    
+    \item \textbf{Secure Web Traffic:}
+    \begin{itemize}
+        \item \textbf{Action:} For the service on \texttt{172.16.0.1:80}, either decommission it if it is not business-critical, or migrate it to HTTPS (port 443) using a valid TLS certificate. Implement a redirect from HTTP to HTTPS.
+        \item \textbf{Risk Mitigated:} Unencrypted Web Traffic.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Strategic Actions (Next 90 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering from previous list
+    \item \textbf{Develop an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item \textbf{Action:} Draft and implement a formal AUP that clearly defines the rules for using company IT assets, data, and internet access. Require all employees to read and acknowledge the policy.
+        \item \textbf{Risk Mitigated:} Lack of Security Policies \& Training.
+    \end{itemize}
+
+    \item \textbf{Implement Security Awareness Training:}
+    \begin{itemize}
+        \item \textbf{Action:} Institute a mandatory security awareness training program for all employees. This should be required for new hires during onboarding and conducted annually for all staff. Training should cover topics such as phishing, password security, and data handling.
+        \item \textbf{Risk Mitigated:} Lack of Security Policies \& Training.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

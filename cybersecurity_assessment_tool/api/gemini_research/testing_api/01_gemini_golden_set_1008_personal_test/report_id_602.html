@@ -1,0 +1,308 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive analysis of the cybersecurity
+posture for <strong>True Grit</strong>, based on a combination of
+technical network scanning, a review of organizational security
+controls, and an assessment of pre-existing risks.</p>
+<p>The analysis revealed several critical and high-severity risks that
+require immediate attention. The most significant finding is a publicly
+accessible FTP server running a dangerously outdated version of
+<code>vsftpd</code> (2.3.4). This specific version is known to contain a
+critical backdoor vulnerability (CVE-2011-2523) and is currently
+configured to allow anonymous logins, posing a direct and immediate
+threat of system compromise and data exfiltration.</p>
+<p>Furthermore, significant gaps were identified in the organization’s
+access control policies. The absence of Multi-Factor Authentication
+(MFA) for accessing email and other sensitive data systems exposes the
+organization to severe risks, including business email compromise,
+phishing attacks, and unauthorized data access. The lack of a formal
+employee acceptable use policy exacerbates these risks by failing to
+establish clear security guidelines.</p>
+<p>This report outlines these findings in detail and provides a
+prioritized list of actionable recommendations to mitigate the
+identified risks and strengthen the overall security posture of
+<strong>True Grit</strong>.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following details were provided for the assessment. This
+information helps contextualize the findings within the organization’s
+environment.</p>
+<div id="tab:org_info">
+<table>
+<caption>Client Organizational Details</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;">True Grit</td>
+</tr>
+<tr>
+<td style="text-align: left;">Email Domain</td>
+<td style="text-align: left;"><code>TrueGrit.net</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Website Domain</td>
+<td style="text-align: left;"><a href="www.TrueGrit.net"
+class="uri">www.TrueGrit.net</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Address</td>
+<td style="text-align: left;"><code>120.127.236.21</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of internal security controls was conducted via a
+questionnaire. The responses highlight critical gaps in administrative
+and access control policies. A summary of the questions and their
+corresponding analysis is presented below.</p>
+<div id="tab:controls">
+<table>
+<caption>Security Control Questionnaire Analysis</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+<th style="text-align: left;"><strong>Analyst Note</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>Critical Gap.</strong> Lack of MFA
+is a primary vector for account compromise.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">Good Practice. Protects against
+unauthorized physical access.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>Critical Gap.</strong> Exposes
+crown jewel data assets to high risk.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;"><strong>High Risk.</strong> Creates
+ambiguity and lacks a legal baseline for user actions.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">Good Practice. Establishes a security
+baseline from day one.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">Good Practice. Reinforces
+security-conscious behavior.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>A network scan was performed on the target system to identify open
+ports, running services, and potential vulnerabilities.</p>
+<h2 id="nmap-scan-findings">Nmap Scan Findings</h2>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>10.0.0.15</code></p></li>
+<li><p><strong>Scan Date:</strong> 2026-01-31</p></li>
+</ul>
+<p>The scan identified one open port with a critically vulnerable
+service.</p>
+<div id="tab:nmap">
+<table>
+<caption>Open Ports and Services Analysis</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+<th style="text-align: left;"><strong>Finding</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">21/tcp</td>
+<td style="text-align: left;">Open</td>
+<td style="text-align: left;">FTP</td>
+<td style="text-align: left;">vsftpd 2.3.4</td>
+<td style="text-align: left;"><div id="tab:nmap">
+<table>
+<caption>Open Ports and Services Analysis</caption>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Critical
+Vulnerability:</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">- Anonymous FTP login allowed.</td>
+</tr>
+<tr>
+<td style="text-align: left;">- Version is vulnerable to a known</td>
+</tr>
+<tr>
+<td style="text-align: left;">backdoor (CVE-2011-2523).</td>
+</tr>
+</tbody>
+</table>
+</div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="analysis">Analysis:</h4>
+<p>The presence of <code>vsftpd 2.3.4</code> is a severe security risk.
+This version, released in 2011, contains a well-documented backdoor that
+allows an attacker to gain a command shell on the server by sending a
+specific string as the username. Combined with the "Anonymous FTP login
+allowed" configuration, this system is trivial to exploit and should be
+considered compromised.</p>
+<h1 id="consolidated-risk-assessment">Consolidated Risk Assessment</h1>
+<p>The following table synthesizes all findings from the technical scan,
+control review, and pre-existing risk data into a prioritized list.</p>
+<div id="tab:risks">
+<table>
+<caption>Summary of Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>ID</strong></th>
+<th style="text-align: left;"><strong>Risk Title &amp;
+Description</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+<th style="text-align: left;"><strong>Affected Elements</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>TR-001</strong></td>
+<td style="text-align: left;"><strong>Exploitable FTP Server:</strong>
+The server at <code>10.0.0.15</code> is running vsftpd 2.3.4, which has
+a known backdoor (CVE-2011-2523) and allows anonymous login.</td>
+<td style="text-align: left;"><span
+style="color: criticalred"><strong>Critical</strong></span></td>
+<td style="text-align: left;">Network Server, Internal Data</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PR-001</strong></td>
+<td style="text-align: left;"><strong>No MFA on Email/Sensitive
+Data:</strong> Lack of MFA on critical systems creates a high risk of
+account takeover and subsequent data breach.</td>
+<td style="text-align: left;"><span
+style="color: criticalred"><strong>Critical</strong></span></td>
+<td style="text-align: left;">Email System, Data Repositories, User
+Accounts</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PR-002</strong></td>
+<td style="text-align: left;"><strong>No Acceptable Use Policy:</strong>
+Absence of a formal AUP leads to inconsistent security practices and
+exposes the organization to insider threats and legal liabilities.</td>
+<td style="text-align: left;"><span
+style="color: highorange"><strong>High</strong></span></td>
+<td style="text-align: left;">All Employees, Organizational
+Governance</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ER-001</strong></td>
+<td style="text-align: left;"><strong>Outdated Windows Policy:</strong>
+(Existing Risk) Computers are running Windows 7, which is end-of-life
+and no longer receives security updates.</td>
+<td style="text-align: left;"><span
+style="color: mediumyellow"><strong>Medium</strong></span></td>
+<td style="text-align: left;">Workstations</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actions are recommended to mitigate the identified
+risks. They are prioritized based on severity and potential impact.</p>
+<h2 id="immediate-actions-tr-001">Immediate Actions (TR-001)</h2>
+<ul>
+<li><p><strong>Decommission FTP Server:</strong> Immediately take the
+server at <code>10.0.0.15</code> offline. Disconnect it from the network
+to prevent exploitation.</p></li>
+<li><p><strong>Investigate for Compromise:</strong> Assume the system
+has been compromised. Conduct a forensic analysis to determine the
+extent of any breach.</p></li>
+<li><p><strong>Replace File Transfer Solution:</strong> If FTP is a
+business requirement, replace it with a modern, secure protocol like
+SFTP (SSH File Transfer Protocol) or a managed file transfer solution.
+Ensure anonymous access is disabled.</p></li>
+</ul>
+<h2 id="high-priority-actions-pr-001">High-Priority Actions
+(PR-001)</h2>
+<ul>
+<li><p><strong>Implement MFA:</strong> Enforce MFA for all users on the
+email system (<code>TrueGrit.net</code>) and all systems identified as
+containing sensitive data. This is the single most effective control to
+prevent account compromise.</p></li>
+<li><p><strong>Provide User Training:</strong> Accompany the MFA rollout
+with clear instructions and support for all employees to ensure a smooth
+transition.</p></li>
+</ul>
+<h2 id="medium-priority-actions-pr-002-er-001">Medium-Priority Actions
+(PR-002 &amp; ER-001)</h2>
+<ul>
+<li><p><strong>Develop an Acceptable Use Policy (AUP):</strong> Create a
+formal AUP that clearly defines the rules for using company assets, data
+handling, and internet usage. Require all employees to read and
+acknowledge the policy.</p></li>
+<li><p><strong>Accelerate OS Upgrades:</strong> Prioritize the plan to
+upgrade all remaining Windows 7 workstations to a supported operating
+system, such as Windows 10 or 11, to ensure they receive critical
+security patches.</p></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For images (e.g., logo)
+\usepackage{fancyhdr} % For headers and footers
+
+% --- Color Definitions for Severity ---
+\definecolor{sevCritical}{RGB}{192, 0, 0}
+\definecolor{sevHigh}{RGB}{255, 0, 0}
+\definecolor{sevMedium}{RGB}{255, 192, 0}
+\definecolor{sevLow}{RGB}{0, 112, 192}
+\definecolor{sevInfo}{RGB}{112, 173, 71}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Header and Footer Setup ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+\begin{document}
+
+% ----------------------------------------------------------------------
+% TITLE PAGE
+% ----------------------------------------------------------------------
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+    
+    \vfill
+    
+    \large
+    Date of Report: \today
+    
+\end{titlepage}
+
+\newpage
+
+% ----------------------------------------------------------------------
+% TABLE OF CONTENTS
+% ----------------------------------------------------------------------
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% SECTION 1: EXECUTIVE OVERVIEW
+% ----------------------------------------------------------------------
+\section*{Executive Overview}
+
+This report provides a comprehensive analysis of the current cybersecurity posture for \textbf{[Organization Name]}. The assessment is based on a correlation of organizational security control data, an external network scan, and a review of pre-existing risk documentation.
+
+The analysis reveals a mixed security posture. Positive controls are in place, such as the enforcement of Multi-Factor Authentication (MFA) for email and computer access. Furthermore, a recent technical scan confirmed that a previously identified risk concerning an open web server port (Port 80) has been successfully remediated, as the port is now closed.
+
+However, several critical and high-risk gaps in administrative and technical controls were identified that require immediate attention. These include:
+\begin{itemize}
+    \item \textbf{Critical Gap:} Lack of MFA for accessing sensitive data systems.
+    \item \textbf{High-Risk Gap:} Absence of a formal employee Acceptable Use Policy (AUP).
+    \item \textbf{High-Risk Gap:} No mandatory security awareness training for new employees during onboarding.
+\end{itemize}
+
+These deficiencies expose the organization to significant risks, including unauthorized data access, insider threats, and increased susceptibility to social engineering attacks. This report provides detailed findings and actionable recommendations to mitigate these identified risks and strengthen the overall security framework.
+
+% ----------------------------------------------------------------------
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section*{Organizational Information}
+
+The following details were used as the basis for this assessment. Due to the anonymized nature of the input data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{Client External IP:} \texttt{[Client IP]}
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% SECTION 3: SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section*{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate significant gaps in the security framework and are highlighted for review.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{8cm} c p{4cm}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} & Strong control in place. \\
+\addlinespace
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} & Strong control in place. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} & \textbf{Critical Gap.} Lack of MFA on critical systems is a major security risk. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} & \textbf{High Risk.} Absence of a foundational policy for employee conduct. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} & \textbf{High Risk.} New hires are not trained on security best practices, increasing vulnerability. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} & Good practice for existing staff. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ----------------------------------------------------------------------
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section*{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Scan Source:} Nmap
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Summary:} The scan confirmed the target host is online. The scanned port (Port 80) was found to be in a \textbf{closed} state. This is a positive finding, indicating that the external firewall is correctly configured to block unencrypted web traffic to this host.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Nmap Port Scan Details}
+\begin{tabular}{llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+80/tcp & Closed & http & Unencrypted web traffic is blocked. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Correlation with Existing Risks}
+The pre-existing risk register listed a vulnerability named "Unencrypted Web Server" related to Port 80 being open. This technical scan \textbf{invalidates} that risk, confirming it has been remediated.
+
+% ----------------------------------------------------------------------
+% SECTION 5: CORRELATED RISK ASSESSMENT
+% ----------------------------------------------------------------------
+\section*{Correlated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scans, and pre-existing risk data into a consolidated list of current risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{4cm} p{6cm} l}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\addlinespace
+\textbf{Lack of MFA on Sensitive Systems} & Sensitive data systems can be accessed with only a username and password, making them highly vulnerable to credential theft. & \textcolor{sevCritical}{\textbf{Critical}} \\
+\addlinespace
+\textbf{No Employee Acceptable Use Policy (AUP)} & Without a formal AUP, there are no clear guidelines for employees on the acceptable use of company assets, data handling, or security responsibilities. & \textcolor{sevHigh}{\textbf{High}} \\
+\addlinespace
+\textbf{No Security Training for New Hires} & New employees are not equipped with the knowledge to identify and avoid common cyber threats like phishing, increasing the risk of a breach. & \textcolor{sevHigh}{\textbf{High}} \\
+\addlinespace
+\textbf{Unencrypted Web Server (Port 80)} & \textit{Previously identified risk.} The technical scan confirms Port 80 is closed. This risk is considered remediated. & \textcolor{sevInfo}{\textbf{Resolved}} \\
+\addlinespace
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ----------------------------------------------------------------------
+% SECTION 6: RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section*{Recommendations}
+
+The following actions are recommended to address the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{Priority 1: Critical}
+\begin{itemize}
+    \item \textbf{Implement MFA on Sensitive Systems:} Immediately prioritize the deployment of Multi-Factor Authentication across all applications and systems that store, process, or transmit sensitive organizational data. This is the single most effective control to mitigate the risk of unauthorized access.
+\end{itemize}
+
+\subsection*{Priority 2: High}
+\begin{itemize}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP that all employees must read and acknowledge. This policy should clearly define rules for computer, network, email, and internet usage, as well as data handling responsibilities.
+    \item \textbf{Integrate Security Training into Onboarding:} Develop a mandatory security awareness training module for all new employees. This training should be part of the standard onboarding process and cover topics such as phishing, password security, and the new AUP.
+\end{itemize}
+
+\subsection*{Administrative Actions}
+\begin{itemize}
+    \item \textbf{Update Risk Register:} Formally update the internal risk register to mark the "Unencrypted Web Server" vulnerability as resolved. This ensures that security efforts are focused on current, active threats.
+\end{itemize}
+
+\end{document}
+```

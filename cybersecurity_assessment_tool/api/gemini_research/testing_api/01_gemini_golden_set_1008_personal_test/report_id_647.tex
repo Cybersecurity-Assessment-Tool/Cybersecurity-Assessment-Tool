@@ -1,0 +1,213 @@
+```latex
+\documentclass[12pt]{article}
+
+% -----------------------------------------------------------------------------
+% PREAMBLE
+% -----------------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{xcolor}   % For colors
+
+% Define colors for severity
+\definecolor{sev_critical}{HTML}{940000}
+\definecolor{sev_high}{HTML}{D14000}
+\definecolor{sev_medium}{HTML}{E7A400}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Checkmark and Cross symbols
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+% -----------------------------------------------------------------------------
+% DOCUMENT START
+% -----------------------------------------------------------------------------
+\begin{document}
+
+% -----------------------------------------------------------------------------
+% TITLE PAGE
+% -----------------------------------------------------------------------------
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Assessment Report} \\
+    \large Prepared for: Clear Path
+    \vspace{1cm}
+}
+\author{Cybersecurity Analyst Group}
+\date{\today}
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% -----------------------------------------------------------------------------
+% TABLE OF CONTENTS
+% -----------------------------------------------------------------------------
+\tableofcontents
+\newpage
+
+% -----------------------------------------------------------------------------
+% 1. EXECUTIVE SUMMARY
+% -----------------------------------------------------------------------------
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for Clear Path. The evaluation combined a review of organizational security controls, a technical network scan, and an analysis of pre-existing risk data.
+
+The assessment identified several areas of significant concern that elevate the organization's risk profile. Key findings include:
+
+\begin{itemize}
+    \item \textbf{Critical Control Gap:} Multi-Factor Authentication (MFA) is not enforced for accessing sensitive data systems. This represents a critical vulnerability, as compromised credentials could lead directly to a major data breach.
+    \item \textbf{High-Risk Policy Gap:} The organization does not conduct mandatory annual security awareness training for all employees. This oversight increases susceptibility to social engineering attacks, such as phishing.
+    \item \textbf{Confirmed Critical Vulnerability:} A technical scan confirmed a pre-existing risk, "Localhost Exposed," on the system at \texttt{127.0.0.1}. An open SSH port (22) on the loopback interface, flagged as a critical risk, suggests a severe misconfiguration that requires immediate investigation.
+\end{itemize}
+
+The overall security posture is considered high-risk due to the combination of these policy and technical weaknesses. This report provides specific, actionable recommendations to mitigate these identified risks and strengthen the organization's defenses.
+
+% -----------------------------------------------------------------------------
+% 2. ORGANIZATIONAL INFORMATION
+% -----------------------------------------------------------------------------
+\section{Organizational Information}
+
+The following details were provided by the client and used as a baseline for this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Clear Path \\
+Email Domain      & \texttt{ClearPath.net} \\
+Website Domain    & \url{www.ClearPath.net} \\
+External IP Address & \texttt{199.61.207.153} \\
+\bottomrule
+\end{tabular}
+\caption{Client Profile}
+\end{table}
+
+% -----------------------------------------------------------------------------
+% 3. SECURITY CONTROL REVIEW
+% -----------------------------------------------------------------------------
+\section{Security Control Review}
+
+A questionnaire was used to evaluate the implementation of fundamental security controls. The results are summarized below. Answers marked with \xmark\ indicate significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \cmark \\
+Do you require MFA to log into computers? & \cmark \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textbf{\xmark} \\
+Does your organization have an employee acceptable use policy? & \cmark \\
+Does your organization do security awareness training for new employees? & \cmark \\
+\textbf{Does your organization do security awareness training for all employees at least once per year?} & \textbf{\xmark} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{MFA on Sensitive Systems:} The absence of MFA for sensitive data access is a critical weakness. Should an attacker compromise a user's credentials, they would have direct access to the organization's most valuable data. This significantly increases the likelihood and potential impact of a data breach.
+    \item \textbf{Annual Security Training:} While training for new hires is a good first step, security is an ongoing effort. Without regular, annual training, employees may forget best practices or be unaware of new threats, making them more vulnerable to phishing and other social engineering tactics.
+\end{itemize}
+
+% -----------------------------------------------------------------------------
+% 4. TECHNICAL SCAN RESULTS
+% -----------------------------------------------------------------------------
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{127.0.0.1}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Product / Version} \\
+\midrule
+22/tcp & open & SSH & Not Available \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports on \texttt{127.0.0.1}}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The scan detected that port 22, commonly used for Secure Shell (SSH), is open on the loopback interface (\texttt{127.0.0.1}). This finding directly correlates with the pre-existing risk "Localhost Exposed" from the provided data. An exposed service on the localhost, especially one rated as a critical risk (CVSS 10.0), implies a potential for local privilege escalation or an unintended exposure through network tunneling or misconfiguration. The lack of version information from the scan prevents an assessment for known exploits, but the exposure itself is the primary concern.
+
+% -----------------------------------------------------------------------------
+% 5. CONSOLIDATED RISK ASSESSMENT
+% -----------------------------------------------------------------------------
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of prioritized risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\textwidth} p{0.5\textwidth} p{0.15\textwidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Sensitive Systems} & User accounts with access to sensitive data are protected only by a password, making them highly vulnerable to credential theft and misuse. & \textcolor{sev_critical}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Exposed Localhost Service (SSH)} & The SSH service on port 22 is open on the loopback interface, confirming a known critical vulnerability. This could be exploited via other vulnerabilities for privilege escalation or remote access. & \textcolor{sev_critical}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Inadequate Annual Security Training} & The absence of a recurring security awareness program for all staff increases the risk of human error leading to security incidents, such as successful phishing attacks. & \textcolor{sev_high}{\textbf{High}} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% -----------------------------------------------------------------------------
+% 6. RECOMMENDATIONS
+% -----------------------------------------------------------------------------
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of Clear Path.
+
+\subsection{Immediate Actions (1-30 Days)}
+\begin{enumerate}
+    \item \textbf{Remediate Exposed Localhost Service:}
+    \begin{itemize}
+        \item Immediately investigate the service running on port 22 of \texttt{127.0.0.1}.
+        \item Determine its business purpose. If it is not required, disable the service entirely.
+        \item If the service is required, ensure its configuration restricts access strictly to authorized local processes and cannot be accessed from external networks.
+    \end{itemize}
+    \item \textbf{Deploy MFA for Sensitive Systems:}
+    \begin{itemize}
+        \item Prioritize and enforce MFA on all accounts (user, administrator, and service accounts) that have access to systems containing sensitive or critical data.
+        \item This is the single most effective control to prevent unauthorized access from compromised credentials.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Strategic Actions (30-90 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering from previous list
+    \item \textbf{Establish Annual Security Awareness Training:}
+    \begin{itemize}
+        \item Develop or procure a mandatory security awareness training program for all employees.
+        \item This program should be conducted annually and cover topics such as phishing, password security, and acceptable use policies.
+        \item Track completion to ensure 100\% participation.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

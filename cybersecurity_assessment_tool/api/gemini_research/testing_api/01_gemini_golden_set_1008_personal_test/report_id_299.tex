@@ -1,0 +1,179 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage{graphicx} % For potential logos
+\usepackage{xcolor} % For colors in tables
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Falcon Heavy}, conducted on \today. The analysis synthesizes data from an external network scan, a security controls questionnaire, and a review of pre-existing risk documentation.
+
+The assessment reveals a mixed security posture. On one hand, the organization has implemented strong multi-factor authentication (MFA) controls across email, computer logins, and sensitive data systems. This is a commendable and critical defense against unauthorized access.
+
+However, significant and critical gaps were identified in foundational security governance and technical configurations. The lack of an employee acceptable use policy and a formal security awareness training program creates substantial risk, leaving the organization vulnerable to social engineering and insider threats.
+
+Furthermore, a technical scan confirmed a pre-existing high-severity risk: an open SSH port (22) on the localhost interface (\texttt{127.0.0.1}). This misconfiguration, rated with a CVSS score of 10.0, could be exploited by malicious processes on the host to escalate privileges or establish persistence.
+
+Immediate remediation should focus on addressing the exposed localhost service. Concurrently, the organization must prioritize the development and implementation of core security policies and training programs to build a more resilient security culture.
+
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Falcon Heavy} \\
+Email Domain & \texttt{FalconHeavy.com} \\
+Website Domain & \url{www.FalconHeavy.com} \\
+External IP Address & \texttt{172.100.220.31} \\
+\bottomrule
+\end{tabular}
+
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The results highlight a clear disparity between strong technical access controls (MFA) and weak administrative controls (policies and training). The "No" responses represent critical gaps in the security program.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Gaps}
+\begin{itemize}
+    \item \textbf{Lack of Acceptable Use Policy (AUP):} Without an AUP, there are no formal guidelines for employees on how to use company assets securely. This leads to inconsistent security practices and makes it difficult to enforce security rules.
+    \item \textbf{No Security Awareness Training:} The absence of training for both new and existing employees is a critical vulnerability. Employees are the first line of defense against threats like phishing and social engineering. Without training, they are significantly more likely to fall victim to attacks, potentially compromising the strong MFA controls already in place.
+\end{itemize}
+
+\section{Technical Scan Results}
+
+A network scan was performed to identify exposed services. The scan was limited in scope to the provided target IP address.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{127.0.0.1}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Scanner Used:} Nmap
+\end{itemize}
+
+The scan identified one open port on the target system.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{127.0.0.1}}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} \\
+\midrule
+22/tcp & open & ssh & \textit{Not Detected} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Findings}
+The scan confirms that the SSH service is running and accessible on the localhost (loopback) interface. While not directly exposed to the internet, any other process or user on the same machine could potentially connect to it. This finding directly correlates with the pre-existing risk documented in \texttt{Input\_3\_Current\_Risks\_JSON} and is considered a critical misconfiguration. The lack of version information from the scan prevents a detailed check for known vulnerabilities (CVEs) affecting the specific SSH software in use.
+
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Localhost Exposed} & The SSH service is open on the localhost interface (\texttt{127.0.0.1}), creating a vector for local privilege escalation or persistence. & \textbf{Critical (10.0)} \\
+\addlinespace
+\textbf{No Security Awareness Training Program} & Employees are not trained to recognize or respond to security threats like phishing, increasing the likelihood of a breach. & \textbf{High} \\
+\addlinespace
+\textbf{No Acceptable Use Policy} & Lack of a foundational policy creates an inconsistent security culture and an inability to enforce secure behavior. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Recommendations}
+
+To mitigate the identified risks and improve the overall security posture, the following actions are recommended, prioritized by severity.
+
+\subsection{Immediate Priority (Critical Risk)}
+\begin{enumerate}
+    \item \textbf{Remediate Exposed Localhost Service:}
+    \begin{itemize}
+        \item Investigate the purpose of the SSH service listening on \texttt{127.0.0.1}.
+        \item If the service is not required for a legitimate business function, it should be disabled immediately.
+        \item If the service is required, ensure it is configured securely according to hardening best practices (e.g., disable root login, enforce key-based authentication, use strong ciphers).
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority (Governance Gaps)}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item Draft a formal AUP that clearly defines the rules for using company networks, systems, and data.
+        \item Require all employees to read and acknowledge the policy upon hire and annually thereafter.
+    \end{itemize}
+    \item \textbf{Establish a Security Awareness Training Program:}
+    \begin{itemize}
+        \item Implement a mandatory training module for all new employees during their onboarding process.
+        \item Conduct annual, mandatory security awareness training for all staff to keep them informed about the latest threats and best practices.
+        \item Consider periodic phishing simulations to test and reinforce the training.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{General Recommendations}
+\begin{enumerate}
+    \item \textbf{Enhance Vulnerability Scanning:}
+    \begin{itemize}
+        \item Implement authenticated vulnerability scans that include service and version detection. This will provide a much deeper insight into specific software vulnerabilities (CVEs) that may exist on internal and external systems.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

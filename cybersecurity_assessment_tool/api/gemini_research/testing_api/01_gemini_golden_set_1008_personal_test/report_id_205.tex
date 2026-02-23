@@ -1,0 +1,151 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define checkmark and cross symbols
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+% --- 1. Executive Summary ---
+\section*{1. Executive Summary}
+This report provides a comprehensive cybersecurity posture assessment for \textbf{Symmetry Architecture}, conducted on November 22, 2025. The analysis is based on a synthesis of network scan data, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals a mixed security posture. The organization demonstrates strong identity and access management controls, with Multi-Factor Authentication (MFA) widely implemented across key systems. However, significant risks were identified in two primary areas: human-factor security and technical vulnerability management.
+
+\textbf{Key Findings:}
+\begin{itemize}
+    \item \textbf{Critical Gap in Employee Onboarding:} A critical gap was identified in the security training process for new employees. This oversight exposes the organization to a heightened risk of social engineering, phishing, and accidental data breaches.
+    \item \textbf{Vulnerable Web Server:} The external-facing web server at \texttt{192.168.10.5} is running an outdated version of Nginx (1.18.0), which is several years old and known to have multiple security vulnerabilities. This presents a direct and exploitable attack vector.
+    \item \textbf{SSL Certificate Misconfiguration:} The SSL certificate on the web server does not match the organization's domain, which can erode user trust and may indicate a more significant server misconfiguration.
+\end{itemize}
+
+Immediate action is recommended to address these findings. Recommendations focus on implementing a mandatory security training program for new hires and upgrading the vulnerable web server software to mitigate imminent threats.
+
+% --- 2. Organizational Information ---
+\section*{2. Organizational Information}
+The following details were provided by the client and used as a baseline for this assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Symmetry Architecture} \\
+    Email Domain & \texttt{SymmetryArchitecture.com} \\
+    Website Domain & \url{www.SymmetryArchitecture.com} \\
+    External IP Address & \texttt{25.15.146.154} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section*{3. Security Control Review}
+This section details the organization's self-reported security controls based on the provided questionnaire. "No" answers indicate potential gaps in the security framework that require attention.
+
+\begin{tabular}{@{}p{0.75\linewidth}c}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{green}{\cmark} \\
+    Do you require MFA to log into computers? & \textcolor{green}{\cmark} \\
+    Do you require MFA to access sensitive data systems? & \textcolor{green}{\cmark} \\
+    Does your organization have an employee acceptable use policy? & \textcolor{green}{\cmark} \\
+    Does your organization do security awareness training for new employees? & \textcolor{red}{\xmark} \\
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\cmark} \\
+    \bottomrule
+\end{tabular}
+
+\subsection*{Analysis of Controls}
+The organization has a robust MFA implementation, which significantly strengthens its defense against credential theft and unauthorized access. However, the lack of mandatory security awareness training for new employees is a critical procedural flaw. New hires are often prime targets for attackers, and without proper initial training, they represent a high-risk entry point into the organization.
+
+% --- 4. Technical Scan Results ---
+\section*{4. Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{192.168.10.5}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+\begin{tabular}{@{}llllll}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} & \textbf{Notes} \\
+    \midrule
+    443/tcp & open & https & nginx & 1.18.0 & \parbox[t]{4cm}{SSL certificate common name is \texttt{www.acme-corp.com}, a mismatch with the client's domain.} \\
+    \bottomrule
+\end{tabular}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified a single open port (443/tcp) running an Nginx web server. The version detected, \textbf{1.18.0}, was released in April 2020. This version is outdated and has numerous publicly disclosed vulnerabilities (CVEs). Continuing to run this software version poses a significant and unnecessary risk of compromise. The SSL certificate mismatch further suggests a lack of proper configuration management and security hygiene for this critical public-facing asset.
+
+% --- 5. Consolidated Risk Assessment ---
+\section*{5. Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review and technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{tabular}{@{}lp{0.3\linewidth}p{0.45\linewidth}l}
+    \toprule
+    \textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & Lack of Onboarding Security Training & New employees are not provided with security awareness training, making them highly susceptible to phishing, social engineering, and policy violations. & \textbf{High} \\
+    \addlinespace
+    RISK-002 & Outdated Web Server Software & The public-facing web server runs Nginx 1.18.0, a version with known, exploitable vulnerabilities. This could lead to server compromise, data breach, or defacement. & \textbf{High} \\
+    \addlinespace
+    RISK-003 & SSL Certificate Mismatch & The SSL certificate on the web server does not match the organization's domain, which can cause browser trust errors and damage brand reputation. & \textbf{Medium} \\
+    \bottomrule
+\end{tabular}
+
+% --- 6. Recommendations ---
+\section*{6. Recommendations}
+The following actionable steps are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Symmetry Architecture}.
+
+\subsection*{RISK-001: Lack of Onboarding Security Training (High)}
+\begin{itemize}
+    \item \textbf{Action:} Implement a mandatory security awareness training module as a standard part of the new employee onboarding process.
+    \item \textbf{Details:} This training should cover, at a minimum, phishing identification, password security, acceptable use of company assets, and procedures for reporting security incidents. This closes a critical gap in the human firewall.
+\end{itemize}
+
+\subsection*{RISK-002: Outdated Web Server Software (High)}
+\begin{itemize}
+    \item \textbf{Action:} Plan and execute an upgrade of the Nginx server at \texttt{192.168.10.5} to the latest stable version.
+    \item \textbf{Details:} Before deployment, the new version should be tested in a staging environment to ensure compatibility with the existing web application. A vulnerability scan should be performed post-upgrade to confirm that known vulnerabilities have been remediated.
+\end{itemize}
+
+\subsection*{RISK-003: SSL Certificate Mismatch (Medium)}
+\begin{itemize}
+    \item \textbf{Action:} Replace the incorrect SSL certificate with a valid one issued for the correct domain (\texttt{www.SymmetryArchitecture.com}).
+    \item \textbf{Details:} Procure and install a valid TLS/SSL certificate from a trusted Certificate Authority (CA). Ensure the server is configured to use this new certificate for all HTTPS traffic to build user trust and secure communications.
+\end{itemize}
+
+\end{document}
+```

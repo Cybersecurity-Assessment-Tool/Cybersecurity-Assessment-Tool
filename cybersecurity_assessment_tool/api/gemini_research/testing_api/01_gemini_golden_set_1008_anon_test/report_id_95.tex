@@ -1,0 +1,181 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and metadata
+\usepackage{url}      % For proper URL formatting
+\usepackage{seqsplit} % For splitting long, unbreakable strings like hashes
+\usepackage[table]{xcolor} % For coloring table cells
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}} % Green checkmark
+\newcommand{\no}{\ding{55}}  % Red X
+
+% ==============================================================================
+% --- BEGIN DOCUMENT ---
+% ==============================================================================
+\begin{document}
+
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+\maketitle
+
+\hrule\vspace{1em}
+
+% ==============================================================================
+% 1. Executive Summary
+% ==============================================================================
+\section*{Executive Summary}
+
+This report provides a cybersecurity posture assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, a security controls questionnaire, and a review of known risks. The assessment was conducted on \today.
+
+The overall security posture is determined to be at a \textbf{high-risk level}. This conclusion is based on the correlation of several critical findings that create significant exposure to cyber threats.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Control Gap:} The lack of mandatory Multi-Factor Authentication (MFA) for email access presents a severe risk of account compromise and business email compromise (BEC) attacks.
+    \item \textbf{Exposed Management Service:} The external network scan identified an open SSH port (22/TCP), which is a common target for brute-force attacks and unauthorized access attempts if not properly secured.
+    \item \textbf{Pre-Existing Critical Vulnerability:} A known vulnerability, ``Localhost Exposed,'' with a maximum CVSS score of 10.0, is present in the environment. This represents an immediate and severe threat that must be addressed urgently.
+\end{itemize}
+
+Immediate remediation of these issues is strongly recommended to reduce the organization's attack surface and mitigate the risk of a significant security incident.
+
+% ==============================================================================
+% 2. Organizational Information
+% ==============================================================================
+\section{Organizational Information}
+
+This section details the information provided about the organization. Placeholders are used where data was not available.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \texttt{[Domain]} \\
+    Client External IP & \texttt{[Client IP]} \\
+    \bottomrule
+\end{tabular}
+
+% ==============================================================================
+% 3. Security Control Review (Questionnaire Analysis)
+% ==============================================================================
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. This review helps identify gaps in administrative and policy-based security measures.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \no \\
+    Do you require MFA to log into computers? & \yes \\
+    Do you require MFA to access sensitive data systems? & \yes \\
+    Does your organization have an employee acceptable use policy? & \yes \\
+    Does your organization do security awareness training for new employees? & \yes \\
+    Does your organization do security awareness training for all employees at least once per year? & \yes \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\paragraph{Analysis:} While the organization has implemented several key security controls, including MFA for computer and sensitive system access, the absence of MFA for email is a \textbf{critical weakness}. Email is the primary vector for phishing and social engineering attacks. Without MFA, a compromised password is all an attacker needs to gain access to sensitive communications, data, and potentially pivot to other systems.
+
+% ==============================================================================
+% 4. Technical Scan Results
+% ==============================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services. The scan was limited in scope and did not include version detection or vulnerability analysis.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Target IP} & \textbf{Status} & \textbf{Port/Protocol} & \textbf{State} \\
+    \midrule
+    \texttt{[Target IP]} & Up & 22/TCP & Open \\
+    \bottomrule
+\end{tabular}
+\caption{Nmap Scan Findings}
+\end{table}
+
+\paragraph{Analysis:} The scan identified that port 22/TCP is open to the internet. This port is universally used for the Secure Shell (SSH) protocol, which provides remote administrative access to servers and network devices. Exposing SSH directly to the internet creates a significant risk. It allows attackers to perform password guessing, brute-force attacks, and exploit potential vulnerabilities in the SSH server software itself.
+
+% ==============================================================================
+% 5. Consolidated Risk Assessment
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the questionnaire, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.15\linewidth}p{0.25\linewidth}p{0.5\linewidth}@{}}
+    \toprule
+    \textbf{Severity} & \textbf{Risk Title} & \textbf{Description} \\
+    \midrule
+    \rowcolor{red!25}
+    \textbf{Critical} & Lack of MFA for Email & The absence of MFA on email accounts makes them highly susceptible to takeover via credential theft or phishing, leading to potential data breaches and BEC. \\
+    \addlinespace
+    \rowcolor{red!25}
+    \textbf{Critical} & Pre-Existing Vulnerability (CVSS 10.0) & The known vulnerability ``Localhost Exposed'' has a perfect CVSS score, indicating it is highly exploitable and has a severe impact on confidentiality, integrity, and availability. \\
+    \addlinespace
+    \rowcolor{orange!25}
+    \textbf{High} & Exposed SSH Management Port & The SSH service (port 22) is publicly accessible, creating a direct vector for attackers to attempt unauthorized access to critical infrastructure. \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% ==============================================================================
+% 6. Recommendations
+% ==============================================================================
+\section{Recommendations}
+
+The following actionable recommendations are provided to address the identified risks. They are prioritized by severity.
+
+\subsection*{Recommendation 1: Address Critical "Localhost Exposed" Vulnerability (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} The presence of a CVSS 10.0 vulnerability requires immediate attention. Initiate incident response procedures to investigate the nature and scope of this vulnerability.
+    \item \textbf{Remediation:} Allocate all necessary resources to patch or mitigate this vulnerability as the organization's top security priority. Due to the severity, this system should be isolated from the network if an immediate patch is not possible.
+\end{itemize}
+
+\subsection*{Recommendation 2: Enforce Multi-Factor Authentication for Email (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Procure and enforce an MFA solution for all email accounts (including service and administrative accounts) within the next 7 days.
+    \item \textbf{Long-Term Action:} Conduct a comprehensive review of all applications and systems. Ensure that MFA is enforced on all internet-facing services and any internal systems that handle sensitive data.
+\end{itemize}
+
+\subsection*{Recommendation 3: Secure Exposed SSH Service (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} If remote administrative access from the public internet is not essential, block port 22 at the network firewall immediately.
+    \item \textbf{If Access is Required:}
+        \begin{enumerate}
+            \item Implement a firewall rule to restrict access to a whitelist of trusted source IP addresses (e.g., administrator home or office networks).
+            \item Disable password-based authentication for SSH and enforce the use of strong, passphrase-protected SSH keys.
+            \item Implement an intrusion detection and prevention tool, such as Fail2ban, to automatically block IPs that exhibit malicious behavior like brute-force attempts.
+        \end{enumerate}
+\end{itemize}
+
+\end{document}
+% ==============================================================================
+% --- END DOCUMENT ---
+% ==============================================================================
+```

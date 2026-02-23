@@ -1,0 +1,166 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For check and cross marks (\ding{51} and \ding{55})
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For links and document metadata
+\usepackage{url}
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{xcolor} % For colors in text and links
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- Document Start ---
+\begin{document}
+
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}. The assessment is based on a synthesis of external network scan data, a review of organizational security controls, and an evaluation of pre-existing risk documentation. The findings indicate critical vulnerabilities that require immediate attention, including public exposure of a database service running end-of-life software and significant gaps in access control and employee security training.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+\section{Executive Summary}
+% ===================================================================
+
+An assessment was conducted to evaluate the security posture of \textbf{[Organization Name]}. The analysis correlated three data sources: an external network scan, a security controls questionnaire, and a list of current known risks.
+
+The most critical finding is a publicly accessible MySQL database on port \texttt{3306}. This technical finding directly confirms the high-severity risk of "Database Exposure". Compounding this issue, the database is running MySQL version 5.7.33, which reached its official End of Life (EOL) in October 2023 and no longer receives security updates.
+
+Furthermore, the security controls review revealed two significant organizational gaps:
+\begin{itemize}
+    \item \textbf{Lack of Multi-Factor Authentication (MFA) on Computers:} This exposes the organization to increased risk from credential theft and unauthorized access to workstations.
+    \item \textbf{No Security Awareness Training for New Employees:} New hires are not being equipped with the fundamental knowledge to identify and avoid common cyber threats, making them susceptible to phishing and social engineering attacks.
+\end{itemize}
+
+This report details these findings and provides prioritized, actionable recommendations to mitigate the identified risks and strengthen the organization's overall security defenses.
+
+% ===================================================================
+\section{Organizational Information}
+% ===================================================================
+
+The following information was used as the basis for this assessment. Due to the anonymized nature of the input data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% ===================================================================
+\section{Security Control Review}
+% ===================================================================
+
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight both strengths and critical weaknesses in current security policies and their implementation. Gaps identified with a \no{} mark represent a significant increase in risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \textcolor{red}{\no} \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \yes \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\no} \\
+Does your organization do security awareness training for all employees at least once per year? & \yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+\section{Technical Scan Results}
+% ===================================================================
+
+An external network scan was performed against the target IP address \texttt{[Target IP]}. The scan identified the following open port and service, which is accessible from the public internet.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product \& Version} \\
+\midrule
+3306/tcp & open & mysql & MySQL 5.7.33 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analyst Note:} The detected MySQL version 5.7.33 is a significant concern. This version is \textbf{End of Life (EOL)} as of October 2023. EOL software no longer receives security patches from the vendor, meaning any newly discovered vulnerabilities will remain unpatched, leaving the system highly susceptible to exploitation.
+
+% ===================================================================
+\section{Synthesized Risk Assessment}
+% ===================================================================
+
+The following table synthesizes findings from all data sources into a consolidated list of identified risks. Each risk is assigned a severity level based on its potential impact and likelihood of exploitation.
+
+\begin{table}[h!]
+\centering
+\caption{Consolidated Risk Register}
+\begin{tabular}{p{0.25\linewidth} p{0.55\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Public Database Exposure} & The network scan confirms that a MySQL database on port 3306 is open to the public internet. This allows attackers to directly target the database for brute-force attacks, exploitation of vulnerabilities, or data exfiltration. This finding validates a pre-existing known risk. & \textbf{High (7.5)} \\
+\addlinespace
+\textbf{Use of End-of-Life Software} & The exposed MySQL service is running version 5.7.33, which is unsupported. This exponentially increases the risk of a compromise, as known exploits may exist without any available patch. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of MFA on Workstations} & The absence of MFA for computer logins is a critical control gap. If an employee's credentials are stolen (e.g., via phishing), an attacker can gain direct access to the internal network, pivot to other systems, and potentially deploy ransomware. & \textbf{High} \\
+\addlinespace
+\textbf{Inadequate Security Training} & New employees are not receiving security awareness training. This makes them a primary target for social engineering and phishing attacks, which are the leading initial access vectors for major security breaches. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+\section{Recommendations}
+% ===================================================================
+
+To address the identified risks, the following actions are recommended in order of priority:
+
+\begin{enumerate}
+    \item \textbf{Immediately Remediate Database Exposure (Risk: Public Database Exposure):}
+    \begin{itemize}
+        \item \textbf{Short-Term:} Implement strict firewall rules to deny all public access to port \texttt{3306}. Access should only be permitted from trusted internal IP addresses.
+        \item \textbf{Long-Term:} For any required remote access, implement a Virtual Private Network (VPN) with MFA, ensuring that the database is never directly exposed to the internet.
+    \end{itemize}
+
+    \item \textbf{Upgrade End-of-Life Software (Risk: Use of EOL Software):}
+    \begin{itemize}
+        \item Plan and execute an upgrade of the MySQL 5.7.33 database to a currently supported version (e.g., MySQL 8.x). This will ensure the system receives critical security patches.
+    \end{itemize}
+
+    \item \textbf{Enforce MFA on All Workstations (Risk: Lack of MFA on Workstations):}
+    \begin{itemize}
+        \item Procure and deploy an MFA solution for all employee computer logins (Windows, macOS, etc.). This is a critical defense against credential theft and unauthorized access.
+    \end{itemize}
+
+    \item \textbf{Implement New Hire Security Training (Risk: Inadequate Security Training):}
+    \begin{itemize}
+        \item Develop or procure a security awareness training module and make it a mandatory part of the onboarding process for all new employees, to be completed within their first week of employment.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

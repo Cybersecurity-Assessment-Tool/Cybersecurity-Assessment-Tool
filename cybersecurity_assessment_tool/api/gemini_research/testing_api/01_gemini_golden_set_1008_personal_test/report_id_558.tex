@@ -1,0 +1,184 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages and Document Setup
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long monospaced strings
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xcolor}
+\usepackage{datetime}
+
+% Define custom colors for the report
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+
+% Hyperref setup for better presentation
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=darkblue,      
+    urlcolor=darkblue,
+    citecolor=darkblue,
+}
+
+% Header and Footer Configuration
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{\textbf{Copperhead Cables}}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Document Title and Author
+\title{\textbf{Cybersecurity Posture Assessment Report}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{Copperhead Cables}, conducted on \today. The analysis is based on a synthesis of technical network scan data, a review of organizational security controls via a questionnaire, and an evaluation of pre-existing risk documentation.
+
+The overall security posture of \textbf{Copperhead Cables} shows a strong foundation in key areas, particularly in the enforcement of Multi-Factor Authentication (MFA) across critical systems. The technical network scan of the target host (\texttt{192.168.0.5}) revealed no open ports, indicating a secure configuration for that specific asset. Notably, a previously documented risk concerning an unencrypted web server on Port 80 appears to have been remediated, as our scan confirms this port is now closed.
+
+However, a critical administrative gap was identified: the lack of mandatory security awareness training for new employees. This oversight represents a significant risk, as untrained new hires are prime targets for social engineering and phishing attacks. While an annual training program is in place, the initial onboarding period is a window of high vulnerability.
+
+This report details these findings and provides actionable recommendations to address the identified gap and further strengthen the organization's security posture.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Copperhead Cables} \\
+Email Domain & \texttt{CopperheadCables.net} \\
+Website Domain & \seqsplit{\url{www.CopperheadCables.net}} \\
+External IP Address & \seqsplit{\texttt{31.141.195.120}} \\
+\bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_info}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+A review of administrative and technical security controls was conducted based on a standardized questionnaire. The responses indicate the current state of implemented security policies. A checkmark (\ding{51}) indicates a positive control is in place, while a cross (\ding{55}) highlights a potential security gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.7\textwidth}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & Yes & \textcolor{green}{\ding{51}} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textbf{No} & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & Yes & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\end{table}
+
+The primary finding from this review is the absence of a security awareness training program for new hires. This is a critical deficiency that increases susceptibility to human-centric threats.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network port scan was performed on the specified target to identify accessible services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{192.168.0.5}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Scanner Used:} Nmap
+\end{itemize}
+
+The scan results were positive, indicating a well-hardened host. No open ports were discovered on the target system. The status of a commonly checked port is detailed below.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+80/tcp & closed & http & N/A & N/A \\
+\bottomrule
+\end{tabular}
+\caption{Port Scan Details for Target \texttt{192.168.0.5}}
+\label{tab:scan_results}
+\end{table}
+
+\textbf{Analysis:} The scan confirms that the target host does not expose any network services to the scanner. The closure of Port 80 is a positive security measure, directly contradicting a previously identified risk.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+
+This section synthesizes findings from the security control review, the technical scan, and pre-existing risk data to provide a holistic view of the current risk landscape.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\textwidth}p{0.25\textwidth}p{0.1\textwidth}p{0.4\textwidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description \& Status} \\
+\midrule
+RISK-001 & Lack of Onboarding Security Training & \textbf{High} & \textbf{Status: Active.} New employees are not required to complete security awareness training upon hiring. This gap exposes the organization to a higher risk of phishing, malware, and policy violations during the critical initial employment period. \\
+\addlinespace
+RISK-002 & Unencrypted Web Server (Port 80) & Medium & \textbf{Status: Remediated.} A pre-existing risk noted that Port 80 was open. Our current technical scan confirms that Port 80 is \textbf{closed} on the target host (\texttt{192.168.0.5}). This risk appears to be resolved. \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risk_assessment}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+Based on the correlated risk assessment, the following actions are recommended to enhance the security posture of \textbf{Copperhead Cables}.
+
+\subsection{Implement Mandatory Onboarding Security Training (High Priority)}
+\begin{itemize}
+    \item \textbf{Risk Addressed:} RISK-001 - Lack of Onboarding Security Training
+    \item \textbf{Recommendation:} Develop and implement a mandatory security awareness training program for all new employees, to be completed within their first five business days. This training should cover, at a minimum:
+    \begin{itemize}
+        \item Phishing and social engineering awareness.
+        \item Acceptable use of company assets.
+        \item Password security and MFA policies.
+        \item Procedures for reporting security incidents.
+    \end{itemize}
+    \item \textbf{Justification:} This action closes a critical window of vulnerability and establishes a strong security culture from day one of employment, significantly reducing the risk of human error leading to a security breach.
+\end{itemize}
+
+\subsection{Validate and Document Risk Remediation (Informational)}
+\begin{itemize}
+    \item \textbf{Risk Addressed:} RISK-002 - Unencrypted Web Server (Port 80)
+    \item \textbf{Recommendation:} Formally update the internal risk register to reflect that the vulnerability associated with the open Port 80 on host \texttt{192.168.0.5} has been remediated.
+    \item \textbf{Justification:} While the technical scan confirms the port is closed, formal documentation ensures that risk management records are accurate and that the remediation is officially acknowledged. This maintains the integrity of the risk management lifecycle.
+\end{itemize}
+
+\end{document}
+```

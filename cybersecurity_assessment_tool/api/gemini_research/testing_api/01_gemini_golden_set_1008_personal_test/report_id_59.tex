@@ -1,0 +1,164 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{Solaris Energy}, based on an analysis of network scan data, organizational security controls, and pre-existing risk information. The assessment was conducted on \today.
+
+Overall, the organization demonstrates a foundational security awareness, with established policies for acceptable use and security training, as well as mandatory Multi-Factor Authentication (MFA) for email and computer access.
+
+However, two critical-severity risks were identified that require immediate attention:
+\begin{enumerate}
+    \item \textbf{Lack of MFA for Sensitive Data Systems:} The failure to enforce MFA on systems containing sensitive data represents a significant gap in access control, leaving high-value assets vulnerable to compromise via stolen credentials.
+    \item \textbf{Exposed SSH Service on Loopback Interface:} A technical scan confirmed a pre-existing risk, revealing an open SSH port (22) on the localhost interface (\texttt{127.0.0.1}). This is a severe misconfiguration that could be exploited by an attacker with local or network-adjacent access.
+\end{enumerate}
+
+This report details these findings and provides actionable recommendations to mitigate the identified risks and enhance the overall security posture of \textbf{Solaris Energy}.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Solaris Energy} \\
+Email Domain & \texttt{SolarisEnergy.com} \\
+Website Domain & \url{www.SolarisEnergy.com} \\
+External IP Address & \texttt{91.185.20.43} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security policies and procedures was conducted via a questionnaire. The results are summarized below. A green checkmark (\ding{51}) indicates a positive control is in place, while a red cross (\ding{55}) indicates a potential security gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.75\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\caption{Security Control Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis}
+The organization has implemented several key security controls effectively. However, the absence of mandatory MFA for accessing sensitive data systems is a critical vulnerability. This gap allows a potential attacker who has compromised a user's credentials to gain direct access to the organization's most valuable information without needing a second authentication factor. This significantly increases the risk of a data breach.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify exposed services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{127.0.0.1}
+    \item \textbf{Scan Date:} Scan date was not provided in the source data.
+\end{itemize}
+
+\subsection*{Open Ports Discovered}
+The following table details the open ports discovered on the target system.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+22 & open & ssh (inferred) & N/A & N/A \\
+\bottomrule
+\end{tabular}
+\caption{Discovered Open Ports on \texttt{127.0.0.1}}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified that port 22, commonly used for the Secure Shell (SSH) protocol, is open on the loopback interface (\texttt{127.0.0.1}). This finding directly corroborates the pre-existing risk titled "Localhost Exposed". 
+
+An externally accessible service on a loopback address is a highly anomalous and dangerous configuration. It suggests a potential tunneling or port-forwarding misconfiguration that could expose internal administrative access to unauthorized parties. While detailed service and version information was not available from the scan, any exposed SSH service should be considered a high-risk entry point if not properly secured.
+
+% --- 5. Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+By synthesizing the security control review, technical scan results, and pre-existing risk data, the following key risks have been prioritized.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Localhost Exposed} & The technical scan confirmed an open SSH port on the loopback interface (\texttt{127.0.0.1}), indicating a critical network misconfiguration. This aligns with a pre-existing risk rated at CVSS 10.0. & \textbf{Critical} \\
+\addlinespace
+\textbf{Insufficient MFA Coverage} & The organization does not enforce MFA for accessing sensitive data systems. This policy gap exposes critical assets to credential theft and unauthorized access. & \textbf{Critical} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Key Risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{Priority 1: Immediate Remediation}
+\begin{enumerate}
+    \item \textbf{Remediate Exposed SSH Service:} Immediately investigate the service running on \texttt{127.0.0.1:22}. This port should not be accessible from an external network. Identify the source of the misconfiguration (e.g., firewall rule, port forwarding, running service) and disable the exposure. If SSH access is required for internal administration, it must be firewalled from all external sources.
+    
+    \item \textbf{Implement MFA for All Sensitive Systems:} Deploy mandatory Multi-Factor Authentication across all applications, databases, and systems that store, process, or transmit sensitive organizational data. This control is critical for preventing unauthorized access via compromised credentials.
+\end{enumerate}
+
+\subsection*{Priority 2: Security Hardening}
+\begin{enumerate}
+    \item \textbf{Harden SSH Configurations:} For any legitimate internal SSH services, enforce security best practices:
+    \begin{itemize}
+        \item Disable password-based authentication and require public key cryptography.
+        \item Disable root user login via SSH.
+        \item Use an allow-list to restrict access to specific trusted IP addresses.
+    \end{itemize}
+    
+    \item \textbf{Conduct Comprehensive Vulnerability Scanning:} Perform a full, authenticated vulnerability scan of the organization's internal and external networks to identify any other misconfigurations or outdated software that could pose a security risk.
+\end{enumerate}
+
+% --- 7. Conclusion ---
+\section{Conclusion}
+\textbf{Solaris Energy} has a solid foundation of security policies but is currently exposed to critical-level risks due to a significant policy gap and a severe technical misconfiguration. By taking immediate action to remediate the exposed SSH service and enforce comprehensive MFA, the organization can substantially reduce its attack surface and protect its most valuable assets. Continued vigilance and proactive security hardening will be essential for maintaining a robust defense against evolving cyber threats.
+
+\end{document}
+```

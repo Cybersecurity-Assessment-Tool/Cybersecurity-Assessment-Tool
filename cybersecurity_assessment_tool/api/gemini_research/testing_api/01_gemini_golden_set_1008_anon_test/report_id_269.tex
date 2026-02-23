@@ -1,0 +1,184 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmarks and crosses (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For hyperlinks and metadata
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % To split long strings without breaking
+\usepackage{graphicx}             % For logos (optional)
+\usepackage{xcolor}               % For custom colors
+
+% --- DOCUMENT METADATA ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, RDP, MFA, Policy},
+}
+
+% --- CUSTOM COMMANDS ---
+\newcommand{\yes}{\ding{51}} % Green checkmark
+\newcommand{\no}{\ding{55}}  % Red X
+
+% --- TITLE ---
+\title{Cybersecurity Posture Report \\ \large For \textbf{[Organization Name]}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+\section{Executive Summary}
+% ===================================================================
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on a combination of external network scanning, a security controls questionnaire, and a review of pre-existing risk data.
+
+The assessment has identified several critical and high-risk vulnerabilities that require immediate attention. The most severe finding is the direct exposure of a Remote Desktop Protocol (RDP) service to the public internet on host \texttt{[Target IP]}. This vulnerability, with a CVSS score of 9.0, creates a significant risk of unauthorized access and potential network compromise.
+
+This technical flaw is severely compounded by critical gaps in organizational security controls. The lack of mandatory Multi-Factor Authentication (MFA) for both email access and computer logins dramatically increases the likelihood of a successful credential-based attack. Furthermore, foundational security elements, such as an employee acceptable use policy and security training for new hires, are absent. This indicates a reactive and immature security culture that must be addressed to build long-term resilience.
+
+Immediate remediation should focus on securing the exposed RDP service and enforcing MFA across all critical systems. Strategic initiatives must be launched to develop and implement the missing security policies and training programs.
+
+% ===================================================================
+\section{Organizational Information}
+% ===================================================================
+
+The following information was used as the basis for this assessment. The absence of specific data required the use of placeholders.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+Assessed External IP & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_info}
+\end{table}
+
+% ===================================================================
+\section{Security Control Review}
+% ===================================================================
+
+A security questionnaire was completed to evaluate the implementation of key administrative and technical controls. The results are summarized below. Answers marked with a \no\ represent significant gaps in the organization's defense-in-depth strategy.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \no \\
+Do you require MFA to log into computers? & \no \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \no \\
+Does your organization do security awareness training for new employees? & \no \\
+Does your organization do security training for all employees annually? & \yes \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\end{table}
+
+\subsection{Analysis of Control Gaps}
+The questionnaire reveals several critical weaknesses:
+\begin{itemize}
+    \item \textbf{No MFA for Email/Computers:} The absence of MFA on primary access vectors like email and computer logins is a critical oversight. This leaves the organization highly vulnerable to phishing, credential stuffing, and brute-force attacks.
+    \item \textbf{No Acceptable Use Policy (AUP):} Without a formal AUP, there is no documented standard for employee behavior regarding company assets, data handling, or internet usage. This creates legal and security ambiguities.
+    \item \textbf{No New Hire Training:} Failing to train new employees on security best practices from day one exposes the organization to unnecessary risk. New hires are often prime targets for social engineering attacks.
+\end{itemize}
+
+% ===================================================================
+\section{Technical Scan Results}
+% ===================================================================
+
+An external network scan was performed against the target IP address to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Data Not Provided
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\ \midrule
+3389/tcp & open & ms-wbt-server & (Not Fingerprinted) \\ \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\label{tab:scan_results}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The scan identified that port \textbf{3389/tcp} is open. This port is universally used for Microsoft's Remote Desktop Protocol (RDP). Exposing RDP directly to the public internet is a well-documented and extremely high-risk configuration. It allows attackers worldwide to attempt to connect to the server, making it a primary target for brute-force password attacks, credential stuffing, and exploitation of RDP-specific vulnerabilities (e.g., BlueKeep). This finding directly confirms the pre-existing risk documented in the following section.
+
+% ===================================================================
+\section{Correlated Risk Assessment}
+% ===================================================================
+
+By correlating the security control gaps, technical findings, and pre-existing risk data, we have compiled a prioritized list of risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Description} & \textbf{Affected Asset(s)} \\ \midrule
+\textbf{RDP Exposure without MFA} & \textbf{Critical (9.0)} & Port 3389 is open to the internet, and MFA is not required for & \texttt{[Target IP]} \\
+& & computer logins. This creates a direct path for network compromise. & \\
+\addlinespace
+\textbf{Email Account Compromise} & \textbf{Critical} & Lack of MFA on email exposes the organization to business email & \texttt{[Domain]} \\
+& & compromise, data breaches, and phishing-based intrusions. & \\
+\addlinespace
+\textbf{Insider Threat / Error} & \textbf{High} & The absence of an AUP and new hire security training increases & All Employees \\
+& & the risk of unintentional errors and malicious insider activity. & \\
+\bottomrule
+\end{tabular}
+}
+\caption{Summary of Key Risks}
+\label{tab:risk_summary}
+\end{table}
+
+% ===================================================================
+\section{Recommendations}
+% ===================================================================
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture.
+
+\subsection{Immediate Actions (Within 72 Hours)}
+\begin{enumerate}
+    \item \textbf{Close Port 3389 on the Public Firewall:} Immediately block all inbound traffic to port 3389 on the external firewall for asset \texttt{[Target IP]}. This is the single most effective step to mitigate the RDP exposure risk. Access should only be permitted via a secure gateway.
+    \item \textbf{Enforce MFA on All Email Accounts:} Enable and enforce MFA for all users accessing the \texttt{[Domain]} email system. This will drastically reduce the risk of account takeovers.
+\end{enumerate}
+
+\subsection{Short-Term Actions (Next 30 Days)}
+\begin{enumerate}
+    \item \textbf{Deploy a VPN or RDP Gateway:} For legitimate remote access needs, implement a Virtual Private Network (VPN) or a dedicated RDP Gateway. This provides a secure, encrypted, and authenticated tunnel for remote administration.
+    \item \textbf{Enforce MFA for All Computer Logins:} Roll out and mandate MFA for all employee computer logins, especially for accounts with administrative privileges.
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Draft a formal AUP that all employees must read and sign. This policy should clearly define the rules for using company technology and data.
+\end{enumerate}
+
+\subsection{Long-Term Strategic Actions (Next 90-180 Days)}
+\begin{enumerate}
+    \item \textbf{Establish a Security Awareness Training Program:} Create a comprehensive training program that includes mandatory security onboarding for all new hires and at least one annual refresher course for all staff.
+    \item \textbf{Conduct a Comprehensive Vulnerability Assessment:} The critical findings in this report suggest that a more in-depth internal and external vulnerability assessment is warranted to identify other potential security weaknesses across the entire network.
+\end{enumerate}
+
+\end{document}
+```

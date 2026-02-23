@@ -1,0 +1,183 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report \\ \large For \textbf{[Organization Name]}}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Confidential Report}
+\rhead{\textbf{[Organization Name]}}
+\cfoot{\thepage}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Executive Overview}
+
+This report provides a cybersecurity posture assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, organizational security controls, and known risks. The assessment was conducted on \today.
+
+The analysis reveals several critical and high-risk security gaps that require immediate attention. The overall security posture is considered high-risk due to significant deficiencies in fundamental security controls.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Gaps in Access Control:} Multi-Factor Authentication (MFA) is not enforced for computer logins or access to sensitive data systems. This dramatically increases the risk of unauthorized access from compromised credentials.
+    \item \textbf{Inadequate Security Policies and Training:} The organization lacks a formal employee acceptable use policy and does not provide security awareness training. This leaves the organization highly vulnerable to social engineering, phishing attacks, and insider threats.
+    \item \textbf{Exposed Management Services:} A network scan identified an exposed Secure Shell (SSH) service (port 22) on an external-facing system. If not properly secured, this service can be a primary target for brute-force attacks and unauthorized intrusion attempts.
+\end{itemize}
+
+Immediate remediation of these issues is strongly recommended to reduce the organization's attack surface and mitigate the risk of a significant security breach. Detailed findings and actionable recommendations are provided in the subsequent sections of this report.
+
+\section{Organizational Information}
+
+The following information was used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \seqsplit{\texttt{[Domain]}} \\
+External IP Address (Target) & \seqsplit{\texttt{[Client IP]}} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_data}
+\end{table}
+
+\section{Security Control Review}
+
+A review of the organization's self-reported security controls was conducted via a questionnaire. The responses highlight significant gaps in foundational security practices. A "No" response indicates a missing control and a potential area of high risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.5\linewidth}cp{0.3\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Analyst Note} \\ \midrule
+Do you require MFA to access email? & \ding{51} & Good practice. Helps protect a primary communication channel. \\
+\addlinespace
+Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} & \textbf{Critical Gap.} Lack of MFA on endpoints allows an attacker with valid credentials to gain direct network access. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \textbf{\color{red}\ding{55}} & \textbf{Critical Gap.} The organization's most valuable data is not protected by a crucial security layer. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \textbf{\color{red}\ding{55}} & \textbf{High Risk.} Without a policy, there are no clear rules for employees regarding system usage, leading to inconsistent and risky behavior. \\
+\addlinesspace
+Does your organization do security awareness training for new employees? & \textbf{\color{red}\ding{55}} & \textbf{High Risk.} New hires are not equipped with the knowledge to identify and avoid common threats like phishing. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \textbf{\color{red}\ding{55}} & \textbf{High Risk.} Security is a perishable skill. Lack of ongoing training increases susceptibility to evolving threats. \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\end{table}
+
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services. The scan provided limited details but revealed a significant finding.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{[Target IP]}}
+    \item \textbf{Scan Date:} Not provided in scan data. Report generated on \today.
+    \item \textbf{Status:} Host is online and responsive.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product/Version} & \textbf{Finding} \\ \midrule
+22/tcp & OPEN & ssh (inferred) & Not available & \begin{tabular}[c]{@{}l@{}}The SSH port is exposed to the public\\ internet. This is a common vector for\\ brute-force and credential stuffing attacks.\end{tabular} \\ \bottomrule
+\end{tabular}
+\caption{Open Port Analysis}
+\label{tab:scan_results}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The presence of an open SSH port (22/tcp) is a primary concern. This port is used for remote system administration. When exposed to the internet, it becomes a constant target for automated attacks seeking to guess or steal credentials. Correlated with the lack of MFA for computer and system access, a single compromised password could grant an attacker direct administrative access to a critical server.
+
+\section{Risk Assessment Summary}
+
+The following table summarizes the key risks identified by correlating the security control gaps, technical findings, and pre-existing risk data (which was empty for this assessment).
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\linewidth}p{0.25\linewidth}p{0.45\linewidth}l@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\ \midrule
+RISK-001 & Lack of MFA on Endpoints and Systems & The absence of MFA for computer and sensitive system access allows for trivial account takeover if credentials are stolen, phished, or leaked. & \textbf{Critical} \\
+\addlinespace
+RISK-002 & Inadequate Security Awareness Program & Employees are not trained to recognize or respond to cyber threats (e.g., phishing), making them the weakest link in the organization's defense. & \textbf{High} \\
+\addlinespace
+RISK-003 & Exposed SSH Management Port & The SSH administrative service is open to the internet, inviting automated brute-force attacks and increasing the risk of unauthorized server access. & \textbf{High} \\
+\addlinespace
+RISK-004 & Missing Foundational Security Policies & The lack of an Acceptable Use Policy results in an undefined security culture and no enforceable rules for employee behavior, increasing insider risk. & \textbf{High} \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+\section{Recommendations}
+
+To address the identified risks and improve the overall security posture of \textbf{[Organization Name]}, the following actions are recommended with urgency.
+
+\begin{enumerate}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item \textbf{Priority 1 (Critical):} Immediately deploy and enforce MFA for all user accounts when logging into company computers and accessing any systems containing sensitive data.
+        \item This is the single most effective control to mitigate the risk of credential compromise.
+    \end{itemize}
+
+    \item \textbf{Secure Remote Access Ports:}
+    \begin{itemize}
+        \item \textbf{Priority 1 (Critical):} Restrict access to the SSH port (22) on \seqsplit{\texttt{[Target IP]}}. Access should be limited via a firewall to only trusted, known IP addresses (e.g., office or administrator IPs).
+        \item If public access is unavoidable, enforce the use of public-key authentication and disable password-based logins for SSH.
+    \end{itemize}
+    
+    \item \textbf{Develop a Security Awareness Program:}
+    \begin{itemize}
+        \item \textbf{Priority 2 (High):} Implement a mandatory security awareness training program for all employees. This must be included in the onboarding process for new hires and conducted at least annually for all staff.
+        \item Training should cover phishing, password hygiene, and safe internet use.
+    \end{itemize}
+
+    \item \textbf{Establish Foundational Security Policies:}
+    \begin{itemize}
+        \item \textbf{Priority 2 (High):} Develop and implement a formal Acceptable Use Policy (AUP). This policy should be read and acknowledged by all employees to establish a baseline for secure behavior and provide grounds for enforcement.
+    \end{itemize}
+
+    \item \textbf{Conduct Comprehensive Vulnerability Scanning:}
+    \begin{itemize}
+        \item \textbf{Priority 3 (Medium):} The initial scan was basic. A comprehensive, authenticated vulnerability scan should be conducted on external and internal systems to identify outdated software and specific configuration weaknesses that could be exploited.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

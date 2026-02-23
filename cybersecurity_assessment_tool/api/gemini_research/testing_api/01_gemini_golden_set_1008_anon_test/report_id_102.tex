@@ -1,0 +1,214 @@
+```latex
+\documentclass[12pt]{article}
+
+% -----------------------------------------------------------------------------
+% |                                 PACKAGES                                  |
+% -----------------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont}                 % For checkmarks and crosses (\ding)
+\usepackage{booktabs}               % For professional-looking tables
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{hyperref}               % For clickable links and references
+\usepackage{url}                    % For formatting URLs
+\usepackage{seqsplit}               % To split long strings in \texttt
+
+% -----------------------------------------------------------------------------
+% |                             DOCUMENT SETUP                                |
+% -----------------------------------------------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define colors for table rows
+\definecolor{tableheadcolor}{rgb}{0.1, 0.2, 0.4}
+\definecolor{tablerowcolor}{gray}{0.95}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textbf{[Organization Name]} -- Cybersecurity Assessment}
+\fancyfoot[C]{Confidential}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Check and cross symbols
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+% -----------------------------------------------------------------------------
+% |                           START OF DOCUMENT                               |
+% -----------------------------------------------------------------------------
+\begin{document}
+
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+\noindent This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, synthesizing data from technical network scans, an organizational security controls questionnaire, and a review of pre-existing risks. The analysis identifies key strengths and critical vulnerabilities in the current security posture and offers prioritized, actionable recommendations to mitigate identified risks.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+% =============================================================================
+% |                           EXECUTIVE SUMMARY                               |
+% =============================================================================
+\section{Executive Summary}
+
+This assessment was conducted to evaluate the overall security posture of \textbf{[Organization Name]}. Our analysis correlated external network scan data with internal security control policies to provide a holistic view of the organization's resilience against common cyber threats.
+
+\paragraph{Key Findings:} The assessment revealed a mixed security posture. On a positive note, the external network scan of the target system did not identify any open ports, indicating a strong perimeter defense. The previously reported risk of an unencrypted web server on Port 80 appears to have been remediated, as our scan found this port to be closed.
+
+However, significant gaps were identified in organizational security controls. The two most critical findings are:
+\begin{itemize}
+    \item \textbf{Lack of Multi-Factor Authentication (MFA) for Email:} The absence of MFA on the \texttt{[Domain]} email system represents a critical vulnerability. Email is a primary target for attackers, and password-only authentication is insufficient to protect against phishing and credential theft.
+    \item \textbf{Absence of Annual Security Training:} While new employees receive security training, there is no mandatory annual refresher for all staff. This can lead to a decay in security awareness over time, increasing the organization's susceptibility to social engineering attacks.
+\end{itemize}
+
+\paragraph{Strategic Recommendation:} We strongly advise that \textbf{[Organization Name]} prioritizes the implementation of MFA for all email accounts. Concurrently, an annual security awareness training program should be established to reinforce a culture of security throughout the organization. Addressing these two control gaps will yield the most significant improvement in the organization's overall defensive capabilities.
+
+% =============================================================================
+% |                         ORGANIZATIONAL INFORMATION                        |
+% =============================================================================
+\section{Organizational and Assessment Information}
+
+The following details provide context for this assessment. Information has been derived from the provided datasets. Placeholders are used where data was not available.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Item} & \textbf{Detail} \\
+\midrule
+Organization Name & \textbf{[Organization Name]} \\
+Email Domain & \texttt{[Domain]} \\
+Client External IP & \texttt{[Client IP]} \\
+Target Scanned IP & \texttt{[Target IP]} \\
+Assessment Date & \today \\
+\bottomrule
+\end{tabular}
+
+% =============================================================================
+% |                         SECURITY CONTROL REVIEW                           |
+% =============================================================================
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. Each response is assessed against industry best practices to identify potential policy and procedure gaps.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{0.6\linewidth} c p{0.2\linewidth}}
+\toprule
+\rowcolor{tableheadcolor}
+\textcolor{white}{\textbf{Control Question}} & \textcolor{white}{\textbf{Response}} & \textcolor{white}{\textbf{Assessment}} \\
+\midrule
+Do you require MFA to access email? & \xmark & \textcolor{red}{\textbf{Critical Gap}} \\
+\rowcolor{tablerowcolor}
+Do you require MFA to log into computers? & \cmark & Control in Place \\
+Do you require MFA to access sensitive data systems? & \cmark & Control in Place \\
+\rowcolor{tablerowcolor}
+Does your organization have an employee acceptable use policy? & \cmark & Control in Place \\
+Does your organization do security awareness training for new employees? & \cmark & Control in Place \\
+\rowcolor{tablerowcolor}
+Does your organization do security awareness training for all employees at least once per year? & \xmark & \textcolor{orange}{\textbf{High Risk}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================================
+% |                           TECHNICAL SCAN RESULTS                          |
+% =============================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed using Nmap to identify accessible services on the organization's perimeter.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Summary:} The scan confirmed the target host is online. However, \textbf{no open ports were detected}. This indicates a well-configured firewall and a minimal external attack surface for this host, which is a significant security strength.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Port Scan Details for Host \texttt{[Target IP]}}
+\begin{tabular}{cccc}
+\toprule
+\rowcolor{tableheadcolor}
+\textcolor{white}{\textbf{Port}} & \textcolor{white}{\textbf{State}} & \textcolor{white}{\textbf{Service}} & \textcolor{white}{\textbf{Product / Version}} \\
+\midrule
+80 & closed & http & N/A \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analyst Note:} A pre-existing risk indicated that Port 80 was open. This scan's finding that Port 80 is `closed` suggests that the previously identified vulnerability has been successfully remediated.
+
+% =============================================================================
+% |                             RISK ASSESSMENT                               |
+% =============================================================================
+\section{Overall Risk Assessment}
+
+This section synthesizes findings from all data sources into a prioritized list of risks.
+
+\begin{table}[h!]
+\centering
+\caption{Synthesized Risk Register}
+\begin{tabular}{p{0.1\linewidth} p{0.2\linewidth} p{0.5\linewidth} p{0.1\linewidth}}
+\toprule
+\rowcolor{tableheadcolor}
+\textcolor{white}{\textbf{Risk ID}} & \textcolor{white}{\textbf{Risk Name}} & \textcolor{white}{\textbf{Description}} & \textcolor{white}{\textbf{Severity}} \\
+\midrule
+ORG-001 & \textbf{Email Account Compromise} & The lack of MFA on email accounts makes them highly susceptible to takeover via phishing or credential stuffing attacks. Compromised email can lead to data breaches and further network intrusion. & \textcolor{red}{\textbf{Critical}} \\
+\midrule
+\rowcolor{tablerowcolor}
+ORG-002 & \textbf{Degraded Security Awareness} & Without mandatory annual training, employees are more likely to fall victim to social engineering tactics. This elevates the risk of malware infection and unauthorized access. & \textcolor{orange}{\textbf{High}} \\
+\midrule
+NET-001 & \textbf{Unencrypted Web Server} & A previous finding noted Port 80 was open. The current scan shows this port is closed. The risk is now considered remediated and requires no further action beyond validation. & \textcolor{green}{Resolved} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================================
+% |                              RECOMMENDATIONS                              |
+% =============================================================================
+\section{Recommendations}
+
+The following prioritized recommendations are provided to address the risks identified in this report.
+
+\subsection{Critical Priority: Remediate Immediately}
+\subsubsection*{Risk ID ORG-001: Implement MFA for Email Access}
+\begin{description}
+    \item[Action:] Enforce Multi-Factor Authentication (MFA) for all user access to the \texttt{[Domain]} email system. This should apply to webmail, desktop clients, and mobile devices.
+    \item[Justification:] This is the single most effective control to prevent email account compromise. It provides a critical layer of defense even if user credentials are stolen, mitigating the primary vector for business email compromise (BEC) and phishing-based intrusions.
+\end{description}
+
+\subsection{High Priority: Remediate within 90 Days}
+\subsubsection*{Risk ID ORG-002: Establish Annual Security Awareness Training}
+\begin{description}
+    \item[Action:] Procure or develop a security awareness training program and mandate its completion by all employees on an annual basis. The training should cover phishing, password security, social engineering, and acceptable use policies.
+    \item[Justification:] A well-trained workforce is a critical component of a defense-in-depth strategy. Regular training reinforces security best practices, reduces the likelihood of human error, and fosters a strong security culture.
+\end{description}
+
+\subsection{Informational: For Validation}
+\subsubsection*{Risk ID NET-001: Validate Remediation of Port 80}
+\begin{description}
+    \item[Action:] Confirm with the network or system administration team that the closure of Port 80 on host \texttt{[Target IP]} was an intentional and documented change.
+    \item[Justification:] While the current state is secure, it is important to validate that security improvements are deliberate and permanent, rather than the result of a temporary service outage or misconfiguration.
+\end{description}
+
+\end{document}
+% -----------------------------------------------------------------------------
+% |                            END OF DOCUMENT                                |
+% -----------------------------------------------------------------------------
+```

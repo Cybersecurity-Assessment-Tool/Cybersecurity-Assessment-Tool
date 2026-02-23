@@ -1,0 +1,192 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[hidelinks]{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long text strings
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For images (logo)
+\usepackage{fancyhdr} % For headers/footers
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report \\ \large For: \textbf{Mainframe Managed}}
+\author{Cybersecurity Analysis Cell}
+\date{\today}
+
+% --- HEADER & FOOTER ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{\textbf{Mainframe Managed} // Security Assessment}
+\fancyfoot[C]{Confidential}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- COMMANDS ---
+\newcommand{\riskcritical}[1]{\textcolor{red}{\textbf{#1}}}
+\newcommand{\riskhigh}[1]{\textcolor{orange}{\textbf{#1}}}
+\newcommand{\riskmedium}[1]{\textcolor{yellow!80!black}{\textbf{#1}}}
+\newcommand{\risklow}[1]{\textcolor{green}{\textbf{#1}}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE OVERVIEW
+% ==============================================================================
+\section{Executive Overview}
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{Mainframe Managed}. The assessment combined a review of organizational security controls, an external network scan, and an analysis of pre-existing risks.
+
+The analysis reveals several \riskcritical{critical} and \riskhigh{high-severity} risks that require immediate attention. The most significant findings are:
+\begin{itemize}
+    \item \textbf{Systemic Lack of Multi-Factor Authentication (MFA):} The organization does not enforce MFA for email, computer logins, or access to sensitive data systems. This represents a critical security gap, dramatically increasing the risk of unauthorized access from compromised credentials.
+    \item \textbf{Direct Exposure of Remote Desktop Protocol (RDP):} The network scan identified an open RDP port (3389) on host \texttt{10.10.10.51}. This finding, combined with a pre-existing risk for a similar exposure on another host, indicates a systemic vulnerability. Exposed RDP is a primary vector for ransomware attacks and unauthorized network intrusion.
+    \item \textbf{Insufficient Security Awareness Program:} The organization lacks a formal security awareness training program for new or existing employees. This elevates the risk of human error, making the organization highly susceptible to phishing and social engineering attacks.
+\end{itemize}
+
+The combination of exposed remote services and the absence of MFA creates a direct and easily exploitable pathway for threat actors. We strongly recommend prioritizing the remediation steps outlined in Section \ref{sec:recommendations} to mitigate these immediate threats to the organization's security and operational integrity.
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & Mainframe Managed \\
+Email Domain & \texttt{MainframeManaged.org} \\
+Website Domain & \url{www.MainframeManaged.org} \\
+External IP Address & \texttt{166.173.6.159} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\label{tab:org_info}
+\end{table}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A review of administrative security controls was conducted via a questionnaire. The results highlight significant gaps in foundational security practices.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\ \bottomrule
+\end{tabular}
+\caption{Questionnaire Results (\ding{51}=Yes, \ding{55}=No)}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis}
+The responses indicate a critical deficiency in identity and access management through the complete absence of MFA. Furthermore, the lack of a security awareness training program means that employees are likely unaware of common cyber threats and organizational policies, rendering the existing Acceptable Use Policy ineffective.
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+An Nmap scan was performed on the specified target to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{10.10.10.51}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Notes} \\ \midrule
+3389/tcp & open & \texttt{ms-wbt-server} & Microsoft Remote Desktop Protocol (RDP) \\ \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{10.10.10.51}}
+\label{tab:scan_results}
+\end{table}
+
+\subsection*{Analysis}
+The scan confirms that port 3389 is open, exposing the Remote Desktop Protocol (RDP) service directly to the network. RDP is a high-value target for attackers who use techniques like brute-force password guessing or exploit known vulnerabilities (e.g., BlueKeep) to gain complete control over the target system. When combined with the lack of MFA, this exposure constitutes a \riskcritical{critical} vulnerability.
+
+% ==============================================================================
+% SECTION 5: RISK ASSESSMENT
+% ==============================================================================
+\section{Risk Assessment}
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of current risks.
+
+\begin{table}[h!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} & \textbf{Affected Assets} \\ \midrule
+\textbf{R-01} & Systemic Lack of MFA & \riskcritical{Critical} & No MFA on email, endpoints, or data systems. Allows account takeover with a single password. & All user accounts, servers \\
+\textbf{R-02} & Newly Discovered RDP Exposure & \riskcritical{Critical} & RDP port 3389 is open, allowing direct remote access attempts from the network. & Host: \texttt{10.10.10.51} \\
+\textbf{R-03} & Pre-existing RDP Exposure & \riskcritical{Critical} & A previously identified RDP exposure, indicating a systemic configuration issue. & Host: \texttt{10.10.10.50} \\
+\textbf{R-04} & Lack of Security Awareness & \riskhigh{High} & No training for employees, increasing susceptibility to phishing and social engineering. & All employees \\ \bottomrule
+\end{tabular}%
+}
+\caption{Synthesized Risk Register}
+\label{tab:risk_register}
+\end{table}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+\label{sec:recommendations}
+
+Based on the assessment, we recommend the following actions, prioritized by severity.
+
+\subsection{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Remediate All RDP Exposures (R-02, R-03):}
+    \begin{itemize}
+        \item Immediately close port 3389 on hosts \texttt{10.10.10.51} and \texttt{10.10.10.50} and any other systems where it is exposed to untrusted networks.
+        \item If remote access is required, implement a Virtual Private Network (VPN) solution with MFA enabled. Access to RDP should only be permitted through the VPN.
+    \end{itemize}
+
+    \item \textbf{Implement Multi-Factor Authentication (R-01):}
+    \begin{itemize}
+        \item Prioritize the deployment of MFA for all users on the email system (e.g., Office 365, G Suite).
+        \item Enforce MFA for all administrative accounts and any remote access solutions (e.g., VPN).
+        \item Develop a phased rollout plan to enable MFA for all computer and sensitive system logins.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering from previous list
+    \item \textbf{Establish a Security Awareness Program (R-04):}
+    \begin{itemize}
+        \item Implement mandatory security awareness training for all new hires during their onboarding process.
+        \item Conduct annual security awareness training for all employees. This training should cover, at a minimum: phishing identification, password security, and the organization's acceptable use policy.
+        \item Consider periodic phishing simulation campaigns to test and reinforce employee training.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

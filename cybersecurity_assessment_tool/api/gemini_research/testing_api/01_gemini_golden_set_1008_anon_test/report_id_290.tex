@@ -1,0 +1,163 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding symbols (checkmark/cross)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url}      % For properly formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage[table]{xcolor} % For coloring table cells and text
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}} % Checkmark
+\newcommand{\no}{\ding{55}}  % Cross mark
+\newcommand{\criticalrisk}{\textcolor{red}{\textbf{Critical}}}
+\newcommand{\highrisk}{\textcolor{orange}{\textbf{High}}}
+\newcommand{\mediumrisk}{\textcolor{yellow!80!black}{\textbf{Medium}}}
+
+% --- Document ---
+\begin{document}
+
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}. The assessment is based on a correlation of external network scan data, a review of internal security controls via a questionnaire, and an evaluation of pre-existing risks. The analysis has identified several critical and high-risk vulnerabilities that require immediate attention. Key findings include an externally exposed, outdated, and vulnerable FTP server, significant gaps in Multi-Factor Authentication (MFA) deployment, and a lack of a formal security awareness training program. These issues, combined, present a significant risk of unauthorized access and potential data breach.
+\end{abstract}
+
+\section*{1. Overview and Scope}
+This assessment was conducted to evaluate the security posture of \textbf{[Organization Name]}. The scope of this report includes:
+\begin{itemize}
+    \item A review of organizational security policies and controls.
+    \item A technical analysis of an external network scan performed against the client's perimeter.
+    \item A consolidated risk register incorporating technical findings, policy gaps, and known issues.
+\end{itemize}
+The primary objective is to identify vulnerabilities, assess their potential impact, and provide actionable recommendations for remediation.
+
+\section*{2. Organizational Information}
+The following information was used as the basis for this assessment. As per the template mode for this report, placeholders are used where data was not provided.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Domain & \texttt{[Domain]} \\
+    External IP Scanned & \texttt{[Client IP]} \\
+    Target of Nmap Scan & \texttt{[Target IP]} \\
+    \bottomrule
+\end{tabular}
+
+\section*{3. Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. Items marked with a cross (\no) represent significant gaps in the security framework and are discussed in the Risk Assessment section.
+
+\begin{center}
+\begin{tabular}{p{0.7\textwidth}c}
+    \toprule
+    \textbf{Control Question} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & \no \\
+    Do you require MFA to log into computers? & \yes \\
+    Do you require MFA to access sensitive data systems? & \no \\
+    Does your organization have an employee acceptable use policy? & \yes \\
+    Does your organization do security awareness training for new employees? & \no \\
+    Does your organization do security awareness training for all employees at least once per year? & \no \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+\section*{4. Technical Scan Results}
+An external network scan was performed using Nmap. The scan identified the following open ports and services on the target system.
+
+\subsection*{Open Ports and Services}
+\begin{center}
+\begin{tabular}{lllll}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product \& Version} \\
+    \midrule
+    21/tcp & open & ftp & vsftpd 2.3.4 \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis of Technical Findings}
+The scan revealed a critical vulnerability.
+\begin{itemize}
+    \item \textbf{Vulnerable FTP Service:} The server is running \textbf{vsftpd version 2.3.4}. This specific version is widely known to contain a critical backdoor vulnerability (CVE-2011-2523). If exploited, this vulnerability allows an attacker to execute arbitrary commands on the server with root-level privileges.
+    \item \textbf{Anonymous FTP Enabled:} The scan confirmed that "Anonymous FTP login allowed". This is a severe misconfiguration that permits any external user to connect to the FTP server without authentication, potentially allowing them to upload malicious files or download sensitive information.
+\end{itemize}
+
+\section*{5. Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list.
+
+\begin{center}
+\begin{tabular}{lp{0.55\textwidth}l}
+    \toprule
+    \textbf{Severity} & \textbf{Risk / Vulnerability} & \textbf{Source} \\
+    \midrule
+    \criticalrisk & \textbf{Vulnerable FTP Service} & An outdated version of vsftpd (2.3.4) with a known remote code execution backdoor is exposed to the internet. Anonymous login is also enabled. \\
+    \addlinespace
+    \criticalrisk & \textbf{Lack of MFA} & Multi-Factor Authentication is not enforced for email or access to sensitive data systems, creating a high risk of account compromise and data breach. \\
+    \addlinespace
+    \highrisk & \textbf{No Security Awareness Training} & The absence of a training program for new or existing employees increases susceptibility to phishing, social engineering, and other human-targeted attacks. \\
+    \addlinespace
+    \mediumrisk & \textbf{Outdated Windows Policy} & The continued use of Windows 7, an end-of-life operating system, exposes workstations to numerous unpatched vulnerabilities. \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+\section*{6. Recommendations}
+Based on the analysis, we recommend the following actions, prioritized by severity.
+
+\subsection*{Immediate Actions (Priority 1)}
+\begin{enumerate}
+    \item \textbf{Remediate FTP Server:}
+    \begin{itemize}
+        \item Immediately take the FTP server offline.
+        \item If the service is business-critical, upgrade \texttt{vsftpd} to the latest stable version and place it behind a firewall with strict access control lists.
+        \item If the service is not required, decommission it permanently.
+        \item Disable anonymous FTP login under all circumstances.
+    \end{itemize}
+    \item \textbf{Deploy MFA:}
+    \begin{itemize}
+        \item Implement and enforce MFA for all email accounts (e.g., Office 365, Google Workspace) immediately.
+        \item Prioritize the rollout of MFA for all systems identified as containing sensitive data.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{High-Priority Actions (Priority 2)}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Establish Security Awareness Training:}
+    \begin{itemize}
+        \item Implement a mandatory security awareness training module for all new employees as part of their onboarding process.
+        \item Schedule and conduct annual security awareness training for all staff, covering topics like phishing, password hygiene, and acceptable use.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Medium-Priority Actions (Priority 3)}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{Address Outdated Systems:}
+    \begin{itemize}
+        \item Continue with the existing plan to upgrade all Windows 7 workstations to a supported operating system like Windows 10 or 11.
+        \item Develop a formal patch and vulnerability management policy to prevent systems from becoming unsupported in the future.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

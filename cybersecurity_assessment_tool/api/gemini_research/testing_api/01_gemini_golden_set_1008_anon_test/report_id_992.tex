@@ -1,0 +1,143 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report \\ for \\ \textbf{[Organization Name]}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{[Organization Name]}. The assessment combined an analysis of organizational security controls, a technical network scan, and a review of known risks.
+
+The analysis revealed several critical and high-risk security gaps that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Gaps in Access Control:} Multi-Factor Authentication (MFA) is not enforced for accessing email or sensitive data systems. This significantly increases the risk of unauthorized access through compromised credentials.
+    \item \textbf{Foundational Policy Deficiencies:} The organization lacks a formal employee Acceptable Use Policy (AUP) and does not provide security awareness training to new hires. These omissions create a high-risk environment susceptible to insider threats and social engineering.
+    \item \textbf{Unencrypted Network Services:} The external network scan identified an open port 80 (HTTP), indicating that data is being transmitted in cleartext. This exposes the organization to data interception and credential sniffing attacks.
+\end{itemize}
+
+The combination of these findings places the organization at a \textbf{HIGH} overall risk level. This report provides a detailed breakdown of each finding and offers prioritized, actionable recommendations to mitigate these risks and improve the overall security posture.
+
+% --- Organizational Information ---
+\section{Organizational Information}
+This section provides the high-level details of the organization under review. The information was gathered from provided documentation.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \texttt{[Domain]} \\
+    External IP Address Scanned & \texttt{[Client IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+The following table summarizes the organization's responses to a security controls questionnaire. The assessment column highlights areas where current practices deviate from established security best practices.
+
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.2\linewidth}@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \ding{55} No & \textcolor{red}{\textbf{Critical Gap}} \\
+    Do you require MFA to log into computers? & \ding{51} Yes & Best Practice Met \\
+    Do you require MFA to access sensitive data systems? & \ding{55} No & \textcolor{red}{\textbf{Critical Gap}} \\
+    Does your organization have an employee acceptable use policy? & \ding{55} No & \textcolor{orange}{High Risk} \\
+    Does your organization do security awareness training for new employees? & \ding{55} No & \textcolor{orange}{High Risk} \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} Yes & Best Practice Met \\
+    \bottomrule
+\end{tabular}
+
+% --- Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services on the organization's public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+The following table details the significant findings from the scan.
+
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Analysis} \\
+    \midrule
+    80/tcp & Open & HTTP & The presence of an open HTTP port indicates that web traffic to \\
+           &      &      & and from this service is unencrypted. This poses a significant risk \\
+           &      &      & of data interception, including login credentials and other \\
+           &      &      & sensitive information. Detailed service/version information was \\
+           &      &      & not available from the initial scan. \\
+    \bottomrule
+\end{tabular}
+
+% --- Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+This section synthesizes the findings from the security control review and the technical scan into a consolidated list of identified risks. The injected risk entry from the input data was determined to be invalid and has been excluded from this professional analysis.
+
+\begin{tabular}{@{}p{0.1\linewidth} p{0.2\linewidth} p{0.5\linewidth} p{0.1\linewidth}@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & Lack of Multi-Factor Authentication (MFA) & MFA is not enforced on critical systems, including email and sensitive data repositories. A single compromised password could lead to a significant data breach. & \textcolor{red}{\textbf{Critical}} \\
+    \addlinespace
+    RISK-002 & Use of Unencrypted Protocols & The external-facing service on port 80 (HTTP) transmits data in cleartext, making it vulnerable to eavesdropping and man-in-the-middle (MitM) attacks. & \textcolor{orange}{\textbf{High}} \\
+    \addlinespace
+    RISK-003 & Inadequate Security Policies and Training & The absence of an Acceptable Use Policy and security training for new hires means employees are not equipped with the foundational knowledge to protect company assets, increasing susceptibility to phishing and misuse. & \textcolor{orange}{\textbf{High}} \\
+    \bottomrule
+\end{tabular}
+
+% --- Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are provided to address the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{Priority 1: Critical Risks}
+\begin{itemize}
+    \item \textbf{Implement MFA on Critical Systems (RISK-001):} Immediately begin a project to enforce MFA for all user access to email services and any system classified as containing sensitive data. This is the single most effective control to prevent unauthorized access.
+    \item \textbf{Secure Web Services (RISK-002):}
+        \begin{itemize}
+            \item Identify the service running on port 80 of \texttt{[Target IP]}.
+            \item If the service is necessary, immediately migrate it to HTTPS (port 443) using a strong TLS configuration.
+            \item If the service is not essential for business operations, it should be disabled and the port closed at the firewall.
+        \end{itemize}
+\end{itemize}
+
+\subsection{Priority 2: High Risks}
+\begin{itemize}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (RISK-003):} Draft a formal AUP that clearly defines the rules for using company IT assets, including data handling, internet usage, and password requirements. This policy must be communicated to all employees and acknowledged in writing.
+    \item \textbf{Institute New Hire Security Training (RISK-003):} Develop a mandatory security awareness training module that is part of the onboarding process for all new employees. This training should cover key topics such as phishing, password security, and the new AUP.
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,179 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[hidelinks]{hyperref} % For clickable links without boxes
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xcolor}
+
+% --- DOCUMENT SETUP ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment Report}
+\fancyhead[R]{Sterling Silver}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- CUSTOM COMMANDS ---
+\newcommand{\yes}{\textcolor{green}{\ding{51}}}
+\newcommand{\no}{\textcolor{red}{\ding{55}}}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder logo
+    
+    \vspace{1.5cm}
+    
+    {\Huge\bfseries Cybersecurity Posture Assessment Report\par}
+    
+    \vspace{1.5cm}
+    
+    {\Large Prepared for:\par}
+    \vspace{0.5cm}
+    {\huge\bfseries Sterling Silver\par}
+    
+    \vfill
+    
+    {\large \today\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- SECTION 1: EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture of \textbf{Sterling Silver}. The assessment is based on a correlation of a network vulnerability scan, a security controls questionnaire, and a review of previously identified risks.
+
+\paragraph{Key Findings:} The assessment reveals a mixed security posture. On a positive note, a previously identified technical risk concerning an unencrypted web server on port 80 appears to have been successfully remediated; our scan confirms this port is now closed. However, significant and critical gaps were identified in foundational, human-centric security controls.
+
+\paragraph{Primary Risks:} The most critical risks stem from organizational and policy-based deficiencies rather than technical vulnerabilities. These include:
+\begin{itemize}
+    \item \textbf{Lack of Workstation MFA:} The absence of Multi-Factor Authentication on employee computers presents a high risk of unauthorized access should credentials be compromised.
+    \item \textbf{No Employee Security Policies:} The lack of an Acceptable Use Policy (AUP) creates ambiguity regarding the proper use of company assets and data.
+    \item \textbf{No Security Awareness Training:} The complete absence of a security awareness training program leaves the organization highly vulnerable to phishing, social engineering, and other human-targeted attacks.
+\end{itemize}
+
+\paragraph{Conclusion:} While technical remediation efforts are evident, \textbf{Sterling Silver} remains at high risk due to fundamental gaps in security policy and employee education. Immediate action is required to implement the administrative and training controls detailed in the recommendations section to mitigate these risks.
+
+\newpage
+
+% --- SECTION 2: ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Sterling Silver \\
+    Email Domain & \texttt{SterlingSilver.com} \\
+    Website Domain & \url{www.SterlingSilver.com} \\
+    External IP Address & \texttt{36.216.121.34} \\
+    \bottomrule
+\end{tabular}
+
+% --- SECTION 3: SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. Items marked with \no\ represent significant gaps in the current security framework.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\linewidth}cc@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \yes & Good Practice \\
+    Do you require MFA to log into computers? & \no & \textbf{Critical Gap} \\
+    Do you require MFA to access sensitive data systems? & \yes & Good Practice \\
+    Does your organization have an employee acceptable use policy? & \no & \textbf{High Risk} \\
+    Does your organization do security awareness training for new employees? & \no & \textbf{High Risk} \\
+    Does your organization do security awareness training for all employees at least once per year? & \no & \textbf{High Risk} \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+% --- SECTION 4: TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+A network scan was performed to identify active services and potential vulnerabilities on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{192.168.0.5}
+    \item \textbf{Scan Date:} \textbf{[Scan Date Not Provided]}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version / Product} \\
+    \midrule
+    80 & closed & http & N/A \\
+    \bottomrule
+\end{tabular}
+\caption{Nmap Scan Results for \texttt{192.168.0.5}}
+\end{table}
+
+\paragraph{Analysis:} The scan indicates that port 80 (HTTP) is closed on the target system. This is a positive finding, as it contradicts a pre-existing risk record (\textit{Unencrypted Web Server}) that stated this port was open. This suggests that successful remediation has occurred. No other open ports or active services were detected during this scan.
+
+\newpage
+
+% --- SECTION 5: CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the questionnaire, technical scan, and pre-existing risk data into a consolidated list of current risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\linewidth}p{0.3\linewidth}p{0.4\linewidth}l@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & Unencrypted Web Server & Previously identified risk of an open Port 80. The current scan confirms this port is now closed. & \textcolor{green}{REMEDIATED} \\
+    \addlinespace
+    RISK-002 & Lack of Workstation MFA & User computers do not require MFA, increasing the risk of unauthorized access if credentials are stolen. & \textcolor{red}{High} \\
+    \addlinespace
+    RISK-003 & No Acceptable Use Policy & The absence of a formal AUP leaves the organization vulnerable to asset misuse and lacks an enforcement framework. & \textcolor{red}{High} \\
+    \addlinespace
+    RISK-004 & No Security Awareness Training & Employees are not trained on security best practices, making them highly susceptible to phishing and social engineering. & \textcolor{red}{Critical} \\
+    \bottomrule
+\end{tabular}
+\caption{Consolidated Risk Register}
+\end{table}
+
+% --- SECTION 6: RECOMMENDATIONS ---
+\section{Recommendations}
+The following actionable recommendations are provided to address the identified risks and improve the overall security posture of \textbf{Sterling Silver}.
+
+\subsection{RISK-002: Implement Workstation MFA (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Begin a pilot program to deploy MFA on workstations for critical staff (e.g., IT administrators, executives, finance). Solutions like Windows Hello for Business, Duo, or Okta can be evaluated.
+    \item \textbf{Long-Term Strategy:} Develop and execute a phased rollout plan to enforce MFA for all employees logging into company-managed computers within the next 6-12 months.
+\end{itemize}
+
+\subsection{RISK-003: Develop an Acceptable Use Policy (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Draft a formal Acceptable Use Policy (AUP) using industry-standard templates (e.g., from SANS Institute) as a foundation. The policy should clearly define rules for internet usage, data handling, software installation, and personal device usage.
+    \item \textbf{Long-Term Strategy:} Integrate the AUP into the new employee onboarding process. Require all existing employees to read and formally acknowledge the policy, with annual re-acknowledgment thereafter.
+\end{itemize}
+
+\subsection{RISK-004: Establish a Security Awareness Program (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Procure and enroll all employees in a foundational security awareness training course covering essential topics like phishing, password security, and social engineering. Simultaneously, conduct a baseline phishing simulation to measure the organization's current susceptibility.
+    \item \textbf{Long-Term Strategy:} Implement a continuous security awareness program that includes mandatory annual training, regular phishing simulations, and periodic security newsletters to foster a culture of security consciousness.
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,162 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings without breaking
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Information
+\title{Cybersecurity Assessment Report \\ \large For: \textbf{Hidden Gem}}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report for Hidden Gem},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{Hidden Gem}. The assessment combined a review of organizational security controls, a technical network scan, and an analysis of pre-existing risks.
+
+The overall security posture is determined to be \textbf{High-Risk}. Several critical and high-risk vulnerabilities were identified that require immediate attention.
+
+\textbf{Key Findings Include:}
+\begin{itemize}
+    \item \textbf{Critical Database Exposure:} A MySQL database server running an \textbf{End-of-Life (EOL) version} is directly exposed to the internal network. This presents a severe risk of data breach, as the software no longer receives security patches for known vulnerabilities.
+    \item \textbf{Insufficient Access Controls:} Multi-Factor Authentication (MFA) is not enforced for email or computer logins. This significantly increases the risk of account compromise and unauthorized access from stolen credentials.
+    \item \textbf{Policy and Training Gaps:} The absence of a formal Acceptable Use Policy and a lack of recurring, annual security awareness training for all staff weaken the organization's human firewall, making it more susceptible to social engineering and insider threats.
+\end{itemize}
+
+Immediate remediation of the database exposure is paramount. Following this, the implementation of comprehensive access controls and the development of foundational security policies are strongly recommended to mitigate the identified risks.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Hidden Gem} \\
+    Email Domain & \texttt{HiddenGem.org} \\
+    Website Domain & \texttt{www.HiddenGem.org} \\
+    External IP Address & \texttt{86.88.181.227} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of administrative and organizational security controls was conducted via a questionnaire. The results below highlight significant gaps in foundational security practices. Answers marked with \ding{55} (No) represent areas of high concern.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc}
+    \toprule
+    \textbf{Security Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+    Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+    Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+    Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+    Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+    \bottomrule
+\end{tabular}
+\caption{Organizational Security Control Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis}
+The lack of MFA for email and computer access is a critical weakness. Email is a primary target for phishing attacks, and compromised accounts can lead to widespread system compromise. Similarly, the absence of an acceptable use policy and annual security training for all staff creates an environment where employees may be unaware of security best practices, increasing the likelihood of human error leading to a security incident.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.50.20}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    3306/tcp & Open & mysql & MySQL & 5.7.33 \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{172.16.50.20}}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified an open MySQL database port (\texttt{3306}) on the network. This finding confirms the pre-existing risk "Database Exposure".
+
+More critically, the detected version, \textbf{MySQL 5.7.33}, is \textbf{End-of-Life (EOL) as of October 2023}. EOL software no longer receives security updates from the vendor. This means that any vulnerabilities discovered after this date will remain unpatched, leaving the server highly susceptible to exploitation by attackers. The combination of network exposure and running un-patchable, vulnerable software constitutes a critical risk to the confidentiality, integrity, and availability of the data stored within this database.
+
+% --- 5. Overall Risk Assessment ---
+\section{Overall Risk Assessment}
+
+The following table synthesizes findings from the organizational review, technical scan, and pre-existing risk data into a prioritized list of security risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.2\textwidth} p{0.5\textwidth} p{0.1\textwidth} p{0.15\textwidth}@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} & \textbf{Affected Systems} \\
+    \midrule
+    \textbf{Exposed End-of-Life Database} & A MySQL 5.7.33 database is open to the network. This version is EOL and no longer receives security patches, making it an easy target for exploitation. & \textbf{Critical} & \texttt{172.16.50.20} \\
+    \addlinespace
+    \textbf{Lack of Multi-Factor Authentication} & MFA is not required for email or computer logins, allowing an attacker with stolen credentials to gain immediate access to critical systems. & High & All user accounts and endpoints \\
+    \addlinespace
+    \textbf{Insufficient Policies and Training} & The lack of an Acceptable Use Policy and recurring annual training weakens the organization's defense against phishing and other social engineering attacks. & High & All employees \\
+    \bottomrule
+\end{tabular}
+\caption{Synthesized Risk Summary}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+The following actionable recommendations are provided in order of priority to address the identified risks.
+
+\subsection*{Priority 1: Immediate Actions (Critical Risk)}
+\begin{enumerate}
+    \item \textbf{Restrict Database Access:} Immediately implement firewall rules to restrict access to port \texttt{3306} on server \texttt{172.16.50.20}. Access should be denied by default and only explicitly allowed from specific, trusted application servers that require it. Public or wide-internal access must be disabled.
+    \item \textbf{Plan Database Upgrade:} Begin planning the migration from MySQL 5.7 to a currently supported version (e.g., MySQL 8.0 or later). This is essential to ensure the database receives ongoing security patches.
+\end{enumerate}
+
+\subsection*{Priority 2: Foundational Improvements (High Risk)}
+\begin{enumerate}
+    \item \textbf{Deploy Multi-Factor Authentication (MFA):} Enforce MFA for all employees for both email access (e.g., Office 365, Google Workspace) and computer/endpoint logins. This is one of the most effective controls to prevent account takeover.
+    \item \textbf{Develop an Acceptable Use Policy (AUP):} Create and enforce a formal AUP that clearly defines the rules for using company technology, data, and network resources. All employees must read and acknowledge this policy.
+    \item \textbf{Implement Annual Security Training:} Establish a mandatory security awareness training program for all employees to be completed annually. This program should cover current threats such as phishing, password security, and social engineering.
+\end{enumerate}
+
+\end{document}
+```

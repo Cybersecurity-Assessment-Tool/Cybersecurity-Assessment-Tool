@@ -1,0 +1,152 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity posture assessment for \textbf{Ember Glow Hospitality}. The assessment synthesizes data from an external network scan, a security controls questionnaire, and a review of pre-existing risks.
+
+The overall security posture presents a mixed landscape. On a positive note, a previously identified risk concerning an unencrypted web server on port 80 was found to be remediated on the scanned target (\texttt{192.168.0.5}), as the port was discovered to be closed. This indicates progress in technical vulnerability management.
+
+However, the assessment revealed critical deficiencies in identity and access management controls. The widespread absence of Multi-Factor Authentication (MFA) across email, computer logins, and sensitive data systems constitutes a critical risk. This gap significantly increases the likelihood of unauthorized access and account compromise. Furthermore, the lack of mandatory security awareness training for new employees creates an immediate and ongoing vulnerability to social engineering and phishing attacks.
+
+Immediate remediation should focus on implementing a robust MFA solution and integrating security training into the employee onboarding process.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Ember Glow Hospitality} \\
+Email Domain & \texttt{EmberGlowHospitality.com} \\
+Website Domain & \url{www.EmberGlowHospitality.com} \\
+External IP Address & \texttt{92.191.63.167} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of administrative and organizational security controls was conducted via a questionnaire. The responses highlight significant gaps in the current security framework. A checkmark (\ding{51}) indicates a positive control, while a cross (\ding{55}) indicates a control gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\linewidth} c l@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to log into computers? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to access sensitive data systems? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+Does your organization have an employee acceptable use policy? & \ding{51} & Good Practice \\
+Does your organization do security awareness training for new employees? & \ding{55} & \textcolor{orange}{\textbf{High Risk}} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Good Practice \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and services on the specified target.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.0.5}
+    \item \textbf{Scan Date:} Not Specified
+\end{itemize}
+
+The scan revealed a very limited attack surface on the target system. The results are detailed in the table below.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\
+\midrule
+80 & closed & http & N/A \\
+\bottomrule
+\end{tabular}
+\caption{Nmap Scan Results for \texttt{192.168.0.5}}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan confirmed that port 80 (HTTP) is \textbf{closed} on the target host. This finding directly contradicts a pre-existing risk entry ("Unencrypted Web Server") which assumed this port was open. This is a positive security posture indicator, suggesting that the previously identified vulnerability has either been remediated on this asset or was misidentified.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data. Risks are prioritized based on their potential impact on the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\linewidth} p{0.25\linewidth} p{0.4\linewidth} p{0.15\linewidth}@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & \textbf{Lack of MFA} & The absence of MFA for email, computer, and sensitive system access exposes the organization to a high risk of credential theft and unauthorized access. & \textcolor{red}{\textbf{Critical}} \\
+\addlinespace
+RISK-002 & \textbf{Inadequate Employee Onboarding} & New employees do not receive security awareness training, making them highly susceptible to phishing and social engineering attacks from their first day. & \textcolor{orange}{\textbf{High}} \\
+\addlinespace
+RISK-003 & \textbf{Unencrypted Web Server} & A previously identified risk of an open port 80 was not found on the scanned target. This specific risk appears to be remediated for this asset. & \textcolor{green}{Remediated} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+Based on the consolidated risk assessment, the following actions are recommended to improve the security posture of \textbf{Ember Glow Hospitality}.
+
+\subsection*{RISK-001: Lack of MFA (Severity: Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Enable MFA on all email accounts immediately, prioritizing administrative and executive accounts.
+    \item \textbf{Long-Term Action:} Develop and execute a phased rollout plan to enforce MFA for all computer logins and access to systems containing sensitive organizational or client data.
+\end{itemize}
+
+\subsection*{RISK-002: Inadequate Employee Onboarding (Severity: High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Develop a mandatory security awareness training module and integrate it into the new employee onboarding process. This module should cover phishing, acceptable use, and password hygiene.
+    \item \textbf{Long-Term Action:} Review and enhance the annual security training program to include evolving threats and interactive elements to ensure employee engagement.
+\end{itemize}
+
+\subsection*{RISK-003: Unencrypted Web Server (Status: Remediated)}
+\begin{itemize}
+    \item \textbf{Informational Action:} Review the organization's risk register to formally close the "Unencrypted Web Server" risk as it pertains to asset \texttt{192.168.0.5}. Validate if this risk applies to other assets not included in the scope of this scan.
+\end{itemize}
+
+\end{document}
+```

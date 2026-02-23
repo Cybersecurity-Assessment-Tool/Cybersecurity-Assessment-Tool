@@ -1,0 +1,179 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGE IMPORTS ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[hidelinks]{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings without spaces
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Assessment Report \\ \large For: Iron River Finance}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% =============================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% =============================================================================
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment for \textbf{Iron River Finance}. The analysis combines a review of organizational security controls, a technical network scan, and pre-existing risk data to provide a consolidated view of the organization's security posture.
+
+The assessment identified several critical and high-risk vulnerabilities that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Access Control Gap:} Multi-Factor Authentication (MFA) is not enforced for email access. This exposes the organization to significant risk from phishing, credential stuffing, and subsequent business email compromise (BEC) attacks.
+    \item \textbf{Critical Policy Deficiencies:} The organization lacks a formal Acceptable Use Policy (AUP) and does not conduct security awareness training for employees. This indicates a substantial weakness in the human element of security, leaving the organization vulnerable to social engineering and insider threats.
+    \item \textbf{Corroborated Technical Risk:} The network scan confirmed a service running on port 22 (typically SSH) on the localhost interface (\texttt{127.0.0.1}). This finding directly correlates with a pre-existing, maximum-severity risk entry ("Localhost Exposed," CVSS 10.0), validating a critical technical exposure that must be investigated and remediated.
+\end{itemize}
+
+Immediate remediation should focus on implementing MFA for email, developing foundational security policies, and investigating the exposed internal service. Addressing these issues will substantially improve the security posture of \textbf{Iron River Finance}.
+
+% =============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% =============================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name    & Iron River Finance \\
+Email Domain         & \texttt{IronRiverFinance.com} \\
+Website Domain       & \href{http://www.IronRiverFinance.com}{\texttt{www.IronRiverFinance.com}} \\
+External IP Address  & \texttt{156.56.176.115} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\label{tab:org_info}
+\end{table}
+
+% =============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% =============================================================================
+\section{Security Control Review}
+
+A review of organizational security controls was conducted via a standardized questionnaire. The responses highlight significant gaps in administrative and policy-based controls. A "No" response (\ding{55}) indicates a deviation from security best practices and represents a potential risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{55} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\ \bottomrule
+\end{tabular}
+\caption{Organizational Security Control Questionnaire Results.}
+\label{tab:controls}
+\end{table}
+
+\paragraph{Analysis:} The lack of MFA on email is a critical weakness. Email is a primary target for attackers seeking to gain an initial foothold. Furthermore, the complete absence of an Acceptable Use Policy and any form of security awareness training creates a high-risk environment where employees are likely unaware of security best practices and organizational expectations, making them susceptible to social engineering attacks.
+
+% =============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% =============================================================================
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and services on the specified target.
+
+\subsection{Scan Summary}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{127.0.0.1}
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+\subsection{Open Ports and Services}
+The scan identified the following open port. The absence of detailed service and version information indicates that further, more intrusive scanning may be necessary for a complete vulnerability assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+22/tcp        & open           & ssh (inferred)   & Unknown          & Unknown          \\ \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{127.0.0.1}.}
+\label{tab:scan_results}
+\end{table}
+
+\paragraph{Analysis:} The presence of an open port on the localhost interface (\texttt{127.0.0.1}) is a significant finding. This directly corroborates the pre-existing risk documented in the \textit{Current Risks} data, which flags an exposed service on this host as a critical (10.0) vulnerability. This suggests a potential misconfiguration or an unnecessary service running, which could be exploited by local processes or in chained attacks.
+
+% =============================================================================
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% =============================================================================
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a unified list of identified risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Risk / Vulnerability} & \textbf{Severity} & \textbf{Description} \\ \midrule
+\textbf{Localhost Exposed (Port 22)} & \textbf{Critical} & An open port on \texttt{127.0.0.1} corroborates a known \\
+& (CVSS 10.0) & 10.0 severity risk. Potentially abusable by local malware. \\
+\addlinespace
+\textbf{No MFA on Email} & \textbf{Critical} & Lack of MFA on a primary communication channel exposes \\
+& & the organization to account takeover and BEC. \\
+\addlinespace
+\textbf{No Security Awareness Training} & \textbf{High} & Employees are not trained to recognize or report \\
+& & phishing, malware, or other security threats. \\
+\addlinespace
+\textbf{No Acceptable Use Policy} & \textbf{High} & Lack of a formal policy creates ambiguity regarding \\
+& & secure and acceptable use of company assets. \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\label{tab:risk_summary}
+\end{table}
+
+% =============================================================================
+% SECTION 6: RECOMMENDATIONS
+% =============================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity and potential impact.
+
+\subsection{Critical Priority}
+\begin{enumerate}
+    \item \textbf{Enforce MFA for Email Access:} Immediately implement and enforce multi-factor authentication (MFA) for all user accounts accessing the \texttt{IronRiverFinance.com} email system. Prioritize phishing-resistant methods such as authenticator apps (TOTP) or hardware security keys.
+    \item \textbf{Investigate and Remediate Exposed Localhost Service:} Conduct an immediate investigation into the service running on port 22 of \texttt{127.0.0.1}.
+    \begin{itemize}
+        \item Determine the purpose of the service and why it is running.
+        \item If the service is not essential for business operations, disable it.
+        \item If the service is required, ensure it is properly configured and restrict access using host-based firewall rules to only the necessary applications or users.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering from previous list
+    \item \textbf{Implement a Security Awareness Training Program:}
+    \begin{itemize}
+        \item Institute mandatory security awareness training for all new hires as part of the onboarding process.
+        \item Conduct annual, mandatory security training for all employees covering topics such as phishing, password security, and data handling.
+        \item Perform regular phishing simulations to test and reinforce training.
+    \end{itemize}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP that clearly defines the rules and expectations for using company technology and data. This policy should be reviewed and signed by all employees.
+\end{enumerate}
+
+\end{document}
+```

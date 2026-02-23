@@ -1,0 +1,164 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding{51} (check) and \ding{55} (cross)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx} % For potential logos
+\usepackage{xcolor} % For colors in text
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+% --- 1. Executive Summary ---
+\section*{1. Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Phoenix Rising}, based on an analysis of network scan data, organizational security controls, and pre-existing risk documentation. The assessment was conducted to identify vulnerabilities, evaluate current security practices, and provide actionable recommendations to enhance the organization's security posture.
+
+The analysis revealed several \textbf{critical and high-risk vulnerabilities} that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Network Vulnerability:} An externally facing FTP server is running a dangerously outdated version of \texttt{vsftpd} (2.3.4), which is known to contain a backdoor (CVE-2011-2523). Furthermore, the server is configured to allow anonymous logins, posing a severe and immediate threat of data breach and system compromise.
+    \item \textbf{Critical Access Control Gaps:} Multi-Factor Authentication (MFA) is not enforced for accessing email or other sensitive data systems. This significantly increases the risk of account takeover via credential theft.
+    \item \textbf{Foundational Policy Deficiencies:} The organization lacks a formal Acceptable Use Policy and does not conduct annual security awareness training for all employees. These gaps weaken the human element of security, making the organization more susceptible to social engineering and insider threats.
+\end{itemize}
+
+The combination of these findings indicates a high-risk security posture. This report outlines prioritized recommendations to mitigate these risks, starting with the immediate remediation of the vulnerable FTP server.
+
+% --- 2. Organizational Information ---
+\section*{2. Organizational Information}
+
+The following details were provided for the assessment. This information establishes the context for the technical and procedural findings.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Phoenix Rising} \\
+    Email Domain & \seqsplit{\texttt{PhoenixRising.com}} \\
+    Website Domain & \seqsplit{\url{www.PhoenixRising.com}} \\
+    External IP Address & \seqsplit{\texttt{73.33.11.44}} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section*{3. Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight significant gaps in fundamental security practices. A "No" response indicates a deviation from security best practices and represents a potential risk.
+
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.25\linewidth}@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Analyst's Note} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{red}{\ding{55}} & \textbf{Critical Risk.} Email is a primary target for attackers and often holds keys to other accounts. \\
+    \addlinespace
+    Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} & Good practice for endpoint security. \\
+    \addlinespace
+    Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} & \textbf{Critical Risk.} Exposes sensitive data to compromise from a single stolen password. \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} & \textbf{High Risk.} Lack of a formal policy creates ambiguity and legal exposure regarding technology use. \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} & Good foundational step for onboarding. \\
+    \addlinespace
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} & \textbf{High Risk.} Security knowledge degrades over time; annual refreshers are essential. \\
+    \bottomrule
+\end{tabular}
+
+% --- 4. Technical Scan Results ---
+\section*{4. Technical Scan Results}
+
+A network scan was performed on the target system \seqsplit{\texttt{10.0.0.15}} to identify open ports and exposed services. The results are detailed below.
+
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Findings \& Notes} \\
+    \midrule
+    21/tcp & Open & ftp & vsftpd 2.3.4 & \parbox[t]{0.4\linewidth}{\textbf{CRITICAL VULNERABILITY.} \\
+    1. Version 2.3.4 is vulnerable to a backdoor (CVE-2011-2523). \\
+    2. Scan confirmed Anonymous FTP login is allowed.} \\
+    \bottomrule
+\end{tabular}
+
+\subsection*{Analysis of Technical Findings}
+The open FTP port presents an immediate and severe threat. The running version, \texttt{vsftpd 2.3.4}, was compromised in 2011, and a malicious backdoor was inserted into the source code. An attacker can gain a command shell on the server by sending a specific sequence of characters as the username. Combined with the allowance of anonymous (unauthenticated) logins, this server is trivial to compromise and should be considered hostile.
+
+% --- 5. Consolidated Risk Assessment ---
+\section*{5. Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{tabular}{@{}p{0.1\linewidth} p{0.4\linewidth} p{0.15\linewidth} p{0.25\linewidth}@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Description} & \textbf{Severity} & \textbf{Affected Elements} \\
+    \midrule
+    RISK-001 & A publicly accessible FTP server is running a critically outdated and backdoored version of \texttt{vsftpd}, with anonymous login enabled. & \textbf{Critical} & Network Perimeter, Server Infrastructure, All Hosted Data \\
+    \addlinespace
+    RISK-002 & Lack of Multi-Factor Authentication (MFA) on email and sensitive data systems. & \textbf{Critical} & User Accounts, Email System, Sensitive Data Repositories \\
+    \addlinespace
+    RISK-003 & Absence of a formal Acceptable Use Policy and mandatory annual security awareness training. & \textbf{High} & All Employees, Organizational Security Culture \\
+    \addlinespace
+    RISK-004 & Workstations are running an outdated operating system (Windows 7), which is no longer supported with security updates. & \textbf{Medium} & Employee Workstations \\
+    \bottomrule
+\end{tabular}
+
+% --- 6. Recommendations ---
+\section*{6. Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{Priority 1: Immediate Actions (Remediate within 24-48 hours)}
+\begin{enumerate}
+    \item \textbf{Remediate Vulnerable FTP Server:}
+        \begin{itemize}
+            \item Immediately take the server at \texttt{10.0.0.15} offline.
+            \item Conduct a forensic analysis to determine if the system has already been compromised via the known backdoor.
+            \item If the FTP service is a business requirement, rebuild the server using a modern, supported OS and the latest stable version of an FTP server (e.g., vsftpd 3.x or a secure alternative like SFTP).
+            \item \textbf{Crucially, disable anonymous access.} All access must be authenticated and logged.
+        \end{itemize}
+    \item \textbf{Enforce MFA on Critical Systems:}
+        \begin{itemize}
+            \item Immediately begin the rollout of MFA for all user accounts on the primary email system (\texttt{PhoenixRising.com}).
+            \item Identify all systems classified as holding sensitive data and enforce MFA for access.
+        \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 2: High-Priority Actions (Remediate within 30-60 days)}
+\begin{enumerate}
+    \item \textbf{Develop and Implement Security Policies:}
+        \begin{itemize}
+            \item Draft a formal Acceptable Use Policy (AUP) that governs the use of all company technology assets.
+            \item Require all employees to read and formally acknowledge the policy.
+        \end{itemize}
+    \item \textbf{Establish Annual Security Training:}
+        \begin{itemize}
+            \item Procure or develop a security awareness training module.
+            \item Mandate that all employees complete the training annually, with tracking to ensure 100\% compliance.
+        \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 3: Medium-Priority Actions (Remediate within 90 days)}
+\begin{enumerate}
+    \item \textbf{Address Outdated Operating Systems:}
+        \begin{itemize}
+            \item Execute the existing plan to upgrade all Windows 7 workstations to a supported operating system, such as Windows 10 or 11.
+            \item Develop a formal patch and lifecycle management policy to prevent this issue from recurring in the future.
+        \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

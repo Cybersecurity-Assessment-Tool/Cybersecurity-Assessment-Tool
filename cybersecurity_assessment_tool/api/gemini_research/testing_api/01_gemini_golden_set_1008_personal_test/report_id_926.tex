@@ -1,0 +1,225 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[hidelinks]{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long monospaced text
+\usepackage{graphicx} % For logo (placeholder)
+\usepackage{fancyhdr} % For header/footer
+\usepackage{lastpage} % To get total page count
+
+% Define checkmark and cross symbols
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+% Header and Footer Configuration
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{Top Tier}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% ----------------------------------------------------------------------
+% DOCUMENT START
+% ----------------------------------------------------------------------
+\begin{document}
+
+% ----------------------------------------------------------------------
+% TITLE PAGE
+% ----------------------------------------------------------------------
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Cybersecurity Risk Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{Top Tier}
+    
+    \vspace{2cm}
+    
+    % Placeholder for a logo
+    % \includegraphics[width=0.4\textwidth]{logo_placeholder.png}
+    
+    \vfill
+    
+    \large
+    \textbf{Date of Report:} \today \\
+    \textbf{Report ID:} CYBER-2023-001
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% SECTION 1: EXECUTIVE SUMMARY
+% ----------------------------------------------------------------------
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture of \textbf{Top Tier}, based on a combination of technical network scanning, a review of organizational security controls, and an assessment of pre-existing risks.
+
+The assessment identified several critical and high-severity risks that require immediate attention. A key technical finding is a publicly accessible FTP server (\texttt{10.0.0.15}) running a dangerously outdated and vulnerable version of \texttt{vsftpd} (2.3.4), which is known to contain a critical backdoor. This service also permits anonymous logins, posing a severe risk of data breach and system compromise.
+
+From an organizational standpoint, significant gaps were identified in core security controls. The lack of mandatory Multi-Factor Authentication (MFA) for email access is a critical vulnerability, leaving the primary communication channel susceptible to account takeover attacks. Furthermore, the absence of an employee Acceptable Use Policy and a mandatory annual security awareness training program for all staff represents a high risk, increasing the likelihood of security incidents stemming from human error.
+
+This report outlines these findings in detail and provides a prioritized list of actionable recommendations to mitigate the identified risks and strengthen the overall security posture of the organization.
+
+% ----------------------------------------------------------------------
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+
+The following information was provided by the client and used as a baseline for this assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Top Tier \\
+Email Domain & \texttt{TopTier.com} \\
+Website Domain & \url{www.TopTier.com} \\
+External IP Address & \texttt{129.54.233.15} \\
+\bottomrule
+\end{tabular}
+
+% ----------------------------------------------------------------------
+% SECTION 3: SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+
+A review of internal security controls was conducted via a questionnaire. The responses indicate the current state of implemented policies and procedures. Gaps in these controls often represent significant organizational risk.
+
+\subsection{Questionnaire Responses}
+
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \xmark \\
+Do you require MFA to log into computers? & \cmark \\
+Do you require MFA to access sensitive data systems? & \cmark \\
+Does your organization have an employee acceptable use policy? & \xmark \\
+Does your organization do security awareness training for new employees? & \cmark \\
+Does your organization do security awareness training for all employees at least once per year? & \xmark \\
+\bottomrule
+\end{tabular}
+
+\subsection{Analysis of Control Gaps}
+
+The review reveals three significant control gaps that elevate the organization's risk profile:
+\begin{itemize}
+    \item \textbf{No MFA for Email:} This is a critical deficiency. Email is a primary target for phishing and business email compromise (BEC) attacks. Without MFA, a compromised password is all an attacker needs to gain access.
+    \item \textbf{No Acceptable Use Policy (AUP):} The lack of a formal AUP creates ambiguity regarding the proper use of company assets, data handling, and employee responsibilities, which can lead to unintentional security incidents.
+    \item \textbf{No Annual Security Training:} Security awareness is not a one-time event. Without regular reinforcement, employee knowledge of current threats (like phishing and social engineering) diminishes, making them more susceptible to attacks.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+
+A network scan was performed on the target system to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.0.0.15}
+\end{itemize}
+
+\subsection{Open Ports and Services}
+
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} & \textbf{Details} \\
+\midrule
+21/tcp & Open & ftp & vsftpd 2.3.4 & \begin{tabular}[t]{@{}l@{}}Anonymous FTP login allowed. \\ \textbf{CRITICAL VULNERABILITY}\end{tabular} \\
+\bottomrule
+\end{tabular}
+
+\subsection{Technical Findings Analysis}
+The scan identified one open port with a service that presents a critical risk:
+\begin{itemize}
+    \item \textbf{Vulnerable FTP Service (vsftpd 2.3.4):} This specific version of \texttt{vsftpd} is widely known to be vulnerable to a critical backdoor (CVE-2011-2523). An attacker can exploit this vulnerability to gain a command shell on the server, leading to a full system compromise.
+    \item \textbf{Anonymous FTP Login:} The service is configured to allow anonymous logins. This allows any unauthenticated user to access, upload, or download files. This can lead to sensitive data exposure or allow an attacker to use the server to host malicious files. The combination of this misconfiguration with the vulnerable software version is extremely dangerous.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% SECTION 5: RISK ASSESSMENT SUMMARY
+% ----------------------------------------------------------------------
+\section{Risk Assessment Summary}
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list.
+
+\begin{tabular}{@{}lp{0.25\linewidth}ll@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+RISK-001 & Vulnerable FTP Service & \textbf{Critical} & A server is running vsftpd 2.3.4, which is vulnerable to remote code execution (CVE-2011-2523). \\
+\addlinespace
+RISK-002 & No MFA on Email & \textbf{Critical} & Lack of MFA on email accounts significantly increases the risk of account takeover and BEC. \\
+\addlinespace
+RISK-003 & Lack of Annual Security Training & High & Without regular training, employees are more likely to fall victim to phishing and social engineering. \\
+\addlinespace
+RISK-004 & No Acceptable Use Policy & High & Absence of a formal policy creates ambiguity and increases the risk of insider threat and data misuse. \\
+\addlinespace
+RISK-005 & Outdated Windows Policy & Medium & Workstations are running Windows 7, which is end-of-life and no longer receives security updates. \\
+\bottomrule
+\end{tabular}
+
+% ----------------------------------------------------------------------
+% SECTION 6: RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\begin{enumerate}
+    \item \textbf{[Immediate] Remediate Vulnerable FTP Service (RISK-001):}
+    \begin{itemize}
+        \item Immediately take the FTP service on \texttt{10.0.0.15} offline.
+        \item If FTP is required, upgrade the service to the latest stable version and disable anonymous access.
+        \item If FTP is not required, decommission the service and ensure port 21 is firewalled.
+    \end{itemize}
+    
+    \item \textbf{[Immediate] Enforce MFA on All Email Accounts (RISK-002):}
+    \begin{itemize}
+        \item Procure and implement an MFA solution for the organization's email platform.
+        \item Make MFA enrollment mandatory for all users, including administrative and service accounts.
+    \end{itemize}
+    
+    \item \textbf{[High Priority] Implement Annual Security Awareness Training (RISK-003):}
+    \begin{itemize}
+        \item Develop or procure a security awareness training program covering topics like phishing, password security, and social engineering.
+        \item Mandate that all employees complete this training annually and track completion.
+    \end{itemize}
+    
+    \item \textbf{[High Priority] Develop and Enforce an Acceptable Use Policy (RISK-004):}
+    \begin{itemize}
+        \item Draft a clear AUP that defines the rules for using company technology and data.
+        \item Require all employees to read and formally acknowledge the policy.
+    \end{itemize}
+    
+    \item \textbf{[Medium Priority] Plan Windows 7 Upgrade (RISK-005):}
+    \begin{itemize}
+        \item Develop a project plan to upgrade all remaining Windows 7 workstations to a modern, supported operating system (e.g., Windows 10/11).
+        \item Allocate budget and resources for hardware and software upgrades as needed.
+    \end{itemize}
+\end{enumerate}
+
+% ----------------------------------------------------------------------
+% DOCUMENT END
+% ----------------------------------------------------------------------
+\end{document}
+```

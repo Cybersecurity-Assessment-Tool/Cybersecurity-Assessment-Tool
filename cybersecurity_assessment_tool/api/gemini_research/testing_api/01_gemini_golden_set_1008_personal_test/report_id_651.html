@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="executive-summary">1. Executive Summary</h1>
+<p>This report provides a comprehensive cybersecurity assessment for
+<strong>Obsidian Operatives</strong>, based on a synthesis of network
+scan data, organizational security controls, and pre-existing risk
+information. The analysis revealed several critical and high-risk
+vulnerabilities that require immediate attention.</p>
+<p>The most significant findings include a complete lack of Multi-Factor
+Authentication (MFA) across all critical systems, a publicly exposed and
+outdated database server (MySQL 5.7.33), and an inadequate security
+awareness training schedule for existing employees. The exposed database
+directly confirms a known high-severity risk (CVSS 7.5), elevating the
+urgency of remediation.</p>
+<p>These vulnerabilities, particularly the absence of MFA, create a
+substantial risk of unauthorized access, credential compromise, and
+potential data breach. We strongly recommend prioritizing the
+remediation steps outlined in Section 6 to mitigate these risks and
+improve the organization’s overall security posture.</p>
+<h1 class="unnumbered" id="organizational-information">2. Organizational
+Information</h1>
+<p>The following information was provided for the assessment.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;"><strong>Obsidian Operatives</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Email Domain</td>
+<td style="text-align: left;"><code>ObsidianOperatives.net</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Website Domain</td>
+<td
+style="text-align: left;"><code>www.ObsidianOperatives.net</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Address</td>
+<td style="text-align: left;"><code>222.166.134.85</code></td>
+</tr>
+</tbody>
+</table>
+<h1 class="unnumbered" id="security-control-review">3. Security Control
+Review</h1>
+<p>A review of the organization’s security controls was conducted via a
+questionnaire. The results highlight significant gaps in access control
+and employee security training policies. The lack of MFA is a critical
+weakness.</p>
+<table>
+<caption>Organizational Security Controls Questionnaire
+Results.</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<h1 class="unnumbered" id="technical-scan-results">4. Technical Scan
+Results</h1>
+<p>An external network scan was performed on the target IP address
+<code>172.16.50.20</code>. The scan identified one open port exposing a
+critical database service to the network.</p>
+<h2 class="unnumbered" id="open-ports-and-services">Open Ports and
+Services</h2>
+<table>
+<caption>Network services identified on target
+<code>172.16.50.20</code>.</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3306/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">mysql</td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">5.7.33</td>
+</tr>
+</tbody>
+</table>
+<h2 class="unnumbered" id="technical-analysis">Technical Analysis</h2>
+<p>The scan confirms that a MySQL database server is directly accessible
+from the network. The identified version, <strong>MySQL 5.7.33</strong>,
+reached its official End of Life (EOL) in October 2023. EOL software no
+longer receives security updates from the vendor, making it an easy
+target for attackers leveraging known vulnerabilities. This finding
+directly correlates with and validates the pre-existing risk documented
+in Input 3.</p>
+<h1 class="unnumbered" id="consolidated-risk-assessment">5. Consolidated
+Risk Assessment</h1>
+<p>The following table synthesizes findings from the security control
+review, technical scan, and pre-existing risk data into a prioritized
+list of security risks.</p>
+<table>
+<caption>Summary of Identified Security Risks.</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Description</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Exposed &amp; Outdated
+Database</strong></td>
+<td style="text-align: left;">A MySQL 5.7.33 database is publicly
+accessible on port 3306. The version is End-of-Life and unpatched. This
+aligns with a known risk.</td>
+<td style="text-align: left;"><span style="color: red"><strong>Critical
+(7.5)</strong></span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Critical MFA Gaps</strong></td>
+<td style="text-align: left;">Multi-Factor Authentication is not
+enforced for email, computer logins, or access to sensitive systems,
+leaving them vulnerable to credential theft.</td>
+<td style="text-align: left;"><span
+style="color: red"><strong>Critical</strong></span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Inadequate Training
+Cadence</strong></td>
+<td style="text-align: left;">While new hires receive training, the lack
+of an annual refresher for all employees increases susceptibility to
+phishing and social engineering attacks over time.</td>
+<td style="text-align: left;"><span
+style="color: orange"><strong>High</strong></span></td>
+</tr>
+</tbody>
+</table>
+<h1 class="unnumbered" id="recommendations">6. Recommendations</h1>
+<p>The following actions are recommended to mitigate the identified
+risks. They are prioritized based on severity and potential impact.</p>
+<ul>
+<li><p><strong>(Immediate) Isolate the Database:</strong></p>
+<ul>
+<li><p>Immediately implement firewall rules to restrict all public
+access to TCP port 3306 on host <code>172.16.50.20</code>. Access should
+only be permitted from trusted internal IP addresses or via a secure VPN
+connection.</p></li>
+</ul></li>
+<li><p><strong>(High Priority) Implement Multi-Factor Authentication
+(MFA):</strong></p>
+<ul>
+<li><p>Enforce MFA across all user accounts for critical services,
+starting with email (e.g., Office 365, Google Workspace) and any systems
+containing sensitive data.</p></li>
+<li><p>Develop a plan to roll out MFA for all employee computer
+logins.</p></li>
+</ul></li>
+<li><p><strong>(High Priority) Remediate Outdated Software:</strong></p>
+<ul>
+<li><p>Develop a migration plan to upgrade the MySQL 5.7.33 database
+instance to a currently supported version (e.g., MySQL 8.x). This will
+ensure the system receives critical security patches.</p></li>
+</ul></li>
+<li><p><strong>(Medium Priority) Enhance Security Training
+Program:</strong></p>
+<ul>
+<li><p>Establish a mandatory annual security awareness training program
+for all employees. This program should cover current threats such as
+phishing, ransomware, and proper data handling.</p></li>
+</ul></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

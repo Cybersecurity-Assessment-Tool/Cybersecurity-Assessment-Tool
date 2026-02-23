@@ -1,0 +1,147 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % To split long strings like IPs/hashes
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+\pagestyle{headings}
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Crestview Analytics}, conducted on \today. The analysis is based on a network scan, a review of organizational security controls, and an evaluation of pre-existing risks.
+
+The assessment reveals a mixed security posture. The organization demonstrates a strong commitment to security awareness, with established policies and regular training programs for all employees. Multi-Factor Authentication (MFA) is commendably enforced for computer logins and access to sensitive data systems.
+
+However, two critical-risk findings require immediate attention. Firstly, a significant gap was identified in the security controls: MFA is not required for email access. As email is a primary vector for phishing and account takeover attacks, this represents a substantial threat to the organization. Secondly, a technical scan confirmed a pre-existing risk related to an exposed SSH service on a local interface (\seqsplit{\texttt{127.0.0.1}}). While limited to localhost, this could be exploited as a pivot point in a more complex attack.
+
+Immediate remediation should focus on implementing mandatory MFA for all email accounts and hardening the configuration of internal services. Detailed recommendations are provided in Section \ref{sec:recommendations}.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Crestview Analytics
+    \item \textbf{Email Domain:} \seqsplit{\texttt{CrestviewAnalytics.org}}
+    \item \textbf{Website Domain:} \seqsplit{\url{www.CrestviewAnalytics.org}}
+    \item \textbf{External IP Address:} \seqsplit{\texttt{61.4.93.216}}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of administrative and technical security controls was conducted via a standardized questionnaire. The results highlight the organization's current policies and identify potential gaps. A "No" answer indicates a deviation from security best practices and is flagged as a risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\begin{tabular}{p{0.7\linewidth} c c}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Does your organization have an employee acceptable use policy? & Yes & \ding{51} \\
+Does your organization do security awareness training for new employees? & Yes & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & Yes & \ding{51} \\
+Do you require MFA to log into computers? & Yes & \ding{51} \\
+Do you require MFA to access sensitive data systems? & Yes & \ding{51} \\
+\textbf{Do you require MFA to access email?} & \textbf{No} & \textbf{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The primary finding from this review is the lack of mandatory MFA for email access. This is classified as a \textbf{Critical Risk} due to the high likelihood of business email compromise (BEC) and phishing attacks.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{127.0.0.1}}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Target Status:} Up
+\end{itemize}
+
+The scan identified the following open port(s):
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \seqsplit{\texttt{127.0.0.1}}}
+\label{tab:ports}
+\begin{tabular}{c c l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+\midrule
+22/tcp & open & SSH & Secure Shell service is accessible. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The presence of an open SSH port, even on the localhost interface, confirms the pre-existing risk identified in Input 3. This service could potentially be accessed by other compromised processes running on the same machine.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Risk Assessment}
+
+This section consolidates findings from the security control review, technical scan, and pre-existing risk data into a unified summary. Each risk is assigned a severity level to guide prioritization.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{0.3\linewidth} p{0.5\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{MFA Not Enforced for Email} & The lack of Multi-Factor Authentication on email accounts exposes the organization to account takeovers, phishing, and data breaches. & \textbf{Critical} \\
+\textbf{Localhost Exposed (SSH Service)} & An SSH service is running and accessible on the local interface (\seqsplit{\texttt{127.0.0.1}}). This confirms a known risk and could serve as an attack pivot point. & \textbf{Critical} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+\label{sec:recommendations}
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Crestview Analytics}.
+
+\subsection{Risk: MFA Not Enforced for Email (Critical)}
+
+\begin{itemize}
+    \item \textbf{Immediate Action:} Procure and implement an MFA solution for the organization's email platform (\seqsplit{\texttt{CrestviewAnalytics.org}}). Enforce this policy for all users, including administrative and service accounts, without exception.
+    \item \textbf{Long-Term Strategy:} Review all externally-facing applications and services to ensure MFA is consistently applied, especially for those containing sensitive data or providing administrative access.
+\end{itemize}
+
+\subsection{Risk: Localhost Exposed (SSH Service) (Critical)}
+
+\begin{itemize}
+    \item \textbf{Immediate Action:} Investigate the purpose of the SSH service running on the target system. If it is not required for a specific business or operational function, the service should be disabled immediately.
+    \item \textbf{Long-Term Strategy:} If the service is required, ensure it is securely configured. This includes:
+    \begin{itemize}
+        \item Disabling password-based authentication in favor of public key cryptography.
+        \item Applying the principle of least privilege to all user accounts with SSH access.
+        \item Implementing robust logging and monitoring for all SSH connections.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

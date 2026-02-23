@@ -1,0 +1,157 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required packages for professional formatting
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx} % For potential logos or diagrams
+\usepackage{xcolor} % For color definitions
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Define colors for severity
+\definecolor{criticalred}{HTML}{D10000}
+\definecolor{highorange}{HTML}{E25F00}
+\definecolor{mediumyellow}{HTML}{F5C200}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report provides a comprehensive analysis of the cybersecurity posture for Foresight Strategies. The assessment is based on a correlation of organizational data, a security controls questionnaire, an external network scan, and a review of known risks. The findings indicate a mixed security posture with some effective controls in place, but also critical gaps that expose the organization to significant threats. Key risks identified include the lack of multi-factor authentication (MFA) for email and inadequate security training for new employees. An exposed SSH service was also identified, which requires immediate attention. This document details these findings and provides actionable recommendations to mitigate the identified risks.
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Organizational Information}
+This section provides the organizational details used as the basis for this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & Foresight Strategies \\
+Email Domain & \seqsplit{\texttt{ForesightStrategies.net}} \\
+Website Domain & \seqsplit{\url{www.ForesightStrategies.net}} \\
+External IP Address & \seqsplit{\texttt{220.13.44.7}} \\
+\bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_data}
+\end{table}
+
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. A green checkmark (\ding{51}) indicates a positive control is in place, while a red cross (\ding{55}) indicates a control gap that presents a risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+Two critical control gaps were identified:
+\begin{itemize}
+    \item \textbf{No MFA for Email:} Email is a primary vector for phishing, business email compromise (BEC), and account takeover attacks. The absence of MFA on email accounts is a critical vulnerability.
+    \item \textbf{No Security Training for New Employees:} New hires are often targeted by attackers. Failing to provide immediate security awareness training leaves a window of high vulnerability until the annual training cycle.
+\end{itemize}
+
+\section{Technical Scan Results}
+An external network scan was performed to identify exposed services. The scan targeted the organization's known IPv6 address.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Status:} Host is UP
+\end{itemize}
+
+The following open port was discovered:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Probable)} & \textbf{Notes} \\ \midrule
+22/tcp & open & SSH & Secure Shell access. \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \seqsplit{\texttt{2001:db8::1}}}
+\label{tab:scan_results}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified an open SSH port (22). While SSH is a secure protocol, its exposure to the public internet creates a significant attack surface. It can be targeted by brute-force password attacks, credential stuffing, and exploits against vulnerable versions. Further investigation is required to determine the specific SSH server version and its configuration.
+
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data. The pre-existing risk log was empty. The following new risks have been identified and prioritized.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth}p{0.55\linewidth}l@{}}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\ \midrule
+Lack of MFA on Email & The absence of MFA on email accounts allows for account takeover via credential theft, leading to data breaches and BEC. & \textcolor{criticalred}{\textbf{Critical}} \\
+\addlinespace
+Inadequate New Hire Security Training & New employees are not trained on security policies upon hiring, making them highly susceptible to phishing and social engineering attacks. & \textcolor{highorange}{\textbf{High}} \\
+\addlinespace
+Exposed SSH Service & An open SSH port is exposed to the internet, creating a vector for brute-force attacks and potential unauthorized access to internal systems. & \textcolor{mediumyellow}{\textbf{Medium}} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risk_summary}
+\end{table}
+
+\section{Recommendations}
+To address the identified risks and improve the overall security posture, the following actions are recommended with urgency.
+
+\begin{enumerate}
+    \item \textbf{Implement MFA for Email (Priority: Immediate):}
+    \begin{itemize}
+        \item \textbf{Action:} Enforce mandatory Multi-Factor Authentication (MFA) for all user and administrative email accounts immediately.
+        \item \textbf{Justification:} This is the single most effective control to prevent email account takeovers and will significantly reduce the risk of phishing and Business Email Compromise (BEC) attacks.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Integrate Security Training into Onboarding (Priority: High):}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and integrate a mandatory security awareness training module into the new employee onboarding process. This should be completed within the first week of employment.
+        \item \textbf{Justification:} This closes the vulnerability window for new hires and ensures a baseline security awareness level across the entire organization from day one.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Secure the Exposed SSH Service (Priority: High):}
+    \begin{itemize}
+        \item \textbf{Action:}
+            \begin{enumerate}
+                \item Determine the business justification for the publicly exposed SSH service.
+                \item If not required, disable access from the internet immediately.
+                \item If required, implement compensating controls: restrict access to known, authorized IP addresses via firewall rules, enforce public key authentication (disabling passwords), and ensure the SSH server software is fully patched.
+            \end{enumerate}
+        \item \textbf{Justification:} This reduces the external attack surface and protects a key potential entry point into the organization's network.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

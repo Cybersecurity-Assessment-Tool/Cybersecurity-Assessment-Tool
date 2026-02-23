@@ -1,0 +1,192 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding symbols (checkmarks and crosses)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For formatting URLs
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{xcolor}   % For coloring text
+\usepackage{graphicx} % For potential logos or diagrams
+\usepackage{fancyhdr} % For headers and footers
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Begin Document ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \begin{tabular}{ll}
+        \textbf{Client:} & \textbf{[Organization Name]} \\
+        \textbf{Date of Report:} & \today \\
+        \textbf{Author:} & Cybersecurity Analyst \\
+    \end{tabular}
+    \vfill
+    \small\textit{This report contains sensitive information and is intended solely for the use of \textbf{[Organization Name]}. Distribution is strictly prohibited.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on technical network scans, a review of existing security controls, and an assessment of previously identified risks.
+
+The assessment has identified several critical and high-severity risks that require immediate attention. The most critical finding is the direct exposure of Remote Desktop Protocol (RDP) on port 3389 to the public internet. This vulnerability, with a CVSS score of 9.0, presents a significant and immediate threat of ransomware attacks or unauthorized system access.
+
+This technical vulnerability is severely compounded by critical gaps in organizational security controls. Specifically, the absence of Multi-Factor Authentication (MFA) for computer logins means that a single compromised password could lead to a full system breach. Furthermore, the lack of a formal Acceptable Use Policy and mandatory security training for new employees indicates a foundational weakness in the organization's security culture.
+
+Immediate remediation is required to address the exposed RDP service and enforce MFA. Strategic improvements to security policies and training programs are necessary to build a more resilient and secure operational environment.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This section details the information provided by the client organization.
+\begin{description}
+    \item[Organization Name:] \textbf{[Organization Name]}
+    \item[Email Domain:] \texttt{[Domain]}
+    \item[External IP Scanned:] \texttt{[Client IP]}
+\end{description}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The responses are summarized below. Gaps identified by a "No" answer are marked in red and represent significant areas of risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.75\textwidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+\begin{itemize}
+    \item \textbf{No MFA for Computer Logins:} This is a critical gap. Without MFA, compromised credentials (e.g., from a phishing attack) can be used directly to gain access to an employee's computer and, potentially, the entire network.
+    \item \textbf{No Acceptable Use Policy:} The absence of a formal policy creates ambiguity regarding employee responsibilities for protecting company data and systems.
+    \item \textbf{No Security Training for New Hires:} New employees are a common target for social engineering attacks. Failing to provide security training during onboarding leaves the organization vulnerable.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed on the client's external infrastructure to identify open ports and exposed services.
+
+\begin{description}
+    \item[Target IP Address:] \texttt{[Target IP]}
+    \item[Scan Date:] Corresponds with the date of this report.
+\end{description}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\begin{tabular}{llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Product/Version} \\
+\midrule
+3389/tcp & open & ms-wbt-server & (Not specified) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Findings}
+The scan confirms that port \textbf{3389}, used for Microsoft's Remote Desktop Protocol (RDP), is open to the public internet. Exposing RDP directly is an extremely high-risk configuration. This service is a primary target for threat actors who use automated tools to scan for open RDP ports, which they then attack via brute-force password guessing, credential stuffing, or exploitation of known vulnerabilities (e.g., BlueKeep). A successful attack can lead to a full system compromise and is a common entry point for ransomware deployment.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of current risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\textwidth} p{0.5\textwidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Public RDP Exposure} & Port 3389 (RDP) is exposed on \texttt{[Target IP]}, allowing direct remote access attempts from the internet. This is a primary vector for ransomware. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Endpoint MFA} & The absence of MFA on computer logins, combined with the exposed RDP service, means a single stolen password could grant an attacker full remote control. & \textbf{Critical} \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy} & Without a formal policy, there is no enforceable standard for employee behavior regarding data handling and system security, increasing insider threat risk. & \textbf{High} \\
+\addlinespace
+\textbf{Inadequate New Hire Security Training} & New employees are not trained on security best practices, making them highly susceptible to phishing and social engineering attacks that could lead to credential compromise. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and the potential for impact.
+
+\subsection*{Priority 1: Immediate Actions (Within 24-48 Hours)}
+\begin{enumerate}
+    \item \textbf{Isolate the Exposed RDP Service:}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately implement a firewall rule to block all inbound traffic to TCP port 3389 on \texttt{[Target IP]}.
+        \item \textbf{Justification:} This is the single most effective step to prevent an imminent breach via the exposed RDP service.
+        \item \textbf{Alternative:} If remote access is business-critical, it must be placed behind a secure Virtual Private Network (VPN) with MFA enabled.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 2: High-Priority Actions (Within 30 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Continue numbering
+    \item \textbf{Implement Multi-Factor Authentication for All Endpoints:}
+    \begin{itemize}
+        \item \textbf{Action:} Deploy and enforce an MFA solution for all computer and server logins across the organization.
+        \item \textbf{Justification:} This creates a critical defense layer, ensuring that a compromised password alone is not sufficient for an attacker to gain access.
+    \end{itemize}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item \textbf{Action:} Draft a formal AUP that clearly defines rules for all employees regarding the use of company technology, data handling, and security responsibilities. All employees must read and acknowledge the policy.
+        \item \textbf{Justification:} An AUP establishes a baseline for secure behavior and provides a framework for enforcement.
+    \end{itemize}
+    \item \textbf{Integrate Security Training into Onboarding:}
+    \begin{itemize}
+        \item \textbf{Action:} Create a mandatory security awareness training module for all new hires. This should cover topics such as phishing, password security, and the new AUP.
+        \item \textbf{Justification:} This ensures that new employees are aware of security threats and their role in protecting the organization from day one.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 3: Strategic Long-Term Improvements}
+\begin{enumerate}
+    \setcounter{enumi}{4} % Continue numbering
+    \item \textbf{Adopt a Zero Trust Security Model:}
+    \begin{itemize}
+        \item \textbf{Action:} Begin planning a transition away from perimeter-based security towards a Zero Trust architecture, where all access requests (both internal and external) are continuously verified.
+        \item \textbf{Justification:} This modern approach significantly reduces the attack surface and minimizes the impact of a potential breach.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

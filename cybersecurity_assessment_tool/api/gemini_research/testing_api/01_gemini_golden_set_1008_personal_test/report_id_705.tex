@@ -1,0 +1,192 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding symbols
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in \texttt
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For potential logos
+\usepackage{fancyhdr} % For headers and footers
+
+% --- Document Metadata ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Custom Commands & Colors ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\definecolor{critical}{HTML}{D73027}
+\definecolor{high}{HTML}{F46D43}
+\definecolor{medium}{HTML}{FEE090}
+\definecolor{low}{HTML}{ABDDA4}
+\definecolor{info}{HTML}{4575B4}
+
+% --- Header & Footer Configuration ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment for Foresight Strategies}
+\fancyfoot[C]{\thepage}
+\rhead{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{Executive Summary}
+% ==============================================================================
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{Foresight Strategies}. The assessment combined a review of organizational security controls, an external network scan, and an analysis of pre-existing risk documentation.
+
+The analysis revealed several areas of concern, most notably a critical misconfiguration on an internal network host. A network service on port \texttt{8080} of host \texttt{10.5.5.5} was found to be openly accessible, exposing a web interface titled \textbf{"TOP SECRET DB"}. This finding directly contradicts previous risk assessments which had marked this port as a secure false positive. This indicates a severe and immediate risk of sensitive data exposure.
+
+Furthermore, significant gaps were identified in organizational security policies. The lack of mandatory Multi-Factor Authentication (MFA) for computer logins and the absence of security awareness training for new employees represent critical vulnerabilities in the organization's defense against common cyber threats like phishing and unauthorized access.
+
+This report provides a detailed breakdown of these findings and offers prioritized, actionable recommendations to mitigate the identified risks and strengthen the overall security posture of \textbf{Foresight Strategies}.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Foresight Strategies} \\
+Email Domain & \texttt{ForesightStrategies.org} \\
+Website Domain & \url{www.ForesightStrategies.org} \\
+External IP Address & \texttt{140.48.217.204} \\
+\bottomrule
+\end{tabular}
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+
+A review of the organization's security controls was conducted via a questionnaire. The results are summarized below. Answers marked with \no\ represent significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc}
+\toprule
+\textbf{Security Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \textcolor{red}{\no} \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \yes \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\no} \\
+Does your organization do security awareness training for all employees at least once per year? & \yes \\
+\bottomrule
+\end{tabular}
+\caption{Organizational Security Control Status}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+\begin{itemize}
+    \item \textbf{Lack of Workstation MFA:} The absence of MFA for computer logins is a critical weakness. If an employee's password is stolen (e.g., via phishing), an attacker can gain direct access to their workstation and, subsequently, the internal network.
+    \item \textbf{No Security Training for New Hires:} New employees are a primary target for social engineering and phishing attacks. Failing to provide immediate security awareness training upon hiring leaves the organization vulnerable during a critical onboarding period.
+\end{itemize}
+
+% ==============================================================================
+\section{Technical Network Scan Findings}
+% ==============================================================================
+
+A network scan was performed to identify open ports and exposed services on the specified target.
+
+\subsection*{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{10.5.5.5}
+    \item \textbf{Target Status:} Host is Up
+\end{itemize}
+
+\subsection*{Open Ports Discovered}
+The following table details the open ports and services identified on the target host.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Details} \\
+\midrule
+8080/tcp & Open & http-proxy & HTTP Title: \textbf{TOP SECRET DB} \\
+\bottomrule
+\end{tabular}
+\caption{Open Port Analysis for \texttt{10.5.5.5}}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan revealed a single, highly critical finding. Port \texttt{8080} is open and hosts a web service with the title \textbf{"TOP SECRET DB"}. This strongly suggests an exposed database or administrative interface containing highly sensitive information. This finding is particularly alarming as the pre-existing risk documentation (Input 3) incorrectly labeled this port as secure, indicating a failure in the vulnerability validation process.
+
+% ==============================================================================
+\section{Correlated Risk Assessment}
+% ==============================================================================
+
+By correlating the security control gaps and technical scan results, we have identified the following key risks to the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth}p{0.12\linewidth}p{0.53\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Description \& Business Impact} \\
+\midrule
+\textbf{Exposed Sensitive Database Interface} & \textcolor{critical}{\textbf{Critical}} & An open port (\texttt{8080}) on host \texttt{10.5.5.5} exposes a service titled "TOP SECRET DB". This presents an immediate and severe risk of unauthorized access, data theft, or system compromise. This finding invalidates a previous assessment that marked this as a false positive. \\
+\addlinespace
+\textbf{Lack of Workstation Multi-Factor Authentication} & \textcolor{critical}{\textbf{Critical}} & The absence of MFA on computer logins means a compromised password provides an attacker with direct access to the internal network. This greatly increases the risk of lateral movement and ransomware deployment. \\
+\addlinespace
+\textbf{Inadequate New Hire Security Training} & \textcolor{high}{\textbf{High}} & New employees are not receiving security awareness training, making them highly susceptible to phishing and social engineering attacks. A successful attack on a new hire could lead to a full network compromise. \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+% ==============================================================================
+
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity.
+
+\subsection*{Priority 1: Immediate Actions (Within 24 Hours)}
+\begin{enumerate}
+    \item \textbf{Isolate Exposed Database Interface:}
+        \begin{itemize}
+            \item Immediately investigate the service running on port \texttt{8080} of host \texttt{10.5.5.5}.
+            \item If the service is not essential, disable it.
+            \item If essential, implement strict firewall rules to restrict access to only authorized personnel and systems.
+            \item Change any default or weak credentials associated with this service.
+        \end{itemize}
+    \item \textbf{Review Risk Assessment Process:}
+        \begin{itemize}
+            \item Conduct a post-mortem to understand why the risk on port \texttt{8080} was previously misclassified as a "false positive".
+            \item Improve the vulnerability validation process to ensure all findings are accurately verified.
+        \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 2: High-Impact Fixes (Within 30 Days)}
+\begin{enumerate}
+    \item \textbf{Implement Workstation MFA:}
+        \begin{itemize}
+            \item Begin a project to roll out Multi-Factor Authentication for all employee computer logins.
+            \item Prioritize users with access to sensitive data and system administrators.
+        \end{itemize}
+    \item \textbf{Develop New Hire Security Training:}
+        \begin{itemize}
+            \item Create a mandatory security awareness training module.
+            \item Integrate this training into the standard onboarding process for all new employees, to be completed within their first week of employment.
+        \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

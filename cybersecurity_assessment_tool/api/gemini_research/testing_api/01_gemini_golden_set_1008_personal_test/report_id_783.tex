@@ -1,0 +1,174 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGE IMPORTS ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tocloft}
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report \\ \large For: \textbf{Wildfire Communications}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- HELPER COMMANDS ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ===================================================================
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{Wildfire Communications}, based on data collected from network scans, organizational questionnaires, and a review of pre-existing risks. The analysis correlates technical vulnerabilities with organizational security controls to provide a holistic view of the current risk landscape.
+
+The assessment identified several high-priority risks requiring immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Access Control Gaps:} Multi-Factor Authentication (MFA) is not enforced for accessing email or other sensitive data systems. This significantly increases the risk of account compromise and unauthorized data access.
+    \item \textbf{Confirmed Public-Facing Database:} An external network scan confirmed that a MySQL database service is exposed to the network on port 3306.
+    \item \textbf{End-of-Life (EOL) Software:} The exposed MySQL database is running version 5.7.33, which is past its official End-of-Life date. EOL software no longer receives security patches, leaving it vulnerable to newly discovered exploits.
+\end{itemize}
+
+While the organization has implemented positive security controls such as employee security training and an acceptable use policy, the identified weaknesses in access control and infrastructure management present a tangible threat. This report outlines these risks in detail and provides actionable recommendations to mitigate them effectively.
+
+% ===================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name    & \textbf{Wildfire Communications} \\
+Email Domain         & \seqsplit{\texttt{WildfireCommunications.org}} \\
+Website Domain       & \seqsplit{\url{www.WildfireCommunications.org}} \\
+External IP Address  & \texttt{137.99.252.25} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\end{table}
+
+% ===================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ===================================================================
+\section{Security Control Review (Questionnaire Analysis)}
+
+An analysis of the security questionnaire reveals the status of key administrative and technical controls within the organization. "No" answers indicate significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\textwidth}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\ \midrule
+Do you require MFA to access email? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to log into computers? & \yes & Implemented \\
+Do you require MFA to access sensitive data systems? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+Does your organization have an employee acceptable use policy? & \yes & Implemented \\
+Does your organization do security awareness training for new employees? & \yes & Implemented \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Implemented \\ \bottomrule
+\end{tabular}
+\caption{Analysis of Security Control Questionnaire.}
+\end{table}
+
+% ===================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services on the target system.
+
+\subsection{Target: \texttt{172.16.50.20}}
+The scan revealed the following open port:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} & \textbf{Analyst Notes} \\ \midrule
+3306/tcp & Open & mysql & MySQL & 5.7.33 & \textcolor{red}{\textbf{EOL Software; High Risk}} \\ \bottomrule
+\end{tabular}
+\caption{Open Ports and Services Detected on \texttt{172.16.50.20}.}
+\end{table}
+
+\paragraph{Finding Detail:} The scan confirms that a MySQL database is directly accessible from the network. The detected version, \textbf{MySQL 5.7.33}, reached its official End-of-Life (EOL) in October 2023. Systems running EOL software are a major security risk as they no longer receive security updates from the vendor, leaving them perpetually vulnerable to known and future exploits.
+
+% ===================================================================
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% ===================================================================
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the questionnaire, technical scan, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\textwidth}p{0.1\textwidth}p{0.35\textwidth}p{0.2\textwidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Description} & \textbf{Affected Elements} \\ \midrule
+\textbf{Lack of MFA on Sensitive Systems} & \textcolor{red}{Critical} & Failure to require MFA for sensitive data systems allows a single-factor (password) breach to result in significant data compromise. & All sensitive data systems, user accounts \\
+\addlinespace
+\textbf{Database Exposure} & \textcolor{red}{High} & The MySQL database is exposed to the network, making it a direct target for brute-force attacks, credential stuffing, and exploitation. & Server at \texttt{172.16.50.20} on port 3306 \\
+\addlinespace
+\textbf{End-of-Life (EOL) Software} & \textcolor{red}{High} & The exposed MySQL database is running an unsupported, EOL version (5.7.33) that no longer receives security patches. & Server at \texttt{172.16.50.20} \\
+\addlinespace
+\textbf{Lack of MFA on Email} & \textcolor{red}{High} & The absence of MFA on email accounts makes them highly susceptible to phishing and account takeover, which is a common entry point for broader network attacks. & All employee email accounts \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\end{table}
+
+% ===================================================================
+% SECTION 6: RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+Based on the consolidated risk assessment, the following actions are recommended to improve the cybersecurity posture of \textbf{Wildfire Communications}. Recommendations are prioritized by severity.
+
+\begin{enumerate}
+    \item \textbf{Implement MFA for All Critical Systems (Critical):}
+    \begin{itemize}
+        \item Immediately enforce MFA for all user accounts with access to sensitive data systems.
+        \item Immediately enforce MFA on all email accounts (\texttt{WildfireCommunications.org}). This is the single most effective control to prevent account takeovers via phishing.
+    \end{itemize}
+
+    \item \textbf{Remediate Exposed Database (High):}
+    \begin{itemize}
+        \item \textbf{Short-Term:} Implement strict firewall rules to block all access to port 3306 from the public internet. Access should only be permitted from trusted, internal IP addresses.
+        \item \textbf{Long-Term:} Place the database in a private network segment. All administrative access should be routed through a secure gateway, such as a Virtual Private Network (VPN).
+    \end{itemize}
+    
+    \item \textbf{Upgrade End-of-Life Software (High):}
+    \begin{itemize}
+        \item Develop and execute a plan to migrate the MySQL 5.7.33 database to a currently supported version (e.g., MySQL 8.x). This is essential to ensure the system receives ongoing security patches.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

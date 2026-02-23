@@ -1,0 +1,326 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="titlepage">
+<p><strong>Cybersecurity Posture Report</strong></p>
+<p><strong>Prepared for:</strong></p>
+<p>Vanguard Heritage</p>
+<p><strong>Date of Report:</strong></p>
+<p>2026-01-31</p>
+<div class="center">
+<p>This document contains sensitive information and is intended for the
+exclusive use of the recipient.</p>
+</div>
+</div>
+<h1 id="executive-overview">Executive Overview</h1>
+<p>This report provides a comprehensive analysis of the cybersecurity
+posture for <strong>Vanguard Heritage</strong>, based on data collected
+from network scans, organizational questionnaires, and a review of
+pre-existing risks. The assessment was conducted to identify
+vulnerabilities, security control gaps, and potential threats to the
+organization’s information assets.</p>
+<p>The analysis revealed several high-priority risks that require
+immediate attention. The most critical findings include:</p>
+<ul>
+<li><p><strong>Complete Lack of Multi-Factor Authentication
+(MFA):</strong> The organization does not enforce MFA for email,
+computer logins, or access to sensitive data systems. This represents a
+critical vulnerability, significantly increasing the risk of
+unauthorized access and account compromise.</p></li>
+<li><p><strong>Vulnerable Public-Facing Service:</strong> An external
+network scan identified an FTP server (<code>vsftpd 2.3.4</code>)
+running on port 21. This specific version is known to contain a critical
+backdoor vulnerability (CVE-2011-2523), which could allow an attacker to
+gain full control of the server.</p></li>
+<li><p><strong>Insecure Service Configuration:</strong> The FTP server
+is configured to allow anonymous logins, permitting unauthenticated
+users to access files. This is a severe misconfiguration that exposes
+the organization to data breaches.</p></li>
+</ul>
+<p>While the organization has implemented positive controls such as
+security awareness training and an acceptable use policy, these are
+undermined by the critical technical and procedural gaps identified.
+This report outlines actionable recommendations to mitigate these risks
+and strengthen the overall security posture.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following information was provided and used as a baseline for
+this assessment.</p>
+<div id="tab:org_data">
+<table>
+<caption>Client Organizational Data</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;">Vanguard Heritage</td>
+</tr>
+<tr>
+<td style="text-align: left;">Email Domain</td>
+<td style="text-align: left;"><code>VanguardHeritage.com</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Website Domain</td>
+<td style="text-align: left;"><a href="www.VanguardHeritage.com"
+class="uri">www.VanguardHeritage.com</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Address</td>
+<td style="text-align: left;"><code>21.249.4.18</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of organizational security controls was conducted based on a
+standardized questionnaire. The results highlight significant gaps in
+access control measures. A green checkmark () indicates a positive
+control is in place, while a red X () indicates a gap.</p>
+<div id="tab:controls">
+<table>
+<caption>Security Controls Questionnaire Results</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis">Analysis</h2>
+<p>The absence of Multi-Factor Authentication (MFA) across all critical
+access points (email, endpoints, and sensitive data systems) is a
+<strong>critical risk</strong>. Stolen or weak credentials are a primary
+vector for cyberattacks, and MFA is the single most effective control to
+mitigate this threat. Without it, the organization is highly susceptible
+to phishing, credential stuffing, and brute-force attacks leading to
+unauthorized access and potential data breaches.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed on the target system to
+identify open ports and exposed services.</p>
+<h2 class="unnumbered" id="scan-details">Scan Details</h2>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>10.0.0.15</code></p></li>
+<li><p><strong>Scan Date:</strong> Data provided for report generation
+on 2026-01-31.</p></li>
+</ul>
+<h2 class="unnumbered" id="open-ports-and-services">Open Ports and
+Services</h2>
+<p>The following table details the services discovered during the
+scan.</p>
+<div id="tab:scan_results">
+<table>
+<caption>Network Scan Findings</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product / Version</strong></th>
+<th style="text-align: left;"><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">21/tcp</td>
+<td style="text-align: left;">Open</td>
+<td style="text-align: left;">ftp</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><strong>Critical:</strong> Anonymous FTP
+login allowed.</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Version is vulnerable to
+CVE-2011-2523.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis-1">Analysis</h2>
+<p>The scan identified an FTP server running
+<code>vsftpd version 2.3.4</code>. This version is affected by a
+well-known, critical backdoor vulnerability
+(<strong>CVE-2011-2523</strong>). If an attacker connects to the server
+with a username ending in ‘:)‘, they can gain a command shell on the
+system. Compounding this issue, the server is configured to allow
+<strong>anonymous FTP login</strong>, which means any unauthenticated
+user on the internet can connect and potentially access, upload, or
+download files. This configuration poses an immediate and severe threat
+to the integrity and confidentiality of the server and any data it
+contains.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>The following table synthesizes findings from the security control
+review, technical scan, and pre-existing risk data. Risks are
+prioritized by severity to guide remediation efforts.</p>
+<div id="tab:risk_register">
+<table>
+<caption>Consolidated Risk Register</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>ID</strong></th>
+<th style="text-align: left;"><strong>Risk Name &amp;
+Description</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+<th style="text-align: left;"><strong>Affected Systems</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">RISK-001</td>
+<td style="text-align: left;"><strong>Vulnerable FTP Server
+(CVE-2011-2523)</strong><br />
+A public-facing FTP server is running a version with a known remote code
+execution backdoor.</td>
+<td style="text-align: left;">Critical</td>
+<td style="text-align: left;">Server at <code>10.0.0.15</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-002</td>
+<td style="text-align: left;"><strong>Lack of Multi-Factor
+Authentication</strong><br />
+No MFA is enforced for email, endpoints, or sensitive systems, enabling
+account takeovers.</td>
+<td style="text-align: left;">Critical</td>
+<td style="text-align: left;">All Users, Endpoints, Email System</td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-003</td>
+<td style="text-align: left;"><strong>Insecure Anonymous FTP
+Access</strong><br />
+The FTP server allows unauthenticated access, exposing files to
+unauthorized users.</td>
+<td style="text-align: left;">High</td>
+<td style="text-align: left;">Server at <code>10.0.0.15</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-004</td>
+<td style="text-align: left;"><strong>Outdated Windows
+Policy</strong><br />
+Workstations are running Windows 7, which is an unsupported and
+vulnerable operating system.</td>
+<td style="text-align: left;">Medium</td>
+<td style="text-align: left;">Workstations</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actions are recommended to mitigate the identified
+risks. They are prioritized to address the most critical threats
+first.</p>
+<h2 class="unnumbered"
+id="risk-001-risk-003-vulnerable-and-insecure-ftp-server">RISK-001 &amp;
+RISK-003: Vulnerable and Insecure FTP Server</h2>
+<ul>
+<li><p><strong>Immediate Action:</strong> Take the FTP server offline
+immediately to prevent exploitation. If this is not possible, apply
+firewall rules to restrict access to only trusted IP addresses.</p></li>
+<li><p><strong>Short-Term Fix:</strong> Upgrade the <code>vsftpd</code>
+service to the latest stable version to patch the backdoor
+vulnerability. Simultaneously, disable anonymous FTP access in the
+server’s configuration file.</p></li>
+<li><p><strong>Long-Term Strategy:</strong> Decommission the FTP service
+entirely. Migrate all file transfer functionality to a secure protocol
+such as SFTP (SSH File Transfer Protocol) or FTPS (FTP over SSL/TLS),
+which encrypts both credentials and data in transit.</p></li>
+</ul>
+<h2 class="unnumbered"
+id="risk-002-lack-of-multi-factor-authentication">RISK-002: Lack of
+Multi-Factor Authentication</h2>
+<ul>
+<li><p><strong>Immediate Action:</strong> Begin a phased rollout of MFA
+across the organization. Prioritize implementation for all administrator
+accounts and external-facing services, especially email (e.g., Office
+365, Google Workspace).</p></li>
+<li><p><strong>Short-Term Fix:</strong> Enforce MFA for access to all
+systems containing sensitive or critical data.</p></li>
+<li><p><strong>Long-Term Strategy:</strong> Develop a corporate policy
+that mandates MFA for all employees for all services, including computer
+logins, VPN access, and cloud applications.</p></li>
+</ul>
+<h2 class="unnumbered" id="risk-004-outdated-windows-policy">RISK-004:
+Outdated Windows Policy</h2>
+<ul>
+<li><p><strong>Immediate Action:</strong> Isolate Windows 7 machines
+from the main network if they cannot be upgraded immediately to reduce
+their attack surface.</p></li>
+<li><p><strong>Short-Term Fix:</strong> Execute the existing plan to
+upgrade all remaining Windows 7 workstations to a supported version of
+Windows (e.g., Windows 10 or 11).</p></li>
+<li><p><strong>Long-Term Strategy:</strong> Implement a formal patch and
+lifecycle management program to ensure all operating systems and
+software are kept up-to-date and replaced before they reach
+end-of-life.</p></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

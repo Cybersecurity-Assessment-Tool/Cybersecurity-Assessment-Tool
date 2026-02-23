@@ -1,0 +1,162 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Document Title Block
+\title{Cybersecurity Posture Report for Binary Star}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for Binary Star, based on network scan data, organizational security controls, and a review of pre-existing risks. The assessment was conducted by correlating technical findings with self-reported security practices.
+
+The organization demonstrates a strong commitment to identity and access management, with Multi-Factor Authentication (MFA) consistently enforced across email, endpoints, and sensitive data systems. This is a commendable and critical control.
+
+However, significant gaps were identified in foundational security governance and operations. The absence of a formal Acceptable Use Policy (AUP) and the lack of mandatory, recurring security awareness training for all employees represent high-risk deficiencies. These gaps increase the organization's susceptibility to human-related threats such as phishing, social engineering, and insider misuse.
+
+Furthermore, a technical network scan revealed an open Remote Desktop Protocol (RDP) port on host \texttt{10.10.10.51}. This finding is particularly concerning as it indicates a potential systemic issue, echoing a previously identified risk on another host. Exposed RDP is a primary vector for ransomware attacks and unauthorized access.
+
+Immediate action is required to address the policy and training gaps and to remediate the exposed network service to mitigate the risk of a significant security breach.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Binary Star
+    \item \textbf{Primary Email Domain:} \texttt{BinaryStar.net}
+    \item \textbf{Primary Website Domain:} \url{www.BinaryStar.net}
+    \item \textbf{External IP Address:} \texttt{173.43.254.34}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. A green checkmark (\textcolor{green}{\ding{51}}) indicates a positive control is in place, while a red cross (\textcolor{red}{\ding{55}}) highlights a control gap that introduces risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{0.7\linewidth} c c}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & Yes & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & Yes & \textcolor{green}{\ding{51}} \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & No & \textcolor{red}{\ding{55}} \\
+\addlinespace
+Does your organization do security awareness training for new employees? & Yes & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & No & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The analysis reveals critical gaps in security governance. The lack of an Acceptable Use Policy and annual security training for all staff significantly weakens the organization's defense against common cyber threats.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\subsection{Host: \texttt{10.10.10.51}}
+The scan identified the following open port on the target host:
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports on \texttt{10.10.10.51}}
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+3389/tcp & open & ms-wbt-server & Microsoft Remote Desktop Protocol (RDP) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Finding Analysis:} The discovery of an open RDP port is a critical finding. RDP is a frequent target for brute-force attacks and exploitation, often serving as the initial entry point for ransomware campaigns. This finding, correlated with a pre-existing risk of RDP exposure on another host (\texttt{10.10.10.50}), suggests a recurring and systemic configuration weakness that must be addressed across the network.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table consolidates risks identified from the security control review and technical scan. Each risk is assigned a severity level based on its potential impact and likelihood of exploitation.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.55\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Exposed RDP Service} & The Remote Desktop Protocol (RDP) service on host \texttt{10.10.10.51} is accessible on the network, creating a direct vector for unauthorized access and ransomware. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Acceptable Use Policy} & The absence of a formal AUP leaves the organization without defined rules for employee use of IT assets, increasing legal and operational risk from insider threats. & \textbf{High} \\
+\addlinespace
+\textbf{Insufficient Security Training} & Without mandatory annual security awareness training, employee knowledge of current threats degrades, making them more vulnerable to phishing and social engineering attacks. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks and improve the overall security posture of Binary Star.
+
+\subsection{Immediate Actions (Next 7 Days)}
+\begin{enumerate}
+    \item \textbf{Remediate Exposed RDP on \texttt{10.10.10.51}:}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately close port 3389 on host \texttt{10.10.10.51} or restrict access to only authorized IP addresses via firewall rules.
+        \item \textbf{Justification:} This is a critical vulnerability and a primary target for attackers.
+    \end{itemize}
+    \item \textbf{Conduct Network-Wide RDP Audit:}
+    \begin{itemize}
+        \item \textbf{Action:} Perform an internal and external scan of all organizational network ranges to identify any other systems with exposed RDP services.
+        \item \textbf{Justification:} The discovery of two separate hosts with this issue points to a systemic problem requiring a comprehensive audit.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Strategic Actions (Next 90 Days)}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item \textbf{Action:} Draft, approve, and disseminate a formal AUP that clearly defines the rules and responsibilities for all employees when using company IT resources. Ensure all employees formally acknowledge the policy.
+        \item \textbf{Justification:} An AUP is a foundational governance document that reduces insider risk and provides a basis for disciplinary action in case of misuse.
+    \end{itemize}
+    \item \textbf{Establish a Mandatory Annual Security Awareness Program:}
+    \begin{itemize}
+        \item \textbf{Action:} Procure and roll out a security awareness training program for all employees, to be completed annually. This program should cover topics such as phishing, password hygiene, and social engineering.
+        \item \textbf{Justification:} A well-trained workforce is the first line of defense. Regular training keeps security top-of-mind and adapts to evolving threats.
+    \end{itemize}
+    \item \textbf{Implement a Secure Remote Access Strategy:}
+    \begin{itemize}
+        \item \textbf{Action:} If remote desktop access is a business requirement, implement a Virtual Private Network (VPN) solution with MFA. All RDP access should be routed exclusively through the VPN.
+        \item \textbf{Justification:} This provides a secure, encrypted, and authenticated tunnel for remote access, eliminating the risks associated with direct exposure of services like RDP.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

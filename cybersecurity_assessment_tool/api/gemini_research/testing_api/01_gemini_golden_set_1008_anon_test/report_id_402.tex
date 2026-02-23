@@ -1,0 +1,224 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- DOCUMENT METADATA ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Automated Security Analysis System},
+    pdfsubject={Security Report},
+    pdfkeywords={Cybersecurity, Analysis, LaTeX},
+}
+
+% --- CUSTOM COMMANDS & SETTINGS ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Define colors for risk levels
+\definecolor{criticalred}{HTML}{D7263D}
+\definecolor{highorange}{HTML}{F49D40}
+\definecolor{mediumyellow}{HTML}{F3E96B}
+\definecolor{lowgreen}{HTML}{A7C957}
+\definecolor{infoblue}{HTML}{68A2B9}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.3\textwidth]{example-image-a} % Placeholder for company logo
+    
+    \vspace{1.5cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \textbf{[Organization Name]}
+    
+    \vspace{2cm}
+    
+    \large
+    Date of Report: \today
+    
+    \vfill
+    
+    \large
+    \textit{This report contains sensitive information and should be handled with care.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive assessment of the cybersecurity posture for \textbf{[Organization Name]}, synthesizing data from a network vulnerability scan, a security controls questionnaire, and a review of pre-existing risks.
+
+The analysis reveals a significant disparity between the organization's external network security and its internal security policies. While the external scan of the target IP address (\texttt{[Target IP]}) did not identify any open, vulnerable ports, the security controls review uncovered critical gaps. 
+
+Key findings indicate a high risk of compromise stemming from inadequate identity and access management and a lack of foundational security policies. Specifically, the absence of Multi-Factor Authentication (MFA) for email and computer access, the lack of an Acceptable Use Policy (AUP), and no security training for new hires represent urgent vulnerabilities. These policy-based weaknesses create a substantial risk of social engineering, phishing, and insider threats, which could bypass an otherwise secure network perimeter.
+
+Immediate action is recommended to address these critical policy and procedural gaps to reduce the likelihood of a security incident.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were used as the basis for this assessment. Where information was not provided, placeholders have been used.
+
+\begin{table}[h!]
+\centering
+\caption{Client Information}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \texttt{[Domain]} \\
+External IP Scanned & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate significant gaps in the security framework and are highlighted for immediate attention.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{@{}p{0.5\linewidth}ccc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Analyst Note} \\ \midrule
+Do you require MFA to access email? & \ding{55} & \textcolor{criticalred}{\textbf{Critical Risk}} \\
+Do you require MFA to log into computers? & \ding{55} & \textcolor{highorange}{\textbf{High Risk}} \\
+Do you require MFA to access sensitive data systems? & \ding{51} & Best Practice Met \\
+Does your organization have an employee acceptable use policy? & \ding{55} & \textcolor{highorange}{\textbf{High Risk}} \\
+Does your organization do security awareness training for new employees? & \ding{55} & \textcolor{highorange}{\textbf{High Risk}} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Best Practice Met \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{Lack of MFA for Email:} This is a critical vulnerability. Email accounts are the primary target for phishing attacks and are often the key to resetting passwords for other critical systems. A compromise here could lead to a widespread breach.
+    \item \textbf{Lack of MFA for Computers:} The absence of MFA on endpoints (desktops/laptops) increases the risk of unauthorized access if user credentials are stolen.
+    \item \textbf{No Acceptable Use Policy (AUP):} An AUP is a foundational policy that sets clear expectations for employees regarding the use of company assets. Its absence can lead to inconsistent security practices and ambiguity during a security incident.
+    \item \textbf{No New Hire Security Training:} New employees are often targeted by attackers. Failing to provide security training during onboarding leaves a critical window of vulnerability open.
+\end{itemize}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+An external network scan was performed on the target IP address to identify open ports and exposed services.
+
+\subsection{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scanner Used:} Nmap
+    \item \textbf{Scan Date:} Not specified in scan data
+\end{itemize}
+
+\subsection{Findings}
+The scan revealed that the target host is online, but no open ports were discovered. The status of a key port is detailed below.
+
+\begin{table}[h!]
+\centering
+\caption{Port Scan Summary for \texttt{[Target IP]}}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{Protocol} & \textbf{State} & \textbf{Service/Note} \\ \midrule
+80 & TCP & \textbf{closed} & HTTP \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The external perimeter of the scanned IP address appears to be hardened, with no services exposed to the public internet. The finding that port 80 (HTTP) is closed is a positive security control. This result directly contradicts a pre-existing risk documented in the next section, suggesting that the risk may have been remediated.
+
+% --- RISK ASSESSMENT SUMMARY ---
+\section{Risk Assessment Summary}
+This section correlates findings from the security control review, the technical scan, and pre-existing risk data.
+
+\begin{table}[h!]
+\centering
+\caption{Consolidated Risk Register}
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\ \midrule
+\textbf{No MFA on Email} & Lack of MFA on email exposes the organization to account takeover and phishing. & \textcolor{criticalred}{\textbf{Critical}} \\
+\addlinespace
+\textbf{No MFA on Endpoints} & Lack of MFA on computer logins weakens endpoint security against stolen credentials. & \textcolor{highorange}{\textbf{High}} \\
+\addlinespace
+\textbf{No Acceptable Use Policy} & Absence of a formal AUP creates inconsistent security behavior and legal ambiguity. & \textcolor{highorange}{\textbf{High}} \\
+\addlinespace
+\textbf{No Onboarding Security Training} & New employees are not trained on security best practices, making them susceptible to attacks. & \textcolor{highorange}{\textbf{High}} \\
+\addlinespace
+\textbf{Unencrypted Web Server} & \textit{(From Input 3)} Port 80 is open, exposing unencrypted web traffic. \textbf{Note:} Our scan found this port to be \textbf{closed}, indicating this risk may be remediated. & \textcolor{mediumyellow}{\textbf{Medium}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+Based on the analysis, we recommend the following actions, prioritized by severity.
+
+\subsection{Priority 1: Critical}
+\begin{enumerate}
+    \item \textbf{Implement MFA for Email Immediately:}
+    \begin{itemize}
+        \item \textbf{Action:} Enforce MFA for all user accounts on the primary email system (\texttt{[Domain]}).
+        \item \textbf{Justification:} This is the single most effective control to prevent email account takeovers, which are a primary vector for major security breaches.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Priority 2: High}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Deploy MFA for Endpoint Logins:}
+    \begin{itemize}
+        \item \textbf{Action:} Roll out MFA for all company-managed computer logins (desktops and laptops).
+        \item \textbf{Justification:} Protects against unauthorized physical or remote access resulting from compromised credentials.
+    \end{itemize}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item \textbf{Action:} Draft, approve, and distribute an AUP that all employees must read and acknowledge. The policy should cover data handling, internet usage, and software installation.
+        \item \textbf{Justification:} Establishes a clear baseline for secure employee behavior and provides a framework for enforcement.
+    \end{itemize}
+    \item \textbf{Integrate Security Training into New Hire Onboarding:}
+    \begin{itemize}
+        \item \textbf{Action:} Create a mandatory security awareness training module for all new employees to complete within their first week.
+        \item \textbf{Justification:} Reduces the risk posed by new hires who are unfamiliar with company policies and are common targets for social engineering.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Priority 3: Verification}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item \textbf{Verify and Close "Unencrypted Web Server" Risk:}
+    \begin{itemize}
+        \item \textbf{Action:} Internally confirm that the service on port 80 is no longer active. Formally update the organization's risk register to reflect that this vulnerability is closed.
+        \item \textbf{Justification:} Ensures that risk documentation is accurate and reflects the current security posture.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

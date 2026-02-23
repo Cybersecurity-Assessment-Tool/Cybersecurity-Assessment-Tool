@@ -1,0 +1,145 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and ToC
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{graphicx} % For logo (optional)
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a cybersecurity posture assessment for \textbf{[Organization Name]}, conducted on November 22, 2025. The analysis is based on a combination of an external network scan, a review of organizational security controls via a questionnaire, and an evaluation of pre-existing risk data.
+
+The assessment reveals a mixed security posture. While the organization has implemented several key security controls, such as Multi-Factor Authentication (MFA) for email and sensitive systems, two significant risks were identified that require immediate attention:
+
+\begin{itemize}
+    \item \textbf{Critical Control Gap:} The absence of mandatory MFA for logging into employee computers presents a high risk. This gap could allow an attacker with compromised credentials to gain initial access to the internal network and move laterally.
+    \item \textbf{High-Severity Technical Vulnerability:} The external-facing web server at \texttt{[Target IP]} is running an outdated version of Nginx (1.18.0). This version is several years old and has publicly known vulnerabilities, exposing the organization to potential compromise.
+\end{itemize}
+
+While the provided list of current risks was empty, these new findings indicate that proactive measures are necessary to mitigate significant threats. Detailed findings and actionable recommendations are provided in the subsequent sections of this report to help \textbf{[Organization Name]} strengthen its security defenses.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+This section details the information provided about the organization. Note that some data was anonymized for this report template.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{Scanned External IP:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- 3. Security Control Review (Questionnaire) ---
+\section{Security Control Review (Questionnaire)}
+The following table summarizes the organization's responses to a security controls questionnaire. A green checkmark (\ding{51}) indicates a positive control is in place, while a red cross (\ding{55}) indicates a potential security gap.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.7\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The organization has implemented several crucial security controls, including MFA for email and sensitive data access, as well as a robust security awareness training program. However, the lack of MFA for computer logins is a critical oversight. If an employee's password is stolen, an attacker could directly access their workstation and the internal network, bypassing other protections. This represents a significant entry point for ransomware attacks and data breaches.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} 2025-11-22
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services Detected}
+\begin{tabular}{l l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & open & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified a web server running Nginx version 1.18.0. This version was released in April 2020 and is now considered significantly outdated. It is known to be affected by multiple security vulnerabilities, such as CVE-2021-23017 (DNS resolver vulnerability), among others. Running outdated software on internet-facing systems is a high-risk practice, as it provides attackers with well-known exploits to compromise the server.
+
+% --- 5. Risk Assessment Summary ---
+\section{Risk Assessment Summary}
+This section correlates the findings from the security control review and the technical scan. The provided list of pre-existing vulnerabilities was empty. The following new risks have been identified.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks}
+\begin{tabular}{p{0.05\linewidth} p{0.5\linewidth} l l}
+\toprule
+\textbf{ID} & \textbf{Risk Description} & \textbf{Severity} & \textbf{Source} \\
+\midrule
+R-01 & Lack of Multi-Factor Authentication (MFA) on employee computers/workstations, increasing the risk of unauthorized access via stolen credentials. & \textbf{High} & Questionnaire \\
+\addlinespace
+R-02 & Outdated Nginx web server (v1.18.0) with known public vulnerabilities is exposed to the internet, risking server compromise. & \textbf{High} & Network Scan \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+Based on the identified risks, the following actions are recommended to improve the security posture of \textbf{[Organization Name]}.
+
+\subsection*{Recommendation for R-01: Implement MFA for Workstation Login}
+\begin{itemize}
+    \item \textbf{Action:} Enforce mandatory MFA for all employee computer and remote desktop (RDP) logins. This is one of the most effective controls to prevent unauthorized access resulting from password compromise.
+    \item \textbf{Implementation:} Deploy a robust MFA solution compatible with your operating systems (e.g., Windows Hello for Business, Duo Security, Okta). Prioritize implementation for privileged users (administrators) and then roll it out to all employees.
+\end{itemize}
+
+\subsection*{Recommendation for R-02: Upgrade Outdated Nginx Server}
+\begin{itemize}
+    \item \textbf{Action:} Upgrade the Nginx server running on \texttt{[Target IP]} from version 1.18.0 to the latest stable version recommended by the vendor.
+    \item \textbf{Implementation:} First, test the upgrade in a non-production (staging) environment to ensure compatibility with your web applications. Once validated, schedule a maintenance window to perform the upgrade on the production server. Implement a formal patch management policy to ensure all internet-facing systems are updated on a regular basis.
+\end{itemize}
+
+\end{document}
+```

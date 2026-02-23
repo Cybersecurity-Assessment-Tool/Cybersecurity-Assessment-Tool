@@ -1,0 +1,209 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx} % For logo (placeholder)
+\usepackage{xcolor}   % For colors in text
+
+% --- DOCUMENT INFORMATION ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+% SECTION 1: EXECUTIVE OVERVIEW
+% ===================================================================
+\section{Executive Overview}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}. The analysis is based on a combination of network scanning data, a review of organizational security controls via a questionnaire, and a summary of pre-existing risks.
+
+The assessment reveals several critical and high-risk security gaps that require immediate attention. Key findings include:
+
+\begin{itemize}
+    \item \textbf{Critical Authentication Gaps:} Multi-Factor Authentication (MFA) is not enforced for accessing email or other sensitive data systems. This represents a significant risk of account compromise and data breach.
+    \item \textbf{Inadequate Employee Onboarding:} New employees do not receive mandatory security awareness training, leaving the organization vulnerable to social engineering and human error from the outset.
+    \item \textbf{Exposed Network Services:} An external scan identified an open Secure Shell (SSH) port (22/TCP). When combined with weak authentication controls, this service becomes a primary target for attackers.
+    \item \textbf{Pre-existing Critical Vulnerability:} The organization has a known, unmitigated critical risk titled "Localhost Exposed" with a CVSS score of 10.0, indicating a severe and easily exploitable flaw.
+\end{itemize}
+
+The overall security posture is considered \textbf{Poor}. The combination of these findings indicates a high likelihood of a successful cyber-attack. This report outlines prioritized, actionable recommendations to mitigate these risks and strengthen the organization's defenses.
+
+% ===================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+This section details the information provided by the client organization. The data has been anonymized as per the engagement requirements.
+
+\begin{table}[h!]
+\centering
+\caption{Client Organizational Details}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+External IP Address (Source) & \texttt{[Client IP]} \\
+Target IP Address (Scanned) & \texttt{[Target IP]} \\
+\bottomrule
+\end{tabular}
+\label{tab:org_info}
+\end{table}
+
+% ===================================================================
+% SECTION 3: SECURITY CONTROL REVIEW (QUESTIONNAIRE)
+% ===================================================================
+\section{Security Control Review (Questionnaire)}
+
+A review of the organization's security policies and procedures was conducted via a standardized questionnaire. The results highlight significant gaps in fundamental security controls. A "No" answer indicates a deviation from security best practices and a potential risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{@{}p{0.7\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{MFA on Email \& Sensitive Data (Critical Risk):} The absence of MFA on email and sensitive data systems is a critical vulnerability. Email is a primary target for phishing and business email compromise (BEC) attacks. A single compromised password could lead to a full breach of communications and sensitive information.
+    \item \textbf{New Employee Training (High Risk):} Failing to train new employees on security best practices from day one introduces unnecessary risk. New hires are often prime targets for social engineering attacks as they are unfamiliar with company policies and personnel.
+\end{itemize}
+
+% ===================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed against the target IP address to identify accessible services.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Not Specified
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+\subsection*{Open Ports Discovered}
+The following table details the network ports found to be open and accessible from the internet.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{Protocol} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\ \midrule
+22 & TCP & open & SSH & Product/version not identified. \\
+\bottomrule
+\end{tabular}
+\label{tab:ports}
+\end{table}
+
+\subsection*{Technical Analysis}
+The scan identified that port 22 (SSH) is open to the internet. SSH is a common protocol for remote server administration. While essential for management, a publicly exposed SSH service is a high-value target for attackers who will attempt to gain access via:
+\begin{itemize}
+    \item \textbf{Brute-force attacks:} Systematically guessing usernames and passwords.
+    \item \textbf{Credential stuffing:} Using passwords stolen from other data breaches.
+    \item \textbf{Exploitation of vulnerabilities:} Targeting outdated or misconfigured SSH server software.
+\end{itemize}
+This finding is especially concerning given the lack of MFA enforcement on sensitive systems, as a compromised SSH credential could grant an attacker direct access to critical infrastructure.
+
+% ===================================================================
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% ===================================================================
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.4\textwidth}p{0.4\textwidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\ \midrule
+Localhost Exposed & Pre-existing critical vulnerability (CVSS 10.0) affecting \texttt{[Target IP]}. Details of the flaw were not provided. & \textbf{Critical} \\
+\addlinespace
+Lack of MFA on Email & Absence of MFA on email accounts allows for account takeover with only a password, enabling phishing and data theft. & \textbf{Critical} \\
+\addlinespace
+Lack of MFA on Sensitive Systems & Absence of MFA on core systems allows for unauthorized access to critical data and infrastructure with a single compromised credential. & \textbf{Critical} \\
+\addlinespace
+Exposed SSH Service & Port 22 is open to the internet, creating a direct vector for brute-force and credential-based attacks against a core administrative service. & \textbf{High} \\
+\addlinespace
+No Security Training for New Hires & New employees are not trained on security policies, making them highly susceptible to social engineering and accidental policy violations. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\label{tab:risks}
+\end{table}
+
+% ===================================================================
+% SECTION 6: RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+The following prioritized recommendations are provided to address the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection*{Priority 1: Critical Risks}
+\begin{enumerate}
+    \item \textbf{Remediate "Localhost Exposed" Vulnerability:} Immediately investigate and remediate the pre-existing CVSS 10.0 vulnerability. This should be the highest priority. The provided data indicates no known fix, which requires urgent internal investigation or vendor contact.
+    
+    \item \textbf{Enforce MFA on All Critical Systems:}
+    \begin{itemize}
+        \item Immediately enable and enforce MFA for all user accounts on the primary email system (\texttt{[Domain]}).
+        \item Immediately enable and enforce MFA on all systems designated as containing sensitive data.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 2: High Risks}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Secure the Exposed SSH Service:}
+    \begin{itemize}
+        \item If SSH access is not required from the public internet, block port 22 at the network firewall.
+        \item If public access is required, restrict access to a whitelist of trusted IP addresses.
+        \item Enforce key-based authentication and disable password-based logins for SSH.
+        \item Implement an intrusion prevention tool like \texttt{fail2ban} to block IPs that fail authentication repeatedly.
+    \end{itemize}
+
+    \item \textbf{Implement a New Hire Security Training Program:}
+    \begin{itemize}
+        \item Develop a mandatory security awareness training module that is a required part of the onboarding process for all new employees and contractors.
+        \item The training should cover, at a minimum: acceptable use policies, phishing identification, password hygiene, and incident reporting procedures.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

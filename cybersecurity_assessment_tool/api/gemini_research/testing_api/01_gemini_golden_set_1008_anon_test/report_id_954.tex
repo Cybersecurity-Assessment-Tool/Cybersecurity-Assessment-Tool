@@ -1,0 +1,130 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[hidelinks]{hyperref} % For clickable links without boxes
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}. The assessment is based on the correlation of an external network scan, a review of organizational security controls via a questionnaire, and an evaluation of previously identified risks. The analysis reveals that while the external network perimeter appears secure regarding the scanned ports, significant internal security control gaps exist. Specifically, the lack of multi-factor authentication (MFA) on employee computers and the absence of security awareness training for new hires present high-impact risks that require immediate attention.
+\end{abstract}
+
+\section*{1. Overview and Scope}
+The objective of this assessment was to evaluate the current security posture by synthesizing technical scan data with organizational policies. The scope included:
+\begin{itemize}
+    \item A review of the external-facing network services on the provided IP address.
+    - An analysis of self-reported security controls and policies.
+    - A correlation of new findings with a list of pre-existing risks.
+\end{itemize}
+
+\section*{2. Organizational Information}
+The following information was used as the basis for this assessment. Due to the anonymized nature of the input data, placeholders have been used where necessary.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \texttt{[Domain]} \\
+External IP Assessed & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_info}
+\end{table}
+
+\section*{3. Security Control Review (Questionnaire Analysis)}
+An analysis of the security questionnaire reveals several critical gaps in the organization's security controls. While some best practices are in place, the items marked with a cross (\ding{55}) represent significant weaknesses.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \textbf{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \textbf{\ding{55}} \\
+Does your organization do security awareness training annually? & \ding{51} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{No MFA for Computer Logins:} This is a critical vulnerability. If an employee's password is stolen (e.g., through phishing or a data breach), an attacker could gain direct access to their computer and the internal network.
+    \item \textbf{No Security Training for New Employees:} New hires are often prime targets for social engineering attacks. Failing to provide immediate security training leaves a window of high vulnerability for the entire organization.
+\end{itemize}
+
+\section*{4. Technical Scan Results}
+An external network scan was performed using Nmap to identify open ports and services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+The scan revealed no open ports on the target system. Specifically, port 80 (HTTP) was found to be \textbf{closed}. This finding is significant as it contradicts a previously identified risk ("Unencrypted Web Server"). This indicates that the prior vulnerability has been successfully remediated or was a false positive.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} \\ \midrule
+80 & closed & http \\ \bottomrule
+\end{tabular}
+\caption{Nmap Scan Results for \texttt{[Target IP]}}
+\label{tab:nmap_results}
+\end{table}
+
+\section*{5. Consolidated Risk Assessment}
+The following table summarizes the current high-priority risks identified by correlating the security control gaps with potential threats. The previously reported risk regarding Port 80 is now considered remediated based on the current scan data.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\ \midrule
+\textbf{Compromise of End-User Workstations} & Lack of mandatory MFA for computer logins allows a single stolen password to grant an attacker network access. & \textbf{High} \\
+\textbf{New Employee Susceptibility to Phishing} & New hires are not provided with security awareness training, making them highly vulnerable to social engineering and phishing attacks. & \textbf{High} \\
+\textit{Unencrypted Web Server (Remediated)} & \textit{Previously identified risk. The current scan shows Port 80 is closed, mitigating this threat.} & \textit{Informational} \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+\section*{6. Recommendations}
+To mitigate the identified risks and improve the overall security posture, the following actions are recommended with high priority.
+
+\subsection*{Recommendation 1: Implement MFA on All Endpoints}
+\begin{itemize}
+    \item \textbf{Action:} Enforce mandatory Multi-Factor Authentication (MFA) for all employee computer logins. This is the single most effective control to prevent unauthorized access from compromised credentials.
+    \item \textbf{Implementation:} Utilize built-in operating system features (e.g., Windows Hello for Business) or deploy a third-party MFA solution (e.g., Duo, Okta).
+\end{itemize}
+
+\subsection*{Recommendation 2: Mandate Onboarding Security Training}
+\begin{itemize}
+    \item \textbf{Action:} Develop and integrate a mandatory security awareness training module into the new employee onboarding process. This training must be completed before a new hire is granted access to sensitive systems.
+    \item \textbf{Implementation:} The training should cover, at a minimum: phishing and spear-phishing identification, password security policies, and the organization's acceptable use policy.
+\end{itemize}
+
+\section*{7. Conclusion}
+The assessment for \textbf{[Organization Name]} highlights a common security paradigm: while technical external controls may be in place, internal policy and procedure gaps can create significant, high-impact risks. Addressing the recommendations regarding endpoint MFA and new-hire security training is critical to safeguarding the organization's assets and data.
+
+\end{document}
+```

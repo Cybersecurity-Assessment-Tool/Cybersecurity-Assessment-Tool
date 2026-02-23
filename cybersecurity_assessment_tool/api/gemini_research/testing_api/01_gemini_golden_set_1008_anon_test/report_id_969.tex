@@ -1,0 +1,190 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry} % Sets page margins
+\usepackage{pifont}               % Provides access to dingbats like checkmarks and crosses
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For hyperlinks, metadata, and better PDF navigation
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % For splitting long strings in \texttt
+\usepackage{graphicx}             % For including logos (optional but good practice)
+\usepackage{xcolor}               % For custom colors
+
+% --- Document Metadata ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Cybersecurity, Nmap, Risk Assessment},
+    pdftoolbar=true,
+}
+
+% --- Custom Commands for Status Indicators ---
+\newcommand{\cmark}{\ding{51}} % Checkmark
+\newcommand{\xmark}{\ding{55}} % X-mark
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:}\\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+    \vspace{2.5cm}
+    
+    \begin{center}
+        \rule{\linewidth}{0.5mm}
+        \vspace{0.5cm}
+        \Large \textbf{CONFIDENTIAL}
+        \vspace{0.5cm}
+        \rule{\linewidth}{0.5mm}
+    \end{center}
+    
+    \vfill
+    
+    \large
+    \textbf{Date of Report:} \today \\
+    \textbf{Author:} Cybersecurity Analyst
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section*{1. Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, synthesizing data from a network vulnerability scan, a security controls questionnaire, and a review of existing risk documentation.
+
+The analysis reveals a mixed security posture. While the organization has implemented critical controls such as Multi-Factor Authentication (MFA) for email and sensitive data systems, significant and high-risk gaps were identified. 
+
+Most critically, a network scan performed on the external IP address \texttt{[Client IP]} revealed an open service on port 8080 with the title \textbf{"TOP SECRET DB"}. This finding directly contradicts the existing risk documentation, which incorrectly classifies this port as a secure false positive. This represents a severe information disclosure and a potential vector for a data breach.
+
+Furthermore, critical administrative and technical controls are missing. The absence of MFA for computer logins and the lack of a formal Employee Acceptable Use Policy create substantial risks that could be exploited by threat actors.
+
+This report outlines these findings in detail and provides prioritized, actionable recommendations to mitigate the identified risks and strengthen the organization's overall security posture.
+
+% --- Section 2: Organizational Information ---
+\section*{2. Organizational Information}
+This section provides high-level details about the organization based on the provided data.
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section*{3. Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. Items marked with an \xmark\ represent significant gaps in the security framework and are discussed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{0.7\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \cmark \\
+Do you require MFA to log into computers? & \textcolor{red}{\xmark} \\
+Do you require MFA to access sensitive data systems? & \cmark \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\xmark} \\
+Does your organization do security awareness training for new employees? & \cmark \\
+Does your organization do security awareness training for all employees at least once per year? & \cmark \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section*{4. Technical Scan Results}
+An external network scan was conducted on the target IP address. The results indicate the presence of an open port exposing a potentially sensitive service.
+
+\subsection*{4.1. Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]} (Derived from \texttt{[Client IP]})
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+\subsection*{4.2. Open Ports and Services}
+A single open port was identified during the scan. The details are highly concerning due to the service's descriptive title.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Open Ports}
+\begin{tabular}{l l l p{0.5\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Details / Banner} \\
+\midrule
+8080/tcp & Open & http (inferred) & \textbf{HTTP Title:} \seqsplit{\texttt{TOP SECRET DB}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The title "TOP SECRET DB" is a critical information disclosure vulnerability. It makes the service a high-value target for attackers and suggests that a sensitive database may be directly accessible from the public internet. \textbf{This finding directly contradicts the existing risk documentation (Input 3), which incorrectly states this port is secure.}
+
+% --- Section 5: Risk Assessment & Correlation ---
+\section*{5. Risk Assessment \& Correlation}
+This section correlates the findings from the security control review and the technical scan to provide a synthesized view of the top risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Synthesized Risk Summary}
+\begin{tabular}{p{0.25\linewidth} p{0.15\linewidth} p{0.5\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Description \& Correlation} \\
+\midrule
+\textbf{Exposed Sensitive Database Interface} & \textbf{Critical} & The service on port 8080 is titled "TOP SECRET DB". This contradicts the existing risk register and indicates a high probability of sensitive data exposure. This is the most urgent finding. \\
+\addlinespace
+\textbf{Lack of Endpoint MFA} & \textbf{High} & The "No" response for MFA on computer logins means that a single compromised password could grant an attacker full access to an employee's workstation, from which they could access internal resources, including the exposed database. \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy (AUP)} & \textbf{Medium} & The absence of a formal AUP creates ambiguity regarding security responsibilities. It weakens the organization's ability to enforce security standards and complicates disciplinary action in case of an insider threat or accidental misconfiguration. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section*{6. Recommendations}
+The following actionable recommendations are provided to address the identified risks. They are prioritized based on severity.
+
+\subsection*{6.1. Immediate Actions (Critical Risk)}
+\begin{enumerate}
+    \item \textbf{Investigate and Remediate Port 8080:}
+    \begin{itemize}
+        \item Immediately investigate the service running on port 8080 on \texttt{[Target IP]}.
+        \item If the service is business-critical and contains sensitive data, restrict access immediately via firewall rules to allow only authorized IP addresses.
+        \item If the service is not intended for public access, shut it down or move it to an internal, non-routable network.
+        \item Regardless of function, change the service's title to remove any descriptive or sensitive information.
+        \item \textbf{Update the risk register to reflect the true state of this vulnerability.}
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{6.2. High-Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Continue numbering
+    \item \textbf{Implement Endpoint MFA:}
+    \begin{itemize}
+        \item Deploy a robust MFA solution (e.g., Windows Hello for Business, Duo, Okta) for all employee computer logins.
+        \item Prioritize deployment for privileged users, such as system administrators and executives, before rolling out to the entire organization.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{6.3. Medium-Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item Draft a formal AUP that clearly defines rules for the use of company technology, data handling, and security responsibilities.
+        \item Require all current and new employees to read and formally acknowledge the policy as a condition of their employment.
+        \item Integrate the AUP into the security awareness training program.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

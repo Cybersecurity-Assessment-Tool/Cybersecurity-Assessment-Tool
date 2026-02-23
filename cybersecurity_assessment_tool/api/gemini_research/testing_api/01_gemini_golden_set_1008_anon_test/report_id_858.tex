@@ -1,0 +1,214 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Report}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{Page \thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Body ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder for a logo
+    
+    \vspace{1.5cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \textbf{[Organization Name]}
+    
+    \vspace{2cm}
+    
+    \large
+    Report Date: \today
+    
+    \vfill
+    
+    \normalsize
+    This report contains sensitive information and is intended solely for the use of the designated recipient. Unauthorized distribution is strictly prohibited.
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on a correlation of organizational data, an external network scan, and a review of pre-existing risks.
+
+The assessment identified several critical and high-risk gaps in administrative and policy-based security controls. The most significant findings are the lack of multi-factor authentication (MFA) for email access, the absence of an employee acceptable use policy, and the failure to conduct annual security awareness training for all staff. These deficiencies expose the organization to significant risks, including business email compromise, insider threats, and social engineering attacks.
+
+On a positive note, the external network scan of the target IP address \texttt{[Target IP]} did not reveal any open ports or vulnerable services. This technical finding indicates that a previously identified risk, an "Unencrypted Web Server" on Port 80, has been successfully mitigated.
+
+Recommendations are prioritized to address the most critical vulnerabilities first. Immediate action should be taken to enforce MFA on all email accounts. Subsequent efforts should focus on developing and implementing key security policies and training programs to build a more resilient and security-conscious culture.
+
+\newpage
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This section details the information provided by the client, which forms the basis of this assessment. The data has been anonymized as per the engagement agreement.
+
+\begin{table}[h!]
+\centering
+\caption{Client Organizational Data}
+\label{tab:org_data}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+External IP Scanned & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+The following table summarizes the organization's responses to a security controls questionnaire. Each response is evaluated against industry best practices. Items marked with a red \ding{55} represent significant gaps in the security framework and are discussed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\rowcolors{2}{gray!10}{white}
+\begin{tabular}{@{}p{0.5\linewidth}ccp{0.25\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Yes} & \textbf{No} & \textbf{Analyst Notes} \\ \midrule
+Do you require MFA to access email? & & \color{red}\ding{55} & \textbf{Critical Gap.} Lack of MFA on email is a primary vector for account takeovers. \\
+\addlinespace
+Do you require MFA to log into computers? & \color{green}\ding{51} & & Good practice. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \color{green}\ding{51} & & Good practice. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & & \color{red}\ding{55} & \textbf{High Risk.} Lack of a formal policy creates ambiguity and increases insider risk. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \color{green}\ding{51} & & Good practice for onboarding. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & & \color{red}\ding{55} & \textbf{High Risk.} Security skills decay; annual refreshers are essential to combat evolving threats. \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+% --- Section 4: External Technical Scan Results ---
+\section{External Technical Scan Results}
+An external network scan was performed using Nmap to identify open ports and exposed services on the public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\subsection{Findings}
+The scan results were positive, indicating a strong network perimeter configuration for the scanned asset. No open ports were discovered. The status of a key port is detailed below.
+
+\begin{table}[h!]
+\centering
+\caption{Nmap Scan Port Summary}
+\label{tab:nmap}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{Protocol} & \textbf{State} & \textbf{Service/Version Details} \\ \midrule
+80 & tcp & \textbf{closed} & http \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis}
+The scan confirms that Port 80 (HTTP) is closed to external traffic. This is a secure configuration that prevents unencrypted web communication. This finding directly contradicts a pre-existing risk entry, suggesting that remediation has already occurred. This is a significant improvement to the organization's security posture.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes findings from the security control review, the technical scan, and pre-existing risk data to provide a holistic view of the current risk landscape.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\rowcolors{2}{gray!10}{white}
+\begin{tabular}{@{}p{0.3\linewidth}p{0.4\linewidth}ll@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} & \textbf{Status} \\ \midrule
+\textbf{Email Account Compromise} & Email accounts lack MFA, making them highly susceptible to phishing and credential stuffing attacks. & \color{red}\textbf{Critical} & \textbf{Active} \\
+\addlinespace
+\textbf{Lack of Acceptable Use Policy} & Without a formal AUP, employees lack clear guidelines on protecting company assets, increasing insider risk. & \color{orange}\textbf{High} & \textbf{Active} \\
+\addlinespace
+\textbf{Insufficient Security Training} & Lack of annual training reduces employee ability to recognize and respond to social engineering and phishing. & \color{orange}\textbf{High} & \textbf{Active} \\
+\addlinespace
+\textbf{Unencrypted Web Server} & Port 80 was previously believed to be open, exposing the organization to unencrypted traffic interception. & \color{yellow}\textbf{Medium} & \color{green}\textbf{Mitigated} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are prioritized based on the severity of the associated risks. Addressing these items will significantly improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{Priority 1: Critical}
+\begin{description}
+    \item[Implement MFA for Email:] Enforce mandatory Multi-Factor Authentication (MFA) across all email accounts immediately. This is the single most effective control to prevent unauthorized account access.
+    \begin{itemize}
+        \item \textbf{Suggested Tools:} Microsoft Authenticator, Google Authenticator, YubiKey.
+        \item \textbf{Timeline:} Within 7 days.
+    \end{itemize}
+\end{description}
+
+\subsection{Priority 2: High}
+\begin{description}
+    \item[Develop and Implement an Acceptable Use Policy (AUP):] Create a formal AUP that clearly defines the rules for using company networks, devices, and data. Require all employees to read and acknowledge the policy.
+    \begin{itemize}
+        \item \textbf{Resources:} SANS Institute provides excellent, free AUP templates.
+        \item \textbf{Timeline:} Within 30 days.
+    \end{itemize}
+    \item[Establish Annual Security Awareness Training:] Implement a mandatory security awareness training program for all employees to be completed annually. The training should cover modern threats such as phishing, ransomware, and social engineering.
+    \begin{itemize}
+        \item \textbf{Resources:} Consider platforms like KnowBe4, Proofpoint, or open-source options.
+        \item \textbf{Timeline:} Program established within 60 days.
+    \end{itemize}
+\end{description}
+
+\subsection{Priority 3: Informational}
+\begin{description}
+    \item[Validate Network Configuration:] The external scan confirmed that Port 80 is closed, mitigating a known risk. We recommend a review of firewall rules to ensure this secure configuration was intentional and is maintained.
+    \begin{itemize}
+        \item \textbf{Action:} No immediate action required, but confirm and document the configuration.
+        \item \textbf{Timeline:} At next scheduled maintenance window.
+    \end{itemize}
+\end{description}
+
+\end{document}
+```

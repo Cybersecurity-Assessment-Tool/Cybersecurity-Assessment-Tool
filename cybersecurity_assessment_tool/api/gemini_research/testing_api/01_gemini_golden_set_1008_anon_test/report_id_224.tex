@@ -1,0 +1,170 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage[T1]{fontenc}
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+
+% ===================================================================
+% 1. EXECUTIVE SUMMARY
+% ===================================================================
+\section*{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on a review of organizational security controls, an external network scan, and an assessment of current risks.
+
+The assessment identified several areas of significant concern that require immediate attention. Key findings include critical gaps in endpoint security due to the absence of Multi-Factor Authentication (MFA) on computer logins and a lack of recurring security awareness training for all staff. These organizational weaknesses are compounded by a technical vulnerability: an open, unencrypted HTTP port (\texttt{80/tcp}) on the external network perimeter, which exposes the organization to data interception and credential theft.
+
+The overall security posture is considered weak, with multiple high-risk vulnerabilities that could be exploited by threat actors. This report outlines specific, actionable recommendations to mitigate these risks and strengthen the organization's defenses. Prioritizing the implementation of endpoint MFA, establishing an annual security training program, and securing web traffic with HTTPS are critical first steps.
+
+% ===================================================================
+% 2. ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+The following details were used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{Scanned External IP:} \texttt{[Client IP]}
+\end{itemize}
+
+% ===================================================================
+% 3. SECURITY CONTROL REVIEW (QUESTIONNAIRE)
+% ===================================================================
+\section{Security Control Review}
+
+An internal security questionnaire was reviewed to evaluate the current state of administrative and organizational controls. The responses indicate a solid foundation in some areas, but also reveal critical gaps in user access and security culture.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Questionnaire}
+\begin{tabular}{p{0.7\linewidth} c c}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & Yes & \ding{51} \\
+Do you require MFA to log into computers? & No & \textbf{\color{red}\ding{55}} \\
+Do you require MFA to access sensitive data systems? & Yes & \ding{51} \\
+Does your organization have an employee acceptable use policy? & Yes & \ding{51} \\
+Does your organization do security awareness training for new employees? & Yes & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & No & \textbf{\color{red}\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+Two "No" responses represent significant risks to the organization:
+\begin{itemize}
+    \item \textbf{Lack of MFA for Computer Logins:} This is a critical vulnerability. If an employee's password is stolen (e.g., via phishing or a data breach), an attacker can gain direct access to their workstation and potentially the internal network. This single point of failure bypasses other security measures.
+    \item \textbf{Lack of Annual Security Awareness Training:} Security knowledge degrades over time, and threats constantly evolve. Without annual refresher training, employees are more likely to fall victim to phishing, social engineering, and other common attacks, making them the weakest link in the security chain.
+\end{itemize}
+
+% ===================================================================
+% 4. TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed on the target IP address to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Status:} Host is Up
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\begin{tabular}{c c l p{0.5\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Analysis} \\
+\midrule
+80/tcp & Open & http & The presence of an open HTTP port is a high-risk finding. This protocol transmits data in cleartext, meaning that any information, including user credentials or sensitive data, can be easily intercepted and read by an attacker on the same network. All web traffic should be encrypted using HTTPS (port 443). \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+% 5. RISK ASSESSMENT SUMMARY
+% ===================================================================
+\section{Risk Assessment Summary}
+
+The following table synthesizes the findings from the security control review and the technical scan into a prioritized list of identified risks. Note: The pre-existing risk data provided in the input was determined to be invalid and has been excluded from this analysis in favor of actionable findings derived from the scan and questionnaire.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Cybersecurity Risks}
+\begin{tabular}{p{0.2\linewidth} p{0.6\linewidth} l}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of Endpoint MFA} & The absence of MFA on computer logins creates a single point of failure. A compromised password directly leads to endpoint and potential network access. & \textbf{Critical} \\
+\addlinespace
+\textbf{Unencrypted Web Traffic} & The active HTTP service on port 80 exposes all transmitted data, including potential login credentials and sensitive information, to interception (e.g., Man-in-the-Middle attacks). & \textbf{High} \\
+\addlinespace
+\textbf{Insufficient Security Training} & Without mandatory annual training, employees' ability to recognize and respond to evolving threats like phishing diminishes, increasing the likelihood of a security breach originating from human error. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+% 6. RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+To address the identified risks and improve the overall security posture, the following actions are recommended with high priority:
+
+\begin{enumerate}
+    \item \textbf{Implement Mandatory MFA for All Endpoints:}
+    \begin{itemize}
+        \item \textbf{Action:} Deploy a robust MFA solution (e.g., authenticator app, hardware token, or biometrics) for all employee computer and laptop logins.
+        \item \textbf{Impact:} Drastically reduces the risk of unauthorized access from stolen credentials. This is the single most effective control to implement against this threat.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Enforce HTTPS and Disable HTTP:}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately configure the web server at \texttt{[Target IP]} to redirect all HTTP traffic on port 80 to its secure counterpart, HTTPS on port 443. If port 80 is not needed for redirection, it should be blocked at the firewall.
+        \item \textbf{Impact:} Encrypts all web traffic, protecting data in transit from eavesdropping and ensuring data integrity.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Establish a Continuous Security Awareness Program:}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and mandate an annual security awareness training program for all employees. This program should cover current threats such as phishing, ransomware, and proper data handling. Supplement this with regular phishing simulations.
+        \item \textbf{Impact:} Builds a security-conscious culture and empowers employees to become an active line of defense, reducing the risk of human-error-related breaches.
+    \end{itemize}
+\end{enumerate}
+
+% ===================================================================
+% 7. CONCLUSION
+% ===================================================================
+\section{Conclusion}
+The assessment for \textbf{[Organization Name]} reveals a security posture with significant and exploitable weaknesses. While foundational policies and some MFA controls are in place, the lack of endpoint MFA and recurring security training, combined with an exposed unencrypted web service, creates a high-risk environment. The recommendations provided in this report are designed to address these specific gaps directly. Swift implementation of these controls is essential to protect the organization's assets, data, and reputation.
+
+% --- DOCUMENT END ---
+\end{document}
+```

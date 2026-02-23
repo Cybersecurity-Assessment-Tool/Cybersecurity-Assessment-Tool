@@ -1,0 +1,171 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Document Title
+\title{Cybersecurity Posture Report \\ \large For: Tidal Wave Sports}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Tidal Wave Sports}, based on a synthesis of technical network scans, a review of organizational security controls, and an assessment of existing risks. The evaluation was conducted to identify vulnerabilities, security gaps, and areas for improvement.
+
+The key findings indicate a mixed security posture with several critical areas requiring immediate attention. While the organization has implemented Multi-Factor Authentication (MFA) for email access, significant gaps exist in other domains. The absence of MFA for computer logins and access to sensitive data systems presents a high risk of unauthorized access. Furthermore, critical administrative controls, such as an employee acceptable use policy and security training for new hires, are not in place.
+
+From a technical standpoint, an external scan identified an exposed Secure Shell (SSH) service on a public-facing IPv6 address. This, combined with the identified administrative control gaps, elevates the risk of a successful brute-force or credential-stuffing attack.
+
+This report concludes with a prioritized list of actionable recommendations designed to mitigate the identified risks and strengthen the overall security framework of the organization.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following information was provided and used as the basis for this assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Tidal Wave Sports} \\
+Email Domain & \texttt{TidalWaveSports.net} \\
+Website Domain & \url{www.TidalWaveSports.net} \\
+External IP Address & \texttt{152.249.71.69} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of administrative and procedural security controls was conducted via a questionnaire. The responses reveal critical gaps in the organization's security policies and enforcement mechanisms. A summary of the findings is presented in Table \ref{tab:controls}.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Status}
+\label{tab:controls}
+\begin{tabular}{@{}lc}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\ % Yes
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\ % No
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\ % No
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\ % No
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\ % No
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\ % Yes
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The responses marked with \textcolor{red}{\ding{55}} highlight significant vulnerabilities:
+\begin{itemize}
+    \item \textbf{Lack of Endpoint and System MFA:} The absence of MFA on computer logins and sensitive data systems means that a single compromised password could grant an attacker broad access to internal resources.
+    \item \textbf{Missing Acceptable Use Policy (AUP):} Without a formal AUP, employees may be unaware of security expectations, acceptable online behavior, and data handling procedures, increasing the likelihood of unintentional security breaches.
+    \item \textbf{No Onboarding Security Training:} New employees are not receiving security awareness training upon joining the organization. This is a critical missed opportunity to establish a strong security culture from day one and prevent common errors.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed on the infrastructure associated with the organization. The scan identified the following open ports on a public-facing host.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on Target: \seqsplit{\texttt{2001:db8::1}}}
+\label{tab:scan}
+\begin{tabular}{@{}llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+\midrule
+22/tcp & Open & SSH & Secure Shell remote administration protocol. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan revealed that port 22 (SSH) is open on the IPv6 address \seqsplit{\texttt{2001:db8::1}}. While SSH is a standard tool for remote server management, its exposure to the public internet makes it a primary target for automated brute-force attacks. Without proper security configurations—such as IP address whitelisting, key-based authentication, and intrusion detection systems (e.g., fail2ban)—this service poses a significant entry risk. The lack of detailed version information from this scan prevents an assessment for specific software vulnerabilities, but the exposure itself is a notable risk.
+
+% --- 5. Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+
+This section synthesizes the findings from the security control review and the technical scan to provide a consolidated view of the most critical risks facing the organization. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llll}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & Inadequate Access Control & The absence of MFA on workstations and sensitive systems & \textbf{High} \\
+         & (MFA Gaps) & drastically increases the risk of unauthorized access via & \\
+         &            & compromised credentials. & \\
+\addlinespace
+RISK-002 & Exposed Management Service & Port 22 (SSH) is publicly accessible, exposing the system & \textbf{Medium} \\
+         & (SSH) & to brute-force attacks and potential exploitation. This risk & \\
+         &       & is amplified by the internal MFA gaps (RISK-001). & \\
+\addlinespace
+RISK-003 & Weak Policy and Training & The lack of an Acceptable Use Policy and security training & \textbf{High} \\
+         & Framework & for new hires creates an environment susceptible to human & \\
+         &           & error and policy violations, which are leading causes of breaches. & \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+Based on the correlated risk assessment, the following prioritized recommendations are provided to mitigate the identified vulnerabilities and improve the overall security posture of \textbf{Tidal Wave Sports}.
+
+\begin{enumerate}
+    \item \textbf{[High Priority] Implement Comprehensive MFA (RISK-001):}
+    \begin{itemize}
+        \item Immediately deploy and enforce MFA for all user logins to company computers and laptops.
+        \item Enforce MFA for access to all internal and cloud-based systems that store or process sensitive data.
+    \end{itemize}
+
+    \item \textbf{[High Priority] Develop and Implement Security Policies (RISK-003):}
+    \begin{itemize}
+        \item Create a formal Acceptable Use Policy (AUP) that clearly defines rules for using company assets, data handling, and internet usage. Require all employees to read and acknowledge the policy.
+        \item Integrate mandatory security awareness training into the new employee onboarding process to establish a baseline of security knowledge.
+    \end{itemize}
+
+    \item \textbf{[Medium Priority] Secure Exposed SSH Service (RISK-002):}
+    \begin{itemize}
+        \item If remote access is required, restrict access to the SSH service on \seqsplit{\texttt{2001:db8::1}} to a whitelist of trusted IP addresses.
+        \item Disable password-based authentication for SSH and enforce the use of public/private key pairs.
+        \item Implement an intrusion prevention tool like \texttt{fail2ban} to automatically block IPs that exhibit malicious behavior (e.g., repeated failed login attempts).
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

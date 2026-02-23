@@ -1,0 +1,177 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings without spaces
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ==============================================================================
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity posture assessment for \textbf{[Organization Name]}. The assessment combined an external network scan, a review of existing risk documentation, and an analysis of organizational security controls via a questionnaire.
+
+The overall security posture is critically weak and requires immediate attention. The assessment identified several significant vulnerabilities:
+
+\begin{itemize}
+    \item \textbf{Critical System Exposure:} An external scan of the public IP address \texttt{[Client IP]} revealed a service on port 8080 with the title ``TOP SECRET DB''. This suggests a potentially unauthenticated and highly sensitive database is directly exposed to the internet. This finding directly contradicts previous risk assessments which had marked this port as a secure false positive.
+    
+    \item \textbf{Systemic Lack of Multi-Factor Authentication (MFA):} The organization does not enforce MFA for accessing email or for logging into employee computers. This represents a high-risk gap, significantly increasing the likelihood of account compromise through phishing or credential theft.
+    
+    \item \textbf{Deficient Security Policies and Training:} The organization lacks a formal employee acceptable use policy and does not provide security awareness training. This creates a culture where employees are unaware of security best practices, making them susceptible to social engineering and other common cyberattacks.
+\end{itemize}
+
+Immediate remediation is required to address the exposed database. Following this, a strategic initiative to implement MFA and develop a foundational security awareness program is strongly recommended to mitigate the high-impact risks identified.
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following information was used as the basis for this assessment. Due to the anonymized nature of the input data, placeholders have been used where necessary.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+External IP Address Scanned & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\label{tab:org_info}
+\end{table}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A security questionnaire was completed to evaluate the organization's current policies and controls. The results, summarized in Table \ref{tab:controls}, highlight critical deficiencies in fundamental security practices. Answers marked with \ding{55} (No) indicate a control gap that increases organizational risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Implemented} \\ \midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{55} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results (\ding{51}=Yes, \ding{55}=No).}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The lack of MFA for email and computer access is a severe weakness. Email is a primary target for phishing attacks, and compromised accounts can lead to business email compromise (BEC), data breaches, and further system intrusions. The absence of an acceptable use policy and a security training program indicates a low level of security maturity and leaves the organization highly vulnerable to human-centric attacks.
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed against the organization's public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Data not provided in scan metadata.
+\end{itemize}
+
+The scan identified one open port, detailed in Table \ref{tab:scan_results}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Details} \\ \midrule
+8080/tcp & open & http-proxy & HTTP Title: \textbf{TOP SECRET DB} \\ \bottomrule
+\end{tabular}
+\caption{Open Ports Identified on \texttt{[Target IP]}.}
+\label{tab:scan_results}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The most critical finding is the service on port 8080. The HTTP title ``TOP SECRET DB'' is highly alarming. This strongly implies that a sensitive, possibly internal, database is directly accessible from the public internet. This type of exposure can lead to a catastrophic data breach. This finding invalidates a pre-existing risk assessment which had labeled this port as a secure false positive. The previous assessment must be considered outdated and incorrect.
+
+% ==============================================================================
+% SECTION 5: RISK ASSESSMENT
+% ==============================================================================
+\section{Risk Assessment}
+
+By correlating the security control gaps with the technical findings, we have identified the following key risks to the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.3\textwidth}lp{0.4\textwidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\ \midrule
+RISK-001 & Exposed Sensitive Database Interface & \textbf{Critical} & A service on port 8080 titled ``TOP SECRET DB'' is exposed to the internet, creating a direct path for unauthorized access to potentially highly sensitive data. \\
+\addlinespace
+RISK-002 & Lack of Multi-Factor Authentication & \textbf{High} & The absence of MFA on email and computer logins makes user accounts highly susceptible to compromise via phishing, credential stuffing, or password spraying attacks. \\
+\addlinespace
+RISK-003 & Deficient Security Policies and Training & \textbf{High} & Without a formal acceptable use policy or security awareness training, employees are likely to engage in risky behaviors, increasing vulnerability to social engineering and malware. \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks.}
+\label{tab:risks}
+\end{table}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\begin{itemize}
+    \item[\textbf{Immediate (P0):}]
+    \begin{itemize}
+        \item \textbf{Secure Exposed Database:} Immediately investigate the service running on \texttt{[Target IP]}:8080. If it is a sensitive system, restrict access to it by placing it behind a firewall and requiring VPN and strong authentication for access. If the service is not essential, it should be disabled.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item[\textbf{High Priority (P1):}]
+    \begin{itemize}
+        \item \textbf{Implement MFA:} Deploy Multi-Factor Authentication for all users across all critical systems, starting with email (e.g., Office 365, Google Workspace) and computer logins (e.g., Windows Hello, Duo).
+        \item \textbf{Develop Security Policies:} Create and ratify a foundational set of security policies, beginning with an Employee Acceptable Use Policy that clearly defines rules for using company assets and data.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item[\textbf{Medium Priority (P2):}]
+    \begin{itemize}
+        \item \textbf{Launch Security Awareness Training:} Implement a mandatory security awareness training program for all employees. The program should be conducted for new hires and repeated annually for all staff, covering topics such as phishing, password hygiene, and data handling.
+        \item \textbf{Conduct Regular Vulnerability Scanning:} Establish a program for regular, authenticated and unauthenticated, vulnerability scanning of all internal and external assets to proactively identify and remediate weaknesses.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

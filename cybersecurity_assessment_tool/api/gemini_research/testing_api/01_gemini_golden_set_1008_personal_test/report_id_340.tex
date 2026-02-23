@@ -1,0 +1,174 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx} % For potential logos
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define custom colors for severity
+\definecolor{criticalred}{HTML}{D7263D}
+\definecolor{highorange}{HTML}{F49D40}
+\definecolor{mediumyellow}{HTML}{F4D440}
+\definecolor{lowblue}{HTML}{5486F3}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Radiant Life}. The assessment is based on a correlation of a network vulnerability scan, a security controls questionnaire, and a review of pre-existing risks.
+
+\paragraph{Key Findings:} The overall security posture presents a significant contrast between technical and administrative controls. The external network scan of the target host revealed a strong security configuration with no open ports detected, indicating a well-hardened perimeter at that point. However, the security controls review identified several critical gaps in administrative policies and procedures.
+
+The most severe risks identified are procedural, not technical:
+\begin{itemize}
+    \item \textbf{Critical Risk:} The absence of Multi-Factor Authentication (MFA) on employee email accounts. This exposes the organization to a high likelihood of account takeover, data breaches, and business email compromise (BEC) attacks.
+    \item \textbf{High Risk:} The lack of a formal Acceptable Use Policy (AUP) for employees.
+    \item \textbf{High Risk:} The failure to provide security awareness training to new employees during their onboarding process.
+\end{itemize}
+
+\paragraph{Recommendations:} Immediate remediation should focus on implementing MFA for all email access. Concurrently, the development and enforcement of an AUP and the integration of security training into the employee onboarding process are crucial next steps to mitigate significant human-factor risks.
+
+% --- 2. ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Radiant Life} \\
+    Email Domain & \texttt{RadiantLife.com} \\
+    Website Domain & \texttt{www.RadiantLife.com} \\
+    External IP Address & \texttt{225.86.184.245} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. Gaps in these controls often represent significant risks that can be exploited by threat actors. "No" answers indicate a deviation from security best practices.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\linewidth} c l@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \ding{55} & \textcolor{criticalred}{\textbf{Critical Gap}} \\
+    Do you require MFA to log into computers? & \ding{51} & Meets Best Practice \\
+    Do you require MFA to access sensitive data systems? & \ding{51} & Meets Best Practice \\
+    Does your organization have an employee acceptable use policy? & \ding{55} & \textcolor{highorange}{High Risk} \\
+    Does your organization do security awareness training for new employees? & \ding{55} & \textcolor{highorange}{High Risk} \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Meets Best Practice \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+% --- 4. TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports, running services, and potential vulnerabilities on the specified target system.
+
+\subsection{Scan Summary}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.1.100}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+\subsection{Findings}
+The scan of the target host \texttt{192.168.1.100} concluded with \textbf{zero open ports} found. All 1000 scanned TCP ports were reported to be in a 'closed' state.
+
+\paragraph{Analysis:} This result is highly positive from a network security perspective. A host with no open ports presents a minimal attack surface to the network, suggesting it is either offline, not providing services, or, most likely, protected by a very restrictive firewall. This configuration is commendable and aligns with the principle of least privilege.
+
+% --- 5. CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of security risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.2\linewidth} p{0.55\linewidth} p{0.15\linewidth}@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    \textbf{No MFA on Email} & Email accounts are highly vulnerable to compromise through phishing, credential stuffing, or password spraying. A compromised email account is a primary vector for data exfiltration, internal phishing, and business email compromise (BEC). & \textcolor{criticalred}{\textbf{Critical}} \\
+    \addlinespace
+    \textbf{No Acceptable Use Policy (AUP)} & Without a formal AUP, employees lack clear guidelines on the safe and appropriate use of company assets. This increases the risk of insider threats (both malicious and accidental) and creates potential legal and compliance liabilities. & \textcolor{highorange}{\textbf{High}} \\
+    \addlinespace
+    \textbf{No Onboarding Security Training} & New employees are a prime target for social engineering attacks. Without immediate security training upon hiring, they are more likely to fall victim to attacks, potentially compromising credentials or systems during their initial, vulnerable period. & \textcolor{highorange}{\textbf{High}} \\
+    \bottomrule
+\end{tabular}
+\caption{Prioritized List of Identified Risks}
+\end{table}
+
+% --- 6. RECOMMENDATIONS ---
+\section{Recommendations}
+
+Based on the consolidated risk assessment, the following actions are recommended to improve the cybersecurity posture of \textbf{Radiant Life}. Recommendations are prioritized by severity.
+
+\subsection{Priority 1: Critical}
+\begin{description}
+    \item[Implement MFA for Email Access:] This is the most critical action to be taken. Enforce MFA for all users accessing email, whether via webmail or client applications.
+    \begin{itemize}
+        \item \textbf{Action:} Enable MFA within your email provider's security settings (e.g., Microsoft 365, Google Workspace).
+        \item \textbf{Justification:} Drastically reduces the risk of account takeovers, mitigating the top threat vector identified in this assessment.
+    \end{itemize}
+\end{description}
+
+\subsection{Priority 2: High}
+\begin{description}
+    \item[Develop and Implement an Acceptable Use Policy (AUP):] Create a formal AUP that clearly defines the rules and expectations for employees when using company technology and data.
+    \begin{itemize}
+        \item \textbf{Action:} Draft a policy covering topics like data handling, internet usage, password security, and incident reporting. Require all current and new employees to read and sign the policy.
+        \item \textbf{Justification:} Establishes a baseline for secure employee behavior and provides a framework for enforcement.
+    \end{itemize}
+    \item[Integrate Security Training into Onboarding:] Ensure that all new hires receive mandatory security awareness training as a part of their onboarding process.
+    \begin{itemize}
+        \item \textbf{Action:} Develop or procure a training module covering key topics like phishing, password hygiene, and social engineering. Make completion a requirement for all new employees within their first week.
+        \item \textbf{Justification:} Arms new employees with essential security knowledge from day one, reducing their susceptibility to common attacks.
+    \end{itemize}
+\end{description}
+
+\subsection{Priority 3: Informational}
+\begin{description}
+    \item[Maintain Strong Network Hardening:] The configuration of the scanned host (\texttt{192.168.1.100}) is excellent.
+    \begin{itemize}
+        \item \textbf{Action:} Continue to apply this principle of least privilege, ensuring that only necessary ports and services are exposed on all internal and external systems.
+        \item \textbf{Justification:} A hardened network perimeter is a fundamental and effective security control.
+    \end{itemize}
+\end{description}
+
+\end{document}
+```

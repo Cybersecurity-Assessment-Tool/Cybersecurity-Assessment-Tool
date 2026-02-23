@@ -1,0 +1,156 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in \texttt
+\usepackage{xcolor}   % For custom colors
+\usepackage{graphicx} % For potential logos, etc.
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+}
+
+% Custom Commands for Readability
+\newcommand{\yes}{\textcolor{green}{\ding{51}}}
+\newcommand{\no}{\textcolor{red}{\ding{55}}}
+\newcommand{\riskHigh}{\textcolor{red}{\textbf{High}}}
+\newcommand{\riskMedium}{\textcolor{orange}{\textbf{Medium}}}
+\newcommand{\riskLow}{\textcolor{blue}{\textbf{Low}}}
+
+% ------------------- DOCUMENT START -------------------
+
+\begin{document}
+
+\title{Cybersecurity Posture Assessment Report \\ \large For: \textbf{Stone Arch Masonry}}
+\author{Cybersecurity Analyst}
+\date{\today}
+\maketitle
+
+\hrule
+\vspace{1em}
+\begin{abstract}
+This report provides a comprehensive analysis of the cybersecurity posture for Stone Arch Masonry. The assessment is based on a synthesis of organizational data, a technical network scan, and a review of pre-existing risk documentation. The findings indicate a mixed security posture with strong controls in some areas, such as Multi-Factor Authentication (MFA) for email and sensitive systems, but critical gaps in others. Notably, the lack of MFA for computer logins and the absence of security awareness training for new employees represent high-priority risks. On a positive note, a technical scan of a target system indicates that a previously identified risk related to an unencrypted web server may have been remediated. This report concludes with a prioritized list of actionable recommendations to mitigate the identified risks and strengthen the overall security framework.
+\end{abstract}
+\hrule
+\vspace{2em}
+
+\tableofcontents
+\newpage
+
+\section{Organizational Information}
+This section outlines the key organizational details provided for this assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Stone Arch Masonry
+    \item \textbf{Email Domain:} \texttt{StoneArchMasonry.com}
+    \item \textbf{Website Domain:} \url{www.StoneArchMasonry.com}
+    \item \textbf{External IP Address:} \texttt{152.193.162.138}
+\end{itemize}
+
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. Items marked with \no\ represent significant gaps in the security framework and are addressed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Summary}
+\begin{tabular}{p{0.75\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \no \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \yes \\
+Does your organization do security awareness training for new employees? & \no \\
+Does your organization do security awareness training for all employees at least once per year? & \yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and exposed services on a target system.
+
+\subsection{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.0.5}
+    \item \textbf{Scanner Used:} Nmap
+\end{itemize}
+
+\subsection{Port Scan Findings}
+The scan revealed that the target host was online, but the commonly exposed port 80 (HTTP) was closed.
+
+\begin{table}[h!]
+\centering
+\caption{Port Scan Results for \texttt{192.168.0.5}}
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} \\
+\midrule
+80/tcp & Closed & http & \textit{N/A} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The scan results are significant when correlated with the pre-existing risk data (Input 3). The existing risk register lists an active vulnerability, "Unencrypted Web Server," due to Port 80 being open. However, this technical scan of \texttt{192.168.0.5} shows that Port 80 is \textbf{closed}. This suggests that remediation actions may have been taken on this specific host. This is a positive finding, but it requires verification across all relevant assets to confirm that the risk has been fully mitigated organization-wide.
+
+\newpage
+
+\section{Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of current risks.
+
+\begin{table}[h!]
+\centering
+\caption{Consolidated Risk Summary}
+\begin{tabular}{p{0.2\linewidth} p{0.2\linewidth} p{0.5\linewidth}}
+\toprule
+\textbf{Risk ID} & \textbf{Severity} & \textbf{Description \& Impact} \\
+\midrule
+\textbf{RISK-001:} \newline Lack of MFA on Workstations & \riskHigh & The absence of MFA for computer logins is a critical vulnerability. If an employee's password is stolen (e.g., via phishing), an attacker can gain direct access to the workstation and the corporate network. \\
+\addlinespace
+\textbf{RISK-002:} \newline No Onboarding Security Training & \riskHigh & New employees are not trained on security policies and threat identification upon hiring. This makes them a primary target for social engineering and phishing attacks, as they are unfamiliar with internal procedures. \\
+\addlinespace
+\textbf{RISK-003:} \newline Unencrypted Web Server & \riskMedium & \textit{(From existing risk data)} An open Port 80 allows for unencrypted HTTP traffic, exposing data to interception. \textbf{Note:} A recent scan of \texttt{192.168.0.5} found this port closed, indicating potential remediation. Verification is required. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Recommendations}
+The following actionable recommendations are provided to address the identified risks, prioritized by severity.
+
+\begin{enumerate}
+    \item \textbf{[High Priority] Implement MFA for Computer Logins:}
+    \begin{itemize}
+        \item \textbf{Action:} Deploy a mandatory Multi-Factor Authentication solution for all employee computer and laptop logins (e.g., Windows Hello, Duo, or similar).
+        \item \textbf{Justification:} This directly mitigates \textbf{RISK-001} by creating a critical barrier against unauthorized access, even if user credentials are compromised.
+    \end{itemize}
+    \vspace{1em}
+
+    \item \textbf{[High Priority] Integrate Security Training into Onboarding:}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and mandate a security awareness training module for all new hires as a standard part of the onboarding process. This should cover acceptable use, phishing identification, and incident reporting.
+        \item \textbf{Justification:} This addresses \textbf{RISK-002} by equipping new employees with essential security knowledge from day one, reducing their susceptibility to common cyber threats.
+    \end{itemize}
+    \vspace{1em}
+
+    \item \textbf{[Medium Priority] Verify and Close Pre-existing Risk:}
+    \begin{itemize}
+        \item \textbf{Action:} Conduct a comprehensive vulnerability scan across all external and internal assets to confirm the status of Port 80. If the port is confirmed to be closed or properly secured with TLS/SSL (Port 443), formally update the risk register to close \textbf{RISK-003}.
+        \item \textbf{Justification:} This validates the positive finding from the technical scan and ensures the risk register accurately reflects the current security posture.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+% -------------------- DOCUMENT END --------------------
+```

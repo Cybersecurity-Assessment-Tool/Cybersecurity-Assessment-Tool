@@ -1,0 +1,160 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and metadata
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx} % For potential logos in the future
+\usepackage{fancyhdr} % For headers and footers
+
+% Document Metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Automated Security Analysis System},
+    pdfsubject={Security Posture Analysis for \textbf{[Organization Name]}},
+    pdfkeywords={cybersecurity, risk, assessment, nmap, controls}
+}
+
+% Header and Footer Configuration
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{\textbf{Calyx Botany}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    \Huge
+    \textbf{Cybersecurity Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \\
+    \vspace{0.5cm}
+    \textbf{Calyx Botany}
+    
+    \vspace{2cm}
+    
+    \large
+    Date of Report: \today
+    
+    \vfill
+    
+    \normalsize
+    \textit{This report contains sensitive information and should be handled with care. Access is restricted to authorized personnel only.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+This report provides a cybersecurity assessment for \textbf{Calyx Botany}, based on an analysis of organizational security controls, a technical network scan, and a review of pre-existing risks. The objective is to identify security gaps, assess their potential impact, and provide actionable recommendations to enhance the organization's security posture.
+
+The assessment revealed several critical gaps in foundational security controls. The most significant risks stem from the lack of Multi-Factor Authentication (MFA) for email and computer access, and the absence of a recurring, annual security awareness training program for all staff. These weaknesses expose the organization to a high risk of account compromise, data breaches, and social engineering attacks.
+
+The external technical scan of the target host \texttt{[Target IP]} did not identify any open ports. While this suggests a potentially strong firewall configuration, it does not preclude vulnerabilities in web applications or other services that may be proxied or otherwise protected. The primary focus for remediation should be on the identified administrative and procedural control gaps.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment scope.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Calyx Botany
+    \item \textbf{Email Domain:} \texttt{CalyxBotany.org}
+    \item \textbf{Website Domain:} \url{www.CalyxBotany.org}
+    \item \textbf{External IP Scanned:} \texttt{55.130.194.125}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of organizational security controls was conducted via a standardized questionnaire. The responses are summarized below, highlighting areas that align with best practices and those that represent significant security gaps. A green checkmark (\ding{51}) indicates a positive control, while a red 'X' (\ding{55}) indicates a missing control that increases risk.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Status}
+\label{tab:controls}
+\begin{tabular}{p{0.75\textwidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+\addlinespace
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the designated target IP address to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\subsection{Scan Summary}
+The network scan did not detect any open TCP or UDP ports on the target host. This result typically indicates one of the following scenarios:
+\begin{itemize}
+    \item The host is protected by a well-configured firewall that blocks all unsolicited incoming traffic (network egress filtering).
+    \item The host was offline or unreachable at the time of the scan.
+    \item There are no network services running on the host that are accessible from the public internet.
+\end{itemize}
+While no immediate vulnerabilities were discovered from this scan, the lack of open ports does not guarantee security. The primary risks identified in this assessment are related to the organizational controls detailed in Section 3.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from the security control review and technical scan to identify and prioritize key risks. No pre-existing vulnerabilities were reported. The following risks have been identified based on the current assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks and Severity}
+\label{tab:risks}
+\begin{tabular}{p{0.25\textwidth} p{0.5\textwidth} p{0.15\textwidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA for Email Access} & Without a second authentication factor, email accounts are highly vulnerable to takeover via phishing, credential stuffing, or password spraying attacks. A compromised email account is a gateway to further internal compromise and data exfiltration. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of MFA for Endpoint Login} & The absence of MFA on computer logins means that a compromised password is all an attacker needs for access. This significantly increases the risk of unauthorized access to devices that are lost, stolen, or targeted remotely. & \textbf{High} \\
+\addlinespace
+\textbf{Inadequate Security Awareness Training} & Without mandatory, annual security training, employees' awareness of current threats diminishes. This makes the organization more susceptible to social engineering, phishing, and malware infections initiated by user error. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the risks identified in Section 5, the following prioritized recommendations are provided to strengthen the security posture of \textbf{Calyx Botany}.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement MFA for Email:} Immediately enforce MFA for all user accounts on the \texttt{CalyxBotany.org} email platform. This is the single most effective control to prevent email account takeovers and should be the top priority.
+    
+    \item \textbf{[High] Enforce MFA for Endpoint Logins:} Deploy MFA for all company computer and laptop logins (e.g., Windows Hello, YubiKey, Duo). This adds a critical layer of defense against unauthorized access resulting from stolen credentials.
+    
+    \item \textbf{[High] Establish an Annual Security Training Program:} Develop and mandate a formal security awareness training program for all employees to be completed at least once per year. The training should cover current threats such as phishing, ransomware, and proper data handling to foster a security-conscious culture.
+\end{enumerate}
+
+\end{document}
+```

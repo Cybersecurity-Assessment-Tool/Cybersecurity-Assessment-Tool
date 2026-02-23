@@ -1,0 +1,151 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx} % For logo
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\hrule
+\begin{center}
+    \textbf{CONFIDENTIAL} \\
+    \vspace{5mm}
+    Prepared for: \textbf{Arcane Security}
+\end{center}
+\hrule
+\vspace{10mm}
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity assessment conducted for \textbf{Arcane Security}. The assessment incorporated an analysis of organizational security controls via a questionnaire, a technical network scan of a target host, and a review of pre-existing risks.
+
+The overall security posture reveals a mix of strengths and critical weaknesses. While the organization has implemented some foundational policies like an Acceptable Use Policy and annual security training, there are significant gaps in access control. The absence of Multi-Factor Authentication (MFA) for email and computer logins presents a \textbf{Critical} risk, as these are primary targets for account compromise. Furthermore, the lack of security training for new employees creates a high-risk vulnerability during their initial, most susceptible period.
+
+On a positive note, the technical network scan of the host at \texttt{192.168.1.100} found no open ports, indicating a strong network perimeter or host-based firewall configuration for that specific system. No pre-existing vulnerabilities were documented.
+
+Immediate remediation should focus on implementing MFA and establishing a mandatory security training program for all new hires.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment:
+\begin{itemize}
+    \item \textbf{Organization Name:} Arcane Security
+    \item \textbf{Primary Email Domain:} \texttt{ArcaneSecurity.net}
+    \item \textbf{Primary Website Domain:} \url{www.ArcaneSecurity.net}
+    \item \textbf{External IP Address:} \texttt{188.119.250.159}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+An assessment of administrative and technical controls was conducted based on a security questionnaire. The responses are summarized below. A green checkmark (\textcolor{green}{\ding{51}}) indicates a positive control, while a red cross (\textcolor{red}{\ding{55}}) indicates a potential security gap.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.75\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+\midrule
+\textcolor{red}{Do you require MFA to access email?} & \textcolor{red}{\ding{55}} \\
+\textcolor{red}{Do you require MFA to log into computers?} & \textcolor{red}{\ding{55}} \\
+\textcolor{red}{Does your organization do security awareness training for new employees?} & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+The review identified three significant control gaps:
+\begin{itemize}
+    \item \textbf{Lack of MFA for Email:} Email is a primary target for phishing and business email compromise (BEC) attacks. Without MFA, a compromised password is all an attacker needs to gain access.
+    \item \textbf{Lack of MFA for Computer Logins:} The absence of MFA on endpoints (desktops/laptops) significantly increases the risk of unauthorized access if credentials are stolen, guessed, or cracked.
+    \item \textbf{No Security Training for New Employees:} New hires are often unfamiliar with company policies and are prime targets for social engineering. Failing to train them upon hiring leaves a critical window of vulnerability.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and exposed services on the specified target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.1.100}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\subsection*{Findings}
+The scan of the target host revealed \textbf{no open ports}. All 1000 scanned TCP ports were reported as being in a `closed` state.
+
+\subsection*{Interpretation}
+This is a positive security finding for the scanned host. A "closed" state indicates that the host is responding to probes but that no application is listening on the scanned ports. This suggests the presence of a well-configured host-based firewall or that the system has no network services exposed, adhering to the principle of least privilege.
+
+% --- 5. Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes the findings from the security control review and technical scan. The following risks have been identified and prioritized based on their potential impact on the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks and Severity}
+\begin{tabular}{p{0.25\linewidth} p{0.5\linewidth} p{0.15\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Inadequate Access Control} & The lack of MFA on critical systems (email, computers) makes the organization highly susceptible to account takeover, data breaches, and ransomware attacks from compromised credentials. & \textbf{Critical} \\
+\addlinespace
+\textbf{Insufficient Employee Onboarding} & New employees are not provided with security awareness training, making them highly vulnerable to phishing and social engineering attacks from their first day of employment. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+Based on the identified risks, the following prioritized actions are recommended to improve the security posture of \textbf{Arcane Security}.
+
+\subsection*{Priority 1: Remediate Critical Risks}
+\begin{enumerate}
+    \item \textbf{Implement MFA for Email and Endpoints:}
+    \begin{itemize}
+        \item \textbf{Action:} Enforce mandatory Multi-Factor Authentication (MFA) for all user accounts across the email system (e.g., Office 365, Google Workspace) and for all computer/endpoint logins.
+        \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access from stolen credentials. It mitigates the risk of account takeover and subsequent malicious activities.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 2: Remediate High Risks}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Continue numbering
+    \item \textbf{Establish a New Hire Security Training Program:}
+    \begin{itemize}
+        \item \textbf{Action:} Develop a mandatory security awareness training module that is a required part of the onboarding process for all new employees and contractors, to be completed within their first week.
+        \item \textbf{Justification:} This ensures that all personnel understand their security responsibilities and can identify common threats like phishing from the beginning of their tenure, reducing the organization's overall attack surface.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

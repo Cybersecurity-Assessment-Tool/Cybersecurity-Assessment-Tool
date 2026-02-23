@@ -1,0 +1,198 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% --- PACKAGE IMPORTS ---
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}                 % For checkmarks and crosses (\ding)
+\usepackage{booktabs}               % For professional-looking tables
+\usepackage{xcolor}                 % For custom colors
+\usepackage{hyperref}               % For hyperlinks
+\usepackage{url}                    % For URL formatting
+\usepackage{seqsplit}               % For splitting long strings without spaces
+
+% --- DOCUMENT SETUP ---
+% Define colors for the report
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\definecolor{darkgreen}{rgb}{0.0, 0.39, 0.0}
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=magenta,      
+    urlcolor=darkblue,
+    citecolor=darkblue,
+}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture Assessment Report} \\
+    \large For \\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% --- TABLE OF CONTENTS ---
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a cybersecurity posture assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, a security controls questionnaire, and a review of pre-existing risks. The assessment was conducted on \today.
+
+The analysis revealed several critical and high-risk findings that require immediate attention. A network scan confirmed that a Remote Desktop Protocol (RDP) service on port 3389 is publicly exposed. This finding correlates directly with a known critical risk and presents a significant and immediate threat to the organization's network integrity.
+
+Furthermore, a review of internal security controls identified serious procedural and policy gaps. Key among these are the lack of multi-factor authentication (MFA) for sensitive data systems, the absence of an employee acceptable use policy, and a non-existent security awareness training program.
+
+These combined technical and procedural vulnerabilities place the organization at a high risk of a security breach, data exfiltration, and ransomware attacks. This report outlines the detailed findings and provides prioritized, actionable recommendations to mitigate these risks and strengthen the overall security posture.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Address Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+An assessment of the organization's security controls was performed based on a questionnaire. The responses indicate significant gaps in foundational security practices. "No" answers represent a deviation from best practices and are marked as high-risk gaps.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\begin{tabular}{p{0.6\linewidth} c c}
+\toprule
+\textbf{Security Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & Yes & \textcolor{darkgreen}{\ding{51}} \\
+Do you require MFA to log into computers? & Yes & \textcolor{darkgreen}{\ding{51}} \\
+\midrule
+\rowcolor{red!15}
+Do you require MFA to access sensitive data systems? & No & \textcolor{darkred}{\ding{55}} \\
+\rowcolor{red!15}
+Does your organization have an employee acceptable use policy? & No & \textcolor{darkred}{\ding{55}} \\
+\rowcolor{red!15}
+Does your organization do security awareness training for new employees? & No & \textcolor{darkred}{\ding{55}} \\
+\rowcolor{red!15}
+Does your organization do security awareness training for all employees at least once per year? & No & \textcolor{darkred}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+\begin{itemize}
+    \item \textbf{Lack of MFA on Sensitive Systems:} The absence of MFA on systems containing sensitive data is a critical vulnerability. It significantly increases the risk of unauthorized access should an attacker compromise a user's credentials.
+    \item \textbf{Missing Acceptable Use Policy (AUP):} An AUP is a foundational document that governs the use of company IT assets. Without it, there is no formal guidance for employees, leading to inconsistent and potentially insecure practices.
+    \item \textbf{No Security Awareness Training:} The complete lack of a security awareness program leaves employees uninformed about common threats like phishing, social engineering, and malware. This makes them a primary target for attackers.
+\end{itemize}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and exposed services on the organization's external-facing infrastructure.
+
+\subsection*{Scan Metadata}
+\begin{itemize}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+\end{itemize}
+
+\subsection*{Open Port Findings}
+The scan identified the following open port, which presents a critical risk.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Identified on \texttt{[Target IP]}}
+\label{tab:ports}
+\begin{tabular}{l l l}
+\toprule
+\textbf{Port / Protocol} & \textbf{State} & \textbf{Service Name} \\
+\midrule
+\rowcolor{red!15}
+3389/tcp & open & \texttt{ms-wbt-server} (Microsoft Remote Desktop) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Technical Analysis}
+The scan confirms that the Remote Desktop Protocol (RDP) service is directly exposed to the public internet. RDP is a frequent target for attackers who use brute-force attacks, credential stuffing, and exploitation of vulnerabilities (such as BlueKeep) to gain unauthorized access to internal networks. This finding is considered a critical risk.
+
+% --- CORRELATED RISK ASSESSMENT ---
+\section{Correlated Risk Assessment}
+This section synthesizes the findings from the security control review, the technical scan, and pre-existing risk data into a consolidated list of prioritized risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.45\linewidth} l}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\rowcolor{red!25}
+RISK-001 & Public RDP Exposure & The RDP service on port 3389 is exposed to the internet, confirmed by the network scan. This allows attackers to attempt brute-force or exploit-based attacks directly against a critical entry point. & \textbf{Critical (9.0)} \\
+\midrule
+\rowcolor{red!15}
+RISK-002 & Inadequate Access Controls & Sensitive data systems lack MFA protection. This risk is severely amplified by RISK-001, as a successful RDP compromise could lead directly to sensitive data access without further authentication challenges. & \textbf{High} \\
+\midrule
+\rowcolor{red!15}
+RISK-003 & Lack of Security Awareness & The absence of any security training program makes employees highly susceptible to phishing and social engineering attacks, which are common methods for stealing credentials used in RDP attacks. & \textbf{High} \\
+\midrule
+\rowcolor{orange!20}
+RISK-004 & Missing Foundational Policies & The organization lacks a formal Acceptable Use Policy, leading to an undefined security baseline for employee behavior and IT resource usage. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{Immediate Priority (Critical)}
+\begin{enumerate}
+    \item \textbf{Remediate RDP Exposure (RISK-001):}
+    \begin{itemize}
+        \item \textbf{Short-Term:} Immediately close port 3389 on the external firewall. Access should be blocked for all inbound traffic from the internet.
+        \item \textbf{Long-Term:} If remote access is required, implement a secure Virtual Private Network (VPN) solution with Multi-Factor Authentication (MFA). All RDP access should occur exclusively through the secure VPN tunnel.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{High Priority}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Implement MFA on All Sensitive Systems (RISK-002):}
+    \begin{itemize}
+        \item Deploy a robust MFA solution and enforce its use for all access to applications and systems containing sensitive or critical data. This provides a crucial layer of defense against credential compromise.
+    \end{itemize}
+    \item \textbf{Establish a Security Awareness Program (RISK-003):}
+    \begin{itemize}
+        \item Implement mandatory security awareness training for all new hires as part of their onboarding process.
+        \item Conduct annual security awareness and phishing simulation training for all employees to ensure they remain vigilant against current threats.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Medium Priority}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (RISK-004):}
+    \begin{itemize}
+        \item Draft, approve, and disseminate an AUP that clearly defines the rules and expectations for using the organization's IT resources. Ensure all employees read and acknowledge the policy.
+    \end{itemize}
+\end{enumerate}
+
+% --- DOCUMENT END ---
+\end{document}
+```

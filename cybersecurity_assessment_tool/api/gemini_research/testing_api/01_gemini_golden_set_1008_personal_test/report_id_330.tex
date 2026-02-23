@@ -1,0 +1,170 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Crestview Analytics}, conducted on \today. The analysis synthesizes data from an automated network scan, a security controls questionnaire, and a review of pre-existing risk documentation.
+
+\paragraph{Key Findings:} The assessment reveals a mixed security posture. The organization has implemented some foundational controls, such as an acceptable use policy and annual security training. A notable positive finding from the technical scan is that a previously identified risk, an unencrypted web server on port 80, appears to have been remediated, as the port was found to be closed on the target system.
+
+However, several critical and high-risk gaps were identified that significantly increase the organization's exposure to common cyber threats. The most pressing issues are the lack of Multi-Factor Authentication (MFA) for email access and workstation logins. Furthermore, the absence of security awareness training during the employee onboarding process represents a missed opportunity to instill a security-first mindset from day one.
+
+\paragraph{Overall Posture:} The organization's posture is considered \textbf{Developing}. While positive steps have been taken, the identified critical vulnerabilities, particularly those related to identity and access management, require immediate attention to prevent potential security incidents such as Business Email Compromise (BEC) and unauthorized system access. This report outlines prioritized, actionable recommendations to address these gaps and strengthen the overall security framework.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided for the assessment scope. This information is used to contextualize the findings and tailor the recommendations.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Crestview Analytics} \\
+Email Domain & \texttt{CrestviewAnalytics.org} \\
+Website Domain & \texttt{www.CrestviewAnalytics.org} \\
+External IP Address & \texttt{69.130.154.117} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. These self-reported answers are crucial for understanding the current policies and procedures in place. Answers marked with \ding{55} (No) indicate significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc}
+\toprule
+\textbf{Security Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results (\ding{51}=Yes, \ding{55}=No).}
+\end{table}
+
+\paragraph{Analysis of Gaps:}
+\begin{itemize}
+    \item \textbf{MFA for Email and Computers:} The absence of MFA for email and computer logins is a critical vulnerability. Email accounts are a primary target for phishing and account takeover attacks, which can lead to Business Email Compromise (BEC). Unprotected workstations provide an entry point for attackers to move laterally within the network.
+    \item \textbf{New Employee Training:} Failing to provide security awareness training during onboarding exposes the organization to unnecessary risk. New employees are often unfamiliar with internal policies and are prime targets for social engineering attacks.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An Nmap scan was performed to identify open ports and services on the specified target system. This scan provides a technical snapshot of the host's external-facing posture.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.0.5}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product/Version} \\
+\midrule
+80/tcp & closed & http & n/a \\
+\bottomrule
+\end{tabular}
+\caption{Nmap Scan Results for Target \texttt{192.168.0.5}.}
+\end{table}
+
+\paragraph{Analysis:}
+The scan results are positive. The only port checked, port 80 (HTTP), was found to be \textbf{closed}. This indicates that the system is not hosting an unencrypted web server, which is a strong security practice. This finding directly contradicts a pre-existing risk documented in the organization's risk register, suggesting that the risk has been successfully mitigated. This is a commendable improvement to the security posture.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+
+This section correlates findings from the security control review, technical scan, and pre-existing risk documentation into a unified risk summary.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} & \textbf{Status} \\
+\midrule
+\textbf{No MFA for Email} & Email accounts lack MFA protection. & \textbf{Critical} & \textbf{Active} \\
+\textbf{No MFA for Workstations} & Computer logins do not require MFA. & \textbf{High} & \textbf{Active} \\
+\textbf{No Onboarding Training} & New hires do not receive security training. & \textbf{High} & \textbf{Active} \\
+Unencrypted Web Server & Port 80 was believed to be open. & Medium & \textbf{Mitigated} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified and Reviewed Risks.}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following prioritized recommendations are provided to address the identified risks and strengthen the overall security posture of \textbf{Crestview Analytics}.
+
+\begin{enumerate}
+    \item \textbf{Implement MFA for Email Access (Critical):}
+    \begin{itemize}
+        \item \textbf{Action:} Enforce MFA for all users accessing the email system (\texttt{CrestviewAnalytics.org}). This is the single most effective control to prevent account takeovers and Business Email Compromise (BEC).
+        \item \textbf{Justification:} Stolen credentials are a primary vector for data breaches. MFA provides a critical second layer of defense, rendering stolen passwords useless to an attacker.
+    \end{itemize}
+
+    \item \textbf{Enforce MFA for Workstation Logins (High):}
+    \begin{itemize}
+        \item \textbf{Action:} Deploy and require MFA for all employee logins to company workstations and laptops.
+        \item \textbf{Justification:} This measure protects against unauthorized physical or remote access to endpoints, preventing attackers from establishing a foothold in the network even if they obtain user credentials.
+    \end{itemize}
+
+    \item \textbf{Integrate Security Awareness into Employee Onboarding (High):}
+    \begin{itemize}
+        \item \textbf{Action:} Develop a mandatory security awareness training module for all new employees to be completed within their first week of employment. This should cover key topics like phishing, password hygiene, and the acceptable use policy.
+        \item \textbf{Justification:} A strong security culture starts on day one. Early training reduces the likelihood that new hires will fall victim to common social engineering tactics.
+    \end{itemize}
+    
+    \item \textbf{Review and Validate Risk Register (Informational):}
+    \begin{itemize}
+        \item \textbf{Action:} Conduct a formal review of the entire risk register to validate that other documented risks are still current. The scan showed that the "Unencrypted Web Server" risk was outdated.
+        \item \textbf{Justification:} An accurate and up-to-date risk register is essential for effective risk management and resource allocation. This process ensures that security efforts are focused on current, relevant threats.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

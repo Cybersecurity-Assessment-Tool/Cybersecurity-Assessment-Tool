@@ -1,0 +1,180 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Assessment Report}
+    \vspace{0.5cm}
+    \Large For
+    \vspace{1.5cm}
+    \textbf{Maple Leaf Logistics}
+    \vspace{2cm}
+    
+    \vfill
+    
+    \large
+    \textbf{Date of Report:} \today \\
+    \textbf{Prepared by:} Cybersecurity Analyst
+    
+\end{page}
+
+\tableofcontents
+\newpage
+
+% --- 1. EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{Maple Leaf Logistics}, based on an analysis of network scan data, organizational security controls, and existing risk documentation. The assessment reveals several critical and high-risk vulnerabilities that require immediate attention to protect the organization's assets and data integrity.
+
+The key findings indicate significant deficiencies in foundational security controls. Critically, Multi-Factor Authentication (MFA) is not enforced for email or sensitive data systems, exposing the organization to significant risk from credential compromise. Furthermore, essential policy and training programs, such as an Acceptable Use Policy and annual security awareness training, are absent, increasing susceptibility to human error and insider threats.
+
+Most alarmingly, a technical scan of the internal network identified an open service on port 8080 on host \texttt{10.5.5.5} with the HTTP title \textbf{"TOP SECRET DB"}. This finding directly contradicts the existing risk register, which incorrectly classifies this port as a secure false positive. This discrepancy suggests a severe, unmitigated exposure of a potentially highly sensitive database.
+
+Immediate remediation is required to address the exposed database, implement mandatory MFA across all critical systems, and establish foundational security policies and training programs.
+
+% --- 2. ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Maple Leaf Logistics \\
+    Email Domain & \texttt{MapleLeafLogistics.org} \\
+    Website Domain & \url{www.MapleLeafLogistics.org} \\
+    External IP Address & \texttt{38.78.151.96} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+An evaluation of the organization's self-reported security controls was conducted. The following table summarizes the responses and highlights significant gaps in the current security posture. "No" answers indicate a lack of a critical control and represent a high risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.6\textwidth} c l}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+    Do you require MFA to log into computers? & \yes & Control in Place \\
+    Do you require MFA to access sensitive data systems? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+    Does your organization have an employee acceptable use policy? & \no & \textcolor{orange}{High Risk} \\
+    Does your organization do security awareness training for new employees? & \yes & Control in Place \\
+    Does your organization do security awareness training for all employees at least once per year? & \no & \textcolor{orange}{High Risk} \\
+    \bottomrule
+\end{tabular}
+\caption{Security Control Questionnaire Analysis}
+\end{table}
+
+% --- 4. TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+A network scan was performed to identify active services and potential vulnerabilities on the internal network.
+
+\subsection{Scan Target}
+\textbf{Target IP Address:} \texttt{10.5.5.5}
+
+\subsection{Open Ports and Services}
+The scan revealed the following open port, which presents a significant security concern.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l l l p{0.4\textwidth}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Details} \\
+    \midrule
+    8080/tcp & Open & http & \textbf{HTTP Title: TOP SECRET DB} \\
+    \bottomrule
+\end{tabular}
+\caption{Open Port Findings for \texttt{10.5.5.5}}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The discovery of an open service on port 8080 with the title \textbf{"TOP SECRET DB"} is a critical finding. This strongly indicates that an unauthenticated web interface for a database containing highly sensitive information is exposed on the internal network. 
+
+This finding is especially concerning because it directly contradicts the information in the current risk register (\textit{Input\_3\_Current\_Risks\_JSON}), which states that port 8080 is a "confirmed secure" false positive. This discrepancy highlights a failure in the risk management process and points to an active, unmitigated critical vulnerability.
+
+% --- 5. RISK ASSESSMENT SUMMARY ---
+\section{Risk Assessment Summary}
+The following table synthesizes findings from the security control review, technical scan, and existing risk data to provide a consolidated view of the primary risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.2\textwidth} p{0.55\textwidth} p{0.15\textwidth}}
+    \toprule
+    \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    Exposed Sensitive Database Interface & An open service on port 8080 of host \texttt{10.5.5.5} is titled "TOP SECRET DB". This contradicts the existing risk register and suggests a high probability of sensitive data exposure. & \textcolor{red}{\textbf{Critical}} \\
+    \addlinespace
+    Lack of MFA on Critical Systems & MFA is not enforced for accessing email or sensitive data systems. This exposes the organization to account takeover attacks via credential theft or phishing. & \textcolor{red}{\textbf{Critical}} \\
+    \addlinespace
+    Inadequate Security Policies and Training & The absence of a formal Acceptable Use Policy and mandatory annual security training for all staff increases the likelihood of security incidents caused by human error or malicious insider activity. & \textcolor{orange}{\textbf{High}} \\
+    \bottomrule
+\end{tabular}
+\caption{Consolidated Risk Summary}
+\end{table}
+
+% --- 6. RECOMMENDATIONS ---
+\section{Recommendations}
+The following recommendations are provided to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{Immediate Actions (Priority 1)}
+\begin{enumerate}
+    \item \textbf{Investigate and Secure Exposed Database:}
+    \begin{itemize}
+        \item Immediately restrict all network access to port 8080 on the host \texttt{10.5.5.5}.
+        \item Conduct a forensic investigation to determine the nature of the "TOP SECRET DB" system, the sensitivity of its data, and whether it has been compromised.
+        \item Implement proper access controls, such as authentication and encryption, before re-enabling the service.
+        \item \textbf{Update the risk register} to accurately reflect this as a critical vulnerability, removing the "false positive" classification.
+    \end{itemize}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+    \begin{itemize}
+        \item Begin the immediate rollout of mandatory MFA for all user accounts for accessing email.
+        \item Identify all systems classified as containing sensitive data and enforce MFA for access without exception.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Mid-Term Actions (Priority 2)}
+\begin{enumerate}
+    \item \textbf{Develop and Enforce an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item Draft a formal AUP that clearly defines the rules for using company IT assets, data, and internet services.
+        \item Require all current and new employees to read and formally acknowledge the policy.
+    \end{itemize}
+    \item \textbf{Establish Annual Security Awareness Training:}
+    \begin{itemize}
+        \item Implement a mandatory security awareness training program for all employees, to be completed annually.
+        \item This program should cover topics such as phishing, password security, data handling, and social engineering.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,153 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, urlcolor=blue]{hyperref}
+\usepackage{url}
+\usepackage{seqsplit}
+\usepackage{array}
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report \\ \large For: \textbf{Falcon Heavy}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a cybersecurity posture assessment for \textbf{Falcon Heavy}, based on a combination of organizational data, a security controls questionnaire, pre-existing risk documentation, and an external network scan. The assessment was conducted to identify key security gaps and provide actionable recommendations to enhance the organization's defensive capabilities.
+
+\textbf{Key Findings:}
+\begin{itemize}
+    \item \textbf{Positive Controls:} The organization has successfully implemented security awareness training for both new and existing employees, which is a foundational element of a strong security culture. Multi-Factor Authentication (MFA) is also enforced for computer logins.
+    
+    \item \textbf{Critical Gaps:} Several critical security control gaps were identified. The lack of mandatory MFA for accessing email and sensitive data systems represents a significant risk, leaving primary communication channels and critical assets vulnerable to account takeover attacks. Furthermore, the absence of a formal Employee Acceptable Use Policy creates ambiguity regarding security responsibilities and acceptable behavior.
+    
+    \item \textbf{Technical Vulnerabilities:} The network scan identified an open SSH port (22/TCP) on the host at \texttt{127.0.0.1}. This finding directly correlates with a pre-existing documented risk, ``Localhost Exposed,'' which is rated as Critical. Any service exposure, especially one related to system administration, must be carefully controlled.
+\end{itemize}
+
+\textbf{Overall Posture:}
+While Falcon Heavy has established some important security practices, the identified gaps in access control and policy are severe. Immediate action is required to mitigate the risks associated with potential account compromise and unauthorized access to sensitive systems. The recommendations outlined in this report are prioritized to address the most critical vulnerabilities first.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Falcon Heavy} \\
+    Email Domain & \texttt{FalconHeavy.org} \\
+    Website Domain & \href{http://www.FalconHeavy.org}{\texttt{www.FalconHeavy.org}} \\
+    External IP Address & \seqsplit{\texttt{126.187.41.176}} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. This review helps identify gaps in administrative and procedural security measures. A checkmark (\ding{51}) indicates a positive control, while an X (\ding{55}) highlights a potential gap.
+
+\begin{center}
+\begin{tabular}{p{0.6\textwidth} >{\centering\arraybackslash}p{0.1\textwidth} p{0.2\textwidth}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \ding{55} & \textbf{Critical Gap} \\
+    Do you require MFA to log into computers? & \ding{51} & Good Practice \\
+    Do you require MFA to access sensitive data systems? & \ding{55} & \textbf{Critical Gap} \\
+    Does your organization have an employee acceptable use policy? & \ding{55} & \textbf{High Risk} \\
+    Does your organization do security awareness training for new employees? & \ding{51} & Good Practice \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Good Practice \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{127.0.0.1}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\subsection{Open Ports}
+The following table details the ports found to be open on the target host.
+
+\begin{center}
+\begin{tabular}{lllll}
+    \toprule
+    \textbf{Port} & \textbf{Protocol} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Version} \\
+    \midrule
+    22 & TCP & open & ssh & Not Fingerprinted \\
+    \bottomrule
+\end{tabular}
+\end{center}
+\textbf{Analysis:} The scan identified that port 22/TCP, commonly used for the Secure Shell (SSH) protocol, is open. SSH is a powerful administrative tool, and its exposure must be strictly controlled. This finding confirms the pre-existing risk documented in Input 3 concerning an exposed localhost service.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{center}
+\begin{tabular}{p{0.1\textwidth} p{0.25\textwidth} p{0.45\textwidth} p{0.1\textwidth}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & Localhost Exposed & A service intended for local-only access (on 127.0.0.1) is exposed. This directly correlates with the open SSH port finding. & \textbf{Critical} \\
+    \addlinespace
+    RISK-002 & No MFA on Email & The lack of MFA on email accounts makes them highly susceptible to phishing and credential stuffing, leading to account takeover. & \textbf{Critical} \\
+    \addlinespace
+    RISK-003 & No MFA on Sensitive Systems & Critical data systems are not protected by MFA, allowing an attacker with valid credentials to gain unauthorized access. & \textbf{Critical} \\
+    \addlinespace
+    RISK-004 & No Acceptable Use Policy & The absence of a formal AUP leads to a lack of clear guidelines for employees on security responsibilities and data handling. & High \\
+    \addlinespace
+    RISK-005 & Exposed Administrative Service (SSH) & The SSH service on port 22 is open, providing a direct vector for brute-force attacks or exploitation if misconfigured. & High \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+% --- 6. Actionable Recommendations ---
+\section{Actionable Recommendations}
+
+The following recommendations are provided to address the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{Remediate Critical Risks (Immediate Priority)}
+\begin{description}
+    \item[RISK-002 \& RISK-003: Implement MFA Everywhere]
+    Immediately enforce MFA across all user accounts for both email access and access to any system storing sensitive data. This is the single most effective control to prevent account compromise.
+    
+    \item[RISK-001 \& RISK-005: Secure Exposed Services]
+    Review the business requirement for exposing the SSH service on host \texttt{127.0.0.1}. 
+    \begin{itemize}
+        \item If the service is not required, disable it.
+        \item If required, implement strict firewall rules to restrict access to only authorized IP addresses.
+        \item Enforce strong, key-based authentication for SSH and disable password-based logins.
+    \end{itemize}
+\end{description}
+
+\subsection{Remediate High Risks (Near-Term Priority)}
+\begin{description}
+    \item[RISK-004: Develop and Implement an Acceptable Use Policy (AUP)]
+    Draft a formal AUP that clearly defines rules for computer, network, and data usage. This policy should be integrated into the new employee onboarding process and reviewed annually by all staff. It should include guidelines on data handling, password security, and incident reporting.
+\end{description}
+
+\end{document}
+```

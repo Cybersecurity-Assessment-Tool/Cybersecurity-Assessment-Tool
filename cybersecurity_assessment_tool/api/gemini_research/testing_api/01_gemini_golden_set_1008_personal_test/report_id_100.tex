@@ -1,0 +1,131 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage[utf8]{inputenc}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a cybersecurity assessment for \textbf{Falcon Heavy}, based on an analysis of network scan data, organizational security controls, and known risks. The assessment was conducted on \today.
+
+The key findings indicate a mixed security posture. On a positive note, the external network scan of the target asset revealed a strong defensive configuration, with no open ports detected. This suggests a well-configured firewall, which significantly minimizes the external network attack surface.
+
+However, the review of organizational security controls uncovered several critical administrative and procedural gaps. The most significant risks stem from the lack of Multi-Factor Authentication (MFA) on employee computers, the absence of a formal Acceptable Use Policy (AUP), and the failure to provide annual security awareness training for all staff. These deficiencies expose the organization to substantial risks, including unauthorized access, insider threats, and susceptibility to social engineering attacks like phishing.
+
+Urgent action is recommended to address these policy and procedural weaknesses to build a more resilient and comprehensive security posture.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Falcon Heavy} \\
+Email Domain & \texttt{FalconHeavy.org} \\
+Website Domain & \seqsplit{\url{www.FalconHeavy.org}} \\
+External IP Address & \texttt{207.172.225.6} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of self-reported security controls was conducted to evaluate the organization's adherence to fundamental security best practices. The results are summarized below. Answers marked with \ding{55} represent significant gaps in the security framework.
+
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.25\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{51} & Best practice followed. Protects a primary communication channel. \\
+\addlinespace
+Do you require MFA to log into computers? & \ding{55} & \textbf{High Risk.} Lack of endpoint MFA allows a compromised password to grant full device access. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \ding{51} & Best practice followed. Critical for protecting core data assets. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \ding{55} & \textbf{Critical Gap.} Absence of a formal policy creates ambiguity and increases risk of misuse and insider threats. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \ding{51} & Good practice for onboarding. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} & \textbf{High Risk.} The threat landscape evolves; without annual training, employee awareness degrades over time. \\
+\bottomrule
+\end{tabular}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.1.100}
+    \item \textbf{Host Status:} Up
+    \item \textbf{Scan Summary:} The scan confirmed that the host is online but found \textbf{no open ports}. All 1000 scanned ports were reported as "closed".
+\end{itemize}
+
+\subsection*{Analysis}
+This is a strong positive finding. A host with no externally accessible ports presents a minimal attack surface to network-based threats. This indicates that a network or host-based firewall is effectively configured to block all unsolicited incoming traffic. No immediate technical vulnerabilities were identified from this scan.
+
+% --- 5. Risk Assessment Summary ---
+\section{Risk Assessment Summary}
+This section synthesizes findings from the security control review, technical scans, and pre-existing risk data. The primary risks identified are procedural and policy-related.
+
+\begin{tabular}{@{}p{0.25\linewidth} p{0.55\linewidth} l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of Endpoint MFA} & User workstations do not require MFA for login. A single stolen or weak password could lead to a full device compromise and subsequent lateral movement within the network. & \textbf{High} \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy (AUP)} & The absence of a formal AUP means there are no clear rules for employees on the secure use of company technology and data. This increases the risk of accidental data leaks, intentional misuse, and legal liability. & \textbf{High} \\
+\addlinespace
+\textbf{Inadequate Security Awareness Training} & Training is not provided annually to all staff. This results in a workforce that is less prepared to identify and resist modern cyber threats like phishing, social engineering, and ransomware. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Falcon Heavy}.
+
+\begin{enumerate}
+    \item \textbf{Implement Endpoint MFA:}
+    Deploy and enforce Multi-Factor Authentication (MFA) for all employee computer logins. This is one of the most effective controls for preventing unauthorized access resulting from compromised credentials.
+    \begin{itemize}
+        \item \textbf{Action:} Evaluate and roll out an MFA solution compatible with your operating systems (e.g., Windows Hello for Business, Duo Security, Okta).
+    \end{itemize}
+
+    \item \textbf{Develop and Enforce an Acceptable Use Policy (AUP):}
+    Create a formal AUP that clearly defines the rules and responsibilities for all users of company IT assets. This policy is a foundational component of a security program.
+    \begin{itemize}
+        \item \textbf{Action:} Draft an AUP covering topics such as data handling, internet usage, personal device use, and password security. Require all employees to read and formally acknowledge the policy.
+    \end{itemize}
+
+    \item \textbf{Establish a Continuous Security Training Program:}
+    Institute a mandatory, annual security awareness training program for all employees. Regular training ensures that security remains a top-of-mind concern and that staff are aware of the latest threats.
+    \begin{itemize}
+        \item \textbf{Action:} Select a training platform or develop a curriculum that covers phishing, password hygiene, social engineering, and incident reporting. Track completion for all employees.
+    \end{itemize}
+\end{enumerate}
+
+% --- 7. Conclusion ---
+\section{Conclusion}
+The assessment of \textbf{Falcon Heavy} reveals a security posture with notable strengths and critical weaknesses. The technical configuration of the scanned asset is robust, effectively minimizing its network attack surface. However, this technical strength is undermined by significant gaps in fundamental administrative controls. The lack of endpoint MFA, a formal AUP, and annual security training represent urgent risks that must be addressed. By implementing the recommendations outlined in this report, the organization can significantly enhance its resilience against common cyber threats.
+
+\end{document}
+```

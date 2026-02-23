@@ -1,0 +1,133 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage[T1]{fontenc}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report details a cybersecurity assessment for Midnight Oil Studios. The analysis is based on a network scan, a security controls questionnaire, and a review of pre-existing risks. The assessment reveals several critical vulnerabilities that require immediate attention. Key findings include the public exposure of an end-of-life database system, a complete lack of Multi-Factor Authentication (MFA) across all critical systems, and the absence of a security awareness training program. These factors combine to create a high-risk environment susceptible to data breaches and unauthorized access. This report outlines these risks and provides prioritized, actionable recommendations for remediation.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% Section 1: Overview
+\section{Executive Summary}
+The overall security posture of Midnight Oil Studios is critically low. The analysis identified significant gaps in both technical and administrative controls. An externally facing MySQL database is running an unsupported, end-of-life version, making it a prime target for exploitation. This risk is severely compounded by the organization-wide lack of Multi-Factor Authentication (MFA), which removes a fundamental layer of defense against credential-based attacks. Furthermore, the absence of employee security training leaves the organization highly vulnerable to social engineering and phishing attacks. Immediate and decisive action is required to mitigate these risks and protect sensitive organizational data.
+
+% Section 2: Organizational Information
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Midnight Oil Studios \\
+Email Domain & \texttt{MidnightOilStudios.net} \\
+Website Domain & \href{http://www.MidnightOilStudios.net}{\texttt{www.MidnightOilStudios.net}} \\
+External IP Address & \texttt{62.137.143.151} \\
+\bottomrule
+\end{tabular}
+
+% Section 3: Security Control Review
+\section{Security Control Review}
+A review of administrative security controls was conducted via a questionnaire. The responses indicate significant gaps in foundational security practices, particularly concerning identity and access management and employee security awareness.
+
+\begin{tabular}{@{}p{0.8\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\
+\bottomrule
+\end{tabular}
+\\ \vspace{1em}
+\textbf{Legend:} \ding{51} = Yes/In Place, \ding{55} = No/Not in Place
+
+% Section 4: Technical Scan Results
+\section{Technical Scan Results}
+A network scan was performed on the specified target to identify open ports and exposed services.
+
+\subsection{Nmap Scan Findings}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{172.16.50.20}
+    \item \textbf{Scan Summary:} The scan identified one open port, which exposes a critical database service directly to the network.
+\end{itemize}
+
+\begin{tabular}{@{}lllll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+3306/tcp & open & mysql & MySQL & 5.7.33 \\
+\bottomrule
+\end{tabular}
+
+\subsection{Technical Analysis}
+The scan reveals a critical exposure:
+\begin{enumerate}
+    \item \textbf{Database Exposure:} Port 3306 is the default port for MySQL. Exposing this port directly to the network allows attackers to attempt brute-force attacks, exploit vulnerabilities, or connect using stolen credentials. This service should not be publicly accessible and should be protected by a firewall.
+    \item \textbf{End-of-Life (EOL) Software:} The detected MySQL version, \textbf{5.7.33}, reached its official end of life in October 2023. This means it no longer receives security patches from the vendor, and known vulnerabilities will remain unpatched. Running EOL software, especially for a critical database, is a severe security risk.
+\end{enumerate}
+
+% Section 5: Risk Assessment
+\section{Risk Assessment}
+The following table synthesizes findings from the security questionnaire, technical scan, and pre-existing risk data into a prioritized list.
+
+\begin{tabular}{@{}p{0.25\linewidth}p{0.55\linewidth}l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Exposed End-of-Life Database} & A MySQL 5.7.33 database is exposed on port 3306. This version is no longer supported with security updates and is accessible from the network, inviting direct attack. & \textbf{Critical} \\
+\addlinespace
+\textbf{No Multi-Factor Authentication (MFA)} & MFA is not enforced for email, computer logins, or access to sensitive data systems. This significantly increases the risk of account compromise and unauthorized access. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Security Awareness Training} & The organization does not provide security training to new or existing employees. This makes personnel highly susceptible to phishing and other social engineering attacks. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+
+% Section 6: Recommendations
+\section{Recommendations}
+The following actionable steps are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{Immediate Priority (Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Restrict Database Access:} Immediately configure firewall rules to block all public access to TCP port 3306 on IP \texttt{172.16.50.20}. Access should be restricted to only trusted internal application servers. For remote administrative access, a Virtual Private Network (VPN) must be used.
+    
+    \item \textbf{Upgrade MySQL Database:} Plan and execute an urgent migration from the end-of-life MySQL 5.7.33 to a fully supported version (e.g., MySQL 8.x). This will ensure the system receives critical security patches.
+    
+    \item \textbf{Implement Multi-Factor Authentication (MFA):} Deploy MFA across the organization with the following priority:
+    \begin{itemize}
+        \item \textbf{First:} All administrative accounts and access to sensitive data systems (including the database).
+        \item \textbf{Second:} All user email accounts.
+        \item \textbf{Third:} All employee computer logins.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority Recommendations}
+\begin{enumerate}
+    \setcounter{enumi}{3} % Continue numbering
+    \item \textbf{Establish Security Awareness Training Program:} Implement a mandatory security awareness training program for all employees. This program should be conducted upon hiring and at least annually thereafter. It must cover key topics such as phishing identification, password security, and the company's acceptable use policy.
+\end{enumerate}
+
+\end{document}
+```

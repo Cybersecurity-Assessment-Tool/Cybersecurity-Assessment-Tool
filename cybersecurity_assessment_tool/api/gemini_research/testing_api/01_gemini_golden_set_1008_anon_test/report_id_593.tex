@@ -1,0 +1,149 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata & Title Setup
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report provides a cybersecurity assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, security control questionnaires, and a review of pre-existing risks. The assessment was conducted on \textbf{[Scan Date]} against the external IP address \texttt{[Client IP]}.
+
+The analysis revealed a critical and immediate risk: the direct exposure of Remote Desktop Protocol (RDP) on port 3389 to the public internet. This configuration is a primary target for ransomware gangs and other malicious actors, who actively scan for and exploit such services through brute-force attacks and known vulnerabilities. This technical finding directly validates a pre-existing high-severity risk identified as "RDP Exposure".
+
+Furthermore, significant gaps were identified in the organization's foundational security policies and training. The absence of an employee Acceptable Use Policy and a formal Security Awareness Training program creates a permissive environment for human error. This weakness critically magnifies the threat posed by the exposed RDP service, as untrained employees are more likely to use weak, easily guessable passwords.
+
+On a positive note, the organization has successfully implemented Multi-Factor Authentication (MFA) across email, computer logins, and sensitive data systems. This is a commendable and effective control that significantly strengthens authentication security.
+
+Immediate action is required to remediate the exposed RDP service by placing it behind a Virtual Private Network (VPN). Subsequently, the organization must prioritize the development and implementation of a security awareness program and an acceptable use policy to mitigate human-centric risks.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following information was used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders are used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Address Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. A green checkmark (\textcolor{green}{\ding{51}}) indicates a positive control is in place, while a red cross (\textcolor{red}{\ding{55}}) indicates a potential security gap.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+\addlinespace[0.5em]
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The consistent implementation of MFA is a significant strength. However, the lack of an Acceptable Use Policy and any form of security awareness training are critical administrative control failures. These gaps leave the organization vulnerable to phishing, social engineering, and insider threats stemming from unintentional employee actions.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed on the target IP address \texttt{[Target IP]}. The scan identified the following open port.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\begin{tabular}{l l l p{0.5\linewidth}}
+\toprule
+\textbf{Port/Proto} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+3389/tcp & open & ms-wbt-server & This is the default port for Microsoft Remote Desktop Protocol (RDP). Direct public exposure of RDP is a critical security risk. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan confirms that the RDP service on port 3389 is accessible from the public internet. This is a highly dangerous configuration, as it allows attackers to perform brute-force password attacks, attempt to exploit RDP vulnerabilities (e.g., BlueKeep, DejaBlue), and potentially gain complete control over the exposed system. This finding corroborates the "RDP Exposure" risk identified in Input 3.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security questionnaire, technical scan, and pre-existing risk data into a prioritized list of security risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.55\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Publicly Exposed RDP} & The network scan confirmed that RDP (port 3389) is open to the internet on host \texttt{[Target IP]}. This exposes the organization to brute-force attacks, credential theft, and remote code execution vulnerabilities. & \textbf{Critical} \\
+\addlinespace[0.5em]
+\textbf{Lack of Security Awareness Program} & The organization does not conduct security awareness training for new or existing employees. This significantly increases susceptibility to phishing, social engineering, and malware, and exacerbates the risk of weak passwords being used on the exposed RDP service. & \textbf{High} \\
+\addlinespace[0.5em]
+\textbf{Missing Acceptable Use Policy (AUP)} & The absence of a formal AUP creates ambiguity regarding employee responsibilities for protecting company assets and data, weakening the overall security posture and enforcement capability. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks. They are prioritized based on severity.
+
+\subsection{Remediate Publicly Exposed RDP (Immediate Priority)}
+\begin{itemize}
+    \item \textbf{Short-Term Fix:} Immediately implement a firewall rule to block all inbound traffic to TCP port 3389 on the external interface for \texttt{[Client IP]}. This will instantly remove the public exposure.
+    \item \textbf{Long-Term Solution:} If remote access is a business requirement, deploy a Virtual Private Network (VPN) solution. Configure the VPN to require Multi-Factor Authentication for all users. Remote access to internal resources, including RDP, must only be permitted through the secure VPN tunnel.
+\end{itemize}
+
+\subsection{Implement a Security Awareness Program (High Priority)}
+\begin{itemize}
+    \item Procure and deploy a security awareness training platform for all employees.
+    \item Integrate foundational security training into the onboarding process for all new hires.
+    \item Mandate that all employees complete an annual security awareness refresher course, covering topics such as phishing identification, password hygiene, and social engineering.
+\end{itemize}
+
+\subsection{Develop an Acceptable Use Policy (Medium Priority)}
+\begin{itemize}
+    \item Draft, approve, and publish a formal Acceptable Use Policy (AUP) for all employees.
+    \item The policy should clearly define rules for the use of company IT assets, including password requirements, data handling procedures, and appropriate use of the internet and email.
+    \item Require all current and new employees to formally read and acknowledge the policy.
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,181 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmark and X symbols (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For clickable links and references
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % For splitting long strings in \texttt
+\usepackage[T1]{fontenc}          % For proper font encoding
+\usepackage{xcolor}               % For coloring text
+\usepackage{graphicx}             % For including logos (optional)
+\usepackage{fancyhdr}             % For headers and footers
+
+% --- DOCUMENT METADATA & HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment, Report},
+    bookmarks=true
+}
+
+% --- CUSTOM COMMANDS & COLORS ---
+\newcommand{\yes}{\ding{51}} % Checkmark
+\newcommand{\no}{\ding{55}}  % X mark
+\definecolor{criticalred}{HTML}{d10000}
+\definecolor{highorange}{HTML}{e67300}
+\newcommand{\riskcritical}[1]{\textcolor{criticalred}{\textbf{#1}}}
+\newcommand{\riskhigh}[1]{\textcolor{highorange}{\textbf{#1}}}
+
+% --- HEADER & FOOTER ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vfill
+    {\Huge\bfseries Cybersecurity Posture Assessment Report\par}
+    \vspace{1.5cm}
+    {\Large For: \textbf{[Organization Name]}}\par
+    \vspace{2cm}
+    {\large \today\par}
+    \vfill
+    \textit{This report contains sensitive information and should be handled with care.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- SECTION 1: EXECUTIVE OVERVIEW ---
+\section{Executive Overview}
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{[Organization Name]}. The assessment combined an external network scan, a review of existing risks, and an analysis of organizational security controls via a questionnaire.
+
+The overall security posture is assessed as \riskcritical{CRITICAL RISK}. This is driven by several significant findings that require immediate attention. A key technical vulnerability, the direct exposure of Remote Desktop Protocol (RDP) on the external network, was confirmed by our scan. This vulnerability is a common entry point for ransomware attacks.
+
+Furthermore, the organizational controls review revealed critical gaps in fundamental security practices. The lack of Multi-Factor Authentication (MFA) for email and sensitive data systems, coupled with the absence of an Acceptable Use Policy and annual security training, creates a high-risk environment susceptible to phishing, account compromise, and data breaches.
+
+Immediate remediation of the exposed RDP service and the swift implementation of MFA are paramount to reducing the organization's risk profile.
+
+% --- SECTION 2: ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following information was used as the basis for this assessment. Placeholder data is used where specific details were not provided.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{Assessed External IP:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- SECTION 3: SECURITY CONTROL REVIEW ---
+\section{Security Control Review (Questionnaire Analysis)}
+The following table summarizes the organization's responses to the security controls questionnaire. Each "No" response represents a gap in the security framework and has been assessed for its potential impact.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.6\linewidth} c p{0.25\linewidth}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \no & \riskcritical{Critical Gap}. Increases risk of Business Email Compromise (BEC). \\
+\addlinespace
+Do you require MFA to log into computers? & \yes & Meets best practice. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \no & \riskcritical{Critical Gap}. Direct risk to sensitive information. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \no & \riskhigh{High Risk}. Lack of clear guidelines for employees. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \yes & Meets best practice for onboarding. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \no & \riskhigh{High Risk}. Increased susceptibility to social engineering. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- SECTION 4: TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services on the organization's perimeter.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{[Target IP]}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+The scan identified the following open port, which represents a significant security risk:
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Findings}
+\begin{tabular}{c c l p{0.5\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Analysis} \\
+\midrule
+3389/tcp & Open & ms-wbt-server & This port is used for Microsoft Remote Desktop Protocol (RDP). Direct public exposure of RDP is a \riskcritical{critical vulnerability} frequently exploited by attackers for initial access and ransomware deployment. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- SECTION 5: CORRELATED RISK ASSESSMENT ---
+\section{Correlated Risk Assessment}
+The following table synthesizes findings from the technical scan, the controls review, and pre-existing risk data to provide a holistic view of the current risk landscape.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth} l p{0.5\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+\textbf{Publicly Exposed RDP} & \riskcritical{Critical} & The Nmap scan confirmed the pre-existing risk: RDP (port 3389) is open on \texttt{[Target IP]}. This is a primary target for ransomware and unauthorized access. \\
+\addlinespace
+\textbf{Lack of MFA on Email} & \riskcritical{Critical} & Absence of MFA on email accounts significantly increases the risk of business email compromise (BEC) and phishing-based account takeovers for users at \texttt{[Domain]}. \\
+\addlinespace
+\textbf{Lack of MFA on Sensitive Systems} & \riskcritical{Critical} & Failure to protect sensitive data systems with MFA removes a crucial security layer, making data breaches more likely. \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy (AUP)} & \riskhigh{High} & Without a formal AUP, employees lack clear guidance on safe technology use, increasing the risk of insider threats and accidental data loss. \\
+\addlinespace
+\textbf{Inadequate Security Awareness Training} & \riskhigh{High} & Lack of annual refresher training makes employees more vulnerable to evolving social engineering and phishing tactics. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- SECTION 6: RECOMMENDATIONS ---
+\section{Recommendations}
+Based on the correlated findings, the following prioritized actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{Immediate Priority (Remediate within 72 hours)}
+\begin{enumerate}
+    \item \textbf{Remediate RDP Exposure:} Immediately block all inbound traffic to TCP port 3389 on the external firewall for \texttt{[Target IP]}. For necessary remote access, implement a secure solution such as a Virtual Private Network (VPN) or a Zero Trust Network Access (ZTNA) gateway.
+    
+    \item \textbf{Enforce MFA on Critical Systems:} Immediately enable and enforce MFA for all user access to:
+    \begin{itemize}
+        \item The email system (\texttt{[Domain]}).
+        \item All systems identified as containing sensitive data.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority (Remediate within 30 days)}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Draft a formal AUP that clearly defines the rules and expectations for employee use of company technology, data, and network resources. This policy should be communicated to all employees and acknowledged via signature.
+
+    \item \textbf{Establish an Annual Security Training Program:} Institute a mandatory annual security awareness training program for all employees. The training should cover current threats, such as phishing, social engineering, and password hygiene, to reinforce secure behaviors.
+\end{enumerate}
+
+\end{document}
+```

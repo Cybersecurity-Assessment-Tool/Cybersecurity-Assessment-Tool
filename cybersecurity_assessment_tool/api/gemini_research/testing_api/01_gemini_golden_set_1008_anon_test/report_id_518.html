@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive analysis of the cybersecurity
+posture for <strong>[Organization Name]</strong>, based on technical
+network scans, a review of security controls, and an assessment of
+pre-existing risks. The assessment was conducted on 2026-01-30.</p>
+<p>The analysis revealed several critical and high-severity risks that
+require immediate attention. The most pressing finding is an externally
+facing, vulnerable FTP server (<code>vsftpd 2.3.4</code>) configured to
+allow anonymous logins. This represents a direct and exploitable threat
+to the organization’s network integrity and data confidentiality.</p>
+<p>Furthermore, significant gaps were identified in identity and access
+management controls. The absence of Multi-Factor Authentication (MFA)
+for computer and sensitive data system access drastically increases the
+risk of unauthorized access. This is compounded by a lack of recurring,
+annual security awareness training for all employees, which heightovers
+the susceptibility to social engineering attacks.</p>
+<p>This report details these findings and provides prioritized,
+actionable recommendations to mitigate the identified risks and
+strengthen the overall security posture.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following details were used as the basis for this assessment. Due
+to the anonymized nature of the provided data, placeholders have been
+used where necessary.</p>
+<ul>
+<li><p><strong>Organization Name:</strong> <strong>[Organization
+Name]</strong></p></li>
+<li><p><strong>Primary Domain:</strong> <code>[Domain]</code></p></li>
+<li><p><strong>External IP Scanned:</strong>
+<code>[Client IP]</code></p></li>
+</ul>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A security questionnaire was reviewed to assess the current state of
+administrative and policy-based security controls. The responses
+indicate a solid foundation in some areas, such as new employee training
+and acceptable use policies. However, critical gaps exist in access
+control and ongoing employee education.</p>
+<div id="tab:controls">
+<table style="width:75%;">
+<caption>Security Control Questionnaire Analysis</caption>
+<colgroup>
+<col style="width: 75%" />
+<col />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The "No" responses, marked with <span style="color: red"></span>, are
+directly correlated with high-priority risks detailed in Section 5.</p>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed on the target IP address to
+identify open ports and exposed services.</p>
+<ul>
+<li><p><strong>Target IP Address:</strong>
+<code>[Target IP]</code></p></li>
+<li><p><strong>Scan Date:</strong> Not provided in scan data.</p></li>
+</ul>
+<h2 id="open-ports-and-services">Open Ports and Services</h2>
+<p>A single open port was discovered during the scan. The details are as
+follows:</p>
+<div id="tab:ports">
+<table>
+<caption>Discovered Open Ports</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product / Version</strong></th>
+<th style="text-align: left;"><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">21/tcp</td>
+<td style="text-align: left;">FTP</td>
+<td style="text-align: left;">vsftpd 2.3.4</td>
+<td style="text-align: left;">Anonymous FTP login allowed</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="analysis-of-technical-findings">Analysis of Technical
+Findings</h2>
+<p>The finding on port 21 is of <strong>critical severity</strong>.</p>
+<ul>
+<li><p><strong>Vulnerable Version:</strong> The identified version,
+<code>vsftpd 2.3.4</code>, is widely known to contain a critical
+backdoor vulnerability (CVE-2011-2523). An attacker can gain a command
+shell on the server by sending a specific string as the
+username.</p></li>
+<li><p><strong>Insecure Configuration:</strong> The service is
+configured to allow "Anonymous FTP login". This allows any
+unauthenticated user to access files on the FTP server, which can lead
+to data exfiltration or the uploading of malicious content.</p></li>
+</ul>
+<p>This combination of a vulnerable version and an insecure
+configuration presents an immediate and easily exploitable entry point
+into the organization’s network.</p>
+<h1 id="consolidated-risk-assessment">Consolidated Risk Assessment</h1>
+<p>By correlating the security control gaps, technical scan results, and
+pre-existing risk data, we have compiled a prioritized list of security
+risks facing the organization.</p>
+<div id="tab:risks">
+<table style="width:90%;">
+<caption>Summary of Identified Risks</caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 50%" />
+<col style="width: 15%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Description</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Vulnerable FTP
+Service</strong></td>
+<td style="text-align: left;">An externally facing FTP server is running
+a version with a known remote code execution backdoor (vsftpd 2.3.4) and
+allows anonymous login.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lack of MFA on Endpoints and
+Systems</strong></td>
+<td style="text-align: left;">Multi-Factor Authentication is not
+required for computer logins or access to sensitive data systems,
+leaving them vulnerable to credential theft.</td>
+<td style="text-align: left;"><strong>Critical</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Insufficient Security
+Training</strong></td>
+<td style="text-align: left;">Security awareness training is not
+conducted annually for all employees, increasing the likelihood of
+successful phishing and social engineering attacks.</td>
+<td style="text-align: left;"><strong>High</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Outdated Windows
+Policy</strong></td>
+<td style="text-align: left;">Workstations are running Windows 7, an
+unsupported operating system that no longer receives security updates.
+(CVSS 5.0)</td>
+<td style="text-align: left;"><strong>Medium</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actions are recommended to mitigate the identified
+risks. They are prioritized by severity.</p>
+<h2
+id="critical-priority-recommendations-immediate-action-required">Critical
+Priority Recommendations (Immediate Action Required)</h2>
+<ol>
+<li><p><strong>Remediate Vulnerable FTP Server:</strong> The FTP service
+on port 21 at <code>[Target IP]</code> must be addressed
+immediately.</p>
+<ul>
+<li><p><strong>Immediate Fix:</strong> Take the server offline or
+firewall port 21 from external access.</p></li>
+<li><p><strong>Long-Term Fix:</strong> If FTP is required, upgrade
+<code>vsftpd</code> to the latest stable version and disable anonymous
+access. If FTP is not required, uninstall the service
+completely.</p></li>
+</ul></li>
+<li><p><strong>Implement Comprehensive MFA:</strong> Deploy a
+Multi-Factor Authentication solution across the organization.</p>
+<ul>
+<li><p>Prioritize enforcement on all computer logins (local and
+remote).</p></li>
+<li><p>Enforce MFA for access to all systems classified as containing
+sensitive data.</p></li>
+</ul></li>
+</ol>
+<h2 id="high-priority-recommendations">High Priority
+Recommendations</h2>
+<ol start="3">
+<li><p><strong>Establish Annual Security Awareness Training:</strong>
+Institute a mandatory security awareness training program for all
+employees, to be completed at least once per year. This program should
+cover topics such as phishing, password security, and acceptable
+use.</p></li>
+</ol>
+<h2 id="medium-priority-recommendations">Medium Priority
+Recommendations</h2>
+<ol start="4">
+<li><p><strong>Accelerate Operating System Upgrades:</strong> Continue
+with and prioritize the existing plan to upgrade all Windows 7
+workstations to a modern, supported operating system such as Windows 10
+or 11.</p></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

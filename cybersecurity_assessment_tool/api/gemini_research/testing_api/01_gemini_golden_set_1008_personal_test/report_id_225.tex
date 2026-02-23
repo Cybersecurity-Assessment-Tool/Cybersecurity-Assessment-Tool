@@ -1,0 +1,179 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- HEADER & FOOTER ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{Arcane Security}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- START OF DOCUMENT ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Posture Assessment Report}}
+    \vspace{1.5cm}
+    \large
+    \begin{tabular}{ll}
+        \textbf{Client:} & Arcane Security \\
+        \textbf{Report Date:} & \today \\
+        \textbf{Report ID:} & CSR-2023-441A \\
+    \end{tabular}
+    \vfill
+    \large
+    \textbf{CONFIDENTIAL}
+    \vspace{0.8cm}
+    \small
+    This document contains sensitive information intended only for the designated recipient. \\
+    Unauthorized distribution is strictly prohibited.
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity posture assessment conducted for Arcane Security. The analysis correlates data from an external network scan, a security controls questionnaire, and the organization's current risk register.
+
+The assessment has identified a \textbf{critical risk} that requires immediate attention. A network service with the title \texttt{"TOP SECRET DB"} was discovered on an internal host (\texttt{10.5.5.5:8080}). This finding directly contradicts the current risk register, which incorrectly classifies this port as a secure false positive. This discrepancy is severely compounded by a stated policy gap: Multi-Factor Authentication (MFA) is not required for accessing sensitive data systems.
+
+Additionally, significant high-risk gaps were identified in foundational security policies and procedures, including the absence of an Acceptable Use Policy (AUP) and a lack of security awareness training for new employees.
+
+Urgent remediation is required to address the exposed sensitive data system and to rectify the procedural and policy-based vulnerabilities that increase the organization's overall risk profile.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} Arcane Security
+    \item \textbf{Primary Email Domain:} \texttt{ArcaneSecurity.com}
+    \item \textbf{Primary Website Domain:} \url{www.ArcaneSecurity.com}
+    \item \textbf{External IP Address:} \texttt{100.239.213.75}
+\end{itemize}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+The following table summarizes the responses from the security controls questionnaire. Items marked with \ding{55} represent significant gaps in the security posture and are discussed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{0.6\linewidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{51} & Best Practice Met \\
+Do you require MFA to log into computers? & \ding{51} & Best Practice Met \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} & \textbf{Critical Gap} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} & \textbf{High Risk Gap} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} & \textbf{High Risk Gap} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Best Practice Met \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+An Nmap scan was performed to identify open ports and services on the specified target.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{10.5.5.5}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+The scan revealed the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis for \texttt{10.5.5.5}}
+\begin{tabular}{c c p{0.6\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Information} \\
+\midrule
+8080/tcp & Open & The HTTP service running on this port returned the title: \textbf{\texttt{"TOP SECRET DB"}}. This strongly indicates the presence of a highly sensitive database or application interface. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The discovery of a service explicitly labeled as "TOP SECRET" is a finding of the highest concern. Its exposure, even on an internal network, presents a significant target for any threat actor with internal access.
+
+% --- CORRELATED RISK ASSESSMENT ---
+\section{Correlated Risk Assessment}
+This section synthesizes the findings from the security control review, technical scan, and the provided risk register. The most critical finding is the direct contradiction between the technical evidence and the existing risk documentation.
+
+\begin{table}[h!]
+\centering
+\caption{Identified and Correlated Risks}
+\begin{tabular}{p{0.15\linewidth} p{0.5\linewidth} p{0.2\linewidth}}
+\toprule
+\textbf{Severity} & \textbf{Risk Description} & \textbf{Correlated Findings} \\
+\midrule
+\textbf{CRITICAL} & \textbf{Unprotected Sensitive Data Exposure:} A service titled \texttt{"TOP SECRET DB"} is accessible on the network. Access to sensitive data systems is not protected by MFA. The current risk register incorrectly dismisses this as a false positive, indicating a flawed risk management process. & \begin{itemize}
+    \item Open Port: 8080
+    \item No MFA on sensitive systems
+    \item Inaccurate risk register entry
+\end{itemize} \\
+\addlinespace
+\textbf{HIGH} & \textbf{Lack of Foundational Security Policies:} The absence of an Acceptable Use Policy (AUP) means there are no formal rules governing employee interaction with corporate IT assets, increasing the likelihood of misuse or accidental data exposure. & \begin{itemize}
+    \item No AUP policy
+\end{itemize} \\
+\addlinespace
+\textbf{HIGH} & \textbf{Inadequate Employee Onboarding:} New employees do not receive security awareness training upon being hired. This creates a significant window of vulnerability where new staff are unaware of security policies and best practices. & \begin{itemize}
+    \item No new hire training
+\end{itemize} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity.
+
+\subsection{Immediate Actions (Critical)}
+\begin{enumerate}
+    \item \textbf{Investigate and Secure Port 8080:} Immediately investigate the service running on \texttt{10.5.5.5:8080} to confirm its function and the sensitivity of the data it contains. Access to this port should be restricted to only authorized personnel via firewall rules.
+    \item \textbf{Enforce MFA on Sensitive Systems:} Immediately deploy and enforce MFA on all systems identified as containing sensitive data, with the system at \texttt{10.5.5.5} as the absolute first priority.
+    \item \textbf{Correct the Risk Register:} The risk register entry for Port 8080 must be immediately updated to reflect its critical status. A full review of the risk management and validation process is strongly advised to prevent future inaccuracies.
+\end{enumerate}
+
+\subsection{High Priority Actions}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an AUP:} Draft and implement a comprehensive Acceptable Use Policy (AUP) for all employees. This policy should be a mandatory component of the onboarding process.
+    \item \textbf{Integrate Security into Onboarding:} Develop a security awareness training module for all new hires. This training must be completed before network and data access is granted.
+\end{enumerate}
+
+\subsection{General Recommendations}
+\begin{enumerate}
+    \item \textbf{Conduct a Comprehensive Internal Scan:} Perform a full vulnerability scan of the internal network to identify any other misconfigured services or unknown exposures.
+    \item \textbf{Review Risk Register Validation Process:} Establish a formal process to validate risk register entries with technical data on a recurring basis to ensure its accuracy and relevance.
+\end{enumerate}
+
+\end{document}
+```

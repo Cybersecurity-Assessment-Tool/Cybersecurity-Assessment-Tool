@@ -1,0 +1,152 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding{51} (checkmark) and \ding{55} (cross)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{xcolor}   % For colors
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % To split long strings like hashes or tokens
+\usepackage{hyperref} % For clickable links and metadata
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment},
+    bookmarks=true
+}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% --- TABLE OF CONTENTS ---
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section*{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, synthesizing data from a security controls questionnaire, an external network scan, and a review of pre-existing risks. The analysis reveals critical deficiencies in foundational administrative controls that significantly elevate the organization's risk profile.
+
+The most pressing concerns are the complete absence of an employee \textbf{Acceptable Use Policy (AUP)} and a formal \textbf{Security Awareness Training} program. These gaps create an environment where human error is more likely to lead to a security incident. Additionally, the lack of \textbf{Multi-Factor Authentication (MFA)} on sensitive data systems constitutes a high-risk vulnerability, leaving critical assets susceptible to unauthorized access.
+
+The technical network scan performed on the external IP address \texttt{[Client IP]} found no open ports. This result conflicts with a pre-existing documented risk of an unencrypted web server on Port 80. While the current scan indicates a secure perimeter configuration, this discrepancy requires verification.
+
+Immediate remediation should focus on establishing the identified policy and training programs and enforcing MFA across all sensitive systems.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+This assessment pertains to the following entity and associated assets. As key identifying information was not provided, placeholders have been used.
+
+\begin{tabular}{@{}ll}
+\textbf{Organization Name:} & \textbf{[Organization Name]} \\
+\textbf{Email Domain:} & \texttt{[Domain]} \\
+\textbf{External IP Scanned:} & \texttt{[Client IP]} \\
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+The following table outlines the organization's self-reported status of key security controls. Items marked with a red \ding{55} represent a control gap and a source of risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.75\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+The review highlights three major areas of concern: lack of MFA for sensitive systems, absence of an acceptable use policy, and no security awareness training.
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+An external network vulnerability scan was conducted to identify exposed services and potential weaknesses on the organization's perimeter.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]} (Associated with \texttt{[Client IP]})
+    \item \textbf{Host Status:} Up
+    \item \textbf{Scan Findings:} The scan identified no open ports on the target. Port 80 (HTTP), which was listed as a pre-existing risk, was confirmed to be \textbf{closed} at the time of this assessment.
+\end{itemize}
+
+\textbf{Analyst Note:} The fact that Port 80 is closed is a positive finding. However, it contradicts the information in the current risk register. This suggests either the risk was remediated without updating documentation, or the service is only intermittently available. This discrepancy should be investigated.
+
+% --- RISK ASSESSMENT SUMMARY ---
+\section{Risk Assessment Summary}
+The following table consolidates risks identified from the security control review and pre-existing vulnerability data. Each risk is assigned a severity level based on its potential impact on the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.3\linewidth}p{0.5\linewidth}l}
+\toprule
+\textbf{Risk / Vulnerability} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Absence of Acceptable Use Policy} & Without a formal AUP, employees lack clear guidelines on the secure and acceptable use of company assets, increasing the risk of insider threat and accidental data exposure. & \textbf{High} \\
+\addlinespace
+\textbf{No Security Awareness Training} & Employees are not trained on identifying and responding to threats like phishing or social engineering, making them a primary target for attackers. This applies to both new and existing employees. & \textbf{High} \\
+\addlinespace
+\textbf{Lack of MFA for Sensitive Systems} & Critical data systems are protected only by username and password. A single compromised credential could lead to a significant data breach. & \textbf{High} \\
+\addlinespace
+\textbf{Unencrypted Web Server} & A pre-existing risk indicates that a web server on Port 80 transmits data in cleartext. \textit{Note: The current scan found this port to be closed, requiring verification.} & Medium \\
+\bottomrule
+\end{tabular}
+\caption{Consolidated Risk Register}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+To address the identified risks and improve the overall security posture, the following actions are recommended, ordered by priority.
+
+\begin{enumerate}
+    \item \textbf{Implement MFA for Sensitive Systems (Priority: Critical):}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately enforce MFA for all user accounts, especially administrative and privileged accounts, that can access sensitive or critical data systems.
+        \item \textbf{Justification:} This is the single most effective technical control to prevent unauthorized access resulting from compromised credentials.
+    \end{itemize}
+    \vspace{1em}
+    
+    \item \textbf{Develop and Enforce an Acceptable Use Policy (Priority: High):}
+    \begin{itemize}
+        \item \textbf{Action:} Create a formal AUP document that clearly defines the rules for using company networks, devices, and data. Require all employees to read and acknowledge the policy.
+        \item \textbf{Justification:} An AUP establishes a baseline for secure employee behavior and is a foundational component of a security program.
+    \end{itemize}
+    \vspace{1em}
+    
+    \item \textbf{Establish a Security Awareness Training Program (Priority: High):}
+    \begin{itemize}
+        \item \textbf{Action:} Implement a mandatory security awareness training module for all new hires during onboarding. Conduct annual refresher training for all staff, supplemented with periodic phishing simulations.
+        \item \textbf{Justification:} A well-trained workforce is the first line of defense against common cyberattacks like phishing.
+    \end{itemize}
+    \vspace{1em}
+    
+    \item \textbf{Verify and Remediate Port 80 Status (Priority: Medium):}
+    \begin{itemize}
+        \item \textbf{Action:} Investigate the discrepancy between the pre-existing risk report (Port 80 open) and the current scan result (Port 80 closed).
+        \item \textbf{Justification:} If the port is intentionally closed, the risk register should be updated to reflect this. If the service is still required, it must be secured with TLS/SSL (HTTPS on Port 443) and Port 80 should be configured to redirect or remain closed.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

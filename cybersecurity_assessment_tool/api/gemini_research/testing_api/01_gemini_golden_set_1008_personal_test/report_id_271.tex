@@ -1,0 +1,166 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage[utf8]{inputenc}
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+}
+
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+
+% ====================================================================
+% 1. EXECUTIVE OVERVIEW
+% ====================================================================
+\section*{1. Executive Overview}
+
+This report details the findings of a cybersecurity posture assessment for \textbf{Aeon Pharmaceuticals}. The analysis is based on a combination of self-reported organizational security controls, an external network scan, and a review of pre-existing risks.
+
+The assessment identified several critical and high-risk security gaps that require immediate attention. The most significant findings include a widespread lack of Multi-Factor Authentication (MFA) for computer and sensitive system access, and a complete absence of a formal security awareness training program. These policy-level deficiencies are compounded by a technical finding: an exposed Secure Shell (SSH) service on a public-facing IPv6 address.
+
+This combination of factors creates a significant risk of unauthorized access, credential compromise, and potential data breach. The recommendations provided in this report are prioritized to address the most critical vulnerabilities first and provide a clear roadmap for improving the organization's overall security posture.
+
+% ====================================================================
+% 2. ORGANIZATIONAL INFORMATION
+% ====================================================================
+\section*{2. Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Aeon Pharmaceuticals
+    \item \textbf{Email Domain:} \texttt{AeonPharmaceuticals.com}
+    \item \textbf{Website Domain:} \url{www.AeonPharmaceuticals.com}
+    \item \textbf{Primary External IP:} \texttt{121.157.211.95}
+\end{itemize}
+
+% ====================================================================
+% 3. SECURITY CONTROL REVIEW
+% ====================================================================
+\section*{3. Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. A checkmark (\ding{51}) indicates a positive control is in place, while a cross (\ding{55}) indicates a security gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lc}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\
+\bottomrule
+\end{tabular}
+\caption{Organizational Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis}
+The review reveals critical gaps in access control and employee security training. While MFA is commendably enforced for email, its absence for computer logins and, most importantly, for access to sensitive data systems, represents a severe vulnerability. Furthermore, the lack of any security awareness training program leaves the organization highly susceptible to social engineering and phishing attacks, which are primary vectors for initial compromise.
+
+% ====================================================================
+% 4. TECHNICAL SCAN RESULTS
+% ====================================================================
+\section*{4. Technical Scan Results}
+
+An external network scan was performed to identify exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+\end{itemize}
+
+The scan identified the following open port:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\
+\midrule
+22 & open & ssh & (Not specified) \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports Detected on Target}
+\end{table}
+
+\subsection*{Analysis}
+The scan confirmed that port 22, the standard port for the Secure Shell (SSH) protocol, is open and accessible from the internet. SSH is a powerful administrative tool, and its exposure presents a significant attack surface. Without proper security hardening, this service is vulnerable to brute-force attacks, credential stuffing, and exploitation of potential software vulnerabilities. This finding is particularly concerning when correlated with the lack of MFA for system access.
+
+% ====================================================================
+% 5. RISK ASSESSMENT SUMMARY
+% ====================================================================
+\section*{5. Risk Assessment Summary}
+
+The following table correlates the findings from the security control review and the technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.25\linewidth} p{0.5\linewidth} p{0.15\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of Multi-Factor Authentication (MFA)} & MFA is not enforced for computer logins or access to sensitive data systems. A single compromised password could lead to a significant data breach. & \textbf{Critical} \\
+\addlinespace
+\textbf{Inadequate Security Awareness Training} & The absence of a training program for new and existing employees significantly increases the likelihood of successful phishing and social engineering attacks, leading to credential theft. & \textbf{High} \\
+\addlinespace
+\textbf{Exposed SSH Service} & Port 22 (SSH) is open to the internet, creating a direct vector for attackers to attempt unauthorized access. This risk is amplified by the lack of MFA on internal systems. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Identified Cybersecurity Risks}
+\end{table}
+
+% ====================================================================
+% 6. RECOMMENDATIONS
+% ====================================================================
+\section*{6. Recommendations}
+
+The following actions are recommended to mitigate the identified risks and strengthen the organization's security posture.
+
+\subsection*{Immediate Priority (Critical)}
+\begin{enumerate}
+    \item \textbf{Implement MFA for Sensitive Systems:} Immediately deploy a mandatory MFA solution for all systems classified as containing sensitive or critical data. This is the single most effective control to prevent unauthorized access to core assets.
+    \item \textbf{Implement MFA for Endpoint Logins:} Roll out MFA for all employee computer logins (desktops and laptops). This creates a critical layer of defense against the use of stolen credentials to gain initial network access.
+\end{enumerate}
+
+\subsection*{High Priority}
+\begin{enumerate}
+    \item \textbf{Secure the Exposed SSH Service:}
+    \begin{itemize}
+        \item If remote access via SSH is not required, the service should be disabled or firewalled from the internet.
+        \item If required, access should be restricted via a firewall to only trusted source IP addresses.
+        \item Enforce public key authentication and completely disable password-based logins for SSH.
+        \item Implement an intrusion prevention tool such as \texttt{fail2ban} to automatically block IPs that exhibit malicious behavior (e.g., repeated failed login attempts).
+    \end{itemize}
+    \item \textbf{Establish a Security Awareness Program:}
+    \begin{itemize}
+        \item Develop and implement a mandatory security awareness training module for all new employees as part of their onboarding process.
+        \item Conduct mandatory, annual security awareness training for all staff to ensure their knowledge remains current. Training should cover phishing, password security, social engineering, and acceptable use policies.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

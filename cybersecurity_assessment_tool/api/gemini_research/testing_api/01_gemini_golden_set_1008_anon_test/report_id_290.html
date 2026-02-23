@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 class="unnumbered" id="overview-and-scope">1. Overview and
+Scope</h1>
+<p>This assessment was conducted to evaluate the security posture of
+<strong>[Organization Name]</strong>. The scope of this report
+includes:</p>
+<ul>
+<li><p>A review of organizational security policies and
+controls.</p></li>
+<li><p>A technical analysis of an external network scan performed
+against the client’s perimeter.</p></li>
+<li><p>A consolidated risk register incorporating technical findings,
+policy gaps, and known issues.</p></li>
+</ul>
+<p>The primary objective is to identify vulnerabilities, assess their
+potential impact, and provide actionable recommendations for
+remediation.</p>
+<h1 class="unnumbered" id="organizational-information">2. Organizational
+Information</h1>
+<p>The following information was used as the basis for this assessment.
+As per the template mode for this report, placeholders are used where
+data was not provided.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;"><strong>[Organization Name]</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Primary Domain</td>
+<td style="text-align: left;"><code>[Domain]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Scanned</td>
+<td style="text-align: left;"><code>[Client IP]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Target of Nmap Scan</td>
+<td style="text-align: left;"><code>[Target IP]</code></td>
+</tr>
+</tbody>
+</table>
+<h1 class="unnumbered" id="security-control-review">3. Security Control
+Review</h1>
+<p>The following table summarizes the organization’s responses to a
+security controls questionnaire. Items marked with a cross () represent
+significant gaps in the security framework and are discussed in the Risk
+Assessment section.</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 class="unnumbered" id="technical-scan-results">4. Technical Scan
+Results</h1>
+<p>An external network scan was performed using Nmap. The scan
+identified the following open ports and services on the target
+system.</p>
+<h2 class="unnumbered" id="open-ports-and-services">Open Ports and
+Services</h2>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product &amp;
+Version</strong></th>
+<th style="text-align: left;"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">21/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">ftp</td>
+<td style="text-align: left;">vsftpd 2.3.4</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered" id="analysis-of-technical-findings">Analysis of
+Technical Findings</h2>
+<p>The scan revealed a critical vulnerability.</p>
+<ul>
+<li><p><strong>Vulnerable FTP Service:</strong> The server is running
+<strong>vsftpd version 2.3.4</strong>. This specific version is widely
+known to contain a critical backdoor vulnerability (CVE-2011-2523). If
+exploited, this vulnerability allows an attacker to execute arbitrary
+commands on the server with root-level privileges.</p></li>
+<li><p><strong>Anonymous FTP Enabled:</strong> The scan confirmed that
+"Anonymous FTP login allowed". This is a severe misconfiguration that
+permits any external user to connect to the FTP server without
+authentication, potentially allowing them to upload malicious files or
+download sensitive information.</p></li>
+</ul>
+<h1 class="unnumbered" id="consolidated-risk-assessment">5. Consolidated
+Risk Assessment</h1>
+<p>The following table synthesizes findings from the security control
+review, technical scan, and pre-existing risk data into a prioritized
+list.</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Severity</strong></th>
+<th style="text-align: left;"><strong>Risk / Vulnerability</strong></th>
+<th style="text-align: left;"><strong>Source</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><strong>Vulnerable FTP
+Service</strong></td>
+<td style="text-align: left;">An outdated version of vsftpd (2.3.4) with
+a known remote code execution backdoor is exposed to the internet.
+Anonymous login is also enabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><strong>Lack of MFA</strong></td>
+<td style="text-align: left;">Multi-Factor Authentication is not
+enforced for email or access to sensitive data systems, creating a high
+risk of account compromise and data breach.</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><strong>No Security Awareness
+Training</strong></td>
+<td style="text-align: left;">The absence of a training program for new
+or existing employees increases susceptibility to phishing, social
+engineering, and other human-targeted attacks.</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><strong>Outdated Windows
+Policy</strong></td>
+<td style="text-align: left;">The continued use of Windows 7, an
+end-of-life operating system, exposes workstations to numerous unpatched
+vulnerabilities.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 class="unnumbered" id="recommendations">6. Recommendations</h1>
+<p>Based on the analysis, we recommend the following actions,
+prioritized by severity.</p>
+<h2 class="unnumbered" id="immediate-actions-priority-1">Immediate
+Actions (Priority 1)</h2>
+<ol>
+<li><p><strong>Remediate FTP Server:</strong></p>
+<ul>
+<li><p>Immediately take the FTP server offline.</p></li>
+<li><p>If the service is business-critical, upgrade <code>vsftpd</code>
+to the latest stable version and place it behind a firewall with strict
+access control lists.</p></li>
+<li><p>If the service is not required, decommission it
+permanently.</p></li>
+<li><p>Disable anonymous FTP login under all circumstances.</p></li>
+</ul></li>
+<li><p><strong>Deploy MFA:</strong></p>
+<ul>
+<li><p>Implement and enforce MFA for all email accounts (e.g., Office
+365, Google Workspace) immediately.</p></li>
+<li><p>Prioritize the rollout of MFA for all systems identified as
+containing sensitive data.</p></li>
+</ul></li>
+</ol>
+<h2 class="unnumbered"
+id="high-priority-actions-priority-2">High-Priority Actions (Priority
+2)</h2>
+<ol start="3">
+<li><p><strong>Establish Security Awareness Training:</strong></p>
+<ul>
+<li><p>Implement a mandatory security awareness training module for all
+new employees as part of their onboarding process.</p></li>
+<li><p>Schedule and conduct annual security awareness training for all
+staff, covering topics like phishing, password hygiene, and acceptable
+use.</p></li>
+</ul></li>
+</ol>
+<h2 class="unnumbered"
+id="medium-priority-actions-priority-3">Medium-Priority Actions
+(Priority 3)</h2>
+<ol start="4">
+<li><p><strong>Address Outdated Systems:</strong></p>
+<ul>
+<li><p>Continue with the existing plan to upgrade all Windows 7
+workstations to a supported operating system like Windows 10 or
+11.</p></li>
+<li><p>Develop a formal patch and vulnerability management policy to
+prevent systems from becoming unsupported in the future.</p></li>
+</ul></li>
+</ol>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % For splitting long text strings
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Posture Report}
+\rhead{\textbf{[Organization Name]}}
+\cfoot{\thepage}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \textbf{[Organization Name]}
+    
+    \vspace{2cm}
+    
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder for a logo
+    
+    \vfill
+    
+    \Large
+    \today
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on a synthesis of network scan data, organizational security control responses, and a review of pre-existing risks.
+
+The assessment has identified a \textbf{critical risk} that requires immediate attention. The external network scan confirmed that Remote Desktop Protocol (RDP) on port 3389 is publicly exposed on the network perimeter at \texttt{[Target IP]}. This finding directly validates a known high-severity vulnerability.
+
+This technical vulnerability is severely compounded by organizational policy gaps. The security questionnaire revealed a lack of Multi-Factor Authentication (MFA) for computer logins and access to sensitive data systems. The combination of an exposed RDP port and the absence of mandatory MFA creates a direct and high-probability pathway for unauthorized access, potentially leading to a significant data breach or ransomware event.
+
+While the organization has positive security controls in place, such as MFA for email and a security awareness training program, the identified critical risks overshadow these strengths and must be remediated as a top priority.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+This section details the high-level information used as the basis for this assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{Assessed External IP:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. "No" responses indicate significant gaps in the security framework that increase overall risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.7\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The lack of MFA for computer logins and sensitive data access represents a critical weakness. While MFA on email is a commendable first step, threat actors who obtain user credentials can still bypass this control and gain direct access to workstations and critical data repositories. This gap directly elevates the risk associated with any credential compromise event.
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+An external network scan was performed against the target IP address to identify open ports and exposed services.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\begin{tabular}{l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} \\
+\midrule
+3389/tcp & open & ms-wbt-server (Microsoft Remote Desktop Protocol) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan confirms that port 3389 is open to the public internet. This port is used for Microsoft's Remote Desktop Protocol (RDP), which allows for direct graphical control of a server or workstation. Exposing RDP directly to the internet is a highly discouraged practice as it is a frequent target for brute-force password attacks and exploitation of known vulnerabilities. This technical finding corroborates the pre-existing risk documented in the risk register.
+
+% --- CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and existing risk data into a prioritized list of security risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.5\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Public RDP Exposure without MFA} & The technical scan confirms that RDP (port 3389) is publicly accessible. This is correlated with the organizational gap of not requiring MFA on computer logins. This creates a high-impact, high-likelihood path for an attacker to gain full control of an internal system. & \textbf{Critical (9.0)} \\
+\addlinespace
+\textbf{Lack of MFA on Sensitive Systems} & The absence of a second authentication factor for systems containing sensitive data means that a single compromised password could lead directly to a major data breach. & \textbf{High} \\
+\addlinespace
+\textbf{Lack of MFA on Workstations} & Failure to enforce MFA on computer logins allows for lateral movement and privilege escalation within the network should an attacker compromise a user's credentials. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+Based on the consolidated risk assessment, the following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{Immediate Priority (Remediate within 72 hours)}
+\begin{enumerate}
+    \item \textbf{Block RDP Access:} Immediately configure the perimeter firewall to \textbf{block all inbound traffic to TCP port 3389} for the IP address \texttt{[Target IP]}. There should be no direct RDP access from the public internet.
+    \item \textbf{Implement Secure Remote Access:} If remote access is required, deploy a Virtual Private Network (VPN) solution. Access to the VPN must be secured with Multi-Factor Authentication.
+\end{enumerate}
+
+\subsection{High Priority (Remediate within 30-60 days)}
+\begin{enumerate}
+    \item \textbf{Deploy Workstation MFA:} Implement a mandatory MFA policy for all user logins to company workstations and servers. This is a critical compensating control that protects against credential theft.
+    \item \textbf{Enforce MFA on Sensitive Data Systems:} Identify all applications and systems that store or process sensitive data and enforce MFA for all user access.
+\end{enumerate}
+
+\subsection{Continuous Improvement}
+\begin{enumerate}
+    \item \textbf{Review Security Policies:} Update the Acceptable Use Policy to explicitly require MFA for all applicable systems.
+    \item \textbf{Enhance Security Training:} Continue the security awareness training program, with a specific module focused on the risks of credential reuse and the importance of MFA.
+\end{enumerate}
+
+\end{document}
+```

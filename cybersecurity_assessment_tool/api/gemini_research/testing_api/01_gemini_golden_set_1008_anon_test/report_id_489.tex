@@ -1,0 +1,174 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry} % Sets page margins
+\usepackage{pifont}                 % Provides access to dingbat symbols (checkmarks, crosses)
+\usepackage{booktabs}               % For professional-quality tables
+\usepackage{graphicx}               % For including logos (optional but good practice)
+\usepackage{xcolor}                 % For custom colors
+\usepackage{hyperref}               % For hyperlinks, references, and metadata
+\usepackage{url}                    % For formatting URLs
+\usepackage{seqsplit}               % To split long monospaced text without breaking words
+
+% --- Document Metadata and Hyperlink Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Risk, Assessment},
+    hidelinks % Hides the boxes around links but keeps them active
+}
+
+% --- Custom Commands & Settings ---
+\newcommand{\yes}{\ding{51}} % Green checkmark
+\newcommand{\no}{\ding{55}}  % Red X
+\renewcommand{\arraystretch}{1.2} % Increase row height in tables for readability
+
+% --- Title Page Elements ---
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture Assessment Report} \\
+    \vspace{0.5cm}
+    \large For \\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% ==============================================================================
+% --- BEGIN DOCUMENT ---
+% ==============================================================================
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- Executive Summary ---
+\section*{Executive Summary}
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{[Organization Name]}. The assessment combined an analysis of organizational security controls, an external network scan, and a review of the current risk register.
+
+The analysis revealed several critical and high-risk vulnerabilities that require immediate attention. The most severe finding is a publicly exposed web service on port 8080, titled \textbf{`TOP SECRET DB`}, discovered on the external IP address \texttt{[Client IP]}. This finding directly contradicts the current risk register, which incorrectly lists this port as a secure false positive. This discrepancy indicates a significant failure in the risk management lifecycle.
+
+Furthermore, critical gaps were identified in administrative controls. The lack of mandatory Multi-Factor Authentication (MFA) for email access exposes the organization to significant risk from phishing and account takeover attacks. Deficiencies in employee security policies, including the absence of an Acceptable Use Policy and security training for new hires, weaken the organization's human firewall and overall security culture.
+
+Immediate remediation is required to address the exposed database and implement foundational security controls to mitigate these risks and improve the overall security posture.
+
+% --- Organizational Information ---
+\section*{1. Organizational Information}
+
+This section provides the key identification details for the organization under review. The data was either provided or, if missing, is represented by a placeholder.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \texttt{[Domain]} \\
+    External IP Scanned & \texttt{[Client IP]} \\
+    Target of Nmap Scan & \texttt{[Target IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- Security Control Review ---
+\section*{2. Security Control Review (Questionnaire Analysis)}
+
+The following table summarizes the organization's responses to a security controls questionnaire. Each response is assessed against industry best practices to identify potential gaps. "No" answers represent significant weaknesses in the security posture.
+
+\begin{tabular}{@{}p{0.5\textwidth} c p{0.3\textwidth}@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Analyst Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \no & \textbf{Critical Gap.} Email is a primary target for attackers. Lack of MFA significantly increases the risk of business email compromise. \\
+    \addlinespace
+    Do you require MFA to log into computers? & \yes & \textbf{Good Practice.} Protects against unauthorized local and remote access to workstations. \\
+    \addlinespace
+    Do you require MFA to access sensitive data systems? & \yes & \textbf{Good Practice.} A crucial control for protecting critical assets. \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \no & \textbf{High Risk.} Lack of a formal policy creates ambiguity and increases the likelihood of insider threat and accidental data exposure. \\
+    \addlinespace
+    Does your organization do security awareness training for new employees? & \no & \textbf{High Risk.} New hires are often targeted by attackers. Failure to train them upon entry leaves a critical window of vulnerability. \\
+    \addlinespace
+    Does your organization do security awareness training for all employees at least once per year? & \yes & \textbf{Good Practice.} Ongoing training is essential for maintaining security awareness. \\
+    \bottomrule
+\end{tabular}
+
+% --- Technical Scan Results ---
+\section*{3. Technical Scan Results}
+
+An external network scan was performed on the target IP address \texttt{[Target IP]} to identify open ports and exposed services.
+
+\subsection*{Summary of Findings}
+The scan identified one open port, which is hosting a service with a highly sensitive and revealing title.
+
+\begin{tabular}{@{}p{0.1\textwidth} p{0.1\textwidth} p{0.65\textwidth}@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service Details \& Analyst Notes} \\
+    \midrule
+    8080/tcp & Open & An HTTP service was identified. The title of the web page is: \textbf{`TOP SECRET DB`}. \\
+    & & \textbf{Note:} This is a critical information disclosure. The title suggests a sensitive database is directly exposed to the internet. This finding directly contradicts the existing risk register, which claims this port is secure. \\
+    \bottomrule
+\end{tabular}
+
+% --- Overall Risk Assessment ---
+\section*{4. Overall Risk Assessment}
+
+This section synthesizes findings from the security control review, technical scan, and existing risk data to provide a consolidated view of the primary risks facing the organization.
+
+\begin{tabular}{@{}p{0.1\textwidth} p{0.5\textwidth} l@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & \textbf{Exposed Sensitive Database Interface:} The service on port 8080 is titled `TOP SECRET DB`, indicating a highly sensitive system is exposed to the public internet. & \textbf{CRITICAL} \\
+    \addlinespace
+    RISK-002 & \textbf{Lack of MFA on Email Accounts:} The absence of MFA on email makes the organization highly susceptible to phishing, credential theft, and business email compromise. & \textbf{CRITICAL} \\
+    \addlinespace
+    RISK-003 & \textbf{Outdated and Inaccurate Risk Register:} The existing risk register incorrectly lists Port 8080 as a secure false positive. This indicates a flawed risk management lifecycle that prevents accurate tracking and remediation of real threats. & \textbf{HIGH} \\
+    \addlinespace
+    RISK-004 & \textbf{Inadequate Employee Security Policies:} The lack of a formal Acceptable Use Policy and security training for new hires creates a weak human security posture and increases insider risk. & \textbf{HIGH} \\
+    \bottomrule
+\end{tabular}
+
+% --- Recommendations ---
+\section*{5. Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{Priority 1: Immediate Actions (Within 24 Hours)}
+\begin{enumerate}
+    \item \textbf{Restrict Access to Port 8080:} Immediately apply a firewall rule to block all external access to port 8080 on \texttt{[Client IP]}. Access should only be permitted from trusted internal IP addresses.
+    \item \textbf{Investigate Exposed Service:} Conduct an immediate investigation into the service running on port 8080. Identify the system, the data it contains, and review access logs for any signs of unauthorized access or data exfiltration.
+\end{enumerate}
+
+\subsection*{Priority 2: High-Priority Actions (Within 30 Days)}
+\begin{enumerate}
+    \item \textbf{Enforce MFA for Email:} Procure and implement a solution to enforce MFA for all user access to the email system (\texttt{[Domain]}).
+    \item \textbf{Develop and Implement Core Policies:}
+    \begin{itemize}
+        \item Draft and ratify a formal Acceptable Use Policy (AUP) for all employees and contractors.
+        \item Create a mandatory security awareness training module for all new employees to be completed during their onboarding process.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Priority 3: Foundational Improvements (Within 90 Days)}
+\begin{enumerate}
+    \item \textbf{Overhaul Risk Management Process:} Review and update the risk management lifecycle. Ensure that all identified vulnerabilities are technically validated before being closed or accepted as false positives. The risk register must be a living document that accurately reflects the current threat landscape.
+    \item \textbf{Conduct Comprehensive Vulnerability Scan:} Perform a comprehensive, authenticated vulnerability scan across the entire external IP range to identify any other misconfigurations or outdated software.
+\end{enumerate}
+
+\end{document}
+% ==============================================================================
+% --- END OF DOCUMENT ---
+% ==============================================================================
+```

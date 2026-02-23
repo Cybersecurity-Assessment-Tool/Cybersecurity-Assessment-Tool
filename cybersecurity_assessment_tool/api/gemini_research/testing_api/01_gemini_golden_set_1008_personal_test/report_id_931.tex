@@ -1,0 +1,156 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required packages and document settings
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings like IPs
+\usepackage{graphicx} % For potential logo inclusion
+\usepackage{array} % For better column definitions in tables
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Custom command for table cells
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+
+% --- Executive Summary ---
+\section*{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{Binary Star}, based on a correlation of organizational data, a technical network scan, and a review of existing risks. The analysis reveals a mixed security posture. While the organization has implemented some essential controls, such as an acceptable use policy and annual security training, critical deficiencies were identified.
+
+The most significant risks stem from the lack of Multi-Factor Authentication (MFA) for email and computer access, and the absence of security awareness training for new employees. These gaps create substantial vulnerabilities to credential theft, phishing, and unauthorized access. A technical scan confirmed an exposed SSH service on the network, which, when combined with the identified policy gaps, elevates the risk of a successful brute-force or credential-based attack.
+
+Immediate remediation is recommended, focusing on the deployment of MFA and the integration of security training into the employee onboarding process.
+
+% --- Organizational Information ---
+\section{Organizational Information}
+The following details were provided by the client and form the basis of this assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Binary Star} \\
+Email Domain & \texttt{BinaryStar.com} \\
+Website Domain & \url{www.BinaryStar.com} \\
+External IP Address & \texttt{30.101.189.83} \\
+\bottomrule
+\end{tabular}
+
+% --- Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+The following table summarizes the organization's responses to a security controls questionnaire. Items marked with \ding{55} represent significant gaps in the security framework and are addressed in the Risk Assessment section.
+
+\begin{center}
+\begin{tabular}{L{12cm} C{2cm}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{1em}
+\textit{\textbf{Note:} \ding{51} = Yes / Implemented, \ding{55} = No / Gap Identified}
+
+% --- Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify exposed services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+    \item \textbf{Scan Date:} As per scan metadata.
+    \item \textbf{Status:} Host is up and responsive.
+\end{itemize}
+
+\subsection*{Open Ports}
+The scan identified the following open port(s) on the target host:
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/tcp & open & ssh (assumed) & The SSH service is exposed to the internet. \\
+& & & No detailed version information was obtained. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Technical Analysis}
+The presence of an open SSH port (22) is a notable finding. This service is commonly used for remote administration but is also a primary target for automated brute-force attacks. Without strong controls, such as IP whitelisting, fail2ban, and key-based authentication, this exposed service presents a direct vector for unauthorized access. This risk is significantly amplified by the lack of enforced MFA on computer logins.
+
+% --- Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data. As no pre-existing vulnerabilities were reported, the following risks are derived entirely from this assessment.
+
+\begin{center}
+\begin{tabular}{L{3.5cm} L{8.5cm} C{2cm}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Critical Systems} & User accounts for email and computer logins are protected only by passwords. A single compromised credential could lead to a full account takeover, data breach, or ransomware deployment. & \textbf{High} \\
+\addlinespace
+\textbf{No Onboarding Security Training} & New employees are not provided with security awareness training upon being hired. This makes them highly susceptible to phishing and social engineering attacks before they are integrated into the annual training cycle. & \textbf{High} \\
+\addlinespace
+\textbf{Exposed SSH Service} & The SSH management port is open to the public internet, making it a constant target for brute-force and credential-stuffing attacks. This is exacerbated by the lack of MFA for computer logins. & Medium \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% --- Recommendations ---
+\section{Recommendations}
+Based on the identified risks, the following prioritized actions are recommended to improve the cybersecurity posture of \textbf{Binary Star}.
+
+\subsection*{High Priority}
+\begin{enumerate}
+    \item \textbf{Implement and Enforce MFA:} Deploy a robust Multi-Factor Authentication solution for all employees and contractors. Enforcement should be prioritized for:
+    \begin{itemize}
+        \item Email access (e.g., Office 365, Google Workspace).
+        \item Endpoint/computer logins (e.g., Windows Hello, Duo).
+        \item VPN and other remote access solutions.
+    \end{itemize}
+
+    \item \textbf{Integrate Security Training into Onboarding:} Develop and mandate a security awareness training module as a required step in the new employee onboarding process. This training should occur within the first week of employment and cover topics such as phishing, password hygiene, and the acceptable use policy.
+\end{enumerate}
+
+\subsection*{Medium Priority}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Secure Exposed SSH Service:} Harden the publicly accessible SSH service to reduce the attack surface. Recommended actions include:
+    \begin{itemize}
+        \item \textbf{Firewall Rules:} Restrict access to the SSH port to only known, trusted IP addresses (e.g., administrator office IPs, VPN subnets).
+        \item \textbf{Disable Password Authentication:} Enforce public key authentication, which is significantly more resistant to brute-force attacks.
+        \item \textbf{Implement Intrusion Prevention:} Deploy a tool like \texttt{fail2ban} to automatically block IP addresses that exhibit malicious behavior, such as repeated failed login attempts.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,151 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx} % For potential logo inclusion
+\usepackage{fancyhdr} % For headers and footers
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Header and Footer Configuration
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{True North Travel}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{True North Travel}. The assessment combined a review of organizational security controls, an external network scan, and an analysis of pre-existing risk data.
+
+The analysis revealed several areas requiring immediate attention. Critical gaps were identified in access control, specifically the lack of Multi-Factor Authentication (MFA) for sensitive data systems. Furthermore, a high-risk gap exists in the employee onboarding process, which does not include mandatory security awareness training.
+
+Technical scanning of the network perimeter identified an open HTTP port (80), exposing web traffic to potential interception and eavesdropping. This is a significant vulnerability that undermines data confidentiality and integrity.
+
+Overall, the organization has foundational security controls in place but needs to address these specific, high-impact vulnerabilities to mature its security posture and reduce its risk profile. Recommendations for remediation are detailed in the final section of this report.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following information was provided for the assessment. This data establishes the scope and context for the findings herein.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{True North Travel} \\
+Email Domain      & \texttt{TrueNorthTravel.org} \\
+Website Domain    & \seqsplit{\url{www.TrueNorthTravel.org}} \\
+External IP Address & \texttt{228.156.105.100} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of self-reported security controls was conducted based on a standardized questionnaire. The responses indicate the current state of implemented policies and procedures. Gaps identified here often represent significant organizational risk.
+
+\begin{tabular}{@{}p{0.8\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{51} \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textbf{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textbf{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+
+\vspace{1em}
+\noindent \textbf{Analysis:} The organization has a good baseline with MFA for email and computers, and an acceptable use policy. However, two major gaps were identified:
+\begin{itemize}
+    \item \textbf{Critical Gap:} The absence of MFA for sensitive data systems leaves critical assets vulnerable to compromise via stolen credentials.
+    \item \textbf{High-Risk Gap:} The lack of security awareness training during onboarding means new employees are not immediately equipped to recognize and respond to threats like phishing, significantly increasing risk.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed on the target system to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.0.1}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+The following table details the results of the scan:
+
+\begin{tabular}{@{}lllll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Finding} \\
+\midrule
+80/tcp & Open & HTTP & \textbf{High Risk} \\
+\bottomrule
+\end{tabular}
+
+\vspace{1em}
+\noindent \textbf{Analysis:} The scan confirmed that port 80 (HTTP) is open. HTTP is an unencrypted protocol. Any data, including usernames, passwords, or other sensitive information transmitted over this port, can be intercepted and read by a malicious actor on the network. The industry standard is to use HTTPS (port 443) with strong TLS encryption and to redirect all HTTP traffic to the secure channel.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data. One entry from the provided risk data (\textit{Input\_3\_Current\_Risks\_JSON}) was determined to be invalid/malicious and has been excluded from this analysis.
+
+The following table summarizes the key identified risks to the organization.
+
+\begin{tabular}{@{}p{0.1\linewidth}p{0.6\linewidth}p{0.2\linewidth}}
+\toprule
+\textbf{Risk ID} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{RISK-001} & \textbf{Lack of MFA on Sensitive Systems:} User accounts for critical systems are protected only by passwords, making them highly susceptible to credential stuffing and phishing attacks. & \textbf{Critical} \\
+\addlinespace
+\textbf{RISK-002} & \textbf{Unencrypted Web Traffic (HTTP):} The web service on \texttt{172.16.0.1} uses the insecure HTTP protocol, exposing all transmitted data to interception. & \textbf{High} \\
+\addlinespace
+\textbf{RISK-003} & \textbf{No Onboarding Security Training:} New employees are not trained on security policies and threat identification upon hiring, creating a window of high vulnerability. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the identified risks, the following remediation actions are recommended. These actions are prioritized to address the most severe threats first.
+
+\begin{enumerate}
+    \item \textbf{Implement MFA for Sensitive Systems (RISK-001):}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately enforce MFA on all systems classified as containing sensitive data, including financial, customer PII, and proprietary information systems.
+        \item \textbf{Priority:} \textbf{Critical}. This should be addressed within the next 30 days.
+    \end{itemize}
+    
+    \item \textbf{Enforce HTTPS and Disable HTTP (RISK-002):}
+    \begin{itemize}
+        \item \textbf{Action:} Configure the web server at \texttt{172.16.0.1} to use a valid TLS certificate and serve traffic exclusively over HTTPS (port 443). Implement a permanent redirect (HTTP 301) for all traffic from HTTP to HTTPS.
+        \item \textbf{Priority:} \textbf{High}. This should be addressed within the next 60 days.
+    \end{itemize}
+    
+    \item \textbf{Integrate Security Training into Onboarding (RISK-003):}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and mandate a security awareness training module as a required part of the new employee onboarding process. This training should be completed within the first week of employment.
+        \item \textbf{Priority:} \textbf{High}. This should be implemented for all new hires starting within the next 90 days.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

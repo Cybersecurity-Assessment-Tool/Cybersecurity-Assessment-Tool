@@ -1,0 +1,158 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+% Document Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Assessment Report}
+\rhead{Symmetry Architecture}
+\cfoot{\thepage}
+
+\begin{document}
+
+% --- Title Section ---
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Assessment Report} \\
+    \large For \\
+    \vspace{0.5cm}
+    \textbf{Symmetry Architecture}
+}
+\author{Cybersecurity Analyst Group}
+\date{\today}
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity assessment conducted for \textbf{Symmetry Architecture}. The analysis combines a review of organizational security controls, an external network scan, and a summary of pre-existing risks.
+
+The assessment identified several critical and high-risk vulnerabilities that require immediate attention. Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Service Exposure:} An externally accessible MySQL database was identified. This service is running an End-of-Life (EOL) version (5.7.33), which no longer receives security updates, posing a significant risk of compromise.
+    \item \textbf{Insufficient Access Controls:} Multi-Factor Authentication (MFA) is not enforced for employee access to email or computer systems. This represents a critical gap that severely weakens the organization's defense against credential theft and phishing attacks.
+    \item \textbf{Policy Gaps:} The organization lacks a formal Acceptable Use Policy (AUP). This foundational document is essential for establishing clear security expectations and responsibilities for all employees.
+\end{itemize}
+The overall security posture is considered high-risk due to the combination of direct external threats and internal control weaknesses. We strongly recommend prioritizing the remediation actions outlined in Section 6 to mitigate these risks and improve the organization's defensive capabilities.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & Symmetry Architecture \\
+Email Domain & \texttt{SymmetryArchitecture.net} \\
+Website Domain & \url{www.SymmetryArchitecture.net} \\
+External IP Address & \texttt{182.227.29.173} \\ \bottomrule
+\end{tabular}
+\caption{Client Profile}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of organizational security controls was conducted based on a standard questionnaire. The results highlight significant gaps in access control and policy management. A "No" response indicates a missing control and a potential area of high risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.7\textwidth}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & No & \color{red}\ding{55} \\
+Do you require MFA to log into computers? & No & \color{red}\ding{55} \\
+Do you require MFA to access sensitive data systems? & Yes & \color{green}\ding{51} \\
+Does your organization have an employee acceptable use policy? & No & \color{red}\ding{55} \\
+Does your organization do security awareness training for new employees? & Yes & \color{green}\ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & Yes & \color{green}\ding{51} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis}
+The lack of MFA for email and computer access is a critical vulnerability. Email accounts are a primary target for attackers, and a successful compromise could lead to business email compromise (BEC), data breaches, or further infiltration of the network. The absence of an Acceptable Use Policy indicates a gap in security governance.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed against the target IP address \texttt{172.16.50.20}. The scan identified one open port with a publicly exposed service.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+3306/tcp & open & mysql & MySQL & 5.7.33 \\ \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{172.16.50.20}}
+\end{table}
+
+\subsection*{Analysis}
+The scan confirms that a MySQL database server is directly exposed to the internet. This configuration is highly discouraged as it exposes the database to brute-force attacks, credential stuffing, and exploitation of known vulnerabilities.
+
+Furthermore, the detected version, \textbf{MySQL 5.7.33}, reached its official End-of-Life (EOL) in October 2023. EOL software no longer receives security patches from the vendor, meaning any newly discovered vulnerabilities will remain unpatched, leaving the system perpetually at risk.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\textwidth}p{0.5\textwidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\textbf{Exposed End-of-Life Database} & The MySQL database on port 3306 is open to the public internet and is running an unsupported EOL version (5.7.33), making it a prime target for automated attacks. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Multi-Factor Authentication} & MFA is not required for email or computer access. This significantly increases the likelihood of a successful account takeover via credential theft or phishing. & \textbf{Critical} \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy} & The absence of a formal AUP creates ambiguity regarding security responsibilities and acceptable employee behavior, increasing the risk of insider threat and policy violations. & \textbf{High} \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the consolidated risk assessment, we provide the following prioritized recommendations to mitigate the identified vulnerabilities.
+
+\subsection*{Priority 1: Critical Risks (Immediate Action Required)}
+\begin{enumerate}
+    \item \textbf{Restrict Database Access:} Immediately implement firewall rules to block all public access to TCP port 3306. Access should be restricted to only trusted internal IP addresses, such as application servers. For remote administration, a Virtual Private Network (VPN) should be required.
+    
+    \item \textbf{Upgrade End-of-Life Software:} Plan and execute an urgent migration of the MySQL 5.7 database to a currently supported version (e.g., MySQL 8.x). This is essential to ensure the system receives ongoing security updates.
+    
+    \item \textbf{Implement MFA:} Deploy Multi-Factor Authentication across all user accounts for both email access (e.g., Office 365, Google Workspace) and computer logins (e.g., Windows Hello, Duo). This is the single most effective control to prevent account compromise.
+\end{enumerate}
+
+\subsection*{Priority 2: High Risks (Action within 30-60 days)}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an AUP:} Draft a formal Acceptable Use Policy that clearly defines the rules and responsibilities for employees when using company technology and data. This policy should be reviewed by management, distributed to all employees, and acknowledged with a signature.
+\end{enumerate}
+
+\subsection*{Priority 3: Foundational Improvements}
+\begin{enumerate}
+    \item \textbf{Enhance Security Training:} While a training program exists, consider enhancing it with specific modules on the dangers of phishing and the importance of the new MFA and AUP policies. This will help reinforce secure behaviors and ensure policy adoption.
+\end{enumerate}
+
+\end{document}
+```

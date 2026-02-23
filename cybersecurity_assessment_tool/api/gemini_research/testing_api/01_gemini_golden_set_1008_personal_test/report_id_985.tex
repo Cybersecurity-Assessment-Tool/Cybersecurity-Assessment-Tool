@@ -1,0 +1,151 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=black]{hyperref}
+\usepackage{url}
+\usepackage{seqsplit} % For breaking long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{November 22, 2025}
+
+% --- COMMANDS ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{Executive Overview}
+% ==============================================================================
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{Open Door}. The analysis is based on a combination of network scanning, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals a mixed security posture. The organization has successfully implemented foundational controls such as Multi-Factor Authentication (MFA) for email and computer access. Security awareness training programs are also in place for both new and existing employees, which is a commendable practice.
+
+However, two critical gaps were identified in the organization's administrative and access control policies. Firstly, there is a lack of MFA for accessing sensitive data systems, which exposes critical assets to significant risk from compromised credentials. Secondly, the absence of an employee Acceptable Use Policy (AUP) creates ambiguity and increases the likelihood of insider threats, whether accidental or malicious.
+
+From a technical perspective, the external network scan identified an open HTTPS port running an outdated version of Nginx (1.18.0). This software version has known vulnerabilities and presents a tangible risk of compromise to the public-facing web server.
+
+Immediate remediation is recommended to address these high-risk findings to strengthen the overall security posture of \textbf{Open Door}.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+
+The following information was provided for the assessment:
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Open Door
+    \item \textbf{Email Domain:} \texttt{OpenDoor.com}
+    \item \textbf{Primary Website:} \url{www.OpenDoor.com}
+    \item \textbf{External IP Address:} \seqsplit{\texttt{11.15.103.31}}
+\end{itemize}
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+
+A review of the organization's security controls was conducted via a questionnaire. The responses indicate key areas of strength and weakness in the current security program. Gaps identified with a `\no` response represent a higher risk and are addressed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Responses}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \yes \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textcolor{red}{\no} \\
+\textbf{Does your organization have an employee acceptable use policy?} & \textcolor{red}{\no} \\
+Does your organization do security awareness training for new employees? & \yes \\
+Does your organization do security awareness training for all employees at least once per year? & \yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+
+An external network scan was performed to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \seqsplit{\texttt{192.168.10.5}}
+    \item \textbf{Scan Date:} 2025-11-22
+\end{itemize}
+
+\subsection{Open Ports}
+The following table details the open ports and services discovered during the scan.
+
+\begin{table}[h!]
+\centering
+\caption{Discovered Open Ports and Services}
+\begin{tabular}{l l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & open & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Technical Analysis}
+The scan identified an Nginx web server, version \textbf{1.18.0}, accessible on port 443 (HTTPS). This version was released in April 2020 and is now considered outdated. Publicly available information indicates that this version is affected by known vulnerabilities (e.g., CVE-2021-23017). Running outdated software, especially on internet-facing systems, poses a significant security risk as it can be exploited by attackers to gain unauthorized access or disrupt service.
+
+% ==============================================================================
+\section{Risk Assessment Summary}
+% ==============================================================================
+
+The following table synthesizes findings from the security control review and technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Security Risks}
+\begin{tabular}{p{0.1\linewidth} p{0.3\linewidth} p{0.4\linewidth} p{0.1\linewidth}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+R-01 & Inadequate MFA for Sensitive Systems & Critical data systems lack MFA, relying solely on passwords. This significantly increases the risk of unauthorized access via credential theft. & \textbf{High} \\
+\addlinespace
+R-02 & Missing Acceptable Use Policy & The absence of a formal AUP creates ambiguity for employees regarding safe technology use, increasing the risk of policy violations and insider threats. & \textbf{High} \\
+\addlinespace
+R-03 & Outdated Web Server Software & The external web server runs an outdated version of Nginx (1.18.0) with known vulnerabilities, which could be exploited by attackers. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+% ==============================================================================
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of the organization.
+
+\begin{enumerate}
+    \item \textbf{Implement Comprehensive MFA (Risk R-01):}
+    Deploy mandatory Multi-Factor Authentication (MFA) across all systems and applications that store, process, or transmit sensitive data. This control is critical for preventing unauthorized access resulting from compromised passwords.
+
+    \item \textbf{Develop and Enforce an AUP (Risk R-02):}
+    Create a formal Employee Acceptable Use Policy (AUP) that clearly defines the rules and expectations for using company assets, data, and networks. This policy should be integrated into the onboarding process and reviewed annually by all employees.
+
+    \item \textbf{Remediate Vulnerable Software (Risk R-03):}
+    Upgrade the Nginx web server on host \seqsplit{\texttt{192.168.10.5}} to the latest stable version to mitigate known vulnerabilities. Furthermore, implement a formal patch and vulnerability management program to ensure all system components are updated in a timely manner.
+\end{enumerate}
+
+\end{document}
+```

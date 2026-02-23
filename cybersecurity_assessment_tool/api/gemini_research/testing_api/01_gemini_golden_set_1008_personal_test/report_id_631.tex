@@ -1,0 +1,153 @@
+```latex
+\documentclass[12pt]{article}
+
+% 1. DOCUMENT SETUP & PACKAGES
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{xcolor} % For colors
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings like IPs
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% 2. DOCUMENT METADATA
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% 3. EXECUTIVE SUMMARY
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{Binary Star}, based on a review of organizational security controls, an external network scan, and an analysis of pre-existing risks. The assessment was conducted on \today.
+
+Overall, the organization demonstrates a strong commitment to security in key areas, particularly with the consistent enforcement of Multi-Factor Authentication (MFA) across email, computers, and sensitive systems. This significantly reduces the risk of unauthorized access via compromised credentials.
+
+However, two primary areas of concern were identified:
+\begin{itemize}
+    \item \textbf{High Risk Policy Gap:} A critical gap exists in the employee onboarding process. New hires do not receive mandatory security awareness training, leaving the organization vulnerable to social engineering and policy violations during a new employee's most susceptible period.
+    \item \textbf{Medium Risk Technical Finding:} An external scan of the network perimeter revealed an open SSH port (22) on the IPv6 address \seqsplit{\texttt{2001:db8::1}}. While necessary for remote administration, publicly exposed management services are a common target for attackers and must be properly secured.
+\end{itemize}
+
+This report details these findings and provides actionable recommendations to mitigate the identified risks and enhance the overall security posture of \textbf{Binary Star}.
+
+% 4. ORGANIZATIONAL INFORMATION
+\section{Organizational Information}
+The following information was provided for the assessment.
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Binary Star} \\
+Email Domain & \texttt{BinaryStar.org} \\
+Website Domain & \url{www.BinaryStar.org} \\
+Primary External IP & \texttt{151.211.60.24} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% 5. SECURITY CONTROL REVIEW (FROM QUESTIONNAIRE)
+\section{Security Control Review}
+A review of the organization's security policies and controls was conducted via a standardized questionnaire. The responses indicate the current state of administrative and policy-based security measures.
+
+\begin{center}
+\begin{tabular}{p{0.7\textwidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \yes \\
+Do you require MFA to log into computers? & \yes \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \yes \\
+\textbf{Does your organization do security awareness training for new employees?} & \textcolor{red}{\no} \\
+Does your organization do security awareness training for all employees at least once per year? & \yes \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis}
+The organization has implemented robust MFA controls, which is a commendable best practice. The primary finding from this review is the \textbf{lack of security awareness training for new employees}. This is a critical vulnerability. New hires are often prime targets for phishing and social engineering attacks as they are not yet familiar with internal policies and procedures. While annual training is in place, the initial onboarding period represents a significant window of risk.
+
+% 6. TECHNICAL SCAN RESULTS
+\section{Technical Scan Results}
+An external network vulnerability scan was performed to identify open ports and exposed services on the organization's network perimeter.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{2001:db8::1}}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+\midrule
+22/tcp & OPEN & SSH (Secure Shell) & Exposed remote management service. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis}
+The scan identified that port 22 (SSH) is open to the public internet on an IPv6 address. SSH is a critical tool for remote system administration, but its public exposure constitutes a security risk. It provides a direct vector for brute-force password attacks, credential stuffing, and exploitation of potential software vulnerabilities in the SSH server itself. Without further version information, it is impossible to confirm specific vulnerabilities, but the presence of an open management port is a finding that requires immediate attention.
+
+% 7. RISK ASSESSMENT SUMMARY
+\section{Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data. The pre-existing risk list was empty.
+
+\begin{center}
+\begin{tabular}{p{0.15\textwidth} p{0.55\textwidth} l}
+\toprule
+\textbf{Risk ID} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+R-001 & \textbf{Inadequate New Hire Security Onboarding:} Lack of mandatory security awareness training for new employees creates a high susceptibility to social engineering and unintentional policy violations. & \textbf{High} \\
+\noalign{\vspace{2mm}}
+R-002 & \textbf{Exposed SSH Management Port:} The SSH service on \seqsplit{\texttt{2001:db8::1}} is publicly accessible, increasing the attack surface and risk of unauthorized access or exploitation. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% 8. RECOMMENDATIONS
+\section{Recommendations}
+Based on the risk assessment, the following actions are recommended to strengthen the organization's security posture.
+
+\begin{enumerate}
+    \item \textbf{[High Priority] Implement New Hire Security Training (Mitigates R-001):}
+    \begin{itemize}
+        \item Develop or procure a mandatory security awareness training module to be completed by all new employees as part of their onboarding process, ideally within their first week.
+        \item This training should cover, at a minimum: phishing identification, password and MFA policy, acceptable use of company assets, and how to report a security incident.
+    \end{itemize}
+
+    \item \textbf{[Medium Priority] Harden Exposed SSH Service (Mitigates R-002):}
+    \begin{itemize}
+        \item \textbf{Restrict Access:} If public access is not required, configure firewall rules to restrict access to the SSH port (22) on \seqsplit{\texttt{2001:db8::1}} to only trusted IP addresses (e.g., office or administrator VPNs).
+        \item \textbf{Apply Secure Configuration:} If public access is a business necessity, ensure the SSH server is configured according to security best practices:
+            \begin{itemize}
+                \item Disable password-based authentication and enforce the use of public key cryptography.
+                \item Disable root login over SSH.
+                \item Ensure the SSH server software is patched to the latest stable version.
+                \item Implement an intrusion detection tool like Fail2Ban to automatically block IPs that exhibit malicious behavior (e.g., multiple failed login attempts).
+            \end{itemize}
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

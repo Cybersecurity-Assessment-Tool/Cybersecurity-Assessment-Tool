@@ -1,0 +1,186 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and ToC
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings without spaces
+\usepackage{graphicx}
+\usepackage[table]{xcolor} % For coloring table cells
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Custom Colors for Severity
+\definecolor{criticalred}{HTML}{D10000}
+\definecolor{highorange}{HTML}{E57300}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture Assessment Report} \\
+    \large \textit{Analysis of Organizational and Technical Security Controls} \\
+    \vspace{1.5cm}
+    \includegraphics[width=0.3\textwidth]{example-image-a} \\ % Placeholder for company logo
+    \vspace{1cm}
+    \textbf{Prepared for: Atlas Mapping}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for Atlas Mapping, based on an analysis of organizational security questionnaires, technical network scans, and pre-existing risk data. The assessment reveals critical deficiencies in foundational security controls and confirms the presence of a high-impact vulnerability.
+
+The overall security posture is determined to be \textbf{very high risk}. Key findings include a complete absence of Multi-Factor Authentication (MFA) across all critical systems, a lack of employee security policies and training, and an externally accessible service flagged as a critical threat. These gaps create a significant risk of unauthorized access, data breach, and system compromise.
+
+Immediate and decisive action is required to remediate these issues. This report outlines specific, prioritized recommendations to strengthen the organization's defenses, mitigate the identified risks, and establish a baseline for a robust security program.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Atlas Mapping \\
+    Email Domain & \texttt{AtlasMapping.com} \\
+    Website Domain & \url{www.AtlasMapping.com} \\
+    External IP Address & \texttt{90.106.105.160} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of the security questionnaire highlights critical gaps in administrative and access controls. "No" answers indicate a failure to implement fundamental security best practices.
+
+\begin{table}[h!]
+\centering
+\caption{Security Questionnaire Analysis}
+\begin{tabular}{p{0.6\linewidth} c l}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \ding{55} & \cellcolor{criticalred!25}Critical Control Gap \\
+    Do you require MFA to log into computers? & \ding{55} & \cellcolor{criticalred!25}Critical Control Gap \\
+    Do you require MFA to access sensitive data systems? & \ding{55} & \cellcolor{criticalred!25}Critical Control Gap \\
+    Does your organization have an employee acceptable use policy? & \ding{55} & \cellcolor{highorange!25}High Risk Gap \\
+    Does your organization do security awareness training for new employees? & \ding{55} & \cellcolor{highorange!25}High Risk Gap \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{55} & \cellcolor{highorange!25}High Risk Gap \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The complete absence of Multi-Factor Authentication (MFA) is a severe weakness. It implies that a single compromised password could grant an attacker full access to email, workstations, and sensitive data. Furthermore, the lack of an acceptable use policy and security training means employees are likely unaware of cyber threats and their security responsibilities, making the organization highly susceptible to phishing and social engineering attacks.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed on the specified target to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{127.0.0.1}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Findings}
+\begin{tabular}{l l l l}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Product / Version} \\
+    \midrule
+    22/tcp & Open & SSH (Secure Shell) & Not Scanned \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The scan identified that port 22, commonly used for SSH, is open. While the scan did not include version detection, any exposed remote administration service presents a risk. This finding directly correlates with the "Localhost Exposed" risk identified in Input 3, confirming its presence. Exposing an administrative service without compensating controls like MFA is highly discouraged.
+
+% --- Section 5: Synthesized Risk Assessment ---
+\section{Synthesized Risk Assessment}
+By correlating the organizational gaps with technical findings and known vulnerabilities, we have compiled a summary of the most significant risks facing Atlas Mapping.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Key Risks}
+\begin{tabular}{p{0.2\linewidth} p{0.55\linewidth} p{0.15\linewidth}}
+    \toprule
+    \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    \textbf{Lack of Multi-Factor Authentication} & User accounts for email, computers, and sensitive systems are protected only by passwords. A single password compromise could lead to a full-scale breach. & \textcolor{criticalred}{\textbf{Critical}} \\
+    \addlinespace
+    \textbf{Confirmed Critical Vulnerability: Localhost Exposed} & The pre-existing risk of an exposed service on \texttt{127.0.0.1} is confirmed by the technical scan showing port 22 (SSH) open. This vulnerability is rated with a CVSS score of 10.0. & \textcolor{criticalred}{\textbf{Critical}} \\
+    \addlinespace
+    \textbf{Lack of Security Policy and Training} & The absence of an Acceptable Use Policy and security awareness training creates a vulnerable human element. Employees are more likely to fall victim to phishing or mishandle sensitive data. & \textcolor{highorange}{\textbf{High}} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{Immediate Priority: Remediate Critical Risks}
+\begin{enumerate}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+        \begin{itemize}
+            \item Immediately enforce MFA for all user accounts on the email platform (e.g., Office 365, Google Workspace).
+            \item Develop a roadmap to deploy MFA for all computer logins and access to sensitive data systems within the next 30-60 days.
+        \end{itemize}
+    \item \textbf{Address Exposed Service (Port 22):}
+        \begin{itemize}
+            \item Immediately investigate the service running on port 22 on host \texttt{127.0.0.1}.
+            \item If the service is not essential for business operations, it should be disabled.
+            \item If the service is required, access should be restricted to authorized personnel only via a firewall or VPN, and secured with strong authentication.
+        \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority: Establish Security Governance}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Develop and Implement Security Policies:}
+        \begin{itemize}
+            \item Create a formal Employee Acceptable Use Policy (AUP) that defines the rules for using company IT assets.
+            \item Require all employees to read and acknowledge the policy.
+        \end{itemize}
+    \item \textbf{Institute Security Awareness Training:}
+        \begin{itemize}
+            \item Enroll all current employees in a foundational security awareness training program immediately.
+            \item Make this training a mandatory part of the onboarding process for all new hires.
+            \item Schedule annual refresher training for all staff to ensure continued awareness.
+        \end{itemize}
+\end{enumerate}
+
+\subsection{General Improvement}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item \textbf{Enhance Technical Scanning:}
+        \begin{itemize}
+            \item Ensure future vulnerability scans include service and version detection to identify outdated and vulnerable software components. This provides deeper insight than a simple port scan.
+        \end{itemize}
+\end{enumerate}
+
+% --- Document End ---
+\end{document}
+```

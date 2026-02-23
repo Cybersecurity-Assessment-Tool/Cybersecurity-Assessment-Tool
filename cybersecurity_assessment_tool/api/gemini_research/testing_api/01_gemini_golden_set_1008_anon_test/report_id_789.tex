@@ -1,0 +1,190 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}                % For checkmark and cross symbols
+\usepackage{booktabs}              % For professional-looking tables
+\usepackage{hyperref}              % For hyperlinks
+\usepackage{url}                   % For URL formatting
+\usepackage{seqsplit}              % For splitting long strings in texttt
+\usepackage[utf8]{inputenc}        % Input encoding
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1cm}
+
+\begin{center}
+    \textbf{Prepared for: \textbf{[Organization Name]}}
+\end{center}
+
+\newpage
+\tableofcontents
+\newpage
+
+% ===================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ===================================================================
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{[Organization Name]}. The assessment combined an external network scan, a review of existing risk documentation, and an analysis of organizational security controls based on a provided questionnaire.
+
+The assessment identified several critical and high-severity risks that require immediate attention. The most significant finding is the discovery of a publicly accessible service on port 8080 of the external IP address \texttt{[Target IP]}. This service presents a title, \textbf{``TOP SECRET DB''}, which suggests a highly sensitive database is exposed. This finding directly contradicts the existing risk register, which incorrectly lists this port as a secure false positive.
+
+Furthermore, critical gaps were identified in internal security controls. The lack of mandatory Multi-Factor Authentication (MFA) for computer logins significantly increases the risk of unauthorized access from a compromised employee account. This is compounded by the absence of a mandatory annual security awareness training program for all employees, which heightens the organization's susceptibility to phishing and social engineering attacks.
+
+Immediate remediation is required to address the exposed service and enforce endpoint MFA. A comprehensive review of the risk management process is also strongly recommended to prevent such dangerous discrepancies in the future.
+
+% ===================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+This section provides the key identifying information for the organization under review. As per the provided data, the following placeholders are used.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% ===================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ===================================================================
+\section{Security Control Review}
+
+The following table summarizes the organization's security controls based on the provided questionnaire. Items marked with a cross (\ding{55}) represent significant gaps in the security posture and are discussed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Status}
+\begin{tabular}{p{0.6\textwidth} c p{0.2\textwidth}}
+\toprule
+\textbf{Control Question} & \textbf{Status} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{51} & Meets best practice. \\
+\addlinespace
+Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} & \textbf{Critical Gap.} \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \ding{51} & Meets best practice. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \ding{51} & Good practice. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \ding{51} & Good practice. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \textbf{\color{red}\ding{55}} & \textbf{High Risk.} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed on the target IP address. The target was identified as `up` and responsive. The following table details the open ports and services discovered.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Scan Findings}
+\begin{tabular}{c c p{0.3\textwidth} p{0.4\textwidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service/Product} & \textbf{Details \& Analysis} \\
+\midrule
+8080/tcp & OPEN & http & The HTTP service returned a title: \textbf{``TOP SECRET DB''}. This is a critical information disclosure and suggests a sensitive database is directly exposed. This finding contradicts the current risk register. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+% SECTION 5: RISK ASSESSMENT
+% ===================================================================
+\section{Risk Assessment}
+
+The following risks have been identified and prioritized based on the correlation of technical findings, control gaps, and existing documentation.
+
+\begin{table}[h!]
+\centering
+\caption{Synthesized Risk Summary}
+\begin{tabular}{p{0.1\textwidth} p{0.4\textwidth} p{0.15\textwidth} p{0.2\textwidth}}
+\toprule
+\textbf{Risk ID} & \textbf{Description} & \textbf{Severity} & \textbf{Affected Systems} \\
+\midrule
+\textbf{RISK-001} & A potentially sensitive database or application titled ``TOP SECRET DB'' is exposed to the public internet on port 8080. & \textbf{Critical} & External Server: \texttt{[Target IP]} \\
+\addlinespace
+\textbf{RISK-002} & Lack of MFA for computer logins allows an attacker with a single compromised password to gain full access to an employee's endpoint and internal network resources. & \textbf{Critical} & All employee workstations and laptops. \\
+\addlinespace
+\textbf{RISK-003} & The risk register is outdated and inaccurate. It incorrectly states that port 8080 is secure, while active scanning proves it is open and exposing a sensitive service. This indicates a failure in the risk management process. & \textbf{High} & Security Governance \& Risk Management Program. \\
+\addlinespace
+\textbf{RISK-004} & Lack of mandatory annual security awareness training for all staff increases the likelihood of successful phishing and social engineering attacks, leading to credential compromise. & \textbf{High} & All employees. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+% SECTION 6: RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity.
+
+\subsection*{Immediate Priority (Critical Risks)}
+
+\begin{enumerate}
+    \item \textbf{Remediate Exposed Service (RISK-001):}
+    \begin{itemize}
+        \item Immediately investigate the service running on port 8080 of \texttt{[Target IP]}.
+        \item If the service is not intended for public access, place it behind a firewall and restrict access to authorized IP addresses only.
+        \item If the service must be public, ensure it is fully patched, hardened, and requires strong authentication.
+        \item Change the service title to remove sensitive information.
+    \end{itemize}
+
+    \item \textbf{Implement Endpoint MFA (RISK-002):}
+    \begin{itemize}
+        \item Procure and deploy an MFA solution for all employee computer and laptop logins (Windows, macOS, etc.).
+        \item Enforce this policy for all users, including privileged administrators and executives.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{High Priority}
+
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Update Risk Management Processes (RISK-003):}
+    \begin{itemize}
+        \item Conduct a full review of the current risk register to identify and correct other inaccuracies.
+        \item Implement a formal process for validating risk assessments with periodic technical scans.
+    \end{itemize}
+    
+    \item \textbf{Establish Annual Security Training (RISK-004):}
+    \begin{itemize}
+        \item Implement a mandatory security awareness training program that all employees must complete at least once per year.
+        \item Include modules on phishing, password security, and acceptable use.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

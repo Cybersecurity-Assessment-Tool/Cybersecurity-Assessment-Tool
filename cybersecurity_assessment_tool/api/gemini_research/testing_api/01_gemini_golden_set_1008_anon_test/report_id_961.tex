@@ -1,0 +1,160 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding{51} and \ding{55})
+\usepackage{booktabs} % For professional tables (\toprule, \midrule, \bottomrule)
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long, unbreakable strings
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+
+% Document Metadata
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analyst}
+\date{November 22, 2025}
+
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+\begin{center}
+    \textbf{Prepared for: \textbf{[Organization Name]}} \\
+    \textbf{Report Date:} November 22, 2025 \\
+    \textbf{Classification:} Confidential
+\end{center}
+\vspace{1em}
+\hrule
+
+\begin{abstract}
+\noindent This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The analysis is based on a combination of an external network scan, a review of organizational security controls via questionnaire, and an evaluation of pre-existing risks. While the organization demonstrates a solid foundation in security awareness and policy, several critical and high-risk vulnerabilities were identified that require immediate attention. Key findings include the absence of Multi-Factor Authentication (MFA) for email and sensitive data systems, and a publicly exposed web server running a significantly outdated and vulnerable version of Nginx. These issues collectively present a high risk of unauthorized access, data breach, and system compromise. This report provides a detailed risk assessment and actionable recommendations to mitigate the identified threats.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Overview and Executive Summary}
+The primary objective of this assessment was to evaluate the external security posture and internal security controls of \textbf{[Organization Name]}. The methodology involved correlating technical scan data with self-reported organizational practices to build a holistic view of the current risk landscape.
+
+\paragraph{Key Findings:}
+\begin{itemize}
+    \item \textbf{Critical Control Gaps:} The organization does not enforce Multi-Factor Authentication (MFA) for accessing email or sensitive data systems. This is a critical vulnerability, as compromised credentials could directly lead to a major data breach or business email compromise (BEC).
+    \item \textbf{High-Risk Technical Vulnerability:} The external-facing web server at \texttt{[Client IP]} is running Nginx version 1.18.0, a release from early 2020. This version is outdated and has numerous publicly disclosed vulnerabilities (CVEs), making it a prime target for automated attacks.
+    \item \textbf{Positive Controls:} The organization has positive controls in place, including mandatory MFA for computer logins, an acceptable use policy, and a robust security awareness training program for all employees. These are commendable foundational elements.
+\end{itemize}
+
+\paragraph{Summary:}
+The lack of MFA on critical systems combined with a vulnerable public-facing server creates a significant attack surface. An attacker could exploit the outdated server to gain a foothold and then leverage weak authentication on internal systems to escalate privileges and access sensitive data. Immediate remediation is strongly advised.
+
+\section{Organizational Information}
+This section provides the high-level information used as the basis for this assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \texttt{[Domain]} \\
+External IP Scanned & \texttt{[Client IP]} \\
+\bottomrule
+\end{tabular}
+
+\section{Security Control Review (Questionnaire)}
+The following table summarizes the organization's self-reported security controls. Answers marked with \ding{55} (No) indicate significant gaps in the security framework and are discussed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Controls Questionnaire}
+\begin{tabular}{@{}lc}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:}
+The questionnaire reveals a critical weakness in the organization's identity and access management strategy. While MFA is enforced for workstation logins, its absence on email and sensitive data systems negates much of that protection. Email is a primary target for attackers, and its compromise often serves as a gateway to other systems.
+
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services on the organization's perimeter.
+
+\subsection{External Network Scan}
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} 2025-11-22
+\end{itemize}
+
+The following table details the open ports and services discovered during the scan.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services}
+\begin{tabular}{@{}lllll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+443/tcp & open & https & nginx & 1.18.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:}
+The scan identified a web server running Nginx version 1.18.0. This version was released in April 2020. Since its release, multiple security vulnerabilities of varying severity have been discovered and patched in newer versions. Running this outdated software on a public-facing server presents a high risk of compromise through the exploitation of known vulnerabilities.
+
+\section{Risk Assessment}
+This section synthesizes the findings from the security control review and the technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.3\linewidth}p{0.15\linewidth}p{0.45\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Overview} \\
+\midrule
+\textbf{MFA Not Enforced for Email Access} & \textbf{Critical} & Lack of MFA on email makes accounts highly susceptible to phishing and credential stuffing. A compromise could lead to Business Email Compromise (BEC), data exfiltration, and further network intrusion. \\
+\addlinespace
+\textbf{MFA Not Enforced for Sensitive Data Systems} & \textbf{Critical} & Sensitive corporate and customer data is protected only by a single factor (password), creating a significant and direct risk of a major data breach if credentials are stolen. \\
+\addlinespace
+\textbf{Outdated and Vulnerable Web Server Software} & \textbf{High} & The external web server runs Nginx 1.18.0, a version with multiple known public vulnerabilities (CVEs). This could allow an attacker to gain control of the server or use it as a pivot point. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{Remediation Actions}
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement and Enforce MFA Immediately:}
+    \begin{itemize}
+        \item Deploy a mandatory MFA policy for all user accounts accessing email (\texttt{[Domain]}).
+        \item Enforce MFA for all systems, applications, and databases identified as containing sensitive data.
+        \item Prioritize phishing-resistant MFA methods where possible.
+    \end{itemize}
+    
+    \item \textbf{[High] Upgrade Public-Facing Web Server:}
+    \begin{itemize}
+        \item Plan and execute an immediate upgrade of the Nginx server at \texttt{[Client IP]} from version 1.18.0 to the latest stable version.
+        \item Review the server configuration against security best practices (e.g., CIS Benchmarks) after the upgrade.
+    \end{itemize}
+    
+    \item \textbf{[Medium] Establish a Formal Patch Management Policy:}
+    \begin{itemize}
+        \item Develop and implement a formal patch management policy that mandates regular scanning and timely patching of all systems, especially those exposed to the internet.
+        \item Subscribe to security feeds for all deployed software to stay informed of new vulnerabilities.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

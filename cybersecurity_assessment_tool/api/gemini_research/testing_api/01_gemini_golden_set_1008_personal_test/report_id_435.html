@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="titlepage">
+<p><strong>Cybersecurity Posture Assessment Report</strong>
+<strong>Prepared for:</strong><br />
+<strong>Stellar Pathways</strong> <strong>Date of Report:</strong><br />
+2026-01-31 <em>This report contains sensitive information and should be
+handled with care. Distribution is restricted to authorized personnel
+only.</em></p>
+</div>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a cybersecurity posture assessment for Stellar
+Pathways, based on a combination of network scanning, a security
+controls questionnaire, and a review of pre-existing risks.</p>
+<p>The assessment reveals a mixed security posture. On one hand, the
+organization demonstrates a strong commitment to foundational security
+controls, as evidenced by the universal implementation of Multi-Factor
+Authentication (MFA), employee security training, and acceptable use
+policies. These administrative controls are commendable and
+significantly reduce risks related to account compromise and insider
+threats.</p>
+<p>However, a critical technical vulnerability was identified. The
+external network scan revealed an exposed MySQL database service (port
+3306) running on version 5.7.33. This version is officially End-of-Life
+(EOL) as of October 2023 and no longer receives security updates from
+the vendor. An exposed, unpatchable database presents a high-impact risk
+of data breach, denial of service, or system compromise. This finding
+directly corroborates the pre-existing identified risk of “Database
+Exposure”.</p>
+<p>Immediate action is required to mitigate this critical risk by
+restricting network access to the database. Subsequently, a plan must be
+developed to upgrade the database to a vendor-supported version.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>The following details were provided for the assessment.</p>
+<table>
+<caption>Client Organizational Details</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;">Stellar Pathways</td>
+</tr>
+<tr>
+<td style="text-align: left;">Email Domain</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Website Domain</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Address</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h1 id="security-control-review">Security Control Review</h1>
+<p>A review of the organization’s administrative and user-level security
+controls was conducted via a questionnaire. The results indicate a
+strong baseline for security policies and user access management.</p>
+<table>
+<caption>Security Controls Questionnaire Results</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Status</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed on the target IP address . The
+scan identified one open port, which indicates a publicly accessible
+service.</p>
+<h2 id="open-ports-and-services">Open Ports and Services</h2>
+<p>The following service was found to be exposed to the network:</p>
+<table>
+<caption>Network Scan Findings for </caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3306/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">mysql</td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">5.7.33</td>
+</tr>
+</tbody>
+</table>
+<h2 id="analysis-of-findings">Analysis of Findings</h2>
+<p>The scan identified a MySQL database server running on port 3306. The
+detected version, <strong>MySQL 5.7.33</strong>, reached its official
+End-of-Life (EOL) in October 2023. Systems running EOL software are a
+significant security risk because they no longer receive security
+patches, leaving them perpetually vulnerable to newly discovered
+exploits. Exposing an EOL database directly to the internet is a
+critical security flaw.</p>
+<h1 id="risk-assessment">Risk Assessment</h1>
+<p>This section synthesizes the findings from the security control
+review, technical scan, and pre-existing risk data.</p>
+<table>
+<caption>Summary of Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Overview</strong></th>
+<th style="text-align: center;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Database Exposure</strong></td>
+<td style="text-align: left;">The MySQL database port (3306) is open to
+the public network, allowing unauthorized connection attempts and
+exposing it to enumeration and brute-force attacks.</td>
+<td style="text-align: center;"><strong>High (7.5)</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>End-of-Life Software</strong></td>
+<td style="text-align: left;">The exposed MySQL service is version
+5.7.33, which is past its end-of-life. It no longer receives security
+updates, making it an easy target for known and future
+vulnerabilities.</td>
+<td style="text-align: center;"><strong>Critical (9.1)</strong></td>
+</tr>
+</tbody>
+</table>
+<h1 id="recommendations">Recommendations</h1>
+<p>Based on the risk assessment, the following actions are recommended
+to improve the security posture of Stellar Pathways. Recommendations are
+prioritized by urgency.</p>
+<ul>
+<li><p><strong>Restrict Network Access.</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Implement strict firewall rules to block
+all public access to TCP port 3306 on host . Access should only be
+permitted from trusted internal IP addresses or via a secure VPN
+connection.</p></li>
+<li><p><strong>Impact:</strong> Immediately mitigates the risk of
+external attack against the database.</p></li>
+</ul></li>
+<li><p><strong>Upgrade End-of-Life Software.</strong></p>
+<ul>
+<li><p><strong>Action:</strong> Develop and execute a plan to upgrade
+the MySQL 5.7 database to a currently supported version (e.g., MySQL
+8.x). This involves testing application compatibility, backing up data,
+performing the upgrade, and validating functionality.</p></li>
+<li><p><strong>Impact:</strong> Eliminates vulnerabilities associated
+with the EOL software and ensures ongoing security patch
+eligibility.</p></li>
+</ul></li>
+<li><p><strong>Implement Secure Access Architecture.</strong></p>
+<ul>
+<li><p><strong>Action:</strong> For long-term security, ensure that all
+administrative and data-sensitive services are placed in a private
+network segment. Enforce a policy where access to these systems is only
+possible through a secure, authenticated, and logged channel, such as a
+corporate VPN or a Zero Trust Network Access (ZTNA) solution.</p></li>
+<li><p><strong>Impact:</strong> Proactively reduces the attack surface
+and strengthens the overall network security architecture against future
+threats.</p></li>
+</ul></li>
+</ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

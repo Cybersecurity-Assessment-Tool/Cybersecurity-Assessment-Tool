@@ -1,0 +1,208 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{datetime}
+
+% --- DOCUMENT METADATA & STYLING ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+}
+
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{\textbf{Ironclad Logistics}}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\fancyfoot[R]{\today}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture and Risk Assessment Report} \\
+    \large For \\
+    \vspace{0.5cm}
+    \textbf{Ironclad Logistics}
+}
+\author{Cybersecurity Analyst Group}
+\date{\today}
+
+\maketitle
+\thispagestyle{empty}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+% ==============================================================================
+\section{Executive Summary}
+% ==============================================================================
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Ironclad Logistics}. The assessment is based on a correlation of data from a network vulnerability scan, a security controls questionnaire, and a review of pre-existing documented risks.
+
+The overall security posture is mixed. The organization has implemented some positive controls, such as multi-factor authentication (MFA) for computer and sensitive system access, along with a security awareness training program. However, these strengths are significantly undermined by several critical vulnerabilities and administrative gaps that require immediate attention.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical FTP Vulnerability:} An externally facing FTP server is running a dangerously outdated version of \texttt{vsftpd} (2.3.4), which is known to contain a critical backdoor vulnerability (CVE-2011-2523). Furthermore, the service is misconfigured to allow anonymous access, posing a severe and immediate threat of system compromise.
+    \item \textbf{Critical Email Security Gap:} Multi-factor authentication is not enforced for email access. As email is a primary vector for phishing and business email compromise attacks, this gap exposes the organization to a high risk of account takeover and subsequent data breaches.
+    \item \textbf{High-Risk Policy Gap:} The organization lacks a formal Acceptable Use Policy (AUP), which can lead to inconsistent security practices and a lack of accountability for employee actions on corporate systems.
+    \item \textbf{Pre-existing Medium Risk:} The continued use of Windows 7 workstations, which are past their end-of-life, presents an ongoing risk due to the lack of security updates from the vendor.
+\end{itemize}
+
+Immediate remediation of the FTP server and the implementation of MFA on email are the highest priorities. Addressing these issues will substantially improve the organization's resilience against common and severe cyber threats.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+
+The following information was provided for the assessment.
+
+\begin{description}
+    \item[Organization Name:] \textbf{Ironclad Logistics}
+    \item[Email Domain:] \texttt{IroncladLogistics.net}
+    \item[Website Domain:] \seqsplit{\texttt{www.IroncladLogistics.net}}
+    \item[External IP Address:] \texttt{218.227.164.57}
+\end{description}
+
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+
+The following table summarizes the organization's responses to the security controls questionnaire. Items marked with \ding{55} represent significant gaps in the current security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{8cm} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{55} No & \textbf{Critical Gap} \\
+Do you require MFA to log into computers? & \ding{51} Yes & Best Practice Met \\
+Do you require MFA to access sensitive data systems? & \ding{51} Yes & Best Practice Met \\
+Does your organization have an employee acceptable use policy? & \ding{55} No & \textbf{High Risk Gap} \\
+Does your organization do security awareness training for new employees? & \ding{51} Yes & Best Practice Met \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} Yes & Best Practice Met \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+
+A network scan was conducted on the target system to identify open ports and exposed services.
+
+\subsection{Scan Details}
+\begin{description}
+    \item [Target IP:] \texttt{10.0.0.15}
+\end{description}
+
+\subsection{Open Ports and Services}
+The following table details the services discovered during the scan.
+
+\begin{table}[h!]
+\centering
+\caption{Discovered Network Services}
+\begin{tabular}{l c l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Details} \\
+\midrule
+21/tcp & Open & ftp & vsftpd 2.3.4 & Anonymous FTP login allowed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Technical Findings Analysis}
+The scan identified a critical vulnerability. The FTP service is running \texttt{vsftpd version 2.3.4}. This specific version, released in 2011, contains a well-known and severe backdoor vulnerability (\textbf{CVE-2011-2523}). An attacker can exploit this flaw to gain a command shell on the underlying server, leading to a full system compromise.
+
+Compounding this issue, the service is configured to allow \textbf{anonymous FTP login}. This misconfiguration allows any unauthenticated user on the internet to access, upload, and potentially execute files on the server, creating an ideal staging ground for malware or further attacks into the network.
+
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+% ==============================================================================
+
+The following table synthesizes findings from the technical scan, the controls review, and pre-existing risk documentation into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\caption{Risk Summary}
+\begin{tabular}{p{2.5cm} p{2cm} p{6cm} p{3.5cm}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Description} & \textbf{Affected Systems} \\
+\midrule
+Vulnerable FTP Server & \textbf{Critical} & vsftpd 2.3.4 is exposed, which has a known remote code execution backdoor (CVE-2011-2523). & Server at \texttt{10.0.0.15} \\
+\addlinespace
+Anonymous FTP Access & \textbf{Critical} & The FTP server allows unauthenticated access, enabling data theft or malware uploads. & Server at \texttt{10.0.0.15} \\
+\addlinespace
+No MFA on Email & \textbf{Critical} & Lack of MFA on email accounts makes them highly susceptible to phishing and account takeover. & All employee email accounts \\
+\addlinespace
+No Acceptable Use Policy & \textbf{High} & Absence of a formal policy creates ambiguity regarding secure employee behavior and system usage. & All employees, All systems \\
+\addlinespace
+Outdated Windows 7 & \textbf{Medium} & Workstations are running an end-of-life OS that no longer receives security updates. & Workstations \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+% ==============================================================================
+
+The following actions are recommended to mitigate the identified risks, prioritized by severity.
+
+\subsection{Critical Priority Actions (Immediate)}
+\begin{enumerate}
+    \item \textbf{Remediate Vulnerable FTP Server:}
+    \begin{itemize}
+        \item \textbf{Immediate:} If the FTP service is not business-critical, disable it immediately. If it is required, restrict access via firewall rules to only trusted IP addresses.
+        \item \textbf{Short-Term:} Upgrade the \texttt{vsftpd} service to the latest stable version. More importantly, migrate from FTP to a secure alternative like SFTP (SSH File Transfer Protocol).
+        \item \textbf{Configuration:} Disable anonymous login access on the file transfer service.
+    \end{itemize}
+    \item \textbf{Enforce MFA on Email:}
+    \begin{itemize}
+        \item \textbf{Immediate:} Enable and enforce multi-factor authentication for all user accounts on the \texttt{IroncladLogistics.net} email domain. This is the single most effective control to prevent business email compromise.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{High Priority Actions (Within 30-60 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item Draft a formal AUP that clearly defines rules for the use of company computers, networks, and data.
+        \item Require all employees to read and acknowledge the policy as a condition of system access.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Medium Priority Actions (Within 90 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{3} % Continue numbering
+    \item \textbf{Upgrade End-of-Life Workstations:}
+    \begin{itemize}
+        \item Develop a plan to upgrade or replace all workstations running Windows 7 with a modern, supported operating system such as Windows 10 or Windows 11.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

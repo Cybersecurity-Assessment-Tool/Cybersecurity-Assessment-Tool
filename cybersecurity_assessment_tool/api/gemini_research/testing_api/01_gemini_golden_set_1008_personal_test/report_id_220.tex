@@ -1,0 +1,178 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long text strings like URLs or IPs
+\usepackage{xcolor} % For colors
+\usepackage{graphicx} % For images, if needed
+\usepackage{array} % For table column formatting
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemaker={LaTeX},
+}
+
+% --- CUSTOM COMMANDS ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\newcommand{\riskcritical}[1]{\textcolor{red!80!black}{\textbf{#1}}}
+\newcommand{\riskhigh}[1]{\textcolor{orange!90!black}{\textbf{#1}}}
+\newcommand{\riskmedium}[1]{\textcolor{yellow!80!black}{\textbf{#1}}}
+\newcommand{\risklow}[1]{\textcolor{green!70!black}{\textbf{#1}}}
+
+% --- TITLE ---
+\title{Cybersecurity Assessment Report \\ \large For: Grizzly Peak}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+\section{Executive Summary}
+% ===================================================================
+
+This report provides a cybersecurity assessment for Grizzly Peak, based on data from a network scan, an organizational security questionnaire, and a review of pre-existing risks. The assessment was conducted on \today.
+
+The analysis reveals a mixed security posture. While the technical scan of the target host \seqsplit{\texttt{192.168.1.100}} showed no open ports—a positive finding indicating a potentially well-configured firewall—significant and critical gaps were identified in the organization's security controls.
+
+The most critical findings stem from the complete absence of Multi-Factor Authentication (MFA) for email, computer logins, and access to sensitive data. This deficiency exposes the organization to a high risk of account compromise and unauthorized access. Furthermore, the lack of mandatory, annual security awareness training for all employees exacerbates this risk, as personnel are less prepared to identify and resist social engineering attacks like phishing.
+
+Immediate and decisive action is required to address these control gaps. The priority must be the phased implementation of MFA across all critical systems, followed by the establishment of a comprehensive security awareness training program.
+
+% ===================================================================
+\section{Organizational Information}
+% ===================================================================
+
+The following information was provided by the client for the scope of this assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Grizzly Peak \\
+    Email Domain & \seqsplit{\texttt{GrizzlyPeak.net}} \\
+    Website Domain & \seqsplit{\url{www.GrizzlyPeak.net}} \\
+    External IP Address & \seqsplit{\texttt{97.46.102.132}} \\
+    \bottomrule
+\end{tabular}
+
+% ===================================================================
+\section{Security Control Review}
+% ===================================================================
+
+A review of the organization's security controls was conducted via a questionnaire. The responses indicate several areas of high concern that deviate from established security best practices.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.6\textwidth} c p{0.2\textwidth}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \no & \riskcritical{Critical Gap} \\
+    Do you require MFA to log into computers? & \no & \riskcritical{Critical Gap} \\
+    Do you require MFA to access sensitive data systems? & \no & \riskcritical{Critical Gap} \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \yes & Met \\
+    Does your organization do security awareness training for new employees? & \yes & Met \\
+    Does your organization do security awareness training for all employees at least once per year? & \no & \riskhigh{High Risk} \\
+    \bottomrule
+\end{tabular}
+\caption{Organizational Security Control Questionnaire Results.}
+\label{tab:controls}
+\end{table}
+
+The lack of MFA is the most severe finding. Without it, a single compromised password can lead to a full breach of email, internal systems, and sensitive data. The absence of annual security awareness training for all staff leaves the organization vulnerable to phishing and other social engineering tactics, which are the primary vectors for credential theft.
+
+% ===================================================================
+\section{Technical Scan Results}
+% ===================================================================
+
+A network scan was performed to identify listening services and potential vulnerabilities on the specified target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{192.168.1.100}}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Scanner Used:} Nmap
+\end{itemize}
+
+\subsection{Scan Findings}
+The scan confirmed that the host at \seqsplit{\texttt{192.168.1.100}} was online and responsive. However, the scan did not detect any open TCP ports. All 1000 scanned ports were reported as "closed".
+
+\subsection{Analysis}
+This is a positive security finding for the scanned host. It suggests that the system either has no network services exposed or is protected by a well-configured firewall that is correctly blocking inbound connection attempts. This significantly reduces the attack surface of this specific asset. However, this result applies only to the single IP scanned and should not be interpreted as representative of the entire network's security posture.
+
+% ===================================================================
+\section{Risk Assessment Summary}
+% ===================================================================
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data. No pre-existing vulnerabilities were provided. The following new risks have been identified and prioritized based on their potential impact and likelihood.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lp{0.55\textwidth}l}
+    \toprule
+    \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    \addlinespace
+    Widespread Lack of MFA & The absence of MFA for email, computer, and sensitive data access makes user accounts highly susceptible to takeover via stolen or weak credentials. & \riskcritical{Critical} \\
+    \addlinespace
+    Inadequate Security Training & The lack of a mandatory annual security awareness program for all employees increases the likelihood of successful social engineering attacks. & \riskhigh{High} \\
+    \addlinespace
+    \bottomrule
+\end{tabular}
+\caption{Identified Risks and Severity.}
+\label{tab:risks}
+\end{table}
+
+% ===================================================================
+\section{Recommendations}
+% ===================================================================
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of Grizzly Peak.
+
+\subsection{Priority 1: Implement Multi-Factor Authentication (Critical)}
+\begin{itemize}
+    \item \textbf{Action:} Immediately begin a phased rollout of a strong MFA solution (e.g., authenticator app, hardware token) across the organization.
+    \item \textbf{Scope:}
+        \begin{enumerate}
+            \item Prioritize email systems (e.g., Office 365, Google Workspace) and any remote access solutions (e.g., VPN).
+            \item Extend MFA to all systems containing sensitive or critical business data.
+            \item Finally, enforce MFA for all workstation and server logins.
+        \end{enumerate}
+    \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access resulting from compromised credentials.
+\end{itemize}
+
+\subsection{Priority 2: Establish Annual Security Awareness Training (High)}
+\begin{itemize}
+    \item \textbf{Action:} Develop and implement a mandatory security awareness training program for all employees, to be completed annually.
+    \item \textbf{Scope:} The training should cover key topics such as phishing identification, password hygiene, acceptable use, and incident reporting. Supplement the annual training with periodic simulated phishing campaigns to measure effectiveness.
+    \item \textbf{Justification:} A well-trained workforce is a critical layer of defense, turning a potential vulnerability (human error) into a security asset.
+\end{itemize}
+
+\subsection{Priority 3: Conduct Comprehensive Vulnerability Scanning (Medium)}
+\begin{itemize}
+    \item \textbf{Action:} Perform a comprehensive, credentialed vulnerability scan of the internal network and an unauthenticated scan of the external perimeter.
+    \item \textbf{Scope:} This should cover all servers, workstations, network devices, and external-facing IP addresses.
+    \item \textbf{Justification:} The single-host scan provided an incomplete picture. A comprehensive assessment is necessary to identify other potential technical vulnerabilities, such as unpatched software or misconfigurations.
+\end{itemize}
+
+\end{document}
+```

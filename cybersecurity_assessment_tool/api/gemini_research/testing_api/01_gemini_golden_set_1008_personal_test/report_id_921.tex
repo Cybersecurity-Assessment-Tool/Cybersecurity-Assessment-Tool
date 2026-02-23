@@ -1,0 +1,170 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment},
+    pdfpagemode=FullScreen,
+}
+
+% Custom Commands
+\newcommand{\yes}{\ding{51}} % Green checkmark
+\newcommand{\no}{\ding{55}}  % Red X
+
+\begin{document}
+
+% --- Title Page ---
+\title{
+    \includegraphics[width=0.4\textwidth]{example-image-a} \\ % Placeholder for client logo
+    \vspace{1.5cm}
+    \textbf{Cybersecurity Posture Assessment Report} \\
+    \large For: Solaris Energy
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for Solaris Energy, synthesizing data from network scans, organizational security control questionnaires, and a review of existing risk documentation. The analysis reveals several critical and high-risk findings that require immediate attention.
+
+The most critical finding is the discovery of an openly accessible web service on an internal system (\texttt{10.5.5.5}) on port \texttt{8080}, which identifies itself as a \textbf{"TOP SECRET DB"}. This technical finding directly contradicts the current risk register, which incorrectly classifies this port as a secure false positive. This misclassification has created a significant blind spot in the organization's security posture.
+
+This vulnerability is compounded by a critical policy gap: the lack of mandatory Multi-Factor Authentication (MFA) for accessing sensitive data systems. The combination of an exposed sensitive database and insufficient access controls presents an immediate and severe risk of a data breach.
+
+Additionally, a high-risk gap was identified in the security awareness program, as annual training is not mandatory for all employees. This increases the organization's susceptibility to social engineering and other human-centric attacks.
+
+This report outlines these findings in detail and provides actionable recommendations to mitigate the identified risks and strengthen the overall security posture of Solaris Energy.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Solaris Energy
+    \item \textbf{Email Domain:} \texttt{SolarisEnergy.org}
+    \item \textbf{Website Domain:} \url{www.SolarisEnergy.org}
+    \item \textbf{External IP Address:} \texttt{132.62.208.251}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses indicate a solid foundation in some areas, but also highlight significant gaps in critical security domains.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\begin{tabular}{p{0.6\linewidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Finding} \\
+\midrule
+Do you require MFA to access email? & \yes & Best Practice Met \\
+Do you require MFA to log into computers? & \yes & Best Practice Met \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textbf{\no} & \textbf{Critical Gap} \\
+Does your organization have an employee acceptable use policy? & \yes & Best practice Met \\
+Does your organization do security awareness training for new employees? & \yes & Best Practice Met \\
+\textbf{Does your organization do security awareness training for all employees at least once per year?} & \textbf{\no} & \textbf{High Risk} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The two "No" responses are significant. The lack of MFA on sensitive systems is a critical control failure. The absence of mandatory annual security training for all staff increases the likelihood of security incidents caused by human error.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+
+An internal network scan was performed to identify active services and potential vulnerabilities. The scan targeted the host at \texttt{10.5.5.5}.
+
+\subsection{Key Findings}
+A single open port was discovered on the target system. The details are highly concerning.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis for Target: \texttt{10.5.5.5}}
+\label{tab:scan}
+\begin{tabular}{c c p{0.6\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Information / Banner} \\
+\midrule
+8080/tcp & Open & \textbf{HTTP Title: TOP SECRET DB} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis}
+The scan revealed a web service running on port \texttt{8080}. The HTTP title banner explicitly identifies the service as \textbf{"TOP SECRET DB"}. This is a critical information disclosure vulnerability. The title suggests that the system hosts highly sensitive, confidential, or proprietary data. The presence of such a system accessible over the network without clear evidence of robust access controls is a severe security risk.
+
+This finding directly contradicts information in the provided risk register (\textit{Input\_3\_Current\_Risks\_JSON}), which states that port 8080 is "confirmed secure and false positive" with a CVSS score of 0.0. \textbf{This indicates the existing risk register is inaccurate and cannot be trusted.}
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+
+By correlating the technical scan results with the security control gaps, we have identified the following primary risks to the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{0.3\linewidth} p{0.15\linewidth} p{0.45\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+Exposed Sensitive Database & \textbf{Critical} & A system self-identified as "TOP SECRET DB" is accessible on port 8080. This is combined with the lack of MFA for sensitive systems, creating a high-impact risk of unauthorized data access. \\
+\addlinespace
+Inaccurate Risk Register & \textbf{High} & The current risk register incorrectly dismisses the exposed service on port 8080 as a false positive. This creates a false sense of security and prevents remediation of a critical vulnerability. \\
+\addlinespace
+Insufficient Security Awareness Training & \textbf{High} & The lack of mandatory annual security training for all employees increases susceptibility to phishing, social engineering, and other common attack vectors. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to address the identified risks. Recommendations are prioritized based on severity.
+
+\subsection{Priority 1: Remediate Exposed Database (Critical)}
+\begin{enumerate}
+    \item \textbf{Immediate Action:} Investigate the system at \texttt{10.5.5.5} to identify the owner, the nature of the data on the "TOP SECRET DB", and why it is exposed. If the service is not required, it should be disabled immediately.
+    \item \textbf{Containment:} If the service is business-critical, restrict access immediately by implementing a host-based or network firewall rule that only allows connections from authorized systems.
+    \item \textbf{Long-Term Fix:} Ensure that robust authentication and authorization controls are implemented for the application. Enforce Multi-Factor Authentication for access to this system, in line with a new, broader policy.
+\end{enumerate}
+
+\subsection{Priority 2: Correct Risk Management Processes (High)}
+\begin{enumerate}
+    \item \textbf{Immediate Action:} Update the risk register to reflect the true state of the vulnerability on port 8080, classifying it as Critical.
+    \item \textbf{Long-Term Fix:} Initiate a full review of all entries in the risk register. All accepted risks and "false positives" must be re-validated with technical evidence. Implement a formal process for risk assessment that requires technical validation before a risk can be closed or accepted.
+\end{enumerate}
+
+\subsection{Priority 3: Enhance Security Policies (High)}
+\begin{enumerate}
+    \item \textbf{MFA Policy:} Develop and implement a formal policy requiring MFA on all systems that store, process, or transmit sensitive company data. Create a roadmap for rolling this out across the organization within the next quarter.
+    \item \textbf{Security Training Policy:} Update the employee security policy to mandate that all employees and contractors complete security awareness training on an annual basis. Procure and deploy a training platform to facilitate and track completion of this requirement.
+\end{enumerate}
+
+\end{document}
+```

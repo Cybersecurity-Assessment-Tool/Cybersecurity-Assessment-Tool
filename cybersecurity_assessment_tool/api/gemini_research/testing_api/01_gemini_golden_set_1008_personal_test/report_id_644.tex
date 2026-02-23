@@ -1,0 +1,181 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx} % For potential logos
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% 1. Executive Summary
+% ==============================================================================
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity posture assessment for \textbf{Apex Legends Group}. The analysis is based on a correlation of network scan data, a security controls questionnaire, and a review of pre-existing risk documentation.
+
+The assessment identified several high-priority areas for improvement. The most critical findings are significant gaps in the implementation of Multi-Factor Authentication (MFA) for email and sensitive data systems. These gaps expose the organization to substantial risks, including account compromise, data breaches, and phishing attacks.
+
+Additionally, technical scanning revealed an open port for unencrypted web traffic (HTTP), which poses a risk to data confidentiality and integrity.
+
+This report outlines these findings in detail and provides actionable recommendations to mitigate the identified risks and strengthen the overall security posture of the organization.
+
+% ==============================================================================
+% 2. Organizational Information
+% ==============================================================================
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Apex Legends Group
+    \item \textbf{Primary Email Domain:} \texttt{ApexLegendsGroup.com}
+    \item \textbf{Primary Website Domain:} \url{www.ApexLegendsGroup.com}
+    \item \textbf{External IP Address:} \texttt{217.76.251.105}
+\end{itemize}
+
+% ==============================================================================
+% 3. Security Control Review
+% ==============================================================================
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses indicate a solid foundation in policy and training but reveal critical deficiencies in access control measures. The table below summarizes the provided answers.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.7\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+The two negative responses (\ding{55}) represent significant security gaps:
+\begin{itemize}
+    \item \textbf{No MFA for Email:} Email is a primary target for attackers. Without MFA, a compromised password is all that is needed for an attacker to gain access, read sensitive communications, and launch further attacks against employees and partners.
+    \item \textbf{No MFA for Sensitive Data Systems:} The lack of a secondary authentication factor for systems containing sensitive data is a critical vulnerability. This significantly increases the risk of a data breach resulting from stolen credentials.
+\end{itemize}
+
+% ==============================================================================
+% 4. Technical Scan Results
+% ==============================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed to identify accessible services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.0.1}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\subsection*{Open Ports}
+The following table details the open ports discovered on the target system.
+
+\begin{table}[h!]
+\centering
+\caption{Discovered Open Ports}
+\begin{tabular}{l l l p{0.5\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+80/tcp & open & http & The presence of an open HTTP port indicates that unencrypted web traffic is permitted. This can expose user credentials and other sensitive data transmitted to the web server. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% 5. Risk Assessment Summary
+% ==============================================================================
+\section{Risk Assessment Summary}
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk documentation into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\caption{Consolidated Risk Register}
+\begin{tabular}{p{0.1\linewidth} p{0.3\linewidth} p{0.15\linewidth} p{0.35\linewidth}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+RISK-001 & No MFA on Sensitive Data Systems & \textbf{Critical} & Lack of MFA on critical systems makes them highly susceptible to unauthorized access and data breach via compromised credentials. \\
+\addlinespace
+RISK-002 & No MFA on Email & \textbf{High} & Email accounts are vulnerable to takeover, which can lead to phishing, business email compromise (BEC), and further network intrusion. \\
+\addlinespace
+RISK-003 & Unencrypted Web Traffic (HTTP) & \textbf{Medium} & The web server allows unencrypted connections over port 80, exposing transmitted data to interception and manipulation (Man-in-the-Middle attacks). \\
+\addlinespace
+RISK-004 & System Overriden & Informational & A pre-existing risk entry with a CVSS score of 0.0 was noted. This item appears to be invalid or erroneous data and presents no actual threat. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% 6. Recommendations
+% ==============================================================================
+\section{Recommendations}
+
+Based on the findings of this assessment, the following actions are recommended to mitigate the identified risks.
+
+\subsection*{Immediate Actions (1-7 Days)}
+\begin{description}
+    \item[RISK-001: Enforce MFA on Sensitive Systems] \hfill \\
+    Immediately prioritize and enforce MFA for all user accounts with access to systems containing sensitive or critical data.
+    
+    \item[RISK-002: Enforce MFA on Email] \hfill \\
+    Enable and enforce MFA for all email accounts across the organization. This is one of the most effective controls against phishing and account takeover.
+\end{description}
+
+\subsection*{Short-Term Actions (1-4 Weeks)}
+\begin{description}
+    \item[RISK-003: Remediate Unencrypted Web Traffic] \hfill \\
+    \begin{itemize}
+        \item Obtain and install a valid SSL/TLS certificate on the web server at \texttt{172.16.0.1}.
+        \item Configure the web server to redirect all HTTP traffic (port 80) to HTTPS (port 443).
+        \item Implement HTTP Strict Transport Security (HSTS) to ensure browsers only connect over HTTPS.
+    \end{itemize}
+\end{description}
+
+\subsection*{Administrative Actions}
+\begin{description}
+    \item[RISK-004: Review Informational Risk] \hfill \\
+    Review the pre-existing risk entry "System Overriden" and close it out in the risk register, as it does not represent a valid security threat.
+\end{description}
+
+\end{document}
+```

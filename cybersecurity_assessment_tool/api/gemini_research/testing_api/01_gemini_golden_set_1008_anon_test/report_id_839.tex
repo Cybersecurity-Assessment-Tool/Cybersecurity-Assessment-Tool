@@ -1,0 +1,174 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks (\ding{51}) and crosses (\ding{55})
+\usepackage{booktabs} % For professional-looking tables (\toprule, \midrule, \bottomrule)
+\usepackage{hyperref} % For hyperlinks and metadata
+\usepackage{url}      % For typesetting URLs
+\usepackage{seqsplit} % To split long strings without breaking words
+\usepackage{xcolor}   % For custom colors
+
+% Document Metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment},
+}
+
+% Define custom colors
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\definecolor{darkorange}{rgb}{0.8, 0.3, 0.0}
+\definecolor{darkgreen}{rgb}{0.0, 0.3, 0.0}
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:}\\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+    \vspace{2cm}
+    \large
+    \textbf{Date of Report:}\\
+    \vspace{0.5cm}
+    \today
+    \vfill
+    \large
+    \textit{This report contains sensitive information and is intended solely for the designated recipient. Unauthorized distribution is prohibited.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section*{1. Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on a synthesis of network scan data, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals several critical and high-risk vulnerabilities that require immediate attention. The most significant findings include a complete lack of Multi-Factor Authentication (MFA) across all critical systems, including email and sensitive data access. This is compounded by an externally exposed Secure Shell (SSH) service, creating a high-impact vector for unauthorized access.
+
+Furthermore, the organization lacks a formal security awareness training program, increasing its susceptibility to social engineering and phishing attacks. A pre-existing critical vulnerability, "Localhost Exposed," with a CVSS score of 10.0, remains an urgent threat that must be remediated without delay.
+
+Collectively, these findings indicate a foundational weakness in the organization's security controls. The recommendations provided in this report are prioritized to address the most severe risks first and establish a more resilient security foundation.
+
+% --- Section 2: Organizational Information ---
+\section*{2. Organizational Information}
+The following details were used as the basis for this assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Email Domain:} \texttt{[Domain]}
+    \item \textbf{Target IP Address Scanned:} \texttt{[Target IP]}
+    \item \textbf{Client External IP Address:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section*{3. Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The results highlight significant gaps in fundamental security practices, particularly concerning identity and access management and employee training.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.75\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{darkred}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{darkred}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{darkred}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{darkgreen}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{darkred}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{darkred}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The absence of MFA on all fronts represents a critical failure in access control. Stolen credentials alone would be sufficient for an attacker to compromise email, workstations, and sensitive data. The lack of security awareness training exacerbates this risk, as employees are more likely to fall victim to phishing attacks that harvest credentials.
+
+% --- Section 4: Technical Scan Results ---
+\section*{4. Technical Scan Results}
+An external network scan was performed on the target IP address \texttt{[Target IP]}. The scan identified the following open port, indicating a service exposed to the public internet.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Findings}
+\begin{tabular}{llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/tcp & open & ssh & Secure Shell (SSH) remote administration protocol. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The exposure of SSH (Port 22) is a significant security risk. This service is a primary target for automated brute-force attacks, where attackers attempt to guess usernames and passwords to gain remote control of the server. When combined with the lack of MFA, a single compromised password could lead to a full system compromise.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section*{5. Correlated Risk Assessment}
+This section synthesizes the findings from the security control review, technical scan, and pre-existing risk data to provide a holistic view of the organization's risk profile.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.3\linewidth}p{0.5\linewidth}l}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Critical Lack of MFA} & No MFA is enforced for email, computer logins, or access to sensitive systems. A compromised password directly leads to a breach. & \textcolor{darkred}{Critical} \\
+\addlinespace
+\textbf{Exposed SSH Service} & The SSH management port is open to the internet, making it a target for brute-force and credential stuffing attacks. & \textcolor{darkorange}{High} \\
+\addlinespace
+\textbf{Inadequate Security Awareness Training} & Employees are not trained to recognize or report security threats, increasing the likelihood of successful phishing and social engineering attacks. & \textcolor{darkorange}{High} \\
+\addlinespace
+\textbf{Pre-existing: Localhost Exposed} & A previously identified critical vulnerability (CVSS 10.0) indicates a service is improperly exposed. This requires immediate investigation and remediation. & \textcolor{darkred}{Critical} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section*{6. Recommendations}
+The following prioritized recommendations are provided to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection*{Priority 1: Immediate Actions (To Be Completed in 0-7 Days)}
+\begin{enumerate}
+    \item \textbf{Remediate "Localhost Exposed" Vulnerability:} This CVSS 10.0 finding is of the highest priority. Immediately engage technical teams to identify the affected service and reconfigure it to only be accessible from the local machine (e.g., bind to 127.0.0.1 instead of 0.0.0.0).
+    \item \textbf{Restrict SSH Access:} Implement firewall rules to restrict access to the SSH port (22) to only known, trusted IP addresses (e.g., office or administrator VPN IPs). If no legitimate external access is required, block the port entirely from the internet.
+\end{enumerate}
+
+\subsection*{Priority 2: Short-Term Actions (To Be Completed in 1-4 Weeks)}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Enforce Multi-Factor Authentication (MFA):}
+        \begin{itemize}
+            \item Immediately enable MFA for all users on the primary email system.
+            \item Roll out MFA for all systems containing sensitive data.
+            \item Plan and implement MFA for all computer logins.
+        \end{itemize}
+    \item \textbf{Harden SSH Configuration:} In addition to firewall restrictions, enforce the use of public key authentication for SSH and disable password-based logins entirely. Ensure strong cryptographic ciphers are used.
+\end{enumerate}
+
+\subsection*{Priority 3: Foundational Improvements (To Be Completed in 1-6 Months)}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item \textbf{Implement Security Awareness Training:}
+        \begin{itemize}
+            \item Procure and deploy a security awareness training program for all employees.
+            \item Ensure all new hires complete the training as part of their onboarding process.
+            \item Conduct annual refresher training and periodic phishing simulations to maintain vigilance.
+        \end{itemize}
+    \item \textbf{Review and Enforce Policies:} Review the existing Acceptable Use Policy to ensure it is current. Communicate the policy to all employees and require acknowledgment of its terms.
+\end{enumerate}
+
+\end{document}
+```

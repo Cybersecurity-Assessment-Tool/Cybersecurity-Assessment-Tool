@@ -1,0 +1,167 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages and Document Setup
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and TOC
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- Document Metadata ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE OVERVIEW
+% ==============================================================================
+\section{Executive Overview}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Vanguard Heritage}, conducted on \today. The analysis synthesizes data from an external network scan, a security controls questionnaire, and a review of previously identified risks.
+
+The assessment reveals a mixed security posture. The organization demonstrates strong foundational controls in identity and access management, with Multi-Factor Authentication (MFA) consistently enforced across email, computer logins, and sensitive data systems. Furthermore, a recent network scan of the target host \texttt{192.168.0.5} indicates that a previously identified risk—an unencrypted web server on port 80—appears to have been successfully remediated, as the port is now closed.
+
+However, two critical gaps were identified in the organization's security program, both related to employee security training. The absence of a mandatory security awareness program for new hires and the lack of annual refresher training for all staff represent a significant vulnerability. These gaps expose the organization to a heightened risk of social engineering attacks, such as phishing, which remain a primary vector for security breaches.
+
+Immediate action is required to develop and implement a comprehensive security awareness training program to mitigate this human-centric risk.
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name  & \textbf{Vanguard Heritage} \\
+Email Domain       & \texttt{VanguardHeritage.org} \\
+Website Domain     & \url{www.VanguardHeritage.org} \\
+External IP Address & \texttt{31.240.237.49} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\label{tab:org_info}
+\end{table}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A review of internal security controls was conducted via a questionnaire. The results below highlight the organization's current policies and procedures. "Yes" answers indicate a control is in place, while "No" answers represent a gap requiring attention.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+\midrule
+\textbf{Does your organization do security awareness training for new employees?} & \textcolor{red}{\ding{55}} \\
+\textbf{Does your organization do security awareness training for all employees annually?} & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results.}
+\label{tab:controls}
+\end{table}
+
+\paragraph{Analysis:} The consistent implementation of MFA is a significant strength, reducing the risk of unauthorized access via compromised credentials. However, the two "No" responses are critical findings. The lack of structured security training for both new and existing employees creates a "human firewall" deficiency, making the organization highly susceptible to phishing and other social engineering tactics.
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services on the specified target system.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Target IP} & \textbf{Port} & \textbf{Protocol} & \textbf{State} \\ \midrule
+\texttt{192.168.0.5} & 80 & tcp & \textbf{Closed} \\ \bottomrule
+\end{tabular}
+\caption{Nmap Scan Results.}
+\label{tab:nmap_results}
+\end{table}
+
+\paragraph{Analysis:} The scan of target \texttt{192.168.0.5} found no open ports. The fact that port 80 (HTTP) is explicitly reported as closed is a positive security finding. This result contradicts a pre-existing risk entry (see Section 5), suggesting that remediation has occurred. The absence of exposed services significantly reduces the external attack surface of this host.
+
+% ==============================================================================
+% SECTION 5: RISK ASSESSMENT SUMMARY
+% ==============================================================================
+\section{Risk Assessment Summary}
+
+This section correlates findings from the security control review, technical scans, and pre-existing risk data to provide a consolidated view of the current risk landscape.
+
+\begin{table}[h!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Source} & \textbf{Overview} \\ \midrule
+\begin{tabular}[c]{@{}l@{}}Lack of New Employee \\ Security Training\end{tabular} & \textbf{\textcolor{red}{High}} & \begin{tabular}[c]{@{}l@{}}Questionnaire\end{tabular} & \begin{tabular}[c]{@{}l@{}}New hires are not trained on security policies and threats, \\ making them immediate targets for social engineering.\end{tabular} \\
+\addlinespace
+\begin{tabular}[c]{@{}l@{}}Lack of Annual \\ Security Training\end{tabular} & \textbf{\textcolor{red}{High}} & \begin{tabular}[c]{@{}l@{}}Questionnaire\end{tabular} & \begin{tabular}[c]{@{}l@{}}Without regular training, all employees' awareness of evolving \\ threats diminishes, increasing overall organizational risk.\end{tabular} \\
+\addlinespace
+\begin{tabular}[c]{@{}l@{}}Unencrypted Web Server \\ (Port 80)\end{tabular} & \textbf{\textcolor{blue}{Informational}} & \begin{tabular}[c]{@{}l@{}}Previous Risk Data \\ (Contradicted)\end{tabular} & \begin{tabular}[c]{@{}l@{}}A previously identified risk of an open port 80 appears to be \\ \textbf{remediated}. The current scan shows this port is closed.\end{tabular} \\ \bottomrule
+\end{tabular}%
+}
+\caption{Consolidated Risk Summary.}
+\label{tab:risk_summary}
+\end{table}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+Based on the analysis, the following actions are recommended to enhance the cybersecurity posture of \textbf{Vanguard Heritage}. Recommendations are prioritized based on risk severity.
+
+\subsection{Priority 1: Implement Security Awareness Training (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Develop and integrate a mandatory security awareness training module into the onboarding process for all new employees. This module should cover, at a minimum: acceptable use policies, phishing identification, password hygiene, and incident reporting procedures.
+    \item \textbf{Long-Term Action:} Establish a mandatory annual security awareness training program for all staff. This program should be updated yearly to reflect the current threat landscape. Consider incorporating periodic phishing simulations to test and reinforce learning.
+\end{itemize}
+
+\subsection{Priority 2: Risk Register Verification (Medium)}
+\begin{itemize}
+    \item \textbf{Action:} Verify that the closure of port 80 on host \texttt{192.168.0.5} was an intentional and documented change. Update the internal risk register to reflect that the "Unencrypted Web Server" risk has been mitigated.
+    \item \textbf{Action:} Implement a process for regular, automated external vulnerability scanning to ensure that risk data remains current and that remediated vulnerabilities do not re-emerge.
+\end{itemize}
+
+\subsection{Priority 3: Maintain Strong Controls (Low)}
+\begin{itemize}
+    \item \textbf{Action:} Continue enforcing the current strong policies regarding Multi-Factor Authentication (MFA) and the Acceptable Use Policy. Periodically review these controls to ensure they remain effective and comprehensive.
+\end{itemize}
+
+\end{document}
+```

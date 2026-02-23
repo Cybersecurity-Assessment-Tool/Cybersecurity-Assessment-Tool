@@ -1,0 +1,179 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{datetime}
+
+% --- Document Metadata ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Nmap, Risk, Assessment}
+}
+
+% --- Document Body ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{Executive Summary}
+% ==============================================================================
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, based on a combination of technical network scanning, a security controls questionnaire, and a review of pre-existing risk documentation. The analysis was conducted on \today.
+
+The assessment reveals several critical and high-risk security gaps that require immediate attention. A pre-existing vulnerability, \textbf{Localhost Exposed}, is documented with a CVSS score of 10.0 (Critical) and affects the primary external asset. Furthermore, organizational policy and access control weaknesses were identified, most notably the lack of Multi-Factor Authentication (MFA) for sensitive data systems and the absence of an employee Acceptable Use Policy (AUP).
+
+A technical scan of the external IP address \texttt{[Client IP]} identified an open SSH port (22), which represents a significant attack vector if not securely configured.
+
+The overall security posture is considered weak due to these converging factors. Immediate remediation of the identified critical risks is strongly recommended to reduce the likelihood of a security breach.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+The following information was used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \texttt{[Domain]} \\
+External IP Scanned & \texttt{[Client IP]} \\
+Target IP in Scan & \texttt{[Target IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\label{tab:org_info}
+\end{table}
+
+% ==============================================================================
+\section{Security Control Review (Questionnaire Analysis)}
+% ==============================================================================
+A security questionnaire was completed to evaluate existing administrative and technical controls. The responses are summarized below. A green checkmark (\ding{51}) indicates a positive control is in place, while a red cross (\ding{55}) indicates a security gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\textwidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+\textbf{Do you require MFA to access sensitive data systems?} & \textcolor{red}{\ding{55}} \\
+\textbf{Does your organization have an employee acceptable use policy?} & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+Two critical gaps were identified from the questionnaire:
+\begin{itemize}
+    \item \textbf{No MFA for Sensitive Systems:} The absence of MFA on systems housing sensitive data is a critical vulnerability. This significantly increases the risk of unauthorized access via compromised credentials, which is a primary vector in data breaches.
+    \item \textbf{No Acceptable Use Policy (AUP):} The lack of a formal AUP creates ambiguity regarding the secure and appropriate use of company assets. This can lead to unintentional security incidents and makes it difficult to enforce security standards among employees.
+\end{itemize}
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+A network scan was performed on the target host \texttt{[Target IP]} to identify open ports and exposed services.
+
+\subsection*{Host Status}
+The target host was found to be \textbf{up} and responsive at the time of the scan.
+
+\subsection*{Open Ports}
+The following table details the open ports discovered on the target system.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\ \midrule
+22/tcp & open & SSH & Secure Shell service is exposed to the internet. \\
+& & & No version information was available in the scan data. \\
+& & & This is a common vector for brute-force attacks. \\ \bottomrule
+\end{tabular}
+\caption{Discovered Open Ports on \texttt{[Target IP]}}
+\label{tab:nmap_results}
+\end{table}
+
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+% ==============================================================================
+The following table synthesizes findings from the security questionnaire, the technical scan, and pre-existing risk documentation into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth}p{0.4\linewidth}p{0.1\linewidth}p{0.15\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} & \textbf{Affected Asset(s)} \\ \midrule
+\textbf{Localhost Exposed} & A pre-existing critical vulnerability was identified. The nature of the exposure requires immediate investigation. & \textbf{Critical} & \texttt{[Target IP]} \\
+\addlinespace
+\textbf{No MFA on Sensitive Systems} & Lack of multi-factor authentication for critical data systems allows for single-factor credential compromise. & \textbf{Critical} & Internal Data Systems \\
+\addlinespace
+\textbf{Exposed SSH Service} & The Secure Shell service is publicly accessible, creating a direct vector for brute-force or credential-stuffing attacks. & High & \texttt{[Target IP]} \\
+\addlinespace
+\textbf{No Acceptable Use Policy} & Absence of a formal policy governing the use of IT assets increases the risk of insider threat and accidental data exposure. & High & All Employees \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risk_summary}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+% ==============================================================================
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection*{1. Remediate "Localhost Exposed" (Critical)}
+The pre-existing vulnerability documented as "Localhost Exposed" with a CVSS score of 10.0 must be the top priority.
+\begin{itemize}
+    \item \textbf{Immediate Action:} Launch an immediate investigation to understand the technical details of this vulnerability on asset \texttt{[Target IP]}.
+    \item \textbf{Long-Term Fix:} Apply the necessary patches, firewall rules, or configuration changes to fully remediate the exposure.
+\end{itemize}
+
+\subsection*{2. Implement MFA on Sensitive Systems (Critical)}
+To protect against unauthorized access to critical data, MFA must be enforced.
+\begin{itemize}
+    \item \textbf{Immediate Action:} Identify all systems classified as containing sensitive data.
+    \item \textbf{Long-Term Fix:} Procure and deploy an MFA solution for these systems. Mandate its use for all user accounts, especially those with administrative privileges.
+\end{itemize}
+
+\subsection*{3. Secure the Exposed SSH Service (High)}
+The publicly accessible SSH service on \texttt{[Target IP]} must be hardened.
+\begin{itemize}
+    \item \textbf{Immediate Action:} Review the current SSH configuration. If possible, restrict access to a whitelist of trusted IP addresses via firewall rules.
+    \item \textbf{Long-Term Fix:} Enforce public key authentication and disable password-based logins. Implement an intrusion prevention tool like \texttt{fail2ban} to block brute-force attempts.
+\end{itemize}
+
+\subsection*{4. Develop and Implement an Acceptable Use Policy (High)}
+To establish a baseline for security conduct, a formal AUP is required.
+\begin{itemize}
+    \item \textbf{Immediate Action:} Draft an AUP that clearly defines the rules for using company networks, devices, and data.
+    \item \textbf{Long-Term Fix:} Ratify the policy with management, disseminate it to all employees, and integrate it into the new-hire onboarding process. Require all staff to formally acknowledge they have read and understood the policy.
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,183 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity assessment for \textbf{Infinity Loop}. The analysis combines a review of organizational security controls, a technical network scan, and a summary of pre-existing risks to provide a holistic view of the current security posture.
+
+The assessment identified a critical-risk finding: the exposure of Remote Desktop Protocol (RDP) on an internal system, \texttt{10.10.10.51}. This finding expands upon a previously identified risk on another host, suggesting a systemic network configuration issue. Such exposure is a primary vector for ransomware and unauthorized access.
+
+Furthermore, significant gaps were identified in organizational policy and training. The absence of a formal Acceptable Use Policy and the lack of mandatory annual security awareness training for all employees represent high-risk deficiencies. These gaps increase the organization's susceptibility to human-error-related incidents, such as phishing and malware infections.
+
+On a positive note, the organization has demonstrated a strong commitment to identity security by mandating Multi-Factor Authentication (MFA) across email, computer logins, and sensitive data systems. This is a commendable and effective control.
+
+Recommendations focus on immediately mitigating the RDP exposure, establishing a robust security training program, and formalizing information security policies.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{Infinity Loop} \\
+Email Domain & \texttt{InfinityLoop.org} \\
+Website Domain & \url{www.InfinityLoop.org} \\
+External IP & \texttt{117.142.56.43} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_info}
+\end{table}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+A review of foundational security controls was conducted via a questionnaire. The results are summarized below. Answers marked with \ding{55} (No) indicate a potential gap in the security program.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{Missing Acceptable Use Policy (AUP):} The absence of an AUP is a high-risk governance gap. An AUP sets clear expectations for employees on how to use company resources securely and appropriately. Without it, there is no formal basis for enforcing security standards or taking corrective action against policy violations.
+    \item \textbf{Lack of Annual Security Training:} While new employees receive training, the lack of an annual refresher for all staff is a high-risk deficiency. The threat landscape evolves continuously, and so do tactics used by attackers (e.g., phishing lures). Regular training is essential to keep security top-of-mind and ensure the workforce can recognize and respond to modern threats.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An Nmap scan was performed on the internal network to identify open ports and exposed services.
+
+\subsection*{Scan Target}
+\begin{itemize}
+    \item \textbf{IP Address:} \texttt{10.10.10.51}
+\end{itemize}
+
+\subsection*{Open Ports Discovered}
+The following services were found to be accessible on the target system.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Description} \\ \midrule
+3389/tcp & open & \texttt{ms-wbt-server} & Microsoft Remote Desktop Protocol (RDP) \\ \bottomrule
+\end{tabular}
+\caption{Open Ports on \texttt{10.10.10.51}}
+\label{tab:nmap_results}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified that port \textbf{3389/tcp} is open, which corresponds to the \textbf{Remote Desktop Protocol (RDP)}. Exposing RDP directly on a network is a critical security risk. Attackers actively scan for open RDP ports to exploit them through various methods, including:
+\begin{itemize}
+    \item \textbf{Brute-force attacks:} Guessing or systematically trying username and password combinations.
+    \item \textbf{Credential stuffing:} Using credentials stolen from other data breaches.
+    \item \textbf{Exploitation of vulnerabilities:} Targeting known RDP vulnerabilities like BlueKeep (CVE-2019-0708).
+\end{itemize}
+A successful compromise via RDP can grant an attacker full control over the target system, which can then be used as a foothold to move laterally across the network and deploy ransomware.
+
+% --- 5. Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+This section correlates findings from the security control review, the technical scan, and pre-existing risk data to provide a unified view of the most significant risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth}p{0.4\linewidth}p{0.1\linewidth}p{0.15\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} & \textbf{Affected Systems} \\ \midrule
+\textbf{Systemic RDP Exposure} & Remote Desktop Protocol is exposed on multiple internal systems, creating a high-value target for attackers seeking initial access and ransomware deployment. & \textbf{Critical} & \texttt{10.10.10.51} (new), \texttt{10.10.10.50} (existing) \\
+\addlinespace
+\textbf{Lack of Annual Security Training} & The absence of a mandatory, recurring security awareness program for all employees increases the likelihood of successful phishing and social engineering attacks. & High & All Employees \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy} & The lack of a formal policy defining the proper use of company assets creates ambiguity and prevents the enforcement of secure behavior. & High & Organization-wide \\ \bottomrule
+\end{tabular}
+\caption{Summary of Key Risks}
+\label{tab:risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Infinity Loop}.
+
+\subsection*{Risk: Systemic RDP Exposure (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action (Containment):}
+    \begin{itemize}
+        \item Use a firewall to immediately block all inbound access to TCP port 3389 on \texttt{10.10.10.51}, \texttt{10.10.10.50}, and any other systems where it is not strictly required for business operations. Access should be restricted to specific, authorized IT administrator IP addresses only.
+    \end{itemize}
+    \item \textbf{Long-Term Action (Remediation):}
+    \begin{itemize}
+        \item Implement a secure remote access solution, such as a Virtual Private Network (VPN) or a Remote Desktop Gateway. All remote administration should be performed through this hardened and monitored channel.
+        \item Conduct a network-wide vulnerability scan to identify and remediate any other instances of exposed management services.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Risk: Lack of Annual Security Training (High)}
+\begin{itemize}
+    \item \textbf{Action:}
+    \begin{itemize}
+        \item Procure and implement a security awareness training platform.
+        \item Develop a formal training program that is mandatory for all employees and contractors to complete upon hire and at least annually thereafter.
+        \item The training should cover key topics such as phishing identification, password hygiene, and data handling best practices.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Risk: Missing Acceptable Use Policy (High)}
+\begin{itemize}
+    \item \textbf{Action:}
+    \begin{itemize}
+        \item Develop a comprehensive Acceptable Use Policy (AUP) that clearly outlines the rules and responsibilities for using company information systems and data.
+        \item Have the policy reviewed by legal and HR departments.
+        \item Communicate the policy to all employees and require them to formally acknowledge their understanding and agreement to comply.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

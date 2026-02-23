@@ -1,0 +1,188 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{lastpage}
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+}
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Assessment Report}
+\fancyhead[R]{\textbf{Summit Peak Partners}}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Body ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder logo
+    \vfill
+    \Huge\textbf{Cybersecurity Assessment Report}
+    \vspace{1.5cm}
+    \Large\textbf{Prepared for: Summit Peak Partners}
+    \vspace{2cm}
+    \large
+    \begin{tabular}{ll}
+        \textbf{Date of Report:} & \today \\
+        \textbf{Analysis Period:} & Data collected on or before \today \\
+        \textbf{Classification:} & Confidential \\
+    \end{tabular}
+    \vfill
+    \textit{This report contains sensitive information regarding the security posture of the organization. Access should be restricted to authorized personnel only.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture of \textbf{Summit Peak Partners}, based on a review of organizational security controls, technical network scanning, and pre-existing risk data. The assessment identified several critical and high-risk vulnerabilities that require immediate attention.
+
+Key findings indicate significant gaps in fundamental security controls. Specifically, the lack of Multi-Factor Authentication (MFA) for computer and sensitive data system access represents a \textbf{critical risk}, exposing the organization to credential theft and unauthorized access. Furthermore, the complete absence of a security awareness training program for employees is a \textbf{high-risk} deficiency, increasing susceptibility to phishing and social engineering attacks.
+
+Technical analysis confirmed an open network service (SSH on port 22) on a scanned host, which correlates with a pre-existing, critically-rated risk titled "Localhost Exposed".
+
+The overall security posture is assessed as \textbf{High-Risk}. It is imperative that the recommendations outlined in this report are prioritized and implemented swiftly to mitigate these exposures and strengthen the organization's defenses against common cyber threats.
+
+\newpage
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment. This information helps establish the context for the technical and procedural findings.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Summit Peak Partners
+    \item \textbf{Email Domain:} \seqsplit{\texttt{SummitPeakPartners.net}}
+    \item \textbf{Website Domain:} \seqsplit{\texttt{www.SummitPeakPartners.net}}
+    \item \textbf{External IP Address:} \seqsplit{\texttt{13.84.116.127}}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of foundational security controls was conducted via a questionnaire. The table below summarizes the organization's self-reported security practices. Gaps identified here often represent significant procedural or policy-based risks.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Controls Questionnaire}
+\begin{tabular}{p{0.6\linewidth} c c}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & Yes & \ding{51} \\
+\addlinespace
+Do you require MFA to log into computers? & No & \textcolor{red}{\ding{55}} \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & No & \textcolor{red}{\ding{55}} \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & Yes & \ding{51} \\
+\addlinespace
+Does your organization do security awareness training for new employees? & No & \textcolor{red}{\ding{55}} \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & No & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The questionnaire reveals critical deficiencies in two key areas:
+\begin{enumerate}
+    \item \textbf{Identity and Access Management:} While MFA is commendably enforced for email, its absence for computer logins and sensitive data systems is a critical vulnerability. This gap allows a single compromised password to potentially grant an attacker broad access to internal resources.
+    \item \textbf{Human-Layer Security:} The lack of any security awareness training program means employees are not equipped to identify or respond to common threats like phishing. This significantly increases the likelihood of a security breach originating from human error.
+\end{enumerate}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and services on the target system. This data provides insight into the technical attack surface.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{127.0.0.1}}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{127.0.0.1}}
+\begin{tabular}{c c l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} \\
+\midrule
+22 & Open & SSH (Secure Shell) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified that port 22, commonly used for the Secure Shell (SSH) protocol, is open on the host \texttt{127.0.0.1}. SSH is a powerful administrative tool that provides remote command-line access. 
+
+This finding directly correlates with the pre-existing risk "Localhost Exposed" from Input 3, which was rated as \textbf{Critical}. While an open port on the localhost interface is not directly accessible from the internet, it can be exploited by malicious code already running on the machine to escalate privileges or establish persistence. If this service is not required, it should be disabled. If it is required, it must be hardened with strong authentication controls.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of security risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.1\linewidth} p{0.3\linewidth} p{0.4\linewidth} c}
+\toprule
+\textbf{ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{R-01} & Lack of Widespread MFA & MFA is not enforced for computer logins or access to sensitive data, leaving systems highly vulnerable to credential theft and unauthorized access. & \textbf{Critical} \\
+\addlinespace
+\textbf{R-02} & Localhost Exposed (Port 22/SSH) & The SSH service is running on the local machine, posing a risk for privilege escalation. This confirms a pre-existing risk with a CVSS score of 10.0. & \textbf{Critical} \\
+\addlinespace
+\textbf{R-03} & No Security Awareness Training & Employees are not trained on security best practices, increasing susceptibility to phishing, malware, and social engineering attacks. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity.
+
+\subsection*{R-01 (Critical): Implement Comprehensive MFA}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Procure and deploy an MFA solution for all employee computer and server logins.
+    \item \textbf{Short-Term Action:} Enforce MFA for access to all applications and systems that store, process, or transmit sensitive organizational data.
+    \item \textbf{Ongoing:} Ensure that MFA is a default component of the onboarding process for all new employees and systems.
+\end{itemize}
+
+\subsection*{R-02 (Critical): Review and Secure Exposed Services}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Investigate the business requirement for the SSH service running on \texttt{127.0.0.1}.
+    \item \textbf{Short-Term Action:} If the service is not required, disable it immediately. If it is required for a legitimate purpose, ensure it is hardened by:
+    \begin{itemize}
+        \item Disabling password-based authentication.
+        \item Enforcing strong, key-based authentication only.
+        \item Limiting access to authorized administrative accounts.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{R-03 (High): Establish a Security Awareness Program}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Implement a mandatory security awareness training module as part of the onboarding process for all new hires.
+    \item \textbf{Short-Term Action:} Enroll all current employees in a foundational security awareness training course, to be completed within the next quarter.
+    \item \textbf{Ongoing:} Establish a policy requiring annual security refresher training for all personnel. Supplement this with periodic phishing simulation campaigns to measure and improve employee resilience.
+\end{itemize}
+
+\end{document}
+```

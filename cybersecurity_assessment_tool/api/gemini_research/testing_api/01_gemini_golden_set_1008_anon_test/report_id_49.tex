@@ -1,0 +1,168 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage[table]{xcolor} % For coloring table cells
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- CUSTOM COMMANDS & COLORS ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\definecolor{highseverity}{HTML}{D9534F}
+\definecolor{mediumseverity}{HTML}{F0AD4E}
+\definecolor{lowseverity}{HTML}{5CB85C}
+
+% --- TITLE ---
+\title{Cybersecurity Posture Report \\ \large For \textbf{[Organization Name]}}
+\author{Cybersecurity Analyst}
+\date{November 22, 2025}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{Executive Summary}
+% ==============================================================================
+
+This report provides a comprehensive analysis of the cybersecurity posture of \textbf{[Organization Name]}, based on data gathered on November 22, 2025. The assessment combines a review of organizational security controls, an external network scan, and an evaluation of known risks.
+
+The analysis reveals a mixed security posture. While the organization has implemented several essential controls, such as multi-factor authentication (MFA) for computer and sensitive system access, two significant risks were identified that require immediate attention:
+
+\begin{enumerate}
+    \item \textbf{Critical Control Gap:} Multi-factor authentication is not enforced for email access. As email is a primary vector for phishing and business email compromise (BEC) attacks, this gap exposes the organization to a high risk of account takeover and subsequent data breaches.
+    \item \textbf{High-Risk Technical Vulnerability:} The public-facing web server is running an outdated and unsupported version of Nginx (1.18.0). This software is vulnerable to numerous publicly known exploits, creating a direct pathway for attackers to compromise the system.
+\end{enumerate}
+
+While no pre-existing vulnerabilities were reported, these two findings present a clear and present danger to the organization's security. This report provides detailed findings and actionable recommendations to mitigate these risks and strengthen the overall security framework.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+
+The following information was used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Address:} \texttt{[Client IP]}
+\end{itemize}
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+
+A review of the organization's security policies and controls was conducted via a questionnaire. The results indicate that while a foundational security program is in place, a critical gap exists in protecting the primary communication channel (email).
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Questionnaire Results}
+\label{tab:controls}
+\begin{tabular}{p{0.75\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \no \\
+Do you require MFA to log into computers? & \yes \\
+Do you require MFA to access sensitive data systems? & \yes \\
+Does your organization have an employee acceptable use policy? & \yes \\
+Does your organization do security awareness training for new employees? & \yes \\
+Does your organization do security awareness training for all employees at least once per year? & \yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The failure to enforce MFA on email is a significant finding and is categorized as a high-risk gap in the Risk Assessment section.
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+
+An external network scan was performed to identify open ports and exposed services on the organization's public-facing infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} November 22, 2025
+\end{itemize}
+
+The scan identified one open port, which is detailed in Table \ref{tab:scanresults}.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\label{tab:scanresults}
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product \& Version} \\
+\midrule
+443/TCP & Open & HTTPS & Nginx 1.18.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Findings}
+The web server is running \textbf{Nginx version 1.18.0}, which was released in April 2020. This version is considered end-of-life and no longer receives security patches from the developer. Running outdated software on internet-facing systems is a critical security risk, as it exposes the server to a wide range of well-documented vulnerabilities that can be easily exploited by automated attack tools.
+
+% ==============================================================================
+\section{Risk Assessment}
+% ==============================================================================
+
+This section synthesizes the findings from the security control review and the technical scan into a prioritized list of risks. No pre-existing vulnerabilities were reported in the input data.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.45\linewidth} p{0.1\linewidth}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+RISK-001 & Inadequate Access Control for Email & MFA is not enforced for email access, increasing the risk of account takeover via phishing or credential stuffing. A compromised email account can lead to data exfiltration, financial fraud, and further internal network compromise. & \cellcolor{highseverity}High \\
+\addlinespace
+RISK-002 & Outdated Web Server Software & The public-facing Nginx server is running version 1.18.0, which is outdated and vulnerable to numerous known exploits. This could allow an attacker to gain control of the server, deface the website, or access sensitive data. & \cellcolor{highseverity}High \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+% ==============================================================================
+
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{Remediation for RISK-001: Inadequate Access Control}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Implement and enforce multi-factor authentication (MFA) for all user accounts on the primary email system. This is the single most effective control to prevent unauthorized account access and should be prioritized as the highest-level remediation activity.
+    \item \textbf{Supporting Action:} Conduct a targeted phishing awareness campaign to educate employees on the importance of MFA and the dangers of credential theft.
+\end{itemize}
+
+\subsection{Remediation for RISK-002: Outdated Web Server Software}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Develop a plan to upgrade the Nginx web server on host \texttt{[Target IP]} from version 1.18.0 to a current, stable, and supported version (e.g., 1.26.x or newer). This plan should include pre-upgrade testing in a staging environment to ensure application compatibility.
+    \item \textbf{Long-Term Action:} Establish a formal patch management policy and program for all internet-facing systems. This program should include regular vulnerability scanning and a defined schedule for applying security patches to mitigate future risks from outdated software.
+\end{itemize}
+
+\end{document}
+```

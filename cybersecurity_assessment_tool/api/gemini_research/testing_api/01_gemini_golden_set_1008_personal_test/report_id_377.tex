@@ -1,0 +1,146 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ===================================================================
+% SECTION 1: EXECUTIVE OVERVIEW
+% ===================================================================
+\section{Executive Overview}
+
+This report provides a cybersecurity assessment for \textbf{Top Tier}, based on a technical network scan, a review of existing risks, and an analysis of organizational security controls.
+
+The organization demonstrates a solid foundation in security policy and awareness training, with established acceptable use policies and regular training schedules. Multi-Factor Authentication (MFA) is commendably enforced for email and access to sensitive data systems.
+
+However, two critical-risk findings require immediate attention. Firstly, the lack of mandatory MFA for computer logins represents a significant security gap. This weakness allows a compromised password to grant an attacker direct access to an endpoint. Secondly, a technical scan identified an open Remote Desktop Protocol (RDP) port on an internal system (\texttt{10.10.10.51}). This finding expands upon a previously identified risk of RDP exposure within the network.
+
+The combination of these two findings creates a high-impact threat scenario where a single stolen credential could lead to unauthorized remote access and lateral movement within the internal network. Prioritized recommendations are provided to mitigate these risks and enhance the overall security posture.
+
+% ===================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Top Tier} \\
+Email Domain      & \texttt{TopTier.net} \\
+Website Domain    & \texttt{www.TopTier.net} \\
+External IP       & \texttt{117.31.178.130} \\
+\bottomrule
+\end{tabular}
+
+% ===================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ===================================================================
+\section{Security Control Review}
+
+An assessment of administrative and technical security controls was conducted based on a standardized questionnaire. The results indicate a strong policy framework but highlight a critical gap in endpoint access controls.
+
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\ % Yes
+Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} \\ % No
+Do you require MFA to access sensitive data systems? & \ding{51} \\ % Yes
+Does your organization have an employee acceptable use policy? & \ding{51} \\ % Yes
+Does your organization do security awareness training for new employees? & \ding{51} \\ % Yes
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\ % Yes
+\bottomrule
+\end{tabular}
+
+\vspace{1em}
+\noindent \textbf{Analysis:} The lack of MFA for computer logins is a critical weakness. While other controls are in place, a compromised user credential could allow an attacker to log into a corporate workstation without a second authentication factor, establishing a significant foothold within the network.
+
+% ===================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+A network scan was performed on the specified target to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{10.10.10.51}
+\end{itemize}
+
+The following table details the services discovered during the scan.
+
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Analysis} \\
+\midrule
+3389/tcp & open & ms-wbt-server & Microsoft Remote Desktop Protocol (RDP) \\
+\bottomrule
+\end{tabular}
+
+\vspace{1em}
+\noindent \textbf{Analysis:} The scan confirmed that port 3389 is open, which is used for RDP. RDP is a frequent target for attackers attempting to gain unauthorized access to systems. When exposed, it can be vulnerable to brute-force password attacks, credential stuffing, and exploitation of vulnerabilities like BlueKeep. This finding confirms the presence of another system with RDP enabled, compounding the risk identified in previous assessments.
+
+% ===================================================================
+% SECTION 5: RISK ASSESSMENT
+% ===================================================================
+\section{Risk Assessment}
+
+This section correlates the findings from the security control review, the technical scan, and pre-existing risk data.
+
+\begin{tabular}{@{}p{0.2\linewidth}p{0.45\linewidth}p{0.15\linewidth}p{0.1\linewidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Affected Systems} & \textbf{Severity} \\
+\midrule
+\textbf{Uncontrolled RDP Exposure} & The Remote Desktop Protocol is exposed on internal systems. This finding expands on a known issue, with a new host identified. This service is a primary target for ransomware and lateral movement. & \texttt{10.10.10.50} (Existing) \texttt{10.10.10.51} (New) & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Endpoint MFA} & User workstations and laptops do not require Multi-Factor Authentication for login. A compromised password provides an attacker with direct, unimpeded access to the endpoint and any connected network resources. & All User Endpoints & \textbf{High} \\
+\bottomrule
+\end{tabular}
+
+\vspace{1em}
+\noindent \textbf{Correlated Threat:} The risk of \textbf{Uncontrolled RDP Exposure} is significantly amplified by the \textbf{Lack of Endpoint MFA}. An attacker who obtains a user's password through phishing or other means could use it to successfully connect to an exposed RDP service without being challenged by a second factor, leading to a complete system compromise.
+
+% ===================================================================
+% SECTION 6: RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\begin{enumerate}
+    \item \textbf{[CRITICAL] Remediate RDP Exposure on All Systems:}
+    \begin{itemize}
+        \item Immediately review the business need for RDP on \texttt{10.10.10.51} and \texttt{10.10.10.50}.
+        \item If RDP is not required, disable the service and block port 3389 via host-based or network firewalls.
+        \item If RDP is required, place the systems behind a VPN or a secure remote access gateway that requires MFA. Direct access should never be permitted.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{[HIGH] Implement Mandatory MFA for Computer Logins:}
+    \begin{itemize}
+        \item Deploy an MFA solution for all Windows, macOS, and Linux endpoints (e.g., Windows Hello for Business, Duo, etc.).
+        \item This control acts as a critical compensating measure, protecting against password compromise and preventing unauthorized endpoint access.
+        \item Prioritize implementation for privileged users (administrators) and executives before rolling out to the entire organization.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,180 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{True North Travel}
+\fancyhead[R]{Confidential}
+\fancyfoot[C]{\thepage}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{True North Travel}, based on a correlation of network scan data, organizational security controls, and pre-existing risk information. The assessment was conducted on \today.
+
+Overall, \textbf{True North Travel} has implemented foundational security controls, including Multi-Factor Authentication (MFA) for email and computer access. However, this assessment has identified several critical and high-risk gaps in the organization's security posture that require immediate attention.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Risk - MFA Gap:} Multi-Factor Authentication is not enforced for accessing sensitive data systems. This significantly increases the risk of unauthorized access to critical information.
+    \item \textbf{High Risk - Policy Gap:} The organization lacks a formal employee Acceptable Use Policy (AUP), creating ambiguity regarding security responsibilities and acceptable behavior.
+    \item \textbf{High Risk - Training Gap:} While new employees receive security training, there is no mandatory annual training for all staff. This can lead to a degradation of security awareness over time, increasing susceptibility to social engineering attacks.
+\end{itemize}
+
+On a positive note, a technical network scan of the target system \texttt{192.168.0.5} did not reveal any open ports. This contradicts a pre-existing risk report concerning an unencrypted web server on Port 80, suggesting that the specific vulnerability may have been remediated on this host.
+
+Recommendations focus on closing these identified gaps by implementing MFA for sensitive systems, developing and enforcing an AUP, and establishing a recurring security awareness training program.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & True North Travel \\
+Email Domain      & \texttt{TrueNorthTravel.org} \\
+Website Domain    & \href{http://www.TrueNorthTravel.org}{\texttt{www.TrueNorthTravel.org}} \\
+External IP Address & \texttt{229.110.87.223} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\end{table}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted based on a standardized questionnaire. The results are summarized below. Items marked with \ding{55} represent significant gaps in the security framework and are discussed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \ding{51} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security training for all employees annually? & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results.}
+\end{table}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services.
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{192.168.0.5}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+The scan revealed no open ports on the target system. The status of scanned ports is detailed in the table below. This result indicates a strong network perimeter for the scanned host at the time of the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service/Notes} \\ \midrule
+80/tcp & closed & http \\ \bottomrule
+\end{tabular}
+\caption{Port Scan Results for \texttt{192.168.0.5}.}
+\end{table}
+
+\textbf{Note:} The finding that Port 80 is closed contradicts a pre-existing risk entry ("Unencrypted Web Server"). This suggests the risk may be resolved for this specific asset or the previous finding pertained to a different system.
+
+% --- 5. Risk Assessment & Correlation ---
+\section{Risk Assessment \& Correlation}
+
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\ \midrule
+\textbf{No MFA for Sensitive Data} & The absence of MFA on systems holding sensitive data exposes the organization to significant risk of data breach from compromised credentials. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Acceptable Use Policy} & Without a formal AUP, employees may be unaware of their security responsibilities, leading to unintentional misuse of systems and data. & High \\
+\addlinespace
+\textbf{Insufficient Security Training} & Lack of annual training for all staff diminishes security awareness, making the organization more vulnerable to phishing and social engineering attacks. & High \\
+\addlinespace
+\textbf{Unencrypted Web Server} \textit{(Pre-existing)} & A previously identified risk stated that Port 80 was open, exposing unencrypted traffic. \textbf{Status: Not Found.} The current scan shows this port is closed on the target system. & Medium \\ \bottomrule
+\end{tabular}
+\caption{Consolidated Risk Summary.}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+Based on the findings of this assessment, the following prioritized actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{True North Travel}.
+
+\begin{enumerate}
+    \item \textbf{Implement MFA for Sensitive Systems (Priority: Critical):}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately deploy and enforce Multi-Factor Authentication (MFA) for all user accounts (including administrative and service accounts) that have access to systems containing sensitive or critical data.
+        \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access resulting from stolen or weak credentials.
+    \end{itemize}
+    \vspace{1em}
+    
+    \item \textbf{Develop and Implement an Acceptable Use Policy (Priority: High):}
+    \begin{itemize}
+        \item \textbf{Action:} Create a formal Acceptable Use Policy (AUP) that clearly defines the rules and responsibilities for all employees when using company assets, data, and networks. Ensure all employees read and acknowledge the policy.
+        \item \textbf{Justification:} An AUP establishes a baseline for secure behavior, reduces insider risk, and provides a framework for enforcing security standards.
+    \end{itemize}
+    \vspace{1em}
+    
+    \item \textbf{Establish an Annual Security Awareness Program (Priority: High):}
+    \begin{itemize}
+        \item \textbf{Action:} Institute a mandatory security awareness training program that all employees must complete at least once per year. The training should cover topics such as phishing, password security, and data handling.
+        \item \textbf{Justification:} Regular training reinforces security concepts and keeps employees vigilant against evolving cyber threats.
+    \end{itemize}
+    \vspace{1em}
+    
+    \item \textbf{Validate and Close Outdated Risks (Priority: Medium):}
+    \begin{itemize}
+        \item \textbf{Action:} Formally review the pre-existing risk of an "Unencrypted Web Server". Confirm across all relevant infrastructure that Port 80 is either closed or properly secured with redirects to HTTPS (Port 443). If remediated, update the risk register to reflect its closed status.
+        \item \textbf{Justification:} Maintaining an accurate risk register is crucial for focusing resources on current and relevant threats.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

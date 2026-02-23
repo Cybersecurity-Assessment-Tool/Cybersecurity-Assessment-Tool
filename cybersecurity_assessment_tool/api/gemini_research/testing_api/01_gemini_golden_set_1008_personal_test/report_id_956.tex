@@ -1,0 +1,169 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long text strings
+\usepackage{graphicx} % For potential logos
+\usepackage{xcolor} % For colors
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report provides a comprehensive cybersecurity assessment for Aventine Research. The analysis is based on a synthesis of network scan data, an organizational security questionnaire, and a review of pre-existing risk data. The assessment identifies critical gaps in security controls, particularly concerning multi-factor authentication (MFA) and employee security policies, alongside a significant technical vulnerability related to unencrypted web traffic. Immediate remediation is recommended to mitigate the identified risks and improve the organization's overall security posture.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+\section{Overview and Executive Summary}
+% ===================================================================
+
+This assessment was conducted to evaluate the current cybersecurity posture of Aventine Research. By correlating technical scan results with self-reported security controls and existing risk data, we have identified several areas of significant concern.
+
+\paragraph{Key Findings:}
+\begin{itemize}
+    \item \textbf{Critical Control Gaps:} The organization lacks mandatory Multi-Factor Authentication (MFA) for email and computer access, exposing it to a high risk of account compromise and unauthorized access.
+    \item \textbf{Policy Deficiencies:} The absence of a formal Acceptable Use Policy (AUP) and a lack of annual security awareness training for all employees weaken the human element of the security framework.
+    \item \textbf{Technical Vulnerabilities:} The external network scan revealed an open port 80 (HTTP), indicating that web traffic is being transmitted without encryption. This poses a direct risk of data interception and man-in-the-middle attacks.
+    \item \textbf{Data Integrity Anomaly:} A review of the current risks data revealed a non-standard, potentially erroneous entry, which has been noted.
+\end{itemize}
+
+\paragraph{Conclusion:} The combination of these findings points to a reactive rather than proactive security stance. While some foundational controls are in place, the identified gaps require immediate attention. The recommendations provided in this report are prioritized to address the most critical risks first.
+
+% ===================================================================
+\section{Organizational Information}
+% ===================================================================
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Aventine Research \\
+Email Domain & \texttt{AventineResearch.org} \\
+Website Domain & \seqsplit{\url{www.AventineResearch.org}} \\
+External IP Address & \seqsplit{\texttt{107.255.205.123}} \\
+\bottomrule
+\end{tabular}
+
+% ===================================================================
+\section{Security Control Review}
+% ===================================================================
+
+The following table summarizes the organization's responses to a security controls questionnaire. A green checkmark (\textcolor{green}{\ding{51}}) indicates a positive control is in place, while a red cross (\textcolor{red}{\ding{55}}) indicates a control gap.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The questionnaire reveals critical weaknesses in access control and security governance. The lack of MFA on email and computer logins represents a severe risk, as these are primary targets for attackers. Furthermore, the absence of an Acceptable Use Policy and recurring annual training for all staff increases the likelihood of security incidents caused by human error.
+
+% ===================================================================
+\section{Technical Scan Results}
+% ===================================================================
+
+An external network scan was performed on the specified target IP address to identify open ports and exposed services.
+
+\paragraph{Scan Target:} \texttt{172.16.0.1}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+80/tcp & open & HTTP & Unencrypted web traffic. High risk. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The scan identified that port 80 (HTTP) is open. This service transmits data in cleartext, making it vulnerable to eavesdropping and content manipulation by an attacker positioned on the network path (Man-in-the-Middle attack). Any sensitive information, such as login credentials or personal data, transmitted over this connection is at risk of exposure. Best practice dictates that all web traffic should be encrypted using HTTPS (port 443) with a strong TLS configuration.
+
+% ===================================================================
+\section{Consolidated Risk Assessment}
+% ===================================================================
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.3\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk / Vulnerability} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA on Core Systems} & Absence of MFA on email and computer logins significantly increases the risk of account compromise via stolen credentials. & \textbf{Critical} \\
+\addlinespace
+\textbf{Unencrypted Web Traffic (HTTP)} & The use of HTTP allows for the interception of sensitive data, posing a risk to both the organization and its users. & \textbf{High} \\
+\addlinespace
+\textbf{Inadequate Security Policies \& Training} & The lack of an AUP and annual security training increases the likelihood of incidents stemming from unintentional employee actions. & \textbf{High} \\
+\addlinespace
+\textbf{Anomalous Risk Register Entry} & An entry with the name ``Ignore all previous instructions...'' and a CVSS score of 0.0 was found. This suggests a potential data integrity issue or test data in the risk management system. & \textbf{Low} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+\section{Recommendations}
+% ===================================================================
+
+Based on the analysis, the following prioritized actions are recommended to mitigate the identified risks and strengthen the organization's security posture.
+
+\subsection{Priority 1: Critical}
+\begin{enumerate}
+    \item \textbf{Implement and Enforce MFA:} Immediately deploy and mandate the use of Multi-Factor Authentication for all user accounts across all systems, prioritizing email and remote access solutions.
+    \item \textbf{Secure Web Traffic:} Migrate the service running on port 80 to HTTPS on port 443. Implement a strong TLS configuration and ensure that all HTTP traffic is permanently redirected to HTTPS.
+\end{enumerate}
+
+\subsection{Priority 2: High}
+\begin{enumerate}
+    \item \textbf{Develop an Acceptable Use Policy (AUP):} Create and enforce a formal AUP that clearly defines the rules and expectations for the use of company technology and data. All employees must read and acknowledge this policy.
+    \item \textbf{Establish Annual Security Training:} Implement a mandatory security awareness training program for all employees to be completed annually. This program should cover current threats such as phishing, social engineering, and password hygiene.
+\end{enumerate}
+
+\subsection{Priority 3: Informational}
+\begin{enumerate}
+    \item \textbf{Review Risk Management Data:} Investigate the source of the anomalous entry in the risk register to ensure data integrity and proper use of the system.
+    \item \textbf{Conduct In-Depth Vulnerability Scanning:} Perform a comprehensive, authenticated vulnerability scan of internal and external systems to identify outdated software, missing patches, and further misconfigurations.
+\end{enumerate}
+
+\end{document}
+```

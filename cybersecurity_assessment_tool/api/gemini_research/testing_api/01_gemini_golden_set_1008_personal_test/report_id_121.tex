@@ -1,0 +1,159 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage[T1]{fontenc}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% ----------------------------------------------------------------------
+% DOCUMENT START
+% ----------------------------------------------------------------------
+\begin{document}
+
+\title{Cybersecurity Assessment Report \\ \large For: Stone Arch Masonry}
+\author{Cybersecurity Analyst}
+\date{November 22, 2025}
+\maketitle
+
+\hrule\vspace{1em}
+
+% ----------------------------------------------------------------------
+% EXECUTIVE SUMMARY
+% ----------------------------------------------------------------------
+\section*{Executive Summary}
+
+This report provides a cybersecurity assessment for Stone Arch Masonry, based on a review of organizational security controls, an external network scan, and pre-existing risk data. The assessment was conducted on November 22, 2025.
+
+The organization demonstrates a strong commitment to identity and access management, with Multi-Factor Authentication (MFA) and security awareness training programs effectively implemented. These controls significantly reduce the risk of unauthorized access and social engineering attacks.
+
+However, two key areas of risk were identified that require immediate attention. First, a critical administrative gap exists due to the absence of an employee Acceptable Use Policy (AUP). This exposes the organization to potential insider threats and misuse of IT assets. Second, the external network scan identified a public-facing web server running an outdated version of Nginx (1.18.0), which is susceptible to multiple known vulnerabilities. This presents a direct and high-impact risk of system compromise.
+
+Recommendations focus on developing a formal AUP and upgrading the vulnerable web server software to mitigate these risks and improve the organization's overall security posture.
+
+\newpage
+
+% ----------------------------------------------------------------------
+% ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Stone Arch Masonry \\
+    Email Domain & \texttt{StoneArchMasonry.com} \\
+    Website Domain & \seqsplit{\texttt{www.StoneArchMasonry.com}} \\
+    External IP Address & \texttt{59.245.127.163} \\
+    \bottomrule
+\end{tabular}
+
+% ----------------------------------------------------------------------
+% SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+
+A review of administrative and procedural security controls was conducted based on a standardized questionnaire. The results indicate a strong foundation in user access and training, but highlight a critical policy gap.
+
+\begin{tabular}{@{}p{0.75\linewidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \yes \\
+    Do you require MFA to log into computers? & \yes \\
+    Do you require MFA to access sensitive data systems? & \yes \\
+    Does your organization have an employee acceptable use policy? & \no \\
+    Does your organization do security awareness training for new employees? & \yes \\
+    Does your organization do security awareness training for all employees at least once per year? & \yes \\
+    \bottomrule
+\end{tabular}
+
+\subsection*{Analysis}
+The lack of an employee Acceptable Use Policy (AUP) is a significant finding. An AUP is a foundational document that defines the rules and expectations for employees when using company technology and data. Without it, there is no formal basis for enforcing security standards or taking corrective action in cases of misuse, whether accidental or malicious. This gap is classified as a \textbf{High Risk}.
+
+% ----------------------------------------------------------------------
+% TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+
+A network scan was performed to identify open ports and services exposed on the organization's infrastructure.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{192.168.10.5}
+    \item \textbf{Scan Date:} 2025-11-22T10:00:00Z
+\end{itemize}
+
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    443/tcp & open & https & nginx & 1.18.0 \\
+    \bottomrule
+\end{tabular}
+
+\subsection*{Analysis}
+The scan identified one open port (443/tcp) running an Nginx web server, version \textbf{1.18.0}. This version was released in April 2020 and is now significantly outdated. It is known to be vulnerable to several publicly disclosed security flaws, including but not limited to CVE-2021-23017. Running outdated software on a public-facing server presents a \textbf{High Risk}, as it can be easily exploited by automated tools to gain unauthorized access, exfiltrate data, or disrupt service.
+
+% ----------------------------------------------------------------------
+% RISK ASSESSMENT
+% ----------------------------------------------------------------------
+\section{Risk Assessment}
+
+The following table summarizes the key risks identified during this assessment, combining findings from the security control review and the technical scan. No pre-existing vulnerabilities were reported.
+
+\begin{tabular}{@{}p{0.1\linewidth}p{0.25\linewidth}p{0.1\linewidth}p{0.45\linewidth}@{}}
+    \toprule
+    \textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\
+    \midrule
+    R-01 & Lack of Acceptable Use Policy & High & The absence of a formal AUP creates ambiguity regarding the proper use of company IT assets. This increases the risk of insider threat, data leakage, and non-compliance. \\
+    \addlinespace
+    R-02 & Outdated Nginx Web Server & High & The web server at \texttt{192.168.10.5} is running Nginx 1.18.0, a version with known vulnerabilities. This exposes the organization to remote code execution, denial-of-service, and other web-based attacks. \\
+    \bottomrule
+\end{tabular}
+
+% ----------------------------------------------------------------------
+% RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks and strengthen the organization's security posture.
+
+\subsection*{R-01: Implement an Acceptable Use Policy}
+\begin{itemize}
+    \item \textbf{Action:} Develop and implement a comprehensive Acceptable Use Policy (AUP) that clearly outlines the rules for using company networks, computers, email, and data.
+    \item \textbf{Details:} The policy should cover topics such as data privacy, password security, prohibited activities, and the consequences of violation.
+    \item \textbf{Implementation:} All current employees must read and formally acknowledge the policy. It should also be integrated into the onboarding process for all new hires.
+\end{itemize}
+
+\subsection*{R-02: Upgrade Vulnerable Web Server}
+\begin{itemize}
+    \item \textbf{Action:} Upgrade the Nginx web server on host \texttt{192.168.10.5} from version 1.18.0 to the latest stable version.
+    \item \textbf{Details:} Before upgrading the production server, perform the upgrade in a testing environment to ensure compatibility with the existing web application. Follow a patch management process to ensure server software is kept up-to-date moving forward.
+    \item \textbf{Implementation:} This task should be prioritized by the IT or system administration team to close the window of vulnerability as soon as possible.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% DOCUMENT END
+% ----------------------------------------------------------------------
+\end{document}
+```

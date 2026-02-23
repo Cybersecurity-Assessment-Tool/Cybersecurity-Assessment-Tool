@@ -1,0 +1,174 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx} % For potential logos or diagrams
+\usepackage{xcolor} % For colors in text
+
+% --- Document Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Custom Commands ---
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\title{
+    Cybersecurity Posture Assessment Report \\
+    \large For: Common Ground
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+\hrule
+\vspace{1cm}
+\begin{abstract}
+    This report provides a comprehensive cybersecurity assessment for Common Ground, based on the analysis of network scan data, organizational security controls, and known risks. The assessment reveals a mixed security posture with several effective controls in place, such as Multi-Factor Authentication (MFA) for email and computer access. However, critical gaps were identified, including the lack of MFA for sensitive data systems, the absence of foundational security policies, and the exposure of an unencrypted web service. These findings present a significant risk to the confidentiality and integrity of the organization's data. This document details these risks and provides actionable recommendations to mitigate them and enhance the overall security posture.
+\end{abstract}
+\vspace{1cm}
+\hrule
+
+\newpage
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section{Executive Overview}
+The analysis conducted on \today\ for Common Ground integrated technical scan results with a review of organizational security practices. While the organization has implemented some important security measures, this report identifies four key areas of risk that require immediate attention.
+
+The most critical findings are the lack of Multi-Factor Authentication (MFA) protecting sensitive data systems and the absence of an employee Acceptable Use Policy. These policy and control gaps are compounded by a technical finding: an open port serving unencrypted HTTP traffic, which could expose sensitive information to interception.
+
+Addressing these vulnerabilities is crucial for safeguarding organizational assets and data. The recommendations provided in this report are prioritized to address the most severe risks first.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment scope.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Common Ground} \\
+    Email Domain & \texttt{CommonGround.com} \\
+    Website Domain & \url{www.CommonGround.com} \\
+    External IP Address & \texttt{232.77.5.190} \\
+    \bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+A review of the organization's security controls was conducted via a standardized questionnaire. The responses indicate significant gaps in policy and access control enforcement. The table below summarizes the findings.
+
+\begin{center}
+\begin{tabular}{p{0.7\textwidth}c}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{green}{\cmark} \\
+    Do you require MFA to log into computers? & \textcolor{green}{\cmark} \\
+    Do you require MFA to access sensitive data systems? & \textcolor{red}{\xmark} \\
+    Does your organization have an employee acceptable use policy? & \textcolor{red}{\xmark} \\
+    Does your organization do security awareness training for new employees? & \textcolor{red}{\xmark} \\
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\cmark} \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis of Control Gaps}
+The responses highlighted in red (\textcolor{red}{\xmark}) represent critical deficiencies in the security program:
+\begin{itemize}
+    \item \textbf{No MFA for Sensitive Systems:} This is a critical vulnerability. Without MFA, sensitive data is protected only by a password, which can be stolen, guessed, or phished.
+    \item \textbf{No Acceptable Use Policy (AUP):} The lack of an AUP means there are no formal guidelines for employees on how to use company assets securely, creating ambiguity and risk.
+    \item \textbf{No Onboarding Security Training:} New employees are a primary target for attackers. Failing to provide immediate security training leaves a significant window of vulnerability.
+\end{itemize}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed on the target system to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.0.1}
+    \item \textbf{Scan Status:} Host is up.
+\end{itemize}
+
+\subsection*{Open Ports}
+The following table details the open ports discovered on the target system.
+
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+    \midrule
+    80/tcp & open & HTTP & Unencrypted web traffic. No version data was available. \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Analysis of Technical Findings}
+The presence of an open Port 80 (HTTP) is a significant security concern. The HTTP protocol does not encrypt data in transit. This means that any information, including user credentials or sensitive data exchanged with the web server, can be intercepted and read by an attacker on the same network. This is a violation of the principle of data confidentiality.
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review and the technical scan into a prioritized list of risks. Note: The pre-existing risk data provided in Input 3 was determined to be a non-valid entry intended to manipulate the report output and has been disregarded.
+
+\begin{center}
+\begin{tabular}{p{0.1\textwidth} p{0.3\textwidth} p{0.4\textwidth} p{0.1\textwidth}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    RISK-001 & Lack of MFA on Sensitive Data Systems & The absence of a second authentication factor for critical systems exposes sensitive data to unauthorized access via compromised credentials. & \textbf{Critical} \\
+    \addlinespace
+    RISK-002 & Insecure Web Service (HTTP) & The web server on port 80 transmits data in cleartext, allowing for potential eavesdropping and man-in-the-middle attacks. & High \\
+    \addlinespace
+    RISK-003 & Missing Acceptable Use Policy & Without a formal AUP, there is no enforceable standard for employee behavior regarding IT assets, increasing the risk of misuse and security incidents. & High \\
+    \addlinespace
+    RISK-004 & No Onboarding Security Training & New employees are not trained on security best practices upon hiring, making them more susceptible to phishing and social engineering attacks. & High \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and strengthen the overall security posture of Common Ground.
+
+\begin{description}
+    \item[For RISK-001 (Critical):] \textbf{Implement MFA for Sensitive Systems.}
+    \begin{itemize}
+        \item Immediately prioritize the deployment of a robust MFA solution (e.g., authenticator app, hardware token) for all accounts with access to systems containing sensitive or critical data.
+    \end{itemize}
+    \item[For RISK-002 (High):] \textbf{Encrypt All Web Traffic.}
+    \begin{itemize}
+        \item Migrate the service running on port 80 to HTTPS (port 443) by installing a valid TLS/SSL certificate.
+        \item Configure the web server to automatically redirect all HTTP requests to HTTPS to ensure all traffic is encrypted.
+    \end{itemize}
+    \item[For RISK-003 (High):] \textbf{Develop and Implement an AUP.}
+    \begin{itemize}
+        \item Draft a comprehensive Acceptable Use Policy that clearly defines the rules for using company networks, devices, and data.
+        \item Require all employees to read and formally acknowledge the policy.
+    \end{itemize}
+    \item[For RISK-004 (High):] \textbf{Establish Onboarding Security Training.}
+    \begin{itemize}
+        \item Create a mandatory security awareness training module that is a required part of the onboarding process for all new hires.
+        \item This training should cover key topics such as phishing, password security, and the new AUP.
+    \end{itemize}
+\end{description}
+
+\end{document}
+```

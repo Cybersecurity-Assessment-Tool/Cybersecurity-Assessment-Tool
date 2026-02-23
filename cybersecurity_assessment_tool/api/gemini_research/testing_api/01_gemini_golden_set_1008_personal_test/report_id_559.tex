@@ -1,0 +1,163 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \Large
+    \textbf{Prepared for:} \\
+    \vspace{0.5cm}
+    \textbf{Radiant Life}
+    \vfill
+    \large
+    \textbf{Report Date:} \today \\
+    \textbf{Analysis by:} Cybersecurity Analyst
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- SECTION 1: EXECUTIVE OVERVIEW ---
+\section{Executive Overview}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Radiant Life}, based on a review of organizational security controls, a technical network scan, and pre-existing risk data. The assessment was conducted to identify security gaps, evaluate technical exposures, and provide actionable recommendations to enhance the organization's defensive capabilities.
+
+\paragraph{Key Strengths:}
+The organization demonstrates a strong commitment to identity and access management, with the mandatory implementation of Multi-Factor Authentication (MFA) across email, computer logins, and sensitive data systems. This significantly reduces the risk of unauthorized access through compromised credentials.
+
+\paragraph{Areas for Improvement:}
+The analysis identified critical gaps in foundational security governance and employee training. The absence of an Employee Acceptable Use Policy and the lack of security awareness training for new hires create significant risks. These policy-level deficiencies can lead to inconsistent security practices and leave the organization vulnerable to human error.
+
+Furthermore, the technical scan revealed an exposed administrative service (SSH on port 22) on an IPv6 host. While necessary for remote management, its exposure to the public internet increases the attack surface and requires immediate mitigating controls.
+
+\paragraph{Conclusion:}
+While \textbf{Radiant Life} has implemented robust technical controls in key areas like MFA, the identified gaps in policy and perimeter security present a tangible risk. This report outlines specific, prioritized recommendations to address these weaknesses and build a more resilient security posture.
+
+% --- SECTION 2: ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} Radiant Life
+    \item \textbf{Email Domain:} \texttt{RadiantLife.net}
+    \item \textbf{Website Domain:} \url{www.RadiantLife.net}
+    \item \textbf{External IP (IPv4):} \seqsplit{\texttt{66.175.154.89}}
+\end{itemize}
+
+% --- SECTION 3: SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The responses are summarized below, highlighting both strengths and areas requiring attention.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{8cm} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \yes & Strength \\
+Do you require MFA to log into computers? & \yes & Strength \\
+Do you require MFA to access sensitive data systems? & \yes & Strength \\
+Does your organization have an employee acceptable use policy? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+Does your organization do security awareness training for new employees? & \no & \textcolor{red}{\textbf{High Risk}} \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Good Practice \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The "No" responses indicate a lack of foundational security policies that are essential for establishing a security-conscious culture and setting clear expectations for employees.
+
+% --- SECTION 4: TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and services exposed on the organization's network perimeter.
+
+\begin{itemize}
+    \item \textbf{Target Host:} \seqsplit{\texttt{2001:db8::1}}
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+The following table details the open ports discovered on the target host.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{l l l p{6cm}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+\midrule
+22/tcp & open & SSH & The Secure Shell service is used for remote administration. Exposing this port to the internet increases the risk of brute-force attacks and exploitation of potential vulnerabilities. Version information was not obtained in this scan. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- SECTION 5: RISK ASSESSMENT SUMMARY ---
+\section{Risk Assessment Summary}
+This section synthesizes findings from the security control review and technical scan into a consolidated list of identified risks. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks}
+\begin{tabular}{p{2cm} p{7cm} l}
+\toprule
+\textbf{Risk ID} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & \textbf{Lack of Employee Acceptable Use Policy:} Without a formal policy, there are no defined rules for employee use of company assets, data handling, or internet access, leading to inconsistent and potentially insecure behavior. & \textbf{High} \\
+\vspace{1em} % Add space between rows
+RISK-002 & \textbf{No Security Training for New Hires:} New employees are not formally trained on security best practices during their critical onboarding period, increasing the likelihood of falling victim to phishing or other social engineering attacks. & \textbf{High} \\
+\vspace{1em} % Add space between rows
+RISK-003 & \textbf{Exposed SSH Administrative Service:} The administrative SSH port (22) on host \seqsplit{\texttt{2001:db8::1}} is open to the internet, creating a direct target for attackers seeking to gain unauthorized access to internal systems. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- SECTION 6: RECOMMENDATIONS ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and strengthen the overall security posture of \textbf{Radiant Life}.
+
+\subsection*{Recommendation for RISK-001 (High)}
+\textbf{Action:} Develop and implement a comprehensive Employee Acceptable Use Policy (AUP).
+\begin{itemize}
+    \item \textbf{Details:} This policy should clearly define the rules and expectations for the use of company computers, networks, email, and internet services. It should be reviewed by legal counsel, approved by management, and formally acknowledged by all employees.
+\end{itemize}
+
+\subsection*{Recommendation for RISK-002 (High)}
+\textbf{Action:} Integrate mandatory security awareness training into the new employee onboarding process.
+\begin{itemize}
+    \item \textbf{Details:} All new hires should complete a baseline security training module within their first week of employment. This training should cover essential topics such as phishing identification, password security, and the new Acceptable Use Policy.
+\end{itemize}
+
+\subsection*{Recommendation for RISK-003 (Medium)}
+\textbf{Action:} Restrict access to the exposed SSH service.
+\begin{itemize}
+    \item \textbf{Details:} Implement a firewall rule to restrict access to TCP port 22 on host \seqsplit{\texttt{2001:db8::1}}. Access should be limited to a whitelist of trusted, authorized IP addresses only. Furthermore, ensure that authentication for SSH requires strong, complex passwords and, preferably, public key authentication.
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,171 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define check and cross marks for convenience
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+% Document Title and Author
+\title{Cybersecurity Posture Report \\ \large For: Apex Legends Group}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% --- 1. EXECUTIVE SUMMARY ---
+\section*{1. Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Apex Legends Group}, based on network scans, a security controls questionnaire, and a review of existing risk documentation.
+
+The assessment reveals a mixed security posture. The organization has implemented strong multi-factor authentication (MFA) controls across email, computer logins, and sensitive systems, which is a significant strength. However, this is critically undermined by two major areas of concern:
+
+\begin{enumerate}
+    \item \textbf{Exposed Sensitive Service:} A network scan of the internal host \texttt{10.5.5.5} identified an open service on port 8080 with the title \textbf{"TOP SECRET DB"}. This suggests a potentially unauthenticated database interface is exposed on the network, posing an immediate and critical risk of data exposure. This finding directly contradicts previous risk assessments which incorrectly labeled this port as secure.
+    
+    \item \textbf{Foundational Policy and Training Gaps:} The organization lacks a formal Acceptable Use Policy (AUP) and does not conduct security awareness training for new or existing employees. This absence of a "human firewall" leaves the organization highly vulnerable to social engineering, phishing, and insider threats, as employees are not equipped with the knowledge to identify or respond to cyber threats.
+\end{enumerate}
+
+Immediate action is required to investigate and secure the exposed service on port 8080. Concurrently, the development and implementation of foundational security policies and a robust training program are essential to mitigate significant human-centric risks.
+
+% --- 2. ORGANIZATIONAL INFORMATION ---
+\section*{2. Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Apex Legends Group \\
+Email Domain & \texttt{ApexLegendsGroup.org} \\
+Website Domain & \url{www.ApexLegendsGroup.org} \\
+External IP Address & \texttt{74.192.211.249} \\
+\bottomrule
+\end{tabular}
+
+% --- 3. SECURITY CONTROL REVIEW ---
+\section*{3. Security Control Review}
+
+A review of administrative and policy-based security controls was conducted via a questionnaire. The results highlight critical gaps in employee guidance and security awareness.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.7\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\cmark} \\
+Do you require MFA to log into computers? & \textcolor{green}{\cmark} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\cmark} \\
+\midrule
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\xmark} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\xmark} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\xmark} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis}
+\textbf{Strengths:} The mandatory implementation of Multi-Factor Authentication (MFA) across key access points is a commendable and effective control against unauthorized account access and credential stuffing attacks.
+
+\textbf{Critical Gaps:} The lack of an Acceptable Use Policy (AUP) means there are no formal rules governing how employees use company assets, creating legal and security risks. The complete absence of a security awareness training program leaves employees unable to recognize and respond to common threats like phishing, significantly increasing the likelihood of a security breach originating from human error.
+
+% --- 4. TECHNICAL SCAN RESULTS ---
+\section*{4. Technical Scan Results}
+
+An internal network scan was performed to identify open ports and exposed services. The scan revealed a critical finding that requires immediate attention.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Target IP} & \textbf{Port} & \textbf{State} & \textbf{Service Information} \\
+\midrule
+\texttt{10.5.5.5} & 8080/tcp & OPEN & HTTP Title: \textbf{TOP SECRET DB} \\
+\bottomrule
+\end{tabular}
+\caption{Nmap Scan Findings}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified an open port (8080) on the internal host \texttt{10.5.5.5}. The service running on this port presents itself with the HTTP title "TOP SECRET DB". This is an alarming discovery for several reasons:
+\begin{itemize}
+    \item \textbf{Data Sensitivity:} The name itself implies that the service provides access to highly sensitive or classified information.
+    \item \textbf{Potential for Exposure:} An open, unauthenticated web interface to a database is a common vector for catastrophic data breaches.
+    \item \textbf{Contradiction of Existing Risk Data:} This active and alarming finding directly contradicts the information from the existing risk register (\texttt{Input\_3\_Current\_Risks\_JSON}), which stated that port 8080 was a "confirmed secure and false positive." That assessment is now proven to be inaccurate and must be updated.
+\end{itemize}
+
+% --- 5. RISK ASSESSMENT SUMMARY ---
+\section*{5. Risk Assessment Summary}
+
+Based on the correlation of all data inputs, the following risks have been identified and prioritized. The previous risk assessment concerning port 8080 is now considered invalid.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Exposed Sensitive Database Interface} & A service on \texttt{10.5.5.5:8080} titled "TOP SECRET DB" is open on the internal network, posing a direct and immediate threat of a major data breach. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Security Awareness Training} & Employees are not trained to identify or report security threats. This makes the organization highly susceptible to phishing, malware, and social engineering attacks. & \textbf{High} \\
+\addlinespace
+\textbf{Absence of Acceptable Use Policy (AUP)} & Without a guiding policy, employees may misuse company assets or engage in risky online behavior, creating security vulnerabilities and potential legal liability. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Prioritized Risk Summary}
+\end{table}
+
+% --- 6. RECOMMENDATIONS ---
+\section*{6. Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{Immediate Actions (To Be Completed within 24-48 Hours)}
+\begin{enumerate}
+    \item \textbf{Isolate and Investigate Port 8080:} Immediately apply a firewall rule to block all access to port 8080 on host \texttt{10.5.5.5} except for authorized IT and security personnel.
+    \item \textbf{Identify the Database:} Conduct an immediate investigation to determine the exact nature of the "TOP SECRET DB" service, the data it contains, its business purpose, and why it was exposed.
+    \item \textbf{Implement Access Controls:} If the service is required, ensure that strong authentication and authorization controls are implemented before it is made accessible again.
+\end{enumerate}
+
+\subsection*{High-Priority Actions (To Be Completed within 30-60 Days)}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an AUP:} Draft and formally adopt an Acceptable Use Policy that clearly defines the rules for using company networks, devices, and data. Require all employees to read and acknowledge the policy.
+    \item \textbf{Deploy Security Awareness Training:} Procure and deploy a security awareness training program. All new hires must complete it as part of their onboarding, and all current employees must complete it annually. The training must cover phishing, password security, and incident reporting.
+\end{enumerate}
+
+\subsection*{Ongoing Recommendations}
+\begin{enumerate}
+    \item \textbf{Update Risk Register:} Formally update the organization's risk register to reflect the critical risk associated with the exposed service and invalidate the previous "false positive" entry.
+    \item \textbf{Regular Vulnerability Scanning:} Implement a program of regular, authenticated vulnerability scanning for the internal network to proactively identify and remediate similar issues in the future.
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,157 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGE IMPORTS ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmark and X symbols
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For proper URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+}
+
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE OVERVIEW
+% ==============================================================================
+\section*{Executive Overview}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Solid State}, based on network scan data, an organizational security questionnaire, and a review of known risks. The analysis reveals several critical and high-risk vulnerabilities that require immediate attention.
+
+The primary findings indicate a significant risk of a data breach stemming from a combination of policy gaps and technical vulnerabilities. Specifically, an externally exposed MySQL database was identified running an outdated, End-of-Life (EOL) version. This technical flaw is severely compounded by a systemic lack of Multi-Factor Authentication (MFA) across all critical systems, including email and sensitive data repositories. Furthermore, the absence of a consistent security awareness training program leaves the organization highly susceptible to social engineering and phishing attacks, which are common vectors for credential theft.
+
+Immediate remediation should focus on restricting access to the exposed database, implementing MFA, and upgrading the unsupported database software. Addressing these correlated risks is paramount to safeguarding the organization's data and infrastructure.
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Solid State
+    \item \textbf{Email Domain:} \texttt{SolidState.net}
+    \item \textbf{External IP Address:} \texttt{100.20.189.155}
+\end{itemize}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A review of internal security controls was conducted via a questionnaire. The responses highlight significant gaps in access control and employee security awareness. A green checkmark (\ding{51}) indicates a positive control, while a red 'X' (\ding{55}) indicates a gap.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Does your organization have an employee acceptable use policy? & \ding{51} \\
+Do you require MFA to access email? & \ding{55} \\
+Do you require MFA to log into computers? & \ding{55} \\
+Do you require MFA to access sensitive data systems? & \ding{55} \\
+Does your organization do security awareness training for new employees? & \ding{55} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed to identify exposed services. The scan targeted the host at \seqsplit{\texttt{172.16.50.20}}.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Scan Findings}
+\begin{tabular}{l l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+\midrule
+3306/tcp & open & mysql & MySQL & 5.7.33 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified that port \textbf{3306}, the default port for MySQL databases, is open to the network. Exposing a database directly to the internet is a significant security risk. More critically, the identified version, \textbf{MySQL 5.7.33}, reached its official End-of-Life (EOL) in October 2023. EOL software no longer receives security updates from the vendor, meaning any newly discovered vulnerabilities will remain unpatched, leaving the system perpetually vulnerable to exploitation.
+
+% ==============================================================================
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security questionnaire, technical scan, and pre-existing risk data to provide a holistic view of the current risk posture.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.55\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Exposed \& Outdated Database} & A MySQL database on version 5.7.33 (End-of-Life) is publicly accessible via port 3306. This exposes the organization to known and future exploits without the possibility of patching. & \textbf{Critical} \\
+\addlinespace
+\textbf{No Multi-Factor Authentication} & MFA is not enforced for email, computer logins, or access to sensitive data. This drastically increases the risk of account compromise and unauthorized access from stolen credentials. & \textbf{Critical} \\
+\addlinespace
+\textbf{Insufficient Security Training} & The lack of initial and recurring security awareness training makes employees more vulnerable to phishing and other social engineering attacks, which are the primary source of credential theft. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+The following prioritized recommendations are provided to mitigate the identified risks.
+
+\subsection*{Immediate Priority (Mitigate within 72 hours)}
+\begin{enumerate}
+    \item \textbf{Restrict Database Access:} Immediately apply firewall rules to block all public access to port 3306 on host \seqsplit{\texttt{172.16.50.20}}. Access should be restricted to only trusted, internal IP addresses. This is the most critical first step to prevent an imminent breach.
+    
+    \item \textbf{Deploy Multi-Factor Authentication (MFA):} Begin the emergency rollout of MFA for all users. Prioritize the following systems in order:
+    \begin{itemize}
+        \item Access to sensitive data systems and databases.
+        \item All email accounts (\texttt{SolidState.net}).
+        \item Remote access systems (VPNs, RDP).
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{High Priority (Mitigate within 30 days)}
+\begin{enumerate}
+    \item \textbf{Upgrade Database Software:} Plan and execute the migration of the MySQL 5.7.33 database to a fully supported version (e.g., MySQL 8.x). This will ensure the system receives critical security patches.
+    
+    \item \textbf{Implement Security Awareness Training:} Enroll all employees in a mandatory security awareness training program. This program should cover phishing, password hygiene, and acceptable use policies. Institute a policy requiring annual refresher training for all staff.
+\end{enumerate}
+
+\subsection*{Medium Priority (Mitigate within 90 days)}
+\begin{enumerate}
+    \item \textbf{Establish Secure Remote Access:} For long-term database management, implement a Virtual Private Network (VPN) solution. Administrators should be required to connect to the VPN before accessing internal resources like the database, following the principle of least privilege.
+\end{enumerate}
+
+\end{document}
+```

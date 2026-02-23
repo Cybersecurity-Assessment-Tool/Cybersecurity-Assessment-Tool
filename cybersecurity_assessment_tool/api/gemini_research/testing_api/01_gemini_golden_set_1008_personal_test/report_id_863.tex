@@ -1,0 +1,157 @@
+```latex
+\documentclass[12pt]{article}
+
+% 1. DOCUMENT SETUP & PACKAGES
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and metadata
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- Document Metadata ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Cell},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Risk, Analysis, Network Scan},
+}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\newcommand{\orgname}{\textbf{Common Ground}}
+\newcommand{\orgdomain}{\texttt{CommonGround.com}}
+\newcommand{\orgip}{\texttt{119.224.90.118}}
+\newcommand{\targetip}{\texttt{127.0.0.1}}
+
+\begin{document}
+
+% 2. TITLE SECTION
+\begin{center}
+    \Large{\textbf{Cybersecurity Posture Assessment Report}} \\
+    \vspace{5mm}
+    \large{\orgname} \\
+    \vspace{2mm}
+    \today
+\end{center}
+
+\vspace{10mm}
+
+% 3. EXECUTIVE SUMMARY
+\section*{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \orgname, based on an analysis of network scan data, organizational security controls, and pre-existing risk information. The assessment reveals a mixed security posture with several critical and high-risk gaps that require immediate attention.
+
+A network scan confirmed a pre-existing critical risk related to an exposed service on \targetip. Furthermore, analysis of the security questionnaire identified significant deficiencies in foundational administrative controls. Key findings include the absence of mandatory Multi-Factor Authentication (MFA) for computer access, the lack of an employee Acceptable Use Policy (AUP), and insufficient annual security awareness training for all staff. These gaps substantially increase the organization's vulnerability to common cyber threats, including unauthorized access, insider threats, and social engineering attacks.
+
+Immediate remediation of the identified policy and technical control gaps is strongly recommended to reduce the attack surface and improve the overall security posture.
+
+% 4. ORGANIZATIONAL INFORMATION
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \orgname
+    \item \textbf{Email Domain:} \seqsplit{\orgdomain}
+    \item \textbf{Website Domain:} \seqsplit{\texttt{www.CommonGround.com}}
+    \item \textbf{External IP Address:} \seqsplit{\orgip}
+\end{itemize}
+
+% 5. SECURITY CONTROL REVIEW (QUESTIONNAIRE)
+\section{Security Control Review}
+An evaluation of the organization's administrative and technical security controls was conducted via a questionnaire. The responses highlight critical areas for improvement. A "No" response indicates a significant gap in security best practices.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{p{0.6\linewidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \yes & Good Practice \\
+\addlinespace
+Do you require MFA to log into computers? & \no & \textbf{Critical Gap} \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \yes & Good Practice \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \no & \textbf{High Risk} \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \yes & Good Practice \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \no & \textbf{High Risk} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% 6. TECHNICAL SCAN RESULTS
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services. The scan data corroborates a pre-existing, known vulnerability.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \targetip
+    \item \textbf{Scan Date:} [Scan Date Not Provided]
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \targetip}
+\begin{tabular}{c c c c}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\
+\midrule
+22 & open & [N/A] & [N/A] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The scan identified port 22 (commonly used for SSH) as open on the target system. While the scan did not provide detailed service or version information, the presence of an open port validates the affected element listed in the current risk register. This finding confirms the "Localhost Exposed" risk and indicates that the system is listening for connections on this port.
+
+% 7. CONSOLIDATED RISK ASSESSMENT
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security questionnaire, the technical scan, and pre-existing risk data into a consolidated list of security risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth} p{0.45\linewidth} c}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Localhost Exposed} & A service on \targetip is exposed, corresponding to a known critical vulnerability (CVSS 10.0). This was confirmed by the network scan finding port 22 open. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Endpoint MFA} & The absence of MFA for computer logins exposes the organization to significant risk from credential theft, brute-force attacks, and unauthorized access. & \textbf{High} \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy (AUP)} & Without a formal AUP, there are no clear guidelines for employees on the acceptable use of company assets, increasing the risk of insider threats and misuse. & \textbf{High} \\
+\addlinespace
+\textbf{Insufficient Annual Security Training} & Failing to provide annual security training for all employees leads to a decline in security awareness, making staff more susceptible to phishing and social engineering. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% 8. RECOMMENDATIONS
+\section{Recommendations}
+Based on the consolidated risk assessment, the following actions are recommended to mitigate the identified vulnerabilities and strengthen the overall security posture of \orgname.
+
+\begin{itemize}
+    \item \textbf{Immediate Priority (Critical Risk):}
+    \begin{itemize}
+        \item \textbf{Address Exposed Service:} Immediately investigate the "Localhost Exposed" risk on \targetip. Determine the business need for the open service on port 22. If it is not essential, disable the service or configure host-based firewall rules to restrict access strictly to authorized systems.
+    \end{itemize}
+    \vspace{5mm}
+    \item \textbf{High Priority (High Risks):}
+    \begin{itemize}
+        \item \textbf{Implement Endpoint MFA:} Procure and deploy a Multi-Factor Authentication solution for all employee computer and laptop logins. This is one of the most effective controls to prevent unauthorized access.
+        \item \textbf{Develop and Enforce an AUP:} Create a comprehensive Acceptable Use Policy that clearly defines rules for all users regarding the use of company networks, systems, and data. Require all employees to read and acknowledge the policy.
+        \item \textbf{Establish Annual Security Training:} Implement a mandatory, annual security awareness training program for all employees. The training should cover current threats such as phishing, ransomware, and proper data handling.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

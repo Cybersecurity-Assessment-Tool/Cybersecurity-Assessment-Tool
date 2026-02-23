@@ -1,0 +1,204 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks and PDF metadata
+\usepackage{url}      % For proper URL formatting
+\usepackage{seqsplit} % For splitting long strings without breaking
+\usepackage{graphicx} % For potential logos
+\usepackage{xcolor}   % For colored text
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Analysis, Report},
+    bookmarks=true,
+    breaklinks=true
+}
+
+% Define colors for severity
+\definecolor{criticalred}{HTML}{D7263D}
+\definecolor{highorange}{HTML}{F49D40}
+\definecolor{mediumyellow}{HTML}{F4D440}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge{\textbf{Cybersecurity Posture Report}}
+    \vspace{1.5cm}
+    \Large{\textbf{For:}} \\
+    \vspace{0.5cm}
+    \huge{\textbf{[Organization Name]}}
+    \vspace{2cm}
+    \rule{\linewidth}{0.5mm}
+    \vspace{0.5cm}
+    \begin{center}
+        \large
+        \begin{tabular}{ll}
+            \textbf{Date of Report:} & \today \\
+            \textbf{Date of Scan:} & Unknown (No metadata provided) \\
+            \textbf{Author:} & Cybersecurity Analyst \\
+        \end{tabular}
+    \end{center}
+    \rule{\linewidth}{0.5mm}
+    \vfill
+    \small{\textit{This report is confidential and intended solely for the use of \textbf{[Organization Name]}.}}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Executive Summary ---
+\section*{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}, based on a synthesis of organizational data, technical network scans, and a review of pre-existing risks.
+
+The assessment identified several areas of concern requiring immediate attention. A critical gap was found in the organization's access control policies: the lack of Multi-Factor Authentication (MFA) for email access. This significantly increases the risk of account compromise and subsequent business email compromise (BEC) attacks.
+
+Furthermore, a technical scan revealed an exposed SSH service (port 22) on an external-facing asset, \texttt{[Target IP]}. This presents a direct vector for brute-force attacks and unauthorized access if not securely configured. These findings are compounded by a pre-existing critical vulnerability, "Localhost Exposed" (CVSS 10.0), which must be prioritized for remediation.
+
+Immediate action is recommended to enforce MFA on all email accounts, secure the exposed SSH service, and address the outstanding critical risk to mitigate potential threats to the organization's data and operations.
+
+% --- Organizational Information ---
+\section*{Organizational Information}
+
+The following details were used as the basis for this assessment. Due to anonymized input data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Security Control Review ---
+\section*{Security Control Review}
+
+A review of the organization's security questionnaire was conducted to evaluate the implementation of fundamental security controls. The results are summarized in Table \ref{tab:controls}. A "No" response indicates a significant gap in the security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\begin{tabular}{p{0.7\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{criticalred}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The most critical finding from this review is the \textbf{lack of Multi-Factor Authentication (MFA) for email access}. Email is a primary target for attackers. A compromised email account can lead to data breaches, financial fraud through Business Email Compromise (BEC), and serve as a pivot point to compromise other systems via password resets. This is considered a high-priority risk.
+
+% --- Technical Scan Results ---
+\section*{Technical Scan Results}
+
+An Nmap scan was performed on the target system to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\label{tab:ports}
+\begin{tabular}{c c l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+\midrule
+22 & open & ssh & Secure Shell (SSH) for remote administration. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified that port 22 (SSH) is open to the public. While SSH is a necessary tool for remote server administration, exposing it directly to the internet without compensating controls creates a significant security risk. Potential threats include:
+\begin{itemize}
+    \item \textbf{Brute-force attacks:} Automated tools can be used to guess usernames and passwords.
+    \item \textbf{Exploitation of vulnerabilities:} If the SSH server software is outdated, it may be vulnerable to known exploits.
+    \item \textbf{Credential stuffing:} Attackers may use credentials stolen from other breaches to attempt to log in.
+\end{itemize}
+The scan data did not include service version information, preventing a detailed vulnerability assessment of the SSH daemon itself. However, the exposure alone constitutes a high-risk finding.
+
+% --- Consolidated Risk Assessment ---
+\section*{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{p{0.1\linewidth} p{0.45\linewidth} p{0.15\linewidth} p{0.15\linewidth}}
+\toprule
+\textbf{ID} & \textbf{Risk Description} & \textbf{Severity} & \textbf{Source} \\
+\midrule
+RISK-001 & \textbf{Pre-existing Critical Vulnerability:} "Localhost Exposed" with a CVSS score of 10.0. & \textcolor{criticalred}{\textbf{Critical}} & Input 3 \\
+\addlinespace
+RISK-002 & \textbf{No MFA on Email:} Lack of MFA on email accounts allows for account takeover via credential theft or phishing. & \textcolor{criticalred}{\textbf{Critical}} & Input 2 \\
+\addlinespace
+RISK-003 & \textbf{Exposed SSH Service:} Port 22 is open on an external asset, inviting brute-force and other unauthorized access attempts. & \textcolor{highorange}{\textbf{High}} & Input 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Recommendations ---
+\section*{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity and potential impact.
+
+\subsection*{Immediate Priority (Remediate within 7 days)}
+
+\begin{description}
+    \item[For RISK-001 (Localhost Exposed):]
+    \begin{itemize}
+        \item \textbf{Action:} Immediately investigate and remediate the "Localhost Exposed" vulnerability. Given its CVSS score of 10.0, this represents a grave and imminent threat. Follow internal incident response procedures to validate, contain, and eradicate this vulnerability.
+    \end{itemize}
+    
+    \item[For RISK-002 (No MFA on Email):]
+    \begin{itemize}
+        \item \textbf{Action:} Enforce mandatory Multi-Factor Authentication (MFA) for all user email accounts immediately.
+        \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access to email, even if user credentials are compromised.
+    \end{itemize}
+\end{description}
+
+\subsection*{High Priority (Remediate within 30 days)}
+
+\begin{description}
+    \item[For RISK-003 (Exposed SSH Service):]
+    \begin{itemize}
+        \item \textbf{Action 1 (Preferred):} If remote access is not required from the public internet, block port 22 at the network firewall. Access should only be permitted via a Virtual Private Network (VPN).
+        \item \textbf{Action 2 (Alternative):} If public access is a business requirement, implement the following hardening measures:
+            \begin{itemize}
+                \item Restrict access to a whitelist of trusted IP addresses.
+                \item Disable password-based authentication and enforce the use of strong SSH keys.
+                \item Implement an intrusion detection/prevention tool like Fail2Ban to block IPs that exhibit malicious behavior (e.g., multiple failed login attempts).
+                \item Ensure the SSH server software is fully patched and updated.
+            \end{itemize}
+    \end{itemize}
+\end{description}
+
+% --- End of Document ---
+\end{document}
+```

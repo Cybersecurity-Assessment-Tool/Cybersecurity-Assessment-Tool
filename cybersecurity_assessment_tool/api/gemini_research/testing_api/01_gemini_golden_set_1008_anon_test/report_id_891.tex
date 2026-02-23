@@ -1,0 +1,196 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For check and x marks (\ding{51}, \ding{55})
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % For splitting long strings without spaces
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{fancyhdr}
+
+% --- Document Metadata ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Cell},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Nmap, Risk, Assessment},
+}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\newcommand{\cellgray}{\cellcolor{gray!20}}
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.3\textwidth]{example-image-a} % Placeholder logo
+    \vfill
+    \huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1cm}
+    \Large
+    \textbf{Prepared for:}\\
+    \vspace{0.5cm}
+    \textbf{[Organization Name]}
+    \vspace{2cm}
+    \large
+    \textbf{Date of Report:}\\
+    \today
+    \vfill
+    \textit{This document contains sensitive and confidential information. Distribution is restricted.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity posture assessment conducted for \textbf{[Organization Name]}. The assessment combined an automated network scan, a review of existing risk documentation, and an analysis of organizational security controls via a questionnaire.
+
+The overall security posture is assessed as \textbf{High-Risk}. Several critical vulnerabilities and policy gaps were identified that require immediate attention.
+
+\textbf{Key Critical Findings:}
+\begin{itemize}
+    \item \textbf{Publicly Exposed Database:} A MySQL database server (port 3306) was found to be directly accessible from the network. This exposes sensitive data to unauthorized access and attack.
+    \item \textbf{End-of-Life Software:} The exposed MySQL server is running version 5.7.33, which reached its official End-of-Life (EOL) in October 2023. This version no longer receives security updates, leaving it vulnerable to known exploits.
+    \item \textbf{Insufficient Access Controls:} Multi-Factor Authentication (MFA) is not enforced for critical access points, including employee email and computer logins. This significantly increases the risk of account compromise and unauthorized access.
+    \item \textbf{Policy Gaps:} The absence of a formal Employee Acceptable Use Policy creates ambiguity and increases the likelihood of insider threats, whether malicious or accidental.
+\end{itemize}
+
+Immediate remediation should focus on isolating the database server from public access and implementing MFA across all critical systems. A detailed breakdown of all findings and actionable recommendations is provided in the subsequent sections of this report.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This section provides the high-level details of the organization under review. The information is based on data provided prior to the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+External IP Address Scanned & \texttt{[Client IP]} \\
+Target IP Address Scanned & \texttt{[Target IP]} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review (Questionnaire Analysis)}
+The following table summarizes the organization's responses to a security controls questionnaire. The assessment column indicates alignment with cybersecurity best practices. Answers marked with a \no{} represent significant gaps in the current security posture.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}p{0.6\linewidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \no & \cellgray \textbf{Critical Gap} \\
+Do you require MFA to log into computers? & \no & \cellgray \textbf{High Risk} \\
+Do you require MFA to access sensitive data systems? & \yes & Best Practice Met \\
+Does your organization have an employee acceptable use policy? & \no & \cellgray \textbf{High Risk} \\
+Does your organization do security awareness training for new employees? & \yes & Best Practice Met \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Best Practice Met \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The lack of MFA for email and computer access, combined with the absence of an Acceptable Use Policy, are foundational weaknesses that undermine the organization's overall security.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Scan data processed on \today
+\end{itemize}
+
+The scan identified the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\begin{tabular}{@{}llllll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} & \textbf{Notes} \\
+\midrule
+3306/tcp & open & mysql & MySQL & 5.7.33 & \cellgray \textbf{End-of-Life (EOL)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} The scan confirms the pre-existing risk of database exposure. The MySQL service on port 3306 is open to the network. More critically, the detected version, \textbf{MySQL 5.7.33}, is no longer supported by its developer as of October 2023. It does not receive security patches for newly discovered vulnerabilities, making it a prime target for attackers.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes findings from the questionnaire, technical scan, and pre-existing risk data into a consolidated list of key risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lp{0.25\linewidth}p{0.1\linewidth}p{0.4\linewidth}@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Title} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+\rowcolor{red!25}
+RISK-001 & Unsupported Database Software & \textbf{Critical} & The MySQL server is running version 5.7.33, which is End-of-Life (EOL) and no longer receives security updates. \\
+\rowcolor{orange!25}
+RISK-002 & Publicly Exposed Database Service & \textbf{High} & The MySQL database port (3306) is open to the network, allowing direct connection attempts from potential attackers. (CVSS: 7.5) \\
+\rowcolor{red!25}
+RISK-003 & Lack of MFA for Email Access & \textbf{Critical} & The absence of MFA on email accounts makes them highly susceptible to phishing and account takeover attacks. \\
+\rowcolor{orange!25}
+RISK-004 & Lack of MFA for Endpoints & \textbf{High} & The absence of MFA on computer logins weakens endpoint security and facilitates lateral movement for an attacker who has compromised user credentials. \\
+\rowcolor{orange!25}
+RISK-005 & Missing Acceptable Use Policy & \textbf{High} & The lack of a formal AUP creates operational and legal risks, as employees are not provided with clear rules for handling company data and systems. \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{Immediate Actions (Priority: Critical)}
+\begin{enumerate}
+    \item \textbf{Isolate the Database Server (RISK-002):} Immediately implement firewall rules to restrict all access to TCP port 3306. Access should be denied from all public IP addresses and only permitted from trusted internal application servers.
+    \item \textbf{Deploy MFA for Email (RISK-003):} Immediately enable and enforce Multi-Factor Authentication for all user email accounts. This is the single most effective control to prevent account takeovers.
+\end{enumerate}
+
+\subsection{Short-Term Actions (Priority: High)}
+\begin{enumerate}
+    \item \textbf{Plan and Execute Database Upgrade (RISK-001):} Develop a plan to migrate the MySQL 5.7.33 database to a fully supported version (e.g., MySQL 8.x). This project should be initiated within the next 30 days.
+    \item \textbf{Deploy MFA for Endpoints (RISK-004):} Roll out MFA for all employee computer and laptop logins to enhance endpoint security.
+    \item \textbf{Develop and Implement an Acceptable Use Policy (RISK-005):} Draft, approve, and disseminate an AUP that clearly defines the rules for using company IT assets. Require all employees to read and acknowledge the policy.
+\end{enumerate}
+
+\subsection{Long-Term Strategic Improvements}
+\begin{enumerate}
+    \item \textbf{Implement Network Segmentation:} As a long-term solution, migrate the database server to a private, segregated network segment. Access should only be possible from a trusted application network or via a secure Virtual Private Network (VPN) for administrative purposes.
+    \item \textbf{Establish a Vulnerability Management Program:} Implement a program for regular, automated vulnerability scanning of all external and internal assets to proactively identify and remediate risks like EOL software and misconfigurations.
+\end{enumerate}
+
+\end{document}
+```

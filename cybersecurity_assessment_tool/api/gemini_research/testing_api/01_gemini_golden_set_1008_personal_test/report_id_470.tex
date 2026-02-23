@@ -1,0 +1,157 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (\ding)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage[hidelinks]{hyperref} % For clickable links without boxes
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long, unbreakable strings
+\usepackage{xcolor} % For color-coding text
+\usepackage{graphicx}
+\usepackage{datetime}
+
+% Define custom colors for severity levels
+\definecolor{criticalred}{HTML}{D10000}
+\definecolor{highorange}{HTML}{E25F00}
+\definecolor{mediumyellow}{HTML}{F0C200}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture Assessment Report} \\
+    \large \textit{A Synthesized Analysis of Technical, Organizational, and Known Risk Data} \\
+    \vspace{1cm}
+    \rule{\textwidth}{0.4pt} \\
+    \textbf{Prepared for: \textbf{Hidden Gem}} \\
+    \rule{\textwidth}{0.4pt}
+    \vspace{1cm}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+\thispagestyle{empty}
+
+\newpage
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{Hidden Gem}, correlating data from technical network scans, an organizational security controls questionnaire, and a list of pre-existing risks. The analysis reveals several areas of significant concern that elevate the organization's risk profile.
+
+A critical vulnerability was identified on an internal system (\texttt{10.0.0.15}). This system is running a dangerously outdated version of \texttt{vsftpd} (2.3.4), which is known to contain a public backdoor vulnerability (CVE-2011-2523). Compounding this, the service is configured to allow anonymous FTP access, posing an immediate and severe threat of unauthorized access and system compromise.
+
+Furthermore, the organizational controls review highlights critical gaps in identity and access management. The lack of Multi-Factor Authentication (MFA) for email and computer logins substantially weakens defenses against credential theft and phishing attacks. The absence of a formal acceptable use policy and a recurring security awareness training program indicates a need for foundational improvements in the organization's security culture.
+
+This report outlines these findings in detail and provides prioritized, actionable recommendations to mitigate the identified risks and strengthen the overall security posture.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{Hidden Gem}
+    \item \textbf{Email Domain:} \texttt{HiddenGem.net}
+    \item \textbf{Website Domain:} \url{www.HiddenGem.net}
+    \item \textbf{External IP Address:} \texttt{172.169.104.89}
+\end{itemize}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+An assessment of organizational security controls was conducted via a questionnaire. The responses are summarized below. Items marked with \textcolor{red}{\ding{55}} represent significant gaps in the security framework and are addressed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Controls Questionnaire}
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An Nmap scan was performed on the specified target to identify open ports and running services. The results indicate a critical vulnerability requiring immediate attention.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.0.0.15}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services on \texttt{10.0.0.15}}
+\begin{tabular}{l l l l p{0.4\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Details \& Analysis} \\
+\midrule
+21/tcp & Open & ftp & vsftpd 2.3.4 & \textbf{CRITICAL:} Anonymous FTP login is allowed. This version is publicly known to be vulnerable to a backdoor (CVE-2011-2523), which allows for remote command execution. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 5: Consolidated Risk Assessment ---
+\section{Consolidated Risk Assessment}
+This section synthesizes findings from the technical scan, the controls review, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.4\linewidth} p{0.4\linewidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Vulnerable FTP Server with Anonymous Access} & An internal server is running vsftpd 2.3.4, which has a known backdoor vulnerability. Anonymous login is enabled, allowing unauthenticated access. & \textcolor{criticalred}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Lack of Multi-Factor Authentication (MFA)} & MFA is not enforced for email or computer logins, leaving the organization highly susceptible to phishing, credential stuffing, and unauthorized access. & \textcolor{criticalred}{\textbf{Critical}} \\
+\addlinespace
+\textbf{Absence of Security Policy and Training} & The lack of an acceptable use policy and security awareness training program leads to inconsistent security practices and a higher likelihood of human error. & \textcolor{highorange}{\textbf{High}} \\
+\addlinespace
+\textbf{Outdated Windows Policy} & (Pre-existing risk) Workstations are running on the unsupported Windows 7 operating system, which no longer receives security updates. & \textcolor{mediumyellow}{\textbf{Medium}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Hidden Gem}.
+
+\subsection{Risk: Vulnerable FTP Server (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Immediately disable or firewall the FTP service (port 21) on the server at \texttt{10.0.0.15} to prevent exploitation.
+    \item \textbf{Short-Term Fix:} If the FTP service is a business requirement, upgrade the \texttt{vsftpd} software to the latest stable version and explicitly disable anonymous login in its configuration file.
+    \item \textbf{Long-Term Strategy:} Migrate all file transfer workflows to a secure, encrypted protocol such as SFTP (SSH File Transfer Protocol) or FTPS (FTP over SSL/TLS).
+\end{itemize}
+
+\subsection{Risk: Lack of Multi-Factor Authentication (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Begin planning the rollout of an MFA solution for all employees.
+    \item \textbf{Short-Term Fix:} Enforce MFA for all administrative accounts and for access to the email system (\texttt{HiddenGem.net}). This is the most effective defense against business email compromise.
+    \item \textbf{Long-Term Strategy:} Expand MFA enforcement to all systems, including individual computer logins and internal applications.
+\end{itemize}
+
+\subsection{Risk: Absence of Security Policy and Training (High)}
+\begin{itemize}
+    \item \textbf{Short-Term Fix:} Develop and ratify a formal Acceptable Use Policy (AUP) that governs the use of company assets. Require all employees to read and acknowledge the policy.
+    \item \textbf{Long-Term Strategy:} Implement a recurring security awareness training program. This should include initial training for new hires and at least one annual refresher course for all staff covering topics like phishing, password hygiene, and social engineering.
+\end{itemize}
+
+\subsection{Risk: Outdated Windows Policy (Medium)}
+\begin{itemize}
+    \item \textbf{Ongoing Action:} Continue with the existing plan to upgrade all Windows 7 workstations to a modern, supported operating system (e.g., Windows 10 or 11) to ensure they receive critical security patches.
+\end{itemize}
+
+% --- Document End ---
+\end{document}
+```

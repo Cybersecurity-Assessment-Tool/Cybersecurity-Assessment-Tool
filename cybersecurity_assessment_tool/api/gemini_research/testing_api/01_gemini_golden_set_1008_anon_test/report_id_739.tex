@@ -1,0 +1,178 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment},
+}
+
+% Custom Commands
+\newcommand{\yes}{\ding{51}} % Green checkmark
+\newcommand{\no}{\ding{55}}  % Red cross
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Assessment Report}
+    \vspace{1.5cm}
+    \
+    \large
+    \textbf{Prepared For:} \textbf{[Organization Name]} \\
+    \vspace{0.5cm}
+    \textbf{Date of Report:} \today
+    \vfill
+    \large
+    \textit{This report contains sensitive information and should be handled with care. Distribution is restricted to authorized personnel only.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Executive Summary ---
+\section*{1.0 Executive Summary}
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The assessment combined an analysis of organizational security controls, a technical network scan, and a review of known risks.
+
+The overall security posture is considered critically weak due to significant gaps in fundamental security controls. The most severe findings include a complete lack of Multi-Factor Authentication (MFA) for email, computer logins, and sensitive data systems. This deficiency, combined with an externally exposed Secure Shell (SSH) service, creates a high-risk environment susceptible to credential theft and unauthorized access.
+
+Furthermore, a gap was identified in the security awareness training program, where new employees do not receive initial training upon being hired. This oversight leaves the organization vulnerable to social engineering and phishing attacks, especially during an employee's initial, most vulnerable period.
+
+Immediate and decisive action is required to remediate these critical risks. Key recommendations include the mandatory implementation of MFA across all critical systems, securing the exposed SSH service, and integrating security training into the new employee onboarding process.
+
+% --- Organizational Information ---
+\section*{2.0 Organizational Information}
+The following information was used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \textbf{[Organization Name]}
+    \item \textbf{Primary Domain:} \texttt{[Domain]}
+    \item \textbf{External IP Address Scanned:} \texttt{[Client IP]}
+\end{itemize}
+
+% --- Security Control Review ---
+\section*{3.0 Security Control Review}
+An assessment of administrative and organizational security controls was conducted via a questionnaire. The responses reveal critical deficiencies in identity and access management and employee training protocols.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Questionnaire Results}
+\begin{tabular}{p{0.6\linewidth} c p{0.2\linewidth}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to log into computers? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to access sensitive data systems? & \no & \textcolor{red}{\textbf{Critical Gap}} \\
+Does your organization have an employee acceptable use policy? & \yes & Met \\
+Does your organization do security awareness training for new employees? & \no & \textcolor{orange}{\textbf{High Risk}} \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Met \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{3.1 Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{Lack of Multi-Factor Authentication (MFA):} The absence of MFA for email, computer, and sensitive system access is the most critical vulnerability identified. A single compromised password could grant an attacker widespread access to the organization's digital assets.
+    \item \textbf{New Employee Training Gap:} While annual training is in place, the lack of security training during onboarding means new hires are not immediately equipped to recognize and respond to threats like phishing, significantly increasing risk.
+\end{itemize}
+
+% --- Technical Scan Results ---
+\section*{4.0 Technical Scan Results}
+A network scan was performed on the organization's external infrastructure. The scan was minimal and did not provide detailed service version information, but it did identify an open port that presents a potential attack vector.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Not provided in scan data.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\begin{tabular}{l l l p{0.5\linewidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/tcp & open & ssh & The Secure Shell (SSH) service is exposed to the internet. This allows for remote administration but is a primary target for brute-force and credential stuffing attacks. Version information was not available from the scan. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Risk Assessment ---
+\section*{5.0 Risk Assessment}
+This section synthesizes the findings from the control review, technical scan, and pre-existing risk data. As no pre-existing vulnerabilities were reported, all risks listed below are new findings from this assessment. The correlation between the lack of MFA and the exposed SSH service is particularly alarming.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.15\linewidth} p{0.55\linewidth} l}
+\toprule
+\textbf{Risk ID} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & \textbf{No MFA on Critical Systems:} Lack of MFA on email and other key systems allows for account takeover with a single compromised password. & \textcolor{red}{\textbf{Critical}} \\
+\addlinespace
+RISK-002 & \textbf{Inadequate Security Onboarding:} New employees are not trained on security policies and threat awareness, making them highly susceptible to social engineering. & \textcolor{orange}{\textbf{High}} \\
+\addlinespace
+RISK-003 & \textbf{Exposed SSH Service without MFA:} The externally accessible SSH port, unprotected by MFA, is vulnerable to brute-force attacks, which could lead to a full server compromise. & \textcolor{orange}{\textbf{High}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Recommendations ---
+\section*{6.0 Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{[Organization Name]}. Recommendations are prioritized based on risk severity.
+
+\subsection*{6.1 Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Implement Multi-Factor Authentication (RISK-001):} Immediately enable and enforce MFA for all users on all critical systems, including:
+    \begin{itemize}
+        \item Email (e.g., Office 365, Google Workspace).
+        \item VPN and other remote access solutions.
+        \item Access to all systems containing sensitive data.
+        \item Administrative access to servers and network devices (including SSH).
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{6.2 High Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Secure the Exposed SSH Service (RISK-003):}
+    \begin{itemize}
+        \item If remote access via SSH is required, restrict access to a whitelist of trusted IP addresses.
+        \item Disable password-based authentication and enforce the use of public key cryptography.
+        \item If SSH is not required for external access, block port 22 at the network firewall.
+    \end{itemize}
+    \item \textbf{Integrate Security Training into Onboarding (RISK-002):}
+    \begin{itemize}
+        \item Develop or procure a security awareness training module specifically for new employees.
+        \item Make this training a mandatory part of the onboarding process, to be completed within the first week of employment.
+        \item The training should cover acceptable use, phishing identification, password hygiene, and incident reporting.
+    \end{itemize}
+\end{enumerate}
+
+% --- Conclusion ---
+\section*{7.0 Conclusion}
+The assessment for \textbf{[Organization Name]} has revealed critical deficiencies in fundamental cybersecurity controls. The lack of Multi-Factor Authentication is the most severe issue and poses an immediate and substantial threat to the organization. When combined with other weaknesses, such as an exposed administrative service and gaps in employee training, the risk of a significant security breach is high.
+
+We strongly urge management to allocate the necessary resources to implement the recommendations outlined in this report, starting with the immediate deployment of MFA. A proactive approach to remediation will significantly strengthen the organization's defenses against common cyber threats.
+
+\end{document}
+```

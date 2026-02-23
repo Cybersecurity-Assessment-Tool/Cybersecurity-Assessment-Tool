@@ -1,0 +1,186 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont}                 % For checkmarks and crosses
+\usepackage{booktabs}               % For professional tables
+\usepackage{hyperref}               % For clickable links
+\usepackage{url}                    % For URL formatting
+\usepackage{seqsplit}               % To split long strings in texttt
+\usepackage{xcolor}                 % For custom colors
+\usepackage{graphicx}               % For logos, etc.
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- COMMAND DEFINITIONS ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\newcommand{\orgName}{\textbf{[Organization Name]}}
+\newcommand{\orgDomain}{\texttt{[Domain]}}
+\newcommand{\clientIP}{\texttt{[Client IP]}}
+\newcommand{\targetIP}{\texttt{[Target IP]}}
+
+% --- TITLE ---
+\title{Cybersecurity Posture Report \\ \large For \orgName}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+
+% ====================================================================
+% 1. EXECUTIVE SUMMARY
+% ====================================================================
+\section*{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \orgName, based on a combination of organizational policy review, technical network scanning, and an assessment of known risks. The evaluation was conducted on \today.
+
+The analysis identified several critical and high-risk security gaps that require immediate attention. The most significant findings include:
+\begin{itemize}
+    \item \textbf{Lack of Multi-Factor Authentication (MFA):} MFA is not enforced for accessing email or other sensitive data systems. This represents a critical vulnerability, as compromised credentials could lead directly to a significant data breach.
+    \item \textbf{Exposed Management Service:} The technical scan revealed that a Secure Shell (SSH) service on port 22 is publicly accessible. Without proper controls, this exposes a key administrative interface to brute-force attacks and exploitation.
+    \item \textbf{Policy Gaps:} The organization currently lacks a formal Acceptable Use Policy (AUP) for employees, creating ambiguity regarding security responsibilities and acceptable behavior.
+\end{itemize}
+
+While the organization has implemented positive controls, such as MFA for computer logins and regular security awareness training, the identified gaps substantially increase the risk of unauthorized access and business disruption. This report details these findings and provides actionable recommendations to mitigate the identified risks.
+
+% ====================================================================
+% 2. ORGANIZATIONAL INFORMATION
+% ====================================================================
+\section{Organizational Information}
+
+The following details were used as the basis for this assessment. Due to the anonymized nature of the input data, placeholders have been used where necessary.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \orgName
+    \item \textbf{Primary Email Domain:} \orgDomain
+    \item \textbf{External IP Address Scanned:} \clientIP
+\end{itemize}
+
+% ====================================================================
+% 3. SECURITY CONTROL REVIEW
+% ====================================================================
+\section{Security Control Review}
+
+A review of organizational security controls was conducted based on a standardized questionnaire. The responses indicate key areas of strength and weakness in the current security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Questionnaire Results}
+\begin{tabular}{p{0.6\textwidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \no & \textcolor{red}{Critical Gap} \\
+Do you require MFA to log into computers? & \yes & Best Practice Met \\
+Do you require MFA to access sensitive data systems? & \no & \textcolor{red}{Critical Gap} \\
+Does your organization have an employee acceptable use policy? & \no & \textcolor{orange}{High Risk} \\
+Does your organization do security awareness training for new employees? & \yes & Best Practice Met \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Best Practice Met \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The lack of MFA on email and sensitive data systems are the most critical findings from this review. Email is a primary target for phishing attacks, and a compromised account can serve as a launchpad for further infiltration. Similarly, sensitive data systems without MFA are highly vulnerable to credential theft. The absence of an Acceptable Use Policy can lead to inconsistent security practices and a lack of legal recourse in the event of insider misuse.
+
+% ====================================================================
+% 4. TECHNICAL SCAN RESULTS
+% ====================================================================
+\section{Technical Scan Results}
+
+A network scan was performed to identify publicly accessible services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \targetIP
+    \item \textbf{Scan Date:} Scan performed prior to \today
+\end{itemize}
+
+The scan identified the following open port(s):
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \targetIP}
+\begin{tabular}{l l l p{0.5\textwidth}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/tcp & OPEN & ssh (presumed) & The Secure Shell service is exposed to the public internet. This is a common vector for brute-force and credential-stuffing attacks. Access should be strictly controlled. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The open SSH port is a significant finding. While SSH is a secure protocol, its exposure increases the attack surface of the organization. If secured with weak passwords, or if it is unpatched, it could be exploited by an attacker to gain a foothold within the network. This risk is compounded by the lack of MFA on sensitive internal systems, as a successful SSH compromise could lead to lateral movement with minimal resistance.
+
+% ====================================================================
+% 5. CONSOLIDATED RISK ASSESSMENT
+% ====================================================================
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security control review and technical scan. The pre-existing risk register was empty, so all identified risks are new findings.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\textwidth} p{0.5\textwidth} l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Credential Compromise via Lack of MFA} & Email and sensitive data systems lack MFA, making them highly susceptible to takeover if user credentials are stolen or guessed. & \textcolor{red}{\textbf{Critical}} \\
+\textbf{Exposed Administrative Service} & The SSH service on \targetIP is publicly accessible, creating a target for automated brute-force attacks and potential exploitation. & \textcolor{orange}{\textbf{High}} \\
+\textbf{Lack of Formal Security Policy} & The absence of an Acceptable Use Policy creates ambiguity for employees and increases the risk of insider threat and non-compliance. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ====================================================================
+% 6. RECOMMENDATIONS
+% ====================================================================
+\section{Recommendations}
+
+Based on the analysis, the following actions are recommended to mitigate the identified risks and improve the overall security posture of \orgName.
+
+\subsection*{Immediate Priority (Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Implement MFA on All Critical Systems:} Immediately deploy and enforce MFA for all user accounts accessing email (e.g., Office 365, Google Workspace) and any systems identified as storing or processing sensitive data. This is the single most effective control to prevent account takeovers.
+\end{enumerate}
+
+\subsection*{High Priority}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Secure the Exposed SSH Service:}
+        \begin{itemize}
+            \item If the SSH service on \targetIP is not required for public access, it should be firewalled off from the internet immediately.
+            \item If public access is required, restrict access to a whitelist of trusted IP addresses.
+            \item Enforce strong, key-based authentication and disable password-based logins for SSH.
+        \end{itemize}
+\end{enumerate}
+
+\subsection*{Medium Priority}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Draft a formal AUP that clearly defines the rules for using company assets, handling data, and internet usage. Require all employees to read and acknowledge the policy as part of their employment terms.
+\end{enumerate}
+
+\subsection*{Ongoing Improvements}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{Continue Security Awareness Training:} Maintain the existing program for security awareness training for new and existing employees. Consider incorporating modules that specifically address the new AUP and the importance of MFA.
+\end{enumerate}
+
+\end{document}
+```

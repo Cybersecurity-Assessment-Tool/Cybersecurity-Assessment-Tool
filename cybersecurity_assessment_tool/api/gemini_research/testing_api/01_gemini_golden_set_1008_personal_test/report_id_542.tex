@@ -1,0 +1,181 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+% --- Document Metadata ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Cybersecurity Report: Nova Terra}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Nova Terra}. The assessment combines a review of organizational security controls, an external network scan, and an evaluation of pre-existing risks.
+
+The overall security posture is considered \textbf{weak} and requires immediate attention. Several critical-risk findings were identified that expose the organization to significant threats, including potential data breaches and unauthorized system access.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical FTP Vulnerability:} An internal host (\texttt{10.0.0.15}) is running a dangerously outdated version of vsftpd (2.3.4), which is known to have a critical backdoor vulnerability. Furthermore, it is configured to allow anonymous logins, posing an immediate and severe risk.
+    \item \textbf{Insufficient Access Controls:} Multi-Factor Authentication (MFA) is not enforced for logging into computers or accessing sensitive data systems. This represents a major gap in identity and access management.
+    \item \textbf{Foundational Policy Gaps:} The organization lacks a formal Acceptable Use Policy and does not provide security awareness training to new employees during onboarding. These gaps increase the risk of insider threats and human error.
+    \item \textbf{End-of-Life Systems:} The continued use of Windows 7 workstations, a known pre-existing risk, leaves the organization vulnerable to exploits for which no security patches are available.
+\end{itemize}
+
+Immediate remediation of the identified technical vulnerabilities and policy gaps is strongly recommended to mitigate these risks and improve the organization's defensive capabilities.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{Nova Terra} \\
+Email Domain & \texttt{NovaTerra.com} \\
+Website Domain & \url{www.NovaTerra.com} \\
+External IP Address & \texttt{161.150.27.240} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of organizational security controls was conducted via a questionnaire. The responses highlight significant gaps in foundational security practices. A red \ding{55} indicates a negative response that elevates organizational risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security training for all employees annually? & \ding{51} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network scan was performed to identify open ports and exposed services on the specified target system.
+
+\subsection{Target: \texttt{10.0.0.15}}
+The scan revealed one host to be active and exposed a critical service vulnerability.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Finding} \\ \midrule
+21/tcp & Open & FTP & vsftpd 2.3.4 & Anonymous FTP login allowed. \\ \bottomrule
+\end{tabular}
+\caption{Open Ports and Services on \texttt{10.0.0.15}}
+\end{table}
+
+\paragraph{Analysis:} The FTP service is running \textbf{vsftpd version 2.3.4}. This specific version was compromised in 2011, and a malicious backdoor was inserted into the source code. If this version is in use, it is trivial for an attacker to gain a command shell on the system. The allowance of anonymous FTP logins further lowers the barrier to exploitation and potential data exfiltration. This finding is classified as \textbf{Critical}.
+
+% --- Section 5: Risk Assessment Summary ---
+\section{Risk Assessment Summary}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of identified risks.
+
+\begin{table}[h!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Source} & \textbf{Severity} \\ \midrule
+Vulnerable FTP Server & Host is running a backdoored version of vsftpd (2.3.4) & Network Scan & \textbf{Critical} \\
+& with anonymous login enabled. & & \\
+\addlinespace
+Lack of Endpoint MFA & No MFA is required for computer logins, allowing for & Questionnaire & High \\
+& easier account compromise. & & \\
+\addlinespace
+Lack of Data Access MFA & Sensitive data systems are not protected by MFA, & Questionnaire & High \\
+& increasing the risk of a data breach. & & \\
+\addlinespace
+Missing Acceptable Use & No formal policy exists to govern the use of company & Questionnaire & High \\
+Policy & assets, leading to potential misuse. & & \\
+\addlinespace
+No Onboarding Training & New employees are not trained on security best & Questionnaire & High \\
+& practices, creating immediate insider risk. & & \\
+\addlinespace
+End-of-Life OS & Workstations are running Windows 7, which is no longer & Existing Risks & Medium \\
+& supported with security patches. & & \\ \bottomrule
+\end{tabular}%
+}
+\caption{Consolidated Risk Register}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+Based on the analysis, the following actions are recommended to mitigate the identified risks and strengthen the security posture of \textbf{Nova Terra}.
+
+\subsection{Immediate Actions (Critical Priority)}
+\begin{enumerate}
+    \item \textbf{Remediate Vulnerable FTP Server:} Immediately take the FTP server on \texttt{10.0.0.15} offline. If the service is business-critical, it must be upgraded to a modern, patched version, and anonymous access must be disabled. A more secure file transfer protocol like SFTP should be considered as a replacement.
+\end{enumerate}
+
+\subsection{High Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):} Deploy a robust MFA solution across the organization. Prioritize its enforcement for:
+    \begin{itemize}
+        \item All workstation and server logins (local and remote).
+        \item Access to all systems storing or processing sensitive data.
+    \end{itemize}
+    \item \textbf{Develop and Implement Core Security Policies:}
+    \begin{itemize}
+        \item Create a formal \textbf{Acceptable Use Policy (AUP)} that all employees must read and acknowledge.
+        \item Institute a mandatory \textbf{Security Awareness Training} module as part of the new employee onboarding process.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Medium Priority Actions}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{Upgrade End-of-Life Systems:} Execute the plan to upgrade all Windows 7 workstations to a currently supported operating system (e.g., Windows 10/11) to ensure they receive critical security patches.
+\end{enumerate}
+
+\end{document}
+```

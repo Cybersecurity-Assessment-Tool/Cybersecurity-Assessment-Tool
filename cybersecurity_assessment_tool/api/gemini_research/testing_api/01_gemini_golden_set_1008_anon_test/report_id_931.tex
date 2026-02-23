@@ -1,0 +1,195 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% --- Document Metadata ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyhead[L]{Security Assessment Report}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Custom Commands ---
+\newcommand{\yes}{\ding{51}} % Checkmark
+\newcommand{\no}{\ding{55}}  % X-mark
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{Executive Summary}
+% ==============================================================================
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{[Organization Name]}. The assessment is based on a correlation of data from a network vulnerability scan, a security controls questionnaire, and a review of pre-existing risks.
+
+The overall security posture is determined to be critically weak. The assessment identified significant and fundamental gaps in security controls. Key findings include a complete absence of Multi-Factor Authentication (MFA) across all critical services, a lack of any employee security awareness training, and the absence of a formal Acceptable Use Policy. These policy and procedural failings create a high-risk environment susceptible to credential theft, phishing, and insider threats.
+
+Furthermore, technical analysis revealed an exposed SSH management port on an external-facing system, \texttt{[Target IP]}. When combined with the lack of MFA, this presents a direct and severe risk of unauthorized server access.
+
+Immediate and decisive action is required to address these critical vulnerabilities. Recommendations focus on implementing foundational security controls to mitigate the most severe risks and establish a baseline for a defensible security posture.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+
+The following information was used as the basis for this assessment. Due to the anonymized nature of the provided data, placeholders have been used where necessary.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \seqsplit{\texttt{[Domain]}} \\
+External IP Address (Source) & \seqsplit{\texttt{[Client IP]}} \\
+Target IP Address (Scanned) & \seqsplit{\texttt{[Target IP]}} \\
+Assessment Date & \today \\ \bottomrule
+\end{tabular}
+\caption{Organizational and Assessment Details.}
+\label{tab:org_info}
+\end{table}
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+
+A security questionnaire was completed to evaluate the implementation of essential administrative and technical controls. The results, detailed in Table \ref{tab:controls}, indicate a complete absence of the reviewed security measures. Each "No" response represents a critical gap in the organization's defense-in-depth strategy.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Implemented?} \\ \midrule
+Do you require MFA to access email? & \no \\
+Do you require MFA to log into computers? & \no \\
+Do you require MFA to access sensitive data systems? & \no \\
+Does your organization have an employee acceptable use policy? & \no \\
+Does your organization do security awareness training for new employees? & \no \\
+Does your organization do security awareness training annually? & \no \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results.}
+\label{tab:controls}
+\end{table}
+
+\subsection{Analysis of Control Gaps}
+The lack of MFA for email and sensitive data access is a critical failure, as it means a single compromised password can lead to a significant data breach. The absence of security awareness training leaves employees highly susceptible to phishing and social engineering attacks, which are the primary vectors for initial compromise. Finally, without an Acceptable Use Policy, there are no established rules for employee behavior regarding company assets, increasing the risk of misuse and accidental data exposure.
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+
+An external network scan was performed against the target IP address \texttt{[Target IP]}. The scan identified the following open ports and services.
+
+\subsection{Nmap Scan Findings}
+The scan revealed one open port, which is commonly used for remote system administration.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port/Proto} & \textbf{State} & \textbf{Service (Assumed)} & \textbf{Notes} \\ \midrule
+22/tcp & open & ssh & Secure Shell remote access \\ \bottomrule
+\end{tabular}
+\caption{Open Ports on Target: \texttt{[Target IP]}.}
+\label{tab:nmap_results}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The presence of an open SSH port (22/tcp) on an internet-facing system is a significant finding. While necessary for remote administration, it is a primary target for attackers. Without proper hardening, this service is vulnerable to:
+\begin{itemize}
+    \item \textbf{Brute-force attacks:} Automated attempts to guess user credentials.
+    \item \textbf{Credential stuffing:} Using passwords stolen from other breaches.
+    \item \textbf{Exploitation of vulnerable versions:} If the SSH server software is outdated.
+\end{itemize}
+This risk is severely amplified by the lack of MFA, as reported in the security control review. A compromised password could grant an attacker direct shell access to the server.
+
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+% ==============================================================================
+
+The following table synthesizes the findings from the security control review and the technical scan. No pre-existing risks were documented; therefore, all identified risks are new findings from this assessment.
+
+\begin{table}[h!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Severity} & \textbf{Description} \\ \midrule
+RISK-001 & Absence of Multi-Factor Authentication & \textbf{\textcolor{red}{Critical}} & No MFA on email, computers, or sensitive systems. \\
+& & & A single compromised password can lead to full account takeover. \\
+\addlinespace
+RISK-002 & Lack of Security Awareness Program & \textbf{\textcolor{red}{Critical}} & No training for employees makes the organization highly \\
+& & & vulnerable to phishing and social engineering attacks. \\
+\addlinespace
+RISK-003 & Exposed SSH Management Port & \textbf{\textcolor{orange}{High}} & Port 22 is open to the internet, increasing the risk of brute-force \\
+& & & attacks. This risk is amplified by the lack of MFA. \\
+\addlinespace
+RISK-004 & Missing Acceptable Use Policy & \textbf{\textcolor{orange}{High}} & Absence of a formal policy creates ambiguity regarding the secure \\
+& & & use of company assets and acceptable employee behavior. \\ \bottomrule
+\end{tabular}%
+}
+\caption{Summary of Identified Risks.}
+\label{tab:risk_summary}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+% ==============================================================================
+
+To address the identified risks, the following prioritized actions are recommended. These steps are designed to provide the greatest risk reduction and establish a foundation for a mature security program.
+
+\begin{table}[h!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Associated Risk} & \textbf{Recommendation} & \textbf{Priority} \\ \midrule
+RISK-001 & \begin{tabular}[t]{@{}l@{}}\textbf{Implement MFA:} Enforce MFA across all critical systems, including \\ email (O365/Google Workspace), VPN, and access to sensitive data.\end{tabular} & \textbf{Critical} \\
+\addlinespace
+RISK-002 & \begin{tabular}[t]{@{}l@{}}\textbf{Establish Security Training:} Procure and deploy a security awareness \\ training solution. Ensure all employees complete initial and annual training.\end{tabular} & \textbf{Critical} \\
+\addlinespace
+RISK-003 & \begin{tabular}[t]{@{}l@{}}\textbf{Harden SSH Access:} Restrict SSH access to known, trusted IP \\ addresses via a firewall. Disable password-based authentication in favor \\ of public key authentication. Implement an intrusion detection tool like Fail2ban.\end{tabular} & \textbf{High} \\
+\addlinespace
+RISK-004 & \begin{tabular}[t]{@{}l@{}}\textbf{Develop Acceptable Use Policy (AUP):} Create a formal AUP that \\ defines rules for technology use. Communicate the policy to all employees \\ and require acknowledgment of receipt.\end{tabular} & \textbf{High} \\ \bottomrule
+\end{tabular}%
+}
+\caption{Prioritized Remediation Actions.}
+\label{tab:recommendations}
+\end{table}
+
+\end{document}
+```

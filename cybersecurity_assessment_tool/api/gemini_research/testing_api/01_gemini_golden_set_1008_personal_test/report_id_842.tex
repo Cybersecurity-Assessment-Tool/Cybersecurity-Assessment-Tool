@@ -1,0 +1,195 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Custom Commands
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\newcommand{\severitycritical}[1]{\textcolor{red}{\textbf{#1}}}
+\newcommand{\severityhigh}[1]{\textcolor{orange}{\textbf{#1}}}
+\newcommand{\severitymedium}[1]{\textcolor{yellow!80!black}{\textbf{#1}}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report provides a comprehensive cybersecurity assessment for Apex Legends Group. The analysis is based on a synthesis of network scan data, a review of organizational security controls, and a list of pre-existing risks. The assessment reveals several critical vulnerabilities and policy gaps that expose the organization to significant cyber threats. Immediate remediation is strongly advised to mitigate these risks.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+% SECTION 1: OVERVIEW
+% ===================================================================
+\section{Executive Summary}
+
+This assessment was conducted to evaluate the current security posture of Apex Legends Group. The evaluation combined technical scanning, a security questionnaire, and a review of known issues.
+
+The key findings indicate a \textbf{critically weak security posture}. A public-facing FTP server was discovered running a version with a known, severe backdoor vulnerability (CVE-2011-2523) and is misconfigured to allow anonymous access. Furthermore, the complete absence of Multi-Factor Authentication (MFA), security policies, and employee training programs represents a fundamental failure in foundational security controls. These issues, combined with existing risks like outdated operating systems, create a high-likelihood scenario for a security breach, data loss, or ransomware attack.
+
+Immediate and decisive action is required to address the identified critical risks.
+
+% ===================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Apex Legends Group \\
+Email Domain & \texttt{ApexLegendsGroup.com} \\
+Website Domain & \url{www.ApexLegendsGroup.com} \\
+External IP Address & \texttt{14.234.48.230} \\
+\bottomrule
+\end{tabular}
+
+% ===================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ===================================================================
+\section{Security Control Review}
+
+A review of organizational security controls was performed based on a standardized questionnaire. The results highlight significant gaps in administrative and access control policies. A "No" answer indicates a missing control and a potential area of high risk.
+
+\begin{table}[h!]
+\centering
+\caption{Organizational Security Control Questionnaire}
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \no \\
+Do you require MFA to log into computers? & \no \\
+Do you require MFA to access sensitive data systems? & \no \\
+Does your organization have an employee acceptable use policy? & \no \\
+Does your organization do security awareness training for new employees? & \no \\
+Does your organization do security awareness training for all employees at least once per year? & \no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+An external network scan was conducted to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.0.0.15}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+The following open ports and services were identified:
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} & \textbf{Notes} \\
+\midrule
+21/tcp & open & ftp & vsftpd & 2.3.4 & \begin{tabular}[t]{@{}l@{}}\textbf{CRITICAL FINDING:}\\ - Anonymous FTP login allowed.\\ - Version is vulnerable to a \\ \ \ backdoor (CVE-2011-2523).\end{tabular} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The scan identified a single but extremely critical vulnerability. The FTP server is running \textbf{vsftpd version 2.3.4}, which contains a well-known backdoor vulnerability (\href{https://nvd.nist.gov/vuln/detail/CVE-2011-2523}{CVE-2011-2523}). This flaw allows a remote attacker to execute arbitrary commands on the server with root privileges.
+
+Compounding this issue, the service is configured to allow \textbf{anonymous FTP login}. This misconfiguration permits unauthenticated users to access the server, which can be used to exfiltrate data or upload malicious files, potentially serving as a foothold for a wider network compromise.
+
+% ===================================================================
+% SECTION 5: RISK ASSESSMENT SUMMARY
+% ===================================================================
+\section{Risk Assessment Summary}
+
+The following table summarizes and prioritizes the identified risks by correlating findings from all data sources.
+
+\begin{table}[h!]
+\centering
+\caption{Consolidated Risk Register}
+\begin{tabular}{@{}p{0.45\linewidth}p{0.2\linewidth}p{0.25\linewidth}@{}}
+\toprule
+\textbf{Risk Description} & \textbf{Severity} & \textbf{Source of Finding} \\
+\midrule
+A public-facing FTP server is running a version (vsftpd 2.3.4) with a known remote code execution backdoor. & \severitycritical{Critical} & Technical Scan \\
+\addlinespace
+The FTP server is configured to allow anonymous, unauthenticated access. & \severitycritical{Critical} & Technical Scan \\
+\addlinespace
+Multi-Factor Authentication (MFA) is not enforced for email, computers, or sensitive data systems. & \severitycritical{Critical} & Questionnaire \\
+\addlinespace
+The organization lacks a formal Acceptable Use Policy and a security awareness training program for employees. & \severityhigh{High} & Questionnaire \\
+\addlinespace
+Workstations are running an outdated and unsupported operating system (Windows 7). & \severitymedium{Medium} & Pre-existing Risk \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+% SECTION 6: RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity.
+
+\subsection{Immediate Actions (To Be Completed Within 72 Hours)}
+\begin{enumerate}
+    \item \textbf{Disable or Isolate Vulnerable FTP Server:} Immediately take the server at \texttt{10.0.0.15} offline. If the service is business-critical, restrict access to only trusted IP addresses via firewall rules while a permanent solution is implemented.
+    \item \textbf{Patch or Replace FTP Service:} The vsftpd 2.3.4 software must be upgraded to a patched version or replaced entirely. It is strongly recommended to migrate from FTP to a secure file transfer protocol like SFTP (SSH File Transfer Protocol).
+    \item \textbf{Disable Anonymous FTP Access:} Regardless of the software used, anonymous access must be disabled immediately. All access should require authentication.
+\end{enumerate}
+
+\subsection{High-Priority Actions (To Be Completed Within 30 Days)}
+\begin{enumerate}
+    \item \textbf{Implement Multi-Factor Authentication (MFA):}
+        \begin{itemize}
+            \item \textbf{Priority 1:} Enable MFA for all email accounts (e.g., Office 365, Google Workspace).
+            \item \textbf{Priority 2:} Enable MFA for access to all systems containing sensitive data.
+            \item \textbf{Priority 3:} Plan and execute a rollout of MFA for all computer logins.
+        \end{itemize}
+    \item \textbf{Develop and Implement Security Policies:}
+        \begin{itemize}
+            \item Draft and enforce an \textbf{Acceptable Use Policy (AUP)} that all employees must read and sign.
+            \item Develop a \textbf{Password Policy} that mandates strong, unique passwords.
+        \end{itemize}
+    \item \textbf{Initiate Security Awareness Training:} Enroll all employees in a foundational security awareness training program. This should be mandatory for new hires and conducted annually for all staff.
+\end{enumerate}
+
+\subsection{Ongoing Actions}
+\begin{enumerate}
+    \item \textbf{Upgrade Outdated Operating Systems:} Continue with the project to upgrade all Windows 7 workstations to a modern, supported operating system like Windows 10 or 11 to ensure security patches are received.
+    \item \textbf{Establish a Vulnerability Management Program:} Implement a regular schedule of internal and external network scanning to proactively identify and remediate vulnerabilities before they can be exploited.
+\end{enumerate}
+
+\end{document}
+```

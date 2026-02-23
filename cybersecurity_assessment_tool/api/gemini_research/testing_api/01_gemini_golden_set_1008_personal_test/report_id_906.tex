@@ -1,0 +1,139 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage[T1]{fontenc}
+
+% --- Document Metadata ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Overview ---
+\section*{1. Executive Overview}
+
+This report provides a cybersecurity posture assessment for \textbf{Radiant Life}, conducted on \today. The analysis synthesizes data from a network vulnerability scan, a review of organizational security controls, and a list of pre-existing risks.
+
+The assessment reveals a mixed security posture. On a positive note, a recent network scan indicates that a previously identified risk—an unencrypted web server on port 80—appears to have been remediated, as the port is now closed. This demonstrates a capability for addressing technical vulnerabilities.
+
+However, significant gaps were identified in the organization's procedural and access control policies. The lack of mandatory Multi-Factor Authentication (MFA) for sensitive data systems represents a critical risk, leaving high-value assets vulnerable to unauthorized access. Furthermore, the absence of a structured security awareness training program for both new and existing employees constitutes a high risk, as it increases the organization's susceptibility to social engineering and human error.
+
+Immediate action should be focused on implementing MFA across all sensitive systems and establishing a comprehensive security awareness training program to mitigate these critical and high-risk findings.
+
+% --- Section 2: Organizational Information ---
+\section*{2. Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Radiant Life} \\
+Email Domain & \texttt{RadiantLife.com} \\
+Website Domain & \url{www.RadiantLife.com} \\
+External IP Address & \texttt{195.96.46.72} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section*{3. Security Control Review}
+
+A review of internal security controls was conducted via a standardized questionnaire. The responses highlight critical areas for improvement in the organization's security policies and procedures. A "No" response indicates a deviation from security best practices and a potential gap in defenses.
+
+\begin{tabular}{@{}p{0.6\textwidth}cc}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{51} & Aligned \\
+Do you require MFA to log into computers? & \ding{51} & Aligned \\
+Do you require MFA to access sensitive data systems? & \textbf{\ding{55}} & \textbf{Critical Gap} \\
+Does your organization have an employee acceptable use policy? & \ding{51} & Aligned \\
+Does your organization do security awareness training for new employees? & \textbf{\ding{55}} & \textbf{High Risk} \\
+Does your organization do security awareness training for all employees at least once per year? & \textbf{\ding{55}} & \textbf{High Risk} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 4: Technical Scan Results ---
+\section*{4. Technical Scan Results}
+
+A network scan was performed to identify open ports and services exposed on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.0.5}
+    \item \textbf{Scan Tool:} Nmap
+    \item \textbf{Status:} Host is Up
+\end{itemize}
+
+\subsection*{Port Scan Details}
+The scan revealed the following port status:
+
+\begin{tabular}{@{}llll}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+80/tcp & closed & http & The port is not accessible. \\
+\bottomrule
+\end{tabular}
+
+\subsection*{Analysis}
+The scan result is minimal but significant. The previously reported risk of an "Unencrypted Web Server" on port 80 is not present in this scan. The closure of this port indicates that the vulnerability has likely been remediated. No other open ports or vulnerable services were detected in this scan.
+
+% --- Section 5: Correlated Risk Assessment ---
+\section*{5. Correlated Risk Assessment}
+
+This section correlates findings from the security control review, technical scans, and pre-existing risk data to provide a consolidated view of the current risk landscape.
+
+\begin{tabular}{@{}p{0.3\textwidth}p{0.15\textwidth}p{0.5\textwidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Overview} \\
+\midrule
+\textbf{Lack of MFA on Sensitive Systems} & \textbf{Critical} & The absence of MFA on systems containing sensitive data exposes the organization to significant risk of data breach from compromised credentials. This is a critical control failure. \\
+\addlinespace
+\textbf{Insufficient Security Awareness Training} & \textbf{High} & The lack of a formal training program for new and existing employees makes the organization highly vulnerable to phishing, social engineering, and other human-centric attacks. \\
+\addlinespace
+Unencrypted Web Server & Remediated & A pre-existing risk stated that port 80 was open. The current network scan confirms port 80 is closed, indicating this specific risk has been addressed. \\
+\bottomrule
+\end{tabular}
+
+% --- Section 6: Recommendations ---
+\section*{6. Recommendations}
+
+Based on the correlated risk assessment, the following actions are recommended to improve the security posture of \textbf{Radiant Life}. Recommendations are prioritized based on risk severity.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement MFA for Sensitive Systems:}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately deploy and enforce Multi-Factor Authentication (MFA) for all user accounts with access to sensitive data systems, databases, and administrative interfaces.
+        \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access resulting from stolen or weak passwords.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{[High] Establish a Security Awareness Training Program:}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and implement a mandatory security awareness training program. This program must be part of the onboarding process for all new employees and conducted at least annually for all staff.
+        \item \textbf{Justification:} A well-trained workforce is a critical layer of defense against common cyberattacks like phishing, which often serve as the initial entry point for major security breaches.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{[Informational] Conduct Comprehensive Vulnerability Scanning:}
+    \begin{itemize}
+        \item \textbf{Action:} Schedule regular, authenticated vulnerability scans of internal and external network assets. The current scan was unauthenticated and limited in scope.
+        \item \textbf{Justification:} Authenticated scans provide a much deeper and more accurate view of vulnerabilities by logging into systems to check for missing patches and misconfigurations that are not visible from the network.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

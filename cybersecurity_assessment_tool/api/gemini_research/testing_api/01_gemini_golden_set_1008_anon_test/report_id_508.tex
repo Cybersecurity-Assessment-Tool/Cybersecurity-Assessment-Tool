@@ -1,0 +1,168 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- Document Setup ---
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=darkblue,      
+    urlcolor=darkblue,
+    citecolor=darkblue,
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Assessment Report}
+\rhead{\textbf{[Organization Name]}}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Huge \textbf{Cybersecurity Posture Assessment Report}\par}
+    \vspace{1.5cm}
+    
+    {\Large Prepared for:\par}
+    \vspace{0.5cm}
+    {\Huge \textbf{[Organization Name]}}\par
+    
+    \vfill
+    
+    {\large \today\par}
+    
+    \vspace{1cm}
+    \textit{This report contains sensitive and confidential information. Distribution should be limited to authorized personnel only.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The assessment combined an analysis of organizational security controls via a questionnaire, a technical network scan of the designated external IP address, and a review of previously identified risks.
+
+\paragraph{Key Findings:}
+The overall security posture presents a significant contrast between technical and administrative controls. The external network perimeter appears well-secured, with the technical scan revealing no open ports on the target system. This indicates a strong firewall configuration that effectively denies unsolicited inbound traffic.
+
+However, critical gaps were identified in the organization's administrative and identity management controls. The two most significant findings are:
+\begin{itemize}
+    \item \textbf{Critical Risk: Lack of MFA for Email.} The absence of Multi-Factor Authentication (MFA) on email accounts represents a critical vulnerability. Email is a primary target for attackers, and a compromised account can lead to data breaches, financial fraud, and further system infiltration.
+    \item \textbf{High Risk: No Annual Security Awareness Training.} Security awareness is not a one-time event. Without regular, annual training, employees are more likely to fall victim to evolving threats like sophisticated phishing and social engineering attacks.
+\end{itemize}
+
+\paragraph{Overall Assessment:}
+While the network perimeter is robust, the identified policy and procedure gaps elevate the organization's overall risk profile to \textbf{HIGH}. Immediate remediation of these administrative control deficiencies is strongly recommended to prevent potential security incidents originating from phishing or account compromise.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This section provides the context for the assessment based on the information provided.
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name    & \textbf{[Organization Name]} \\
+Primary Domain       & \texttt{[Domain]} \\
+Scanned External IP  & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review (Questionnaire)}
+The following table summarizes the organization's responses to the security controls questionnaire. Items marked with \ding{55} indicate a potential gap in security posture and are discussed in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\textwidth}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\ \midrule
+Do you require MFA to access email? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+Do you require MFA to log into computers? & \ding{51} & Met \\
+Do you require MFA to access sensitive data systems? & \ding{51} & Met \\
+Does your organization have an employee acceptable use policy? & \ding{51} & Met \\
+Does your organization do security awareness training for new employees? & \ding{51} & Met \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} & \textcolor{orange}{\textbf{High Risk}} \\ \bottomrule
+\end{tabular}
+\caption{Security Control Questionnaire Results (\ding{51}=Yes, \ding{55}=No)}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services on the organization's perimeter.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Scan Parameter} & \textbf{Value} \\ \midrule
+Target IP Address       & \texttt{[Target IP]} \\
+Scan Date               & \today \\
+Scanner Used            & Nmap \\ \midrule
+\textbf{Scan Summary} & \textbf{Details} \\ \midrule
+Host Status             & Up \\
+Open Ports Found        & \textbf{0} \\
+Filtered / Closed Ports & All 1000 scanned ports were in a 'closed' state. \\ \bottomrule
+\end{tabular}
+\caption{Nmap Scan Summary}
+\end{table}
+
+\paragraph{Analysis:}
+The scan results are positive. The absence of any open ports indicates that the firewall at the target IP address is properly configured to block unsolicited incoming connections from the internet. This significantly reduces the external attack surface and protects against automated scanning and exploitation attempts. No vulnerabilities were discovered through this scan.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from the security control review, technical scan, and pre-existing risk data. Based on the assessment, two new risks have been identified. No pre-existing vulnerabilities were reported.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\textwidth}p{0.6\textwidth}l@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Description} & \textbf{Severity} \\ \midrule
+RISK-001 & \textbf{Lack of MFA on Email Accounts:} User email accounts are protected only by passwords. A single compromised password could grant an attacker full access to an employee's mailbox, leading to data exfiltration, business email compromise (BEC), and a launchpad for internal phishing attacks. & \textcolor{red}{\textbf{Critical}} \\
+\addlinespace
+RISK-002 & \textbf{Lack of Annual Security Awareness Training:} While new hires receive training, the absence of an annual refresher program for all staff means that knowledge of current threats degrades over time. This increases the likelihood of employees falling for phishing, malware, or social engineering schemes. & \textcolor{orange}{\textbf{High}} \\ \bottomrule
+\end{tabular}
+\caption{Identified Risks and Severity}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are provided to address the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{RISK-001: Implement MFA for Email (Critical)}
+\begin{itemize}
+    \item \textbf{Action:} Immediately enable and enforce Multi-Factor Authentication (MFA) for all user email accounts. This is the single most effective control to prevent unauthorized account access.
+    \item \textbf{Implementation Details:} Leverage the built-in MFA capabilities of your email provider (e.g., Microsoft 365, Google Workspace). Prioritize user-friendly methods like authenticator apps (e.g., Microsoft Authenticator, Google Authenticator) or hardware tokens.
+    \item \textbf{Timeline:} This remediation should be treated as the highest priority and completed within \textbf{30 days}.
+\end{itemize}
+
+\subsection{RISK-002: Establish Annual Security Training (High)}
+\begin{itemize}
+    \item \textbf{Action:} Develop and implement a mandatory annual security awareness training program for all employees, including management.
+    \item \textbf{Implementation Details:} The program should cover current, relevant threats such as phishing, ransomware, password security, and social engineering. Consider using a third-party training platform that provides engaging content, tracking, and periodic phishing simulation tests to measure effectiveness.
+    \item \textbf{Timeline:} A program should be selected and a rollout plan established within \textbf{60 days}.
+\end{itemize}
+
+\end{document}
+```

@@ -1,0 +1,156 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks and metadata
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long monospaced text
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- DOCUMENT METADATA ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment},
+    pdftoolbar=true,
+}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture Assessment Report} \\
+    \large For: Pioneer Pulse
+    \vspace{1cm}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% --- TABLE OF CONTENTS ---
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE OVERVIEW ---
+\section{Executive Overview}
+This report provides a cybersecurity posture assessment for Pioneer Pulse, based on an analysis of organizational data, security controls, and technical scans. The assessment was conducted by correlating information from a security questionnaire with available technical and risk data.
+
+The analysis revealed several critical and high-risk gaps in the organization's current security controls. The most pressing concerns stem from a lack of multi-factor authentication (MFA) on core services like email and computer logins. This significantly increases the risk of unauthorized access through compromised credentials.
+
+Furthermore, critical foundational policies and procedures are absent. The lack of an employee Acceptable Use Policy (AUP) and the failure to provide security awareness training to new hires create an environment where security incidents are more likely to occur due to human error.
+
+It is important to note that the provided network scan data and pre-existing risk data were corrupted and could not be processed. Therefore, this assessment is primarily based on the security questionnaire. A new technical scan is strongly recommended to identify external-facing vulnerabilities.
+
+Immediate remediation of the identified policy and access control weaknesses is recommended to establish a foundational security baseline and reduce the overall risk profile of the organization.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were provided for the assessment. This information helps establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & Pioneer Pulse \\
+    Email Domain & \texttt{PioneerPulse.net} \\
+    Website Domain & \url{www.PioneerPulse.net} \\
+    External IP Address & \texttt{52.162.170.244} \\
+    \bottomrule
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review (Questionnaire Analysis)}
+The following table summarizes the organization's responses to the security controls questionnaire. Each response is assessed against industry best practices. Items marked with \ding{55} represent significant gaps in the security posture.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{7cm}ccp{3.5cm}@{}}
+    \toprule
+    \textbf{Control Question} & \multicolumn{2}{c}{\textbf{Response}} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & No & \ding{55} & \textbf{Critical Gap} \\
+    Do you require MFA to log into computers? & No & \ding{55} & \textbf{Critical Gap} \\
+    Do you require MFA to access sensitive data systems? & Yes & \ding{51} & Best Practice Met \\
+    Does your organization have an employee acceptable use policy? & No & \ding{55} & \textbf{High Risk} \\
+    Does your organization do security awareness training for new employees? & No & \ding{55} & \textbf{High Risk} \\
+    Does your organization do security awareness training for all employees at least once per year? & Yes & \ding{51} & Best Practice Met \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis.}
+\end{table}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+An external network scan was intended to be a key component of this assessment. However, the provided data file (\texttt{Input\_1\_Network\_Scan\_JSON}) was found to be corrupted and could not be parsed.
+
+\textbf{Status:} Data Unavailable.
+
+\textbf{Impact:} Without this data, we are unable to analyze the external attack surface of the target IP address (\texttt{52.162.170.244}). This includes identifying open ports, exposed services, and potential software vulnerabilities that could be exploited by an external attacker.
+
+\textbf{Recommendation:} A new, authenticated external vulnerability scan should be conducted against the organization's public-facing assets as a matter of priority.
+
+% --- RISK ASSESSMENT ---
+\section{Risk Assessment}
+This risk assessment is based on the findings from the Security Control Review. The absence of pre-existing risk data (\texttt{Input\_3\_Current\_Risks\_JSON} was corrupted) means this list is not exhaustive but represents the most evident risks based on available information.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{1.5cm}p{3.5cm}p{6.5cm}l@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    G-01 & Lack of MFA on Core Services & The absence of MFA on email and computer logins exposes the organization to account takeover via credential theft (e.g., phishing). This could lead to data breaches, financial fraud, and further system compromise. & \textbf{Critical} \\
+    \addlinespace
+    G-02 & Missing Acceptable Use Policy (AUP) & Without a formal AUP, there are no clear rules for employees regarding the use of company assets. This increases the risk of insider threat, data leakage, and legal liability. & \textbf{High} \\
+    \addlinespace
+    G-03 & Inadequate Onboarding Security Training & New employees are not receiving security training, making them highly susceptible to social engineering attacks from their first day. This creates a persistent weak link in the organization's human firewall. & \textbf{High} \\
+    \bottomrule
+\end{tabular}
+\caption{Identified Risks and Severity.}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+The following actionable recommendations are provided to address the identified risks and improve the overall security posture of Pioneer Pulse.
+
+\begin{itemize}
+    \item \textbf{Implement Multi-Factor Authentication (Critical):}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately deploy and enforce MFA for all users on all systems, prioritizing email (e.g., Office 365, Google Workspace) and endpoint computer logins (e.g., Windows Hello for Business, Duo).
+        \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access from compromised credentials, directly mitigating risk G-01.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (High):}
+    \begin{itemize}
+        \item \textbf{Action:} Create a comprehensive AUP that clearly defines the rules for using company networks, devices, and data. Require all current and new employees to read and formally acknowledge the policy.
+        \item \textbf{Justification:} An AUP establishes a baseline for secure employee behavior and provides a framework for enforcement, addressing risk G-02.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Establish a Security Onboarding Program (High):}
+    \begin{itemize}
+        \item \textbf{Action:} Integrate mandatory security awareness training into the new employee onboarding process. This training should cover phishing, password security, data handling, and the new AUP.
+        \item \textbf{Justification:} This ensures that new staff members understand their security responsibilities from day one, mitigating risk G-03.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Conduct an External Vulnerability Scan (High):}
+    \begin{itemize}
+        \item \textbf{Action:} Commission a new, comprehensive network vulnerability scan of all external-facing IP addresses, including \texttt{52.162.170.244}.
+        \item \textbf{Justification:} This is essential to identify and remediate technical vulnerabilities that were missed due to the corrupted scan data.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

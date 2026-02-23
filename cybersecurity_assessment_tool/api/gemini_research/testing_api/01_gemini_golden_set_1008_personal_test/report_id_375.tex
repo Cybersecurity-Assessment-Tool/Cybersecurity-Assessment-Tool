@@ -1,0 +1,156 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and better PDF metadata
+\usepackage{url} % For typesetting URLs
+\usepackage{seqsplit} % For splitting long text strings like IPs
+\usepackage[utf8]{inputenc}
+
+% --- DOCUMENT METADATA ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Cybersecurity, Risk Assessment, Network Scan}
+}
+
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{Executive Summary}
+% ==============================================================================
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Clear Path}. The analysis is based on a combination of technical network scanning, a review of existing risk documentation, and an evaluation of organizational security controls via a questionnaire.
+
+The assessment confirmed a previously identified high-risk vulnerability: an externally accessible MySQL database. Further analysis revealed that the database software (\textbf{MySQL 5.7.33}) is now \textbf{End-of-Life (EOL)}, which significantly elevates the risk of compromise from unpatched vulnerabilities.
+
+Furthermore, critical gaps were identified in fundamental administrative and human-centric security controls. The absence of mandatory Multi-Factor Authentication (MFA) for computer logins, the lack of an employee acceptable use policy, and a complete deficiency in security awareness training present substantial risks to the organization. These gaps create a permissive environment for security incidents, from insider threats to successful phishing attacks.
+
+Immediate remediation is required to address the exposed database. Strategic initiatives must be launched to implement foundational security controls across the organization to build a more resilient security posture.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+
+The following information was provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{Clear Path} \\
+Email Domain & \seqsplit{\texttt{ClearPath.net}} \\
+Website Domain & \seqsplit{\url{www.ClearPath.net}} \\
+External IP Address & \seqsplit{\texttt{54.176.227.12}} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Data}
+\label{tab:org_data}
+\end{table}
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+
+A review of self-reported security controls was conducted. The following table summarizes the responses and highlights significant gaps in the organization's security posture. A red cross (\ding{55}) indicates a negative response that represents a potential security weakness.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & Yes & \ding{51} \\
+\textbf{Do you require MFA to log into computers?} & \textbf{No} & \textbf{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & Yes & \ding{51} \\
+\textbf{Does your organization have an employee acceptable use policy?} & \textbf{No} & \textbf{\ding{55}} \\
+\textbf{Does your organization do security awareness training for new employees?} & \textbf{No} & \textbf{\ding{55}} \\
+\textbf{Does your organization do security awareness training for all employees annually?} & \textbf{No} & \textbf{\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\end{table}
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+
+An external network scan was performed on the target IP address \seqsplit{\texttt{172.16.50.20}}. The scan identified the following open port and service.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\ \midrule
+3306/tcp & Open & mysql & MySQL & 5.7.33 \\ \bottomrule
+\end{tabular}
+\caption{Open Ports and Services Detected}
+\label{tab:scan_results}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The scan confirms that a MySQL database server is directly exposed to the network. The identified version, \textbf{MySQL 5.7.33}, reached its official End-of-Life (EOL) in October 2023. EOL software no longer receives security updates from the vendor, leaving it perpetually vulnerable to any newly discovered exploits. This finding corroborates and elevates the severity of the pre-existing risk documented in Input 3.
+
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+% ==============================================================================
+
+The following table synthesizes findings from the technical scan, the security control review, and pre-existing risk data into a consolidated list of key risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.3\textwidth}p{0.5\textwidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\textbf{Exposed \& Outdated Database Server} & A MySQL database server is open to the network. The software version (5.7.33) is End-of-Life and no longer receives security patches. & \textbf{Critical} \\
+\textbf{Lack of Endpoint MFA} & The absence of Multi-Factor Authentication for computer logins significantly weakens access controls and makes unauthorized access via compromised credentials trivial. & \textbf{High} \\
+\textbf{No Security Awareness Training} & Employees are not trained to recognize or respond to security threats like phishing, social engineering, or malware, making them a primary target for attackers. & \textbf{High} \\
+\textbf{Absence of Acceptable Use Policy} & Without a formal policy, there are no clear guidelines for employees on the acceptable use of company assets, data handling, or security responsibilities. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+% ==============================================================================
+
+Based on the consolidated risk assessment, the following actions are recommended to mitigate the identified vulnerabilities and improve the overall security posture.
+
+\subsection{Immediate Actions (0-30 Days)}
+\begin{itemize}
+    \item \textbf{Restrict Database Access:} Immediately implement firewall rules to block all public access to TCP port 3306. Access should only be permitted from trusted internal IP addresses or through a secure VPN connection.
+    \item \textbf{Plan Database Upgrade:} Initiate a project to migrate the MySQL 5.7.33 database to a fully supported version (e.g., MySQL 8.0 or later). This is critical to ensure security patches can be applied.
+\end{itemize}
+
+\subsection{High-Priority Actions (30-90 Days)}
+\begin{itemize}
+    \item \textbf{Implement Endpoint MFA:} Deploy a Multi-Factor Authentication solution for all employee computer logins (both local and remote). This is one of the most effective controls against credential theft.
+    \item \textbf{Develop and Implement Foundational Policies:} Draft and formally adopt an Employee Acceptable Use Policy (AUP). Ensure all employees read and acknowledge the policy.
+    \item \textbf{Launch Security Awareness Training:} Procure and deploy a security awareness training program. All employees, including new hires, must complete an initial training module covering phishing, password hygiene, and data handling.
+\end{itemize}
+
+\subsection{Strategic Actions (90+ Days)}
+\begin{itemize}
+    \item \textbf{Establish Annual Training:} Formalize the security awareness training program to be a mandatory annual requirement for all staff to ensure continuous education.
+    \item \textbf{Implement Network Segmentation:} For long-term defense, redesign the network architecture to place critical systems like databases in isolated network segments, inaccessible from the public internet.
+\end{itemize}
+
+\end{document}
+```

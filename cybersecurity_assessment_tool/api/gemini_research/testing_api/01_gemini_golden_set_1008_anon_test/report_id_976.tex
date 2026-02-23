@@ -1,0 +1,149 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textbf{Cybersecurity Report}}
+\rhead{\textbf{[Organization Name]}}
+\cfoot{\thepage}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a cybersecurity posture assessment for \textbf{[Organization Name]}, conducted on \today. The analysis synthesizes data from an external network scan, a review of internal security controls via a questionnaire, and a check of pre-existing risk registers.
+
+The assessment identified a significant strength in the organization's network perimeter defense. An external scan of the public-facing IP address \texttt{[Client IP]} revealed no open ports, indicating a robust firewall configuration that effectively limits the external attack surface.
+
+However, the review of internal security controls uncovered two high-priority gaps that require immediate attention:
+\begin{itemize}
+    \item \textbf{Critical Risk: Lack of MFA for Email.} The absence of Multi-Factor Authentication (MFA) on the email system presents a critical vulnerability. Email is a primary target for attackers, and a compromised account can lead to severe consequences, including data breaches, financial fraud, and further system compromise.
+    \item \textbf{High Risk: No Security Training for New Employees.} New hires are not provided with security awareness training as part of their onboarding process. This creates a window of vulnerability where new staff are more susceptible to social engineering attacks and may be unaware of critical security policies.
+\end{itemize}
+
+This report details these findings and provides actionable recommendations to mitigate the identified risks and strengthen the organization's overall security posture.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following details were used as the basis for this assessment. Where information was not provided, placeholders have been used.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Email Domain & \texttt{[Domain]} \\
+    External IP Address & \texttt{[Client IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of organizational security controls was conducted based on a standardized questionnaire. The responses indicate the current state of implemented policies and procedures. Gaps identified here often represent significant organizational risk.
+
+\begin{tabular}{@{}p{0.8\linewidth}c}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{red}{\ding{55}} No \\
+    Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} Yes \\
+    Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} Yes \\
+    Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} Yes \\
+    Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} No \\
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} Yes \\
+    \bottomrule
+\end{tabular}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network vulnerability scan was performed to identify open ports and services exposed to the internet.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \textbf{[Scan Date]}
+    \item \textbf{Scanner Used:} Nmap
+\end{itemize}
+
+\subsection{Summary of Findings}
+The scan concluded with a positive security finding:
+\begin{itemize}
+    \item \textbf{No Open Ports Detected:} The scan confirmed that all 1000 most common TCP ports were in a \texttt{closed} state. This indicates that the perimeter firewall is correctly configured to deny unsolicited inbound traffic, significantly reducing the external attack surface. No services were exposed.
+\end{itemize}
+
+% --- 5. Risk Assessment ---
+\section{Risk Assessment}
+
+This section synthesizes findings from the security control review and technical scan. While the technical posture is strong, critical procedural gaps were identified. The pre-existing risk register was empty.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\linewidth} p{0.25\linewidth} p{0.45\linewidth} p{0.1\linewidth}@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    ORG-001 & Lack of MFA for Email Access & Email accounts are protected only by a password. This exposes the organization to a high risk of account compromise via phishing, credential stuffing, or password spraying, which can lead to Business Email Compromise (BEC) and data exfiltration. & \textbf{Critical} \\
+    \addlinespace
+    ORG-002 & No Security Training for New Hires & New employees do not receive security awareness training during onboarding. This creates a significant vulnerability, as untrained staff are more likely to fall for social engineering attacks or mishandle sensitive data, undermining other security controls. & \textbf{High} \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+The following actions are recommended to address the identified risks. Recommendations are prioritized based on severity and potential impact.
+
+\subsection{ORG-001: Implement MFA for Email (Critical)}
+\begin{itemize}
+    \item \textbf{Action:} Immediately procure, configure, and enforce Multi-Factor Authentication (MFA) for all user accounts with access to the organization's email system.
+    \item \textbf{Justification:} MFA is the single most effective control for preventing unauthorized account access. It provides a critical second layer of defense that protects against compromised credentials, drastically reducing the likelihood of a successful email-based attack.
+    \item \textbf{Priority:} \textbf{Critical}
+\end{itemize}
+
+\subsection{ORG-002: Integrate Security Training into Onboarding (High)}
+\begin{itemize}
+    \item \textbf{Action:} Develop a mandatory security awareness training module and integrate it into the formal onboarding process for all new employees and contractors. This training should cover, at a minimum, acceptable use policies, phishing and social engineering awareness, and data handling procedures.
+    \item \textbf{Justification:} A strong security culture starts on day one. Training new hires ensures a baseline level of security knowledge across the organization, reducing human error and strengthening the human firewall.
+    \item \textbf{Priority:} \textbf{High}
+\end{itemize}
+
+\end{document}
+```

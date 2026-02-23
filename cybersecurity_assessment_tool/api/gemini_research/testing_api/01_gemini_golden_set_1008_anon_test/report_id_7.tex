@@ -1,0 +1,211 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages and Document Setup
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses (dingbats)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For hyperlinks and metadata
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings without breaking words
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% --- Document Metadata ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Cell},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment, Scan},
+    pdflang={en}
+}
+
+% --- Custom Colors for Severity ---
+\definecolor{criticalred}{HTML}{D10000}
+\definecolor{highorange}{HTML}{E57300}
+\definecolor{mediumyellow}{HTML}{FFBF00}
+\definecolor{lowblue}{HTML}{0073E6}
+\definecolor{infogray}{HTML}{808080}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[L]{Cybersecurity Posture Assessment}
+\fancyhead[R]{\textbf{[Organization Name]}}
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% --- Helper Commands ---
+\newcommand{\yes}{\ding{51}} % Green checkmark
+\newcommand{\no}{\ding{55}}  % Red X
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder for a logo
+    
+    \vspace{1.5cm}
+    
+    \Huge
+    \textbf{Cybersecurity Posture Assessment Report}
+    
+    \vspace{1.5cm}
+    
+    \Large
+    Prepared for: \textbf{[Organization Name]}
+    
+    \vspace{2cm}
+    
+    \large
+    Report Date: \today \\
+    Report ID: SEC-2023-0815
+    
+    \vfill
+    
+    \normalsize
+    \textit{This report contains sensitive information and should be handled with the utmost confidentiality. Distribution is restricted to authorized personnel only.}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive assessment of the cybersecurity posture for \textbf{[Organization Name]}, based on an analysis of organizational security controls, technical network scans, and pre-existing risk data. The assessment was conducted to identify key vulnerabilities, security gaps, and areas of non-compliance with cybersecurity best practices.
+
+The analysis revealed several critical and high-risk findings that require immediate attention. Key concerns include:
+\begin{itemize}
+    \item \textbf{Critical Gaps in Multi-Factor Authentication (MFA):} MFA is not enforced for logging into employee computers or accessing sensitive data systems. This significantly increases the risk of unauthorized access via compromised credentials.
+    \item \textbf{Lack of Security Awareness Training:} The organization does not provide security awareness training for new or existing employees. This deficiency makes the organization highly susceptible to social engineering and phishing attacks.
+    \item \textbf{Exposed Management Services:} A Secure Shell (SSH) service was found exposed to the public internet. This service is a common target for automated brute-force attacks and can serve as a primary entry point for attackers if not properly secured.
+\end{itemize}
+
+The combination of these findings indicates a high-risk security posture. The recommendations provided in this report are prioritized to address the most severe threats first. Implementing these controls will substantially improve the organization's resilience against common cyber threats.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+This section details the organizational data used as the basis for this assessment. The information was provided by the client or discovered during preliminary reconnaissance.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+Assessed External IP & \texttt{[Client IP]} \\
+\bottomrule
+\end{tabular}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. This review helps identify gaps in administrative and policy-based controls. "No" answers indicate a deviation from security best practices and represent a potential risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{@{}p{0.6\linewidth} c l@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \yes & Best Practice Met \\
+\addlinespace
+Do you require MFA to log into computers? & \no & \textbf{Critical Gap} \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \no & \textbf{Critical Gap} \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \yes & Best Practice Met \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \no & \textbf{High Risk} \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \no & \textbf{High Risk} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+A network port scan was performed on the target system to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} Not specified in scan data.
+    \item \textbf{Scan Tool:} Nmap
+\end{itemize}
+
+The following table details the open ports discovered during the scan.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{@{}l l l p{0.5\linewidth}@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/TCP & Open & SSH & Secure Shell is a remote management protocol. Exposing this service to the internet makes it a prime target for brute-force and credential stuffing attacks. Further details on the version were not available from the scan. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes the findings from the security control review and technical scans into a consolidated list of identified risks. The pre-existing risk register was empty, so all risks listed below are new findings from this assessment.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.1\linewidth} p{0.25\linewidth} p{0.45\linewidth} l@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & \textbf{Lack of MFA on Endpoints and Systems} & The absence of MFA on computer logins and sensitive systems allows an attacker with valid credentials to gain unauthorized access without any additional challenge. This is a critical control failure. & \textcolor{criticalred}{\textbf{Critical}} \\
+\addlinespace
+RISK-002 & \textbf{Inadequate Security Awareness Program} & Without regular training, employees are more likely to fall victim to phishing, malware, and other social engineering attacks, potentially leading to credential compromise or data breaches. & \textcolor{highorange}{\textbf{High}} \\
+\addlinespace
+RISK-003 & \textbf{Exposed SSH Management Service} & The SSH service on \texttt{[Target IP]} is open to the internet. This exposure, combined with the lack of MFA (RISK-001), creates a high-impact risk of a system compromise via automated attacks. & \textcolor{highorange}{\textbf{High}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+The following actionable recommendations are provided to mitigate the identified risks. They are prioritized based on severity and potential impact on the organization's security posture.
+
+\subsection*{Priority 1: Critical}
+\begin{description}
+    \item[RISK-001 Mitigation:] \textbf{Implement Comprehensive MFA.}
+    \begin{itemize}
+        \item Immediately deploy and enforce MFA for all user accounts on all company-managed computers and endpoints.
+        \item Enforce MFA for access to all internal and third-party systems that store or process sensitive data.
+        \item Prioritize phishing-resistant MFA methods (e.g., FIDO2/WebAuthn) where possible.
+    \end{itemize}
+\end{description}
+
+\subsection*{Priority 2: High}
+\begin{description}
+    \item[RISK-002 Mitigation:] \textbf{Establish a Security Awareness Program.}
+    \begin{itemize}
+        \item Develop a mandatory security awareness training module for all new employees as part of the onboarding process.
+        \item Implement a mandatory annual security awareness training program for all staff, covering topics such as phishing, password hygiene, and acceptable use.
+        \item Conduct periodic phishing simulation campaigns to test and reinforce employee awareness.
+    \end{itemize}
+    \item[RISK-003 Mitigation:] \textbf{Secure the Exposed SSH Service.}
+    \begin{itemize}
+        \item If remote access is required, restrict SSH access to a list of trusted IP addresses using a firewall.
+        \item Disable password-based authentication and enforce the use of public-key cryptography for all SSH logins.
+        \item Implement an intrusion detection/prevention tool, such as Fail2Ban, to automatically block IPs that exhibit malicious behavior (e.g., repeated failed login attempts).
+    \end{itemize}
+\end{description}
+
+\end{document}
+```

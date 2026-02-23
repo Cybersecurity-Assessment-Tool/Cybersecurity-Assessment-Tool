@@ -1,0 +1,196 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For proper URL formatting
+\usepackage{seqsplit} % For splitting long strings without spaces
+\usepackage{graphicx} % For logo (optional placeholder)
+\usepackage{xcolor}   % For colors
+
+% --- DOCUMENT SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define colors for severity
+\definecolor{criticalred}{HTML}{D10000}
+\definecolor{highorange}{HTML}{E25F00}
+\definecolor{mediumyellow}{HTML}{F0C200}
+
+% --- TITLE ---
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture Report} \\
+    \large \textit{Analysis and Recommendations} \\
+    \vspace{1cm}
+    \textbf{for Crestview Analytics}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{Executive Overview}
+% ==============================================================================
+This report provides a consolidated analysis of the cybersecurity posture for \textbf{Crestview Analytics}. The assessment is based on a correlation of technical network scan data, a review of organizational security controls, and an evaluation of pre-existing risks.
+
+The analysis identified several critical and high-risk findings that require immediate attention. A new, internally exposed Remote Desktop Protocol (RDP) service was discovered on host \texttt{10.10.10.51}. This finding is particularly concerning as it indicates a systemic issue, echoing a previously documented risk on another host. 
+
+This technical vulnerability is significantly amplified by critical gaps in organizational policy, namely the lack of Multi-Factor Authentication (MFA) for computer and sensitive data system access. Furthermore, the absence of security awareness training for new employees creates an environment where personnel are more susceptible to social engineering and unintentional policy violations.
+
+This report outlines these findings in detail and provides a prioritized list of actionable recommendations to mitigate the identified risks and strengthen the overall security posture.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+The following information was provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Crestview Analytics
+    \item \textbf{Primary Email Domain:} \texttt{CrestviewAnalytics.net}
+    \item \textbf{Primary Website Domain:} \texttt{www.CrestviewAnalytics.net}
+    \item \textbf{Known External IP:} \texttt{54.76.8.127}
+\end{itemize}
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+A review of the organization's security controls was conducted via a questionnaire. The results are summarized below. "No" answers indicate significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Security Control Questionnaire Results}
+\begin{tabular}{p{0.8\linewidth}c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\ % Yes
+Do you require MFA to log into computers? & \textbf{\color{criticalred}\ding{55}} \\ % No
+Do you require MFA to access sensitive data systems? & \textbf{\color{criticalred}\ding{55}} \\ % No
+Does your organization have an employee acceptable use policy? & \ding{51} \\ % Yes
+Does your organization do security awareness training for new employees? & \textbf{\color{highorange}\ding{55}} \\ % No
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} \\ % Yes
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Control Gaps}
+The questionnaire reveals three primary areas of concern:
+\begin{itemize}
+    \item \textbf{Lack of MFA for Endpoint and System Access:} The absence of MFA for computer and sensitive data system logins is a critical vulnerability. It means that a single compromised password could grant an attacker full access to an employee's workstation and potentially the sensitive data it can access.
+    \item \textbf{Inadequate New Employee Onboarding:} New hires are not provided with security awareness training. This gap makes them, and the organization, vulnerable from their first day. They may be unaware of policies regarding phishing, data handling, and acceptable use, increasing the likelihood of a security incident.
+\end{itemize}
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+A network scan was performed to identify open ports and exposed services on the target system.
+
+\subsection{Scan Details}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.10.10.51}
+    \item \textbf{Scan Utility:} Nmap
+\end{itemize}
+
+\subsection{Open Ports Discovered}
+The following table details the open ports and services identified on the target host.
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports on \texttt{10.10.10.51}}
+\begin{tabular}{cccl}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Description} \\
+\midrule
+3389/tcp & open & \texttt{ms-wbt-server} & Microsoft Remote Desktop Protocol (RDP) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis of Technical Findings}
+The scan discovered that port 3389 is open, which corresponds to the Remote Desktop Protocol (RDP). RDP is a common vector for attackers. When exposed without proper controls (e.g., Network Level Authentication, strong passwords, MFA, and limited access), it is highly susceptible to brute-force attacks and exploitation of vulnerabilities. This finding, combined with the lack of MFA for computer logins, constitutes a critical risk.
+
+% ==============================================================================
+\section{Consolidated Risk Assessment}
+% ==============================================================================
+The following table synthesizes findings from the security control review, the technical scan, and pre-existing risk data into a consolidated list of key risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.25\linewidth}p{0.55\linewidth}l}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Unsecured RDP Exposure on New Host} & The technical scan found RDP exposed on \texttt{10.10.10.51}. This risk is amplified by the lack of MFA for computer logins, creating a direct path for network compromise. & \textbf{\color{criticalred}Critical} \\
+\addlinespace
+\textbf{Systemic Lack of MFA} & MFA is not enforced for computer or sensitive data system access. A compromised password could lead to a significant data breach or ransomware event. & \textbf{\color{criticalred}Critical} \\
+\addlinespace
+\textbf{Inadequate Employee Onboarding Security} & New employees do not receive security awareness training, making them a high-value target for social engineering attacks from their first day of employment. & \textbf{\color{highorange}High} \\
+\addlinespace
+\textbf{Pattern of RDP Exposure} & A pre-existing risk documented RDP exposure on host \texttt{10.10.10.50}. This new finding on \texttt{10.10.10.51} indicates a recurring and systemic configuration management problem. & \textbf{\color{criticalred}Critical} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+% ==============================================================================
+The following prioritized recommendations are provided to address the identified risks.
+
+\subsection{Immediate Actions (To Be Completed within 72 Hours)}
+\begin{enumerate}
+    \item \textbf{Remediate Exposed RDP on \texttt{10.10.10.51}:}
+        \begin{itemize}
+            \item Immediately close port 3389 on host \texttt{10.10.10.51} by implementing a host-based or network firewall rule.
+            \item Investigate the business requirement for RDP on this system. If remote access is necessary, it must be placed behind a secure gateway, such as a VPN.
+        \end{itemize}
+\end{enumerate}
+
+\subsection{High-Priority Actions (To Be Completed within 30 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Implement Mandatory Multi-Factor Authentication (MFA):}
+        \begin{itemize}
+            \item Procure and deploy an MFA solution for all employee computer logins (e.g., Windows Hello for Business, Duo, etc.).
+            \item Enforce MFA for access to all systems storing or processing sensitive data.
+        \end{itemize}
+    \item \textbf{Establish Security Training for New Hires:}
+        \begin{itemize}
+            \item Develop or procure a security awareness training module and integrate it into the mandatory onboarding process for all new employees and contractors.
+        \end{itemize}
+\end{enumerate}
+
+\subsection{Strategic Actions (To Be Completed within 90 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{Conduct a Comprehensive Internal Vulnerability Scan:}
+        \begin{itemize}
+            \item Perform a credentialed scan of the internal network to identify other instances of exposed services, misconfigurations, and outdated software.
+        \end{itemize}
+    \item \textbf{Develop and Enforce a Secure Remote Access Policy:}
+        \begin{itemize}
+            \item Formalize a policy that prohibits direct exposure of management services like RDP and SSH. Mandate that all remote administrative access must be routed through a centralized, MFA-protected VPN or Zero Trust Network Access (ZTNA) solution.
+        \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

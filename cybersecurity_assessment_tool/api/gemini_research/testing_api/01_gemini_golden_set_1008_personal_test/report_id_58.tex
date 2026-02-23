@@ -1,0 +1,162 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+}
+
+% Custom Commands
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ------------------------------------------------------------------
+% 1. Executive Summary
+% ------------------------------------------------------------------
+\section*{1. Executive Summary}
+
+This report provides a cybersecurity posture assessment for \textbf{Phoenix Rising}, conducted on \today. The analysis is based on a combination of self-reported organizational data, a technical network scan, and a review of pre-existing risks.
+
+The assessment reveals a mixed security posture. While the organization has implemented foundational security policies such as an Acceptable Use Policy and a security awareness training program, there are \textbf{critical gaps in access control}. The absence of Multi-Factor Authentication (MFA) for email and computer logins presents a significant and immediate risk of account compromise and unauthorized access.
+
+The external network scan of the target IP address \texttt{[Target IP]} did not identify any open ports or services. While this indicates a hardened external perimeter for the scanned asset, it does not preclude vulnerabilities on other systems or the critical internal risks identified.
+
+Key recommendations focus on the immediate implementation of MFA across all user accounts, starting with email services, to mitigate the most severe risks identified in this report.
+
+% ------------------------------------------------------------------
+% 2. Organizational Information
+% ------------------------------------------------------------------
+\section*{2. Organizational Information}
+
+The following details were provided by the organization and used as a baseline for this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Phoenix Rising} \\
+Email Domain      & \texttt{PhoenixRising.org} \\
+Website Domain    & \url{www.PhoenixRising.org} \\
+External IP       & \texttt{231.151.244.161} \\
+Target IP Scanned & \texttt{[Target IP]} \\
+\bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\end{table}
+
+% ------------------------------------------------------------------
+% 3. Security Control Review (Questionnaire)
+% ------------------------------------------------------------------
+\section*{3. Security Control Review}
+
+A review of the organization's security controls was conducted via a standardized questionnaire. The responses indicate significant gaps in identity and access management practices.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.7\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\no} \\
+Do you require MFA to log into computers? & \textcolor{red}{\no} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\yes} \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\yes} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\yes} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\yes} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis}
+The "No" responses to MFA for email and computer access are critical findings. Email is a primary target for phishing and business email compromise (BEC) attacks. Lack of MFA on workstations exposes the organization to significant risk from stolen credentials or unauthorized physical access. While it is positive that MFA is used for sensitive data systems, the primary entry points for users remain inadequately protected.
+
+% ------------------------------------------------------------------
+% 4. Technical Scan Results
+% ------------------------------------------------------------------
+\section*{4. Technical Scan Results}
+
+An external, unauthenticated network scan was performed against the designated target IP address to identify accessible services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Findings:} The scan completed successfully but did not detect any open TCP or UDP ports. This suggests that the target host is either offline, not responsive, or is protected by a firewall that is configured to drop unsolicited incoming packets (a recommended security practice).
+\end{itemize}
+
+\textbf{Conclusion:} No externally-facing vulnerabilities were identified on this specific target during the scan.
+
+% ------------------------------------------------------------------
+% 5. Risk Assessment
+% ------------------------------------------------------------------
+\section*{5. Risk Assessment}
+
+This section correlates findings from the security control review, technical scan, and any pre-existing known risks. The primary risks identified are procedural and policy-based rather than technical vulnerabilities discovered during the scan.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\textbf{Lack of MFA for Email Access} & Failure to enforce MFA on email accounts significantly increases the risk of account compromise via phishing or credential stuffing. A compromised email account can lead to data breaches, financial fraud, and further internal network compromise. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of MFA for Workstation Login} & The absence of MFA on computer logins weakens protection against unauthorized access from stolen credentials. This applies to both physical access and remote access scenarios, exposing local data and network resources. & \textbf{High} \\
+\addlinespace
+\textit{No pre-existing risks were provided for this assessment.} & \textit{-} & \textit{-} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% ------------------------------------------------------------------
+% 6. Recommendations
+% ------------------------------------------------------------------
+\section*{6. Recommendations}
+
+Based on the risk assessment, the following actions are recommended to improve the cybersecurity posture of \textbf{Phoenix Rising}. Recommendations are prioritized by severity.
+
+\begin{description}
+    \item[\textbf{Critical Priority:}] \hfill \\
+    \textbf{Implement MFA for Email:} Immediately deploy and enforce MFA for all user accounts accessing the email system (\texttt{PhoenixRising.org}). This is the single most effective control to mitigate the risk of business email compromise and phishing attacks.
+    
+    \item[\textbf{High Priority:}] \hfill \\
+    \textbf{Deploy MFA for Endpoint Logins:} Roll out MFA for all employee workstation and laptop logins. This adds a critical layer of security to prevent unauthorized users from accessing company devices and the internal network, even if they have valid credentials.
+    
+    \item[\textbf{Informational:}] \hfill \\
+    \textbf{Continue Proactive Scanning:} While the external scan of \texttt{[Target IP]} showed no open ports, this represents a single point-in-time assessment of one asset. It is recommended to establish a continuous vulnerability management program that includes regular, authenticated scans of all internal and external assets to proactively identify and remediate vulnerabilities.
+\end{description}
+
+\end{document}
+```

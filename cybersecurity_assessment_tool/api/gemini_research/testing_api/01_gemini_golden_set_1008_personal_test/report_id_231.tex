@@ -1,0 +1,183 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGE IMPORTS ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For check and cross marks
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+\maketitle
+\hrule
+\begin{center}
+    \textbf{CONFIDENTIAL} \\
+    \textbf{Prepared for: Aeon Pharmaceuticals}
+\end{center}
+\hrule
+\vspace{2em}
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ===================================================================
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture of Aeon Pharmaceuticals, based on network scans, a security controls questionnaire, and a review of pre-existing risks. The assessment identified several critical and high-risk vulnerabilities that require immediate attention.
+
+The primary findings indicate a significant external exposure of a critical database system. The network scan confirmed that a MySQL database is accessible from the scanned network segment. Further analysis reveals this database is running an End-of-Life (EOL) version, which no longer receives security updates from the vendor, exposing it to a wide range of known exploits.
+
+Furthermore, critical gaps were identified in internal security controls. The lack of mandatory Multi-Factor Authentication (MFA) for computer logins presents a substantial risk of unauthorized access via compromised credentials. Policy-related deficiencies, including the absence of an employee Acceptable Use Policy and a formal security training program for new hires, weaken the organization's human firewall and increase susceptibility to insider threats and social engineering.
+
+This report outlines these findings in detail and provides actionable, prioritized recommendations to mitigate the identified risks and strengthen the overall security posture of the organization.
+
+% ===================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Aeon Pharmaceuticals
+    \item \textbf{Email Domain:} \texttt{AeonPharmaceuticals.org}
+    \item \textbf{Website Domain:} \url{www.AeonPharmaceuticals.org}
+    \item \textbf{External IP Address:} \texttt{156.174.92.182}
+\end{itemize}
+
+% ===================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ===================================================================
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses are summarized below. Items marked with a red 'X' (\ding{55}) indicate a missing control and represent a significant gap in the security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.7\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The identified gaps in MFA for computer logins, the lack of an Acceptable Use Policy, and the absence of security training during employee onboarding are critical weaknesses that will be addressed in the Risk Assessment section.
+
+% ===================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed to identify exposed services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.50.20}
+\end{itemize}
+
+\subsection{Open Ports and Services}
+The scan identified the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product \& Version} \\
+\midrule
+3306/tcp & Open & mysql & MySQL 5.7.33 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis}
+The scan confirms that port \textbf{3306}, the default port for the MySQL database service, is open. The service was identified as \textbf{MySQL version 5.7.33}. 
+
+\textbf{Critical Finding:} MySQL version 5.7 reached its official End-of-Life (EOL) in October 2023. Systems running EOL software no longer receive security patches, performance improvements, or technical support, leaving them highly vulnerable to newly discovered exploits. The combination of network exposure and running unsupported software constitutes a critical risk.
+
+% ===================================================================
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% ===================================================================
+\section{Consolidated Risk Assessment}
+
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list of key risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{0.2\linewidth} p{0.15\linewidth} p{0.55\linewidth}}
+\toprule
+\textbf{Risk Title} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+\textbf{Exposed End-of-Life Database} & \textbf{Critical} & The MySQL database on port 3306 is exposed to the network and is running an unsupported, EOL version (5.7.33). This exposes the system to numerous unpatched vulnerabilities and risk of data breach. \\
+\addlinespace
+\textbf{Lack of Endpoint MFA} & \textbf{Critical} & The absence of MFA on employee computers allows an attacker with valid credentials (e.g., from a phishing attack) to gain full access to a user's system and internal network resources. \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy (AUP)} & \textbf{High} & Without a formal AUP, employees lack clear guidelines on the secure and acceptable use of company assets, increasing the risk of insider threat, data leakage, and non-compliance. \\
+\addlinespace
+\textbf{Inadequate Onboarding Security Training} & \textbf{High} & New employees are not receiving security awareness training, making them highly susceptible to social engineering and phishing attacks from their first day of employment. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+% SECTION 6: RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity.
+
+\subsection{Risk: Exposed End-of-Life Database (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Implement strict firewall rules to restrict all access to port 3306. Access should only be permitted from specific, trusted IP addresses of application servers or administrators via a VPN. Public access must be disabled immediately.
+    \item \textbf{Long-Term Action:} Develop a migration plan to upgrade the MySQL database to a fully supported version (e.g., MySQL 8.0 or higher). This project should be prioritized to eliminate the underlying vulnerability of running EOL software.
+\end{itemize}
+
+\subsection{Risk: Lack of Endpoint MFA (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Procure and deploy an MFA solution for all employee computer logins. Solutions like Windows Hello for Business, Duo Security, or Okta can be integrated to enforce this critical control. This should be considered the highest priority internal project.
+\end{itemize}
+
+\subsection{Risk: Missing Acceptable Use Policy (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Draft a comprehensive AUP that covers topics such as data handling, internet usage, password security, and incident reporting.
+    \item \textbf{Follow-Up Action:} Require all current employees to read and formally acknowledge the new policy. Incorporate this policy acknowledgement into the new employee onboarding process.
+\end{itemize}
+
+\subsection{Risk: Inadequate Onboarding Security Training (High)}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Develop or procure a security awareness training module and make it a mandatory component of the new employee onboarding process. This training should cover phishing, password hygiene, social engineering, and the new AUP.
+\end{itemize}
+
+\end{document}
+```

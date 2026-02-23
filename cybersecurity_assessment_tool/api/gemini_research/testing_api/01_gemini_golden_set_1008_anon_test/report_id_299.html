@@ -1,0 +1,286 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: 'Noto Sans', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        pre { background-color: #f4f4f4; padding: 1rem; overflow-x: auto; border: 1px solid #ddd; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="titlepage">
+<p><strong>Cybersecurity Posture Assessment Report</strong></p>
+<p>Prepared for:<br />
+<strong>[Organization Name]</strong></p>
+<p><strong>Date of Report:</strong> 2026-01-30</p>
+</div>
+<h1 id="executive-summary">Executive Summary</h1>
+<p>This report provides a comprehensive analysis of the cybersecurity
+posture for <strong>[Organization Name]</strong>, based on network
+scans, a security controls questionnaire, and a review of pre-existing
+risks. The assessment, conducted on 2026-01-30, reveals several critical
+and high-risk vulnerabilities that require immediate attention.</p>
+<p>Key findings indicate significant gaps in identity and access
+management, particularly the lack of Multi-Factor Authentication (MFA)
+for computer and sensitive system access. Furthermore, the absence of
+mandatory security training for new employees presents a substantial
+risk from social engineering and phishing attacks.</p>
+<p>Technical analysis identified an externally exposed SSH management
+port on a critical asset, which serves as a direct vector for
+unauthorized access. This is compounded by a pre-existing,
+critical-severity risk (CVSS 10.0) labeled "Localhost Exposed", which
+must be investigated and remediated as the top priority.</p>
+<p>This report outlines these findings in detail and provides a series
+of actionable recommendations to mitigate the identified risks and
+strengthen the organization’s overall security defenses.</p>
+<h1 id="organizational-information">Organizational Information</h1>
+<p>This section provides the organizational details used as the basis
+for this assessment. The data has been anonymized as requested.</p>
+<div id="tab:org_data">
+<table>
+<caption>Client Organizational Data</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Attribute</strong></th>
+<th style="text-align: left;"><strong>Value</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Organization Name</td>
+<td style="text-align: left;"><strong>[Organization Name]</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Primary Email Domain</td>
+<td style="text-align: left;"><code>[Domain]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">External IP Address</td>
+<td style="text-align: left;"><code>[Client IP]</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="security-control-review-questionnaire-analysis">Security Control
+Review (Questionnaire Analysis)</h1>
+<p>The following table summarizes the organization’s responses to a
+security controls questionnaire. "No" answers indicate significant gaps
+in security posture and are highlighted for review.</p>
+<div id="tab:controls">
+<table>
+<caption>Security Controls Questionnaire Results</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Control Question</strong></th>
+<th style="text-align: center;"><strong>Response</strong></th>
+<th style="text-align: left;"><strong>Assessment</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Do you require MFA to access email?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+<td style="text-align: left;">Best practice is met.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to log into
+computers?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+<td style="text-align: left;"><strong>High Risk.</strong> Lack of MFA on
+endpoints allows for lateral movement if credentials are
+compromised.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Do you require MFA to access sensitive
+data systems?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+<td style="text-align: left;"><strong>Critical Gap.</strong> Sensitive
+data is a primary target. Lack of MFA is a severe vulnerability.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization have an employee
+acceptable use policy?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+<td style="text-align: left;">Foundational policy is in place.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for new employees?</td>
+<td style="text-align: center;"><span style="color: red"></span></td>
+<td style="text-align: left;"><strong>High Risk.</strong> New hires are
+often targeted and are unaware of internal security policies.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Does your organization do security
+awareness training for all employees at least once per year?</td>
+<td style="text-align: center;"><span style="color: green"></span></td>
+<td style="text-align: left;">Good practice for maintaining security
+awareness.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="technical-scan-results">Technical Scan Results</h1>
+<p>An external network scan was performed to identify exposed services
+and potential vulnerabilities.</p>
+<h2 id="target-target-ip">Target: <code>[Target IP]</code></h2>
+<p>The scan identified the following open port on the target system.
+Version information was not available from this basic scan, which itself
+constitutes a risk as outdated services cannot be identified.</p>
+<div id="tab:scan_results">
+<table>
+<caption>Open Ports on <code>[Target IP]</code></caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Port</strong></th>
+<th style="text-align: left;"><strong>State</strong></th>
+<th style="text-align: left;"><strong>Service</strong></th>
+<th style="text-align: left;"><strong>Product</strong></th>
+<th style="text-align: left;"><strong>Version</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">22/tcp</td>
+<td style="text-align: left;">open</td>
+<td style="text-align: left;">ssh (Assumed)</td>
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">Unknown</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="analysis">Analysis:</h4>
+<p>The exposure of port 22 (SSH) to the public internet is a significant
+security risk. This port provides direct administrative access to the
+server and is a constant target for brute-force attacks and exploitation
+of vulnerabilities in the SSH service itself. Without strict access
+controls, this represents a direct path for an attacker to compromise
+the system.</p>
+<h1 id="consolidated-risk-assessment">Consolidated Risk Assessment</h1>
+<p>This section synthesizes findings from the security control review,
+technical scans, and pre-existing risk data into a prioritized list.</p>
+<div id="tab:risk_summary">
+<table>
+<caption>Summary of Identified Risks</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Risk ID</strong></th>
+<th style="text-align: left;"><strong>Risk Name</strong></th>
+<th style="text-align: left;"><strong>Affected Asset(s)</strong></th>
+<th style="text-align: left;"><strong>Severity</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">RISK-001</td>
+<td style="text-align: left;">Localhost Exposed (Pre-existing)</td>
+<td style="text-align: left;"><code>[Target IP]</code></td>
+<td style="text-align: left;"><span
+style="color: sev_critical"><strong>Critical (10.0)</strong></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-002</td>
+<td style="text-align: left;">No MFA on Sensitive Systems</td>
+<td style="text-align: left;">Data &amp; Systems</td>
+<td style="text-align: left;"><span
+style="color: sev_critical"><strong>Critical</strong></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-003</td>
+<td style="text-align: left;">Exposed SSH Management Port</td>
+<td style="text-align: left;"><code>[Target IP]</code></td>
+<td style="text-align: left;"><span
+style="color: sev_high"><strong>High</strong></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-004</td>
+<td style="text-align: left;">No MFA on Computer Logins</td>
+<td style="text-align: left;">Endpoints, Internal Network</td>
+<td style="text-align: left;"><span
+style="color: sev_high"><strong>High</strong></span></td>
+</tr>
+<tr>
+<td style="text-align: left;">RISK-005</td>
+<td style="text-align: left;">No Security Training for New Hires</td>
+<td style="text-align: left;">All Employees</td>
+<td style="text-align: left;"><span
+style="color: sev_high"><strong>High</strong></span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="recommendations">Recommendations</h1>
+<p>The following actions are recommended to mitigate the identified
+risks. Recommendations are prioritized based on severity.</p>
+<h2 id="risk-001-localhost-exposed-critical">RISK-001: Localhost Exposed
+(Critical)</h2>
+<h4 id="action">Action:</h4>
+<p>Immediately conduct a thorough investigation into the "Localhost
+Exposed" vulnerability. The CVSS score of 10.0 indicates a severe and
+easily exploitable flaw. Since the provided details are minimal, a full
+application and system-level review is required to identify the root
+cause and apply the necessary patches or configuration changes.
+<strong>This is the highest priority.</strong></p>
+<h2 id="risk-002-no-mfa-on-sensitive-systems-critical">RISK-002: No MFA
+on Sensitive Systems (Critical)</h2>
+<h4 id="action-1">Action:</h4>
+<p>Implement a mandatory MFA policy for all systems classified as
+containing sensitive data. This includes databases, financial
+applications, and administrative portals. Prioritize systems accessible
+from the internet. Acceptable MFA factors include authenticator apps,
+hardware tokens, or biometrics.</p>
+<h2 id="risk-003-exposed-ssh-management-port-high">RISK-003: Exposed SSH
+Management Port (High)</h2>
+<h4 id="action-2">Action:</h4>
+<p>Restrict access to the SSH port (22) on <code>[Target IP]</code>. The
+preferred method is to place the server behind a VPN or bastion host,
+requiring authenticated access to the internal network before SSH is
+possible. If direct access is an absolute requirement, implement the
+following controls:</p>
+<ul>
+<li><p>Use a firewall to whitelist only trusted source IP
+addresses.</p></li>
+<li><p>Disable password-based authentication and enforce the use of
+strong SSH keys.</p></li>
+<li><p>Implement an MFA solution for SSH logins.</p></li>
+</ul>
+<h2 id="risk-004-no-mfa-on-computer-logins-high">RISK-004: No MFA on
+Computer Logins (High)</h2>
+<h4 id="action-3">Action:</h4>
+<p>Deploy an MFA solution for all employee computer logins (e.g.,
+Windows, macOS). This drastically reduces the risk of an attacker
+gaining access to the internal network and moving laterally should a
+user’s password be compromised.</p>
+<h2 id="risk-005-no-security-training-for-new-hires-high">RISK-005: No
+Security Training for New Hires (High)</h2>
+<h4 id="action-4">Action:</h4>
+<p>Develop and integrate a mandatory security awareness training module
+into the new employee onboarding process. This training should cover, at
+a minimum: phishing awareness, acceptable use policies, password
+hygiene, and how to report a security incident.</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\(", right: "\)", display: false},
+                {left: "\[", right: "\]", display: true}
+            ],
+            throwOnError : false
+        });
+    });
+</script>
+</body>
+</html>

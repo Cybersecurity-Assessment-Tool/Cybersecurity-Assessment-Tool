@@ -1,0 +1,186 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGE IMPORTS ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{xcolor} % For colors
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ===================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ===================================================================
+\section*{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, a security controls questionnaire, and a review of pre-existing risk documentation.
+
+The assessment reveals a mixed security posture. On a positive note, the external network scan of the designated target IP address indicates a strong perimeter defense. No open ports were discovered, and a previously identified risk concerning an unencrypted web server on Port 80 appears to have been successfully remediated, as the port is now closed.
+
+However, the security controls review identified two critical gaps in internal policy and procedure. The absence of mandatory Multi-Factor Authentication (MFA) for accessing sensitive data systems represents a significant vulnerability to credential theft and unauthorized access. Furthermore, the lack of a formal employee Acceptable Use Policy (AUP) creates ambiguity regarding the proper use of company assets and weakens the organization's ability to enforce security standards.
+
+Immediate action should be prioritized to address these policy-based risks to bolster the organization's overall defense against both internal and external threats.
+
+% ===================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+This section details the organizational context for this assessment. The information provided was either supplied directly or uses standardized placeholders where data was not available.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \texttt{[Domain]} \\
+External IP Scanned & \texttt{[Client IP]} \\
+\bottomrule
+\end{tabular}
+
+% ===================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ===================================================================
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. A green checkmark (\textcolor{green}{\ding{51}}) indicates a positive control is in place, while a red cross (\textcolor{red}{\ding{55}}) highlights a control gap that introduces risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+\addlinespace
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+\addlinespace
+\textbf{Do you require MFA to access sensitive data systems?} & \textcolor{red}{\ding{55}} \\
+\addlinespace
+\textbf{Does your organization have an employee acceptable use policy?} & \textcolor{red}{\ding{55}} \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis of Gaps}
+\begin{itemize}
+    \item \textbf{MFA for Sensitive Systems:} The lack of MFA on sensitive systems is a critical vulnerability. Should an attacker compromise a user's credentials, they would have direct access to the organization's most valuable data.
+    \item \textbf{Acceptable Use Policy (AUP):} An AUP is a foundational governance document. Without it, there are no clear rules for employees regarding data handling, internet usage, and the use of company IT assets, increasing the risk of insider threats and accidental data leakage.
+\end{itemize}
+
+% ===================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed to identify accessible services and potential vulnerabilities on the organization's perimeter.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Host Status:} Up
+    \item \textbf{Key Finding:} No open ports were detected on the target system.
+\end{itemize}
+
+\subsection*{Port Scan Details}
+The scan confirmed that the host is online but is not exposing any services to the public internet on the ports tested. Notably, Port 80 (HTTP) was explicitly checked and found to be \textbf{closed}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Port} & \textbf{Protocol} & \textbf{State} \\
+\midrule
+80 & TCP & closed \\
+\bottomrule
+\end{tabular}
+\caption{Nmap Scan Results for Target \texttt{[Target IP]}}
+\end{table}
+
+\subsection*{Correlation with Existing Risks}
+The provided risk register listed a vulnerability named "Unencrypted Web Server" based on Port 80 being open. The results of this new scan directly contradict that finding. This indicates that the vulnerability has been successfully \textbf{remediated} since the last assessment.
+
+% ===================================================================
+% SECTION 5: CONSOLIDATED RISK ASSESSMENT
+% ===================================================================
+\section{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security questionnaire, technical scans, and pre-existing risk data into a prioritized list of current risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\linewidth}p{0.5\linewidth}l@{}}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\addlinespace
+\textbf{Lack of MFA for Sensitive Systems} & Failure to enforce MFA on systems containing sensitive data exposes the organization to a high risk of unauthorized access and data breach via compromised credentials. & \textbf{Critical} \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy} & The absence of a formal AUP leaves the organization vulnerable to insider threats and misuse of IT assets, with no clear guidelines or recourse for violations. & \textbf{High} \\
+\addlinespace
+\textbf{Unencrypted Web Server (Remediated)} & The previously identified risk of an open Port 80 has been addressed. The port is now confirmed to be closed to external traffic. This risk should be formally closed in the risk register. & Informational \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% ===================================================================
+% SECTION 6: RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+Based on the consolidated risk assessment, the following actions are recommended to improve the security posture of \textbf{[Organization Name]}.
+
+\begin{enumerate}
+    \item \textbf{Implement MFA for Sensitive Systems (Priority: Critical):}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately deploy and enforce a mandatory Multi-Factor Authentication solution for all user accounts (including administrative and service accounts) that have access to systems classified as containing sensitive data.
+        \item \textbf{Justification:} This is the single most effective control to prevent unauthorized access resulting from password compromise.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (Priority: High):}
+    \begin{itemize}
+        \item \textbf{Action:} Draft, approve, and disseminate a formal AUP that clearly defines the rules and responsibilities for all employees and contractors when using company-owned IT assets and data.
+        \item \textbf{Justification:} An AUP is a cornerstone of security governance that reduces ambiguity, establishes a baseline for user behavior, and provides a legal and administrative framework for enforcement.
+    \end{itemize}
+    \vspace{1em}
+    \item \textbf{Update Internal Risk Register (Priority: Administrative):}
+    \begin{itemize}
+        \item \textbf{Action:} Formally update the organization's risk register to mark the "Unencrypted Web Server" vulnerability as `Closed` or `Remediated`, referencing this assessment as evidence.
+        \item \textbf{Justification:} Maintaining an accurate risk register is crucial for focusing resources on current, relevant threats and for demonstrating security maturity over time.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

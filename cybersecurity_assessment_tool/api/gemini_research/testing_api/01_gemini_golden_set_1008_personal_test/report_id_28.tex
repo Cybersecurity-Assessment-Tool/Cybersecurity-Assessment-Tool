@@ -1,0 +1,211 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- Document Setup ---
+
+% Define colors for severity levels
+\definecolor{critical}{HTML}{990000}
+\definecolor{high}{HTML}{D14302}
+\definecolor{medium}{HTML}{EFAF00}
+\definecolor{low}{HTML}{337AB7}
+\definecolor{info}{HTML}{5BC0DE}
+
+% Hyperref setup for better presentation
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Cybersecurity Assessment Report}
+\rhead{Vertex Solutions}
+\cfoot{\thepage}
+
+% --- Helper Commands ---
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder for company logo
+    \vfill
+    \Huge\bfseries
+    Cybersecurity Assessment Report
+    \vspace{1cm}
+    \Large\bfseries
+    Prepared for: Vertex Solutions
+    \vspace{2cm}
+    \normalsize
+    \begin{tabular}{ll}
+    \textbf{Date of Report:} & \today \\
+    \textbf{Scan Date:} & Not Specified \\
+    \textbf{Report Version:} & 1.0 \\
+    \end{tabular}
+    \vfill
+    \textit{This document contains sensitive information and is intended for internal use only.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{Executive Summary}
+% ==============================================================================
+
+This report details the findings of a cybersecurity assessment conducted for Vertex Solutions. The assessment combined a review of organizational security controls via a questionnaire with a technical network scan of a target host.
+
+\paragraph{Key Findings:} The analysis revealed a significant disparity between the organization's technical and procedural security postures. The scanned host (\texttt{192.168.1.100}) demonstrates a strong security configuration, with no open ports or exposed services detected. This significantly minimizes its direct network attack surface.
+
+However, critical gaps were identified in the organization's security policies and controls. The lack of Multi-Factor Authentication (MFA) for email and sensitive data systems, coupled with an absence of a formal security awareness training program, exposes the organization to severe risks. These procedural weaknesses could allow an attacker to bypass technical controls through social engineering or credential theft, leading to unauthorized access and potential data breaches.
+
+\paragraph{Primary Risks:}
+\begin{itemize}
+    \item \textbf{Critical Risk:} Lack of MFA on email and sensitive data systems.
+    \item \textbf{High Risk:} Absence of a structured security awareness training program for employees.
+\end{itemize}
+
+\paragraph{Recommendations:} Immediate action should be taken to implement MFA across all critical systems. Concurrently, developing and deploying a comprehensive security awareness training program is essential to mitigate human-centric threats. Detailed recommendations are provided in Section \ref{sec:recommendations}.
+
+% ==============================================================================
+\section{Organizational Information}
+% ==============================================================================
+
+The following information was provided for the assessment.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Vertex Solutions \\
+Email Domain      & \seqsplit{\texttt{VertexSolutions.org}} \\
+Website Domain    & \url{www.VertexSolutions.org} \\
+External IP Address & \seqsplit{\texttt{6.38.71.144}} \\
+\bottomrule
+\end{tabular}
+
+% ==============================================================================
+\section{Security Control Review}
+% ==============================================================================
+
+A review of internal security controls was conducted based on a questionnaire. The responses indicate several areas requiring immediate attention.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.2\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \no & \textcolor{critical}{\textbf{Critical Gap}} \\
+Do you require MFA to log into computers? & \yes & Good Practice \\
+Do you require MFA to access sensitive data systems? & \no & \textcolor{critical}{\textbf{Critical Gap}} \\
+Does your organization have an employee acceptable use policy? & \yes & Good Practice \\
+Does your organization do security awareness training for new employees? & \no & \textcolor{high}{\textbf{High Risk}} \\
+Does your organization do security awareness training for all employees at least once per year? & \no & \textcolor{high}{\textbf{High Risk}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The findings highlight a significant risk profile related to user access and security awareness. While endpoint login (computers) is protected with MFA, the primary communication vector (email) and high-value assets (sensitive data systems) are not, leaving them vulnerable to credential-based attacks.
+
+% ==============================================================================
+\section{Technical Scan Results}
+% ==============================================================================
+
+A network scan was performed to identify exposed services and potential vulnerabilities on the specified target.
+
+\subsection{Scan Target}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.1.100}
+\end{itemize}
+
+\subsection{Findings}
+The scan of the target host yielded the following results:
+\begin{itemize}
+    \item \textbf{Host Status:} Up
+    \item \textbf{Open Ports:} None Detected
+    \item \textbf{Port State:} All 1000 scanned ports were reported as 'closed'.
+\end{itemize}
+
+\paragraph{Analysis:} The absence of any open ports on the target host is an excellent security finding. A 'closed' port indicates that the host is reachable but no application is listening on that port. This configuration drastically reduces the network attack surface of the device, making it resilient against network-based service exploitation. This is a significant strength in the organization's technical security posture for this specific asset.
+
+% ==============================================================================
+\section{Risk Assessment Summary}
+% ==============================================================================
+
+The following table summarizes the key risks identified during this assessment, derived from the security control review. No pre-existing risks were provided for correlation.
+
+\begin{table}[h!]
+\centering
+\caption{Identified Risks}
+\begin{tabular}{@{}lp{0.3\linewidth}p{0.4\linewidth}l@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+RISK-001 & Lack of MFA on Email & Email accounts are protected only by passwords, making them highly susceptible to phishing, credential stuffing, and takeover. & \textcolor{critical}{\textbf{Critical}} \\
+\addlinespace
+RISK-002 & Lack of MFA on Sensitive Systems & Critical data systems lack a secondary authentication factor, exposing sensitive information to theft if a single password is compromised. & \textcolor{critical}{\textbf{Critical}} \\
+\addlinespace
+RISK-003 & Inadequate Security Awareness Training & Employees are not trained to identify or respond to social engineering and phishing attacks, making them a vulnerable entry point for attackers. & \textcolor{high}{\textbf{High}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+\section{Recommendations}
+\label{sec:recommendations}
+% ==============================================================================
+
+Based on the findings of this assessment, the following actions are recommended to mitigate the identified risks and improve the overall security posture of Vertex Solutions.
+
+\subsection{Immediate Actions (1-30 Days)}
+\begin{enumerate}
+    \item \textbf{Implement MFA on Email (RISK-001):}
+    \begin{itemize}
+        \item Enforce mandatory MFA for all user accounts, including administrative and service accounts, on the \texttt{VertexSolutions.org} email platform.
+        \item Prioritize authentication methods resistant to phishing, such as FIDO2 security keys or authenticator apps, over SMS-based codes.
+    \end{itemize}
+    
+    \item \textbf{Implement MFA on Sensitive Systems (RISK-002):}
+    \begin{itemize}
+        \item Conduct an inventory of all systems classified as containing sensitive data.
+        \item Immediately enforce MFA for access to these systems, especially for remote access (e.g., VPN) and administrative interfaces.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Short-Term Actions (30-90 Days)}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Continue numbering
+    \item \textbf{Establish a Security Awareness Program (RISK-003):}
+    \begin{itemize}
+        \item Develop or procure a security awareness training module that covers key topics such as phishing, password hygiene, and acceptable use.
+        \item Make this training mandatory for all new employees as part of their onboarding process.
+        \item Schedule and conduct mandatory annual refresher training for all existing employees to ensure continuous awareness.
+        \item Consider periodic phishing simulations to test and reinforce employee training.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

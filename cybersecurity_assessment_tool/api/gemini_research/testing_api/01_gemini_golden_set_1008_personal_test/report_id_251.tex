@@ -1,0 +1,174 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{pifont} % For dingbats (checkmarks and crosses)
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For hyperlinks and metadata
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Metadata
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Analysis},
+    pdfkeywords={Security, Report, Analysis},
+}
+
+% Title and Author Information
+\title{Cybersecurity Posture Assessment Report \\ \large For \textbf{Evergreen Alliance}}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+\setcounter{page}{1}
+
+% --- SECTION 1: EXECUTIVE OVERVIEW ---
+\section{Executive Overview}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Evergreen Alliance}, synthesizing data from technical network scans, a security controls questionnaire, and a review of pre-existing risks. The analysis reveals a mixed security posture with several critical and high-risk gaps that require immediate attention.
+
+While the organization has implemented some foundational controls, such as Multi-Factor Authentication (MFA) for computer and sensitive data access, significant vulnerabilities exist in core policy and identity management areas. The most critical findings include:
+
+\begin{itemize}
+    \item \textbf{Lack of MFA on Email:} The absence of MFA for email (\texttt{EvergreenAlliance.org}) exposes the organization to a high risk of Business Email Compromise (BEC), phishing, and account takeover.
+    \item \textbf{Critical Policy Gaps:} The organization lacks a formal Acceptable Use Policy and does not provide mandatory annual security awareness training for all employees. These gaps increase the risk of insider threats and susceptibility to social engineering.
+    \item \textbf{Technical Vulnerability:} A network service (SSH on port 22) was found running on the localhost interface (\texttt{127.0.0.1}), correlating with a known critical risk. This could be exploited by malicious local processes or users to escalate privileges.
+\end{itemize}
+
+This report outlines these findings in detail and provides actionable recommendations to mitigate the identified risks and strengthen the overall security posture of \textbf{Evergreen Alliance}.
+
+% --- SECTION 2: ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{Evergreen Alliance} \\
+Email Domain & \texttt{EvergreenAlliance.org} \\
+Website Domain & \url{www.EvergreenAlliance.org} \\
+External IP Address & \texttt{80.240.99.217} \\
+\bottomrule
+\end{tabular}
+
+% --- SECTION 3: SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+
+A security controls questionnaire was completed to evaluate the organization's current policies and procedures. The responses are summarized below. Items marked with a cross (\ding{55}) indicate significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\
+\midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The questionnaire reveals critical weaknesses in identity management and security governance. The lack of MFA on email is the most severe finding, as email is a primary vector for cyberattacks. Furthermore, the absence of an Acceptable Use Policy and annual security training for all staff creates an environment where employees may be unaware of their security responsibilities, making the organization more vulnerable to both accidental and malicious threats.
+
+% --- SECTION 4: TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+
+A network scan was performed on the target system to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{127.0.0.1}
+    \item \textbf{Scan Date:} Data provided on \today
+\end{itemize}
+
+The following table details the open ports discovered during the scan.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\
+\midrule
+22/tcp & open & SSH & Service is running on the localhost interface. \\
+& & & This configuration is unusual for an external scan \\
+& & & and directly correlates with the known critical risk \\
+& & & "Localhost Exposed". \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Analysis}
+The technical scan confirmed the presence of an open SSH port on the localhost interface. While not directly accessible from the internet, a service listening on localhost can be a target for privilege escalation by malicious software or unauthorized users already on the system. This finding validates the pre-existing risk documented in the organization's risk register and indicates it has not yet been remediated.
+
+% --- SECTION 5: CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+
+The following table summarizes and prioritizes the risks identified through the correlation of the questionnaire, technical scan, and pre-existing risk data.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.15\linewidth}p{0.65\linewidth}l@{}}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Localhost Service Exposure} & An SSH service is exposed on the localhost interface (\texttt{127.0.0.1}), which could be exploited by local processes to escalate privileges. This aligns with a known, unmitigated vulnerability. & \textbf{Critical} \\
+\addlinespace
+\textbf{No MFA on Email} & The lack of MFA on email accounts makes them highly susceptible to compromise via phishing or credential stuffing, leading to potential data breaches and financial loss. & \textbf{Critical} \\
+\addlinespace
+\textbf{Missing Acceptable Use Policy} & Without a formal AUP, there is no clear guidance for employees on the secure and acceptable use of company assets, increasing the risk of misuse and insider threats. & \textbf{High} \\
+\addlinespace
+\textbf{Inadequate Security Training} & The absence of mandatory annual security training for all staff leads to a decline in security awareness over time, making the organization more vulnerable to social engineering attacks. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- SECTION 6: RECOMMENDATIONS ---
+\section{Recommendations}
+
+To address the identified risks, the following actions are recommended. These are prioritized based on severity and potential impact.
+
+\begin{description}
+    \item[Remediate Critical Risks (Immediate Priority)]
+        \begin{itemize}
+            \item \textbf{Implement MFA for Email:} Immediately enforce MFA for all user accounts on the \texttt{EvergreenAlliance.org} email system. This is the most effective single measure to prevent account takeovers.
+            \item \textbf{Investigate and Secure Localhost Service:} The purpose of the SSH service on \texttt{127.0.0.1} must be investigated. If it is not essential, the service should be disabled. If it is required, ensure it is securely configured, patched, and access is strictly controlled.
+        \end{itemize}
+    
+    \item[Address High-Risk Gaps (High Priority)]
+        \begin{itemize}
+            \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP that clearly defines rules for the use of company technology and data. All employees must be required to read and acknowledge this policy.
+            \item \textbf{Establish Annual Security Awareness Training:} Institute a mandatory annual security awareness training program for all employees. This program should cover modern threats like phishing, ransomware, and social engineering, and be updated regularly.
+        \end{itemize}
+\end{description}
+
+By implementing these recommendations, \textbf{Evergreen Alliance} can significantly reduce its attack surface and improve its resilience against common cyber threats.
+
+\end{document}
+```

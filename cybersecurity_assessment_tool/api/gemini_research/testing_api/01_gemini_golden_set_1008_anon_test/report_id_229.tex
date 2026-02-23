@@ -1,0 +1,175 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{xcolor} % For colors
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{November 22, 2025}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{[Organization Name]}, conducted on November 22, 2025. The analysis is based on a combination of organizational security control data, an external network scan, and a review of pre-existing risks.
+
+The assessment reveals a mixed security posture. The organization has implemented critical controls such as requiring Multi-Factor Authentication (MFA) for email and sensitive data access. However, significant and high-risk gaps were identified that require immediate attention.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Control Gap:} The absence of mandatory MFA for computer logins presents a critical risk, significantly weakening endpoint security and exposing the internal network to unauthorized access should user credentials be compromised.
+    \item \textbf{High-Risk Policy Gap:} The lack of mandatory annual security awareness training for all employees increases susceptibility to phishing and social engineering attacks.
+    \item \textbf{High-Risk Technical Vulnerability:} An external network scan identified a public-facing Nginx web server running version 1.18.0. This version is outdated, no longer supported, and has multiple known vulnerabilities, posing a direct threat of system compromise.
+\end{itemize}
+
+These findings, when correlated, indicate a heightened risk of a security breach. Recommendations are provided in Section \ref{sec:recommendations} to address these vulnerabilities and strengthen the overall security posture.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+
+This section details the information provided by the client organization. Due to the anonymized nature of the input data, placeholders are used where necessary.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Email Domain & \texttt{[Domain]} \\
+    External IP Scanned & \texttt{[Client IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. A green checkmark (\ding{51}) indicates a positive control is in place, while a red cross (\ding{55}) indicates a control gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc}
+    \toprule
+    \textbf{Security Control Question} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+    Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+    Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+    Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+    Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\
+    \bottomrule
+\end{tabular}
+\caption{Organizational Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+Two significant control gaps were identified:
+\begin{itemize}
+    \item \textbf{No MFA for Computer Logins:} This is a critical weakness. If an attacker obtains an employee's credentials through phishing or other means, they can gain direct access to an endpoint on the internal network, bypassing other perimeter defenses.
+    \item \textbf{No Annual Security Training:} While new employees receive training, the lack of an annual refresher for all staff leads to knowledge decay. The threat landscape evolves rapidly, and without continuous education, employees are more likely to fall victim to modern attack techniques.
+\end{itemize}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+
+An external network scan was performed to identify exposed services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} November 22, 2025
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lllll}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} \\
+    \midrule
+    443/TCP & Open & HTTPS & Nginx & 1.18.0 \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports and Services Identified}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan revealed a single open port (443/TCP) running an Nginx web server. The detected version, \textbf{1.18.0}, was released in April 2020 and is now considered outdated and end-of-life. This version is known to be vulnerable to several publicly disclosed security issues (e.g., CVE-2021-23017). Running unsupported software on a public-facing server constitutes a high-risk exposure that could be exploited by attackers to gain unauthorized access to the server and potentially the internal network.
+
+% --- RISK ASSESSMENT ---
+\section{Risk Assessment}
+
+This section synthesizes findings from the security control review and the technical scan. No pre-existing risks were provided for this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll}
+    \toprule
+    \textbf{ID} & \textbf{Risk Description} & \textbf{Severity} & \textbf{Source} \\
+    \midrule
+    R-01 & Lack of MFA on endpoints (computers). & \textbf{Critical} & Questionnaire \\
+    R-02 & Outdated and vulnerable Nginx web server. & \textbf{High} & Network Scan \\
+    R-03 & Lack of mandatory annual security training. & \textbf{High} & Questionnaire \\
+    \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+\label{sec:recommendations}
+
+Based on the identified risks, the following prioritized actions are recommended to improve the security posture of \textbf{[Organization Name]}.
+
+\begin{enumerate}
+    \item \textbf{Implement MFA for Endpoint Logins (Critical):}
+    \begin{itemize}
+        \item \textbf{Action:} Deploy a Multi-Factor Authentication solution for all employee computer and remote access logins. This is the single most effective control to mitigate the risk of compromised credentials.
+        \item \textbf{Priority:} Immediate
+    \end{itemize}
+
+    \item \textbf{Upgrade Public-Facing Web Server (High):}
+    \begin{itemize}
+        \item \textbf{Action:} Plan and execute an upgrade of the Nginx server from version 1.18.0 to a current, stable, and fully patched version. This will remediate known vulnerabilities.
+        \item \textbf{Priority:} High
+    \end{itemize}
+    
+    \item \textbf{Establish Annual Security Training Program (High):}
+    \begin{itemize}
+        \item \textbf{Action:} Develop and enforce a mandatory security awareness training program that all employees must complete at least once per year. The training should cover current threats such as phishing, ransomware, and social engineering.
+        \item \textbf{Priority:} High
+    \end{itemize}
+
+    \item \textbf{Implement a Vulnerability Management Program (Medium):}
+    \begin{itemize}
+        \item \textbf{Action:} Establish a formal process for regularly scanning internal and external assets for vulnerabilities. This program should include processes for prioritizing and remediating findings in a timely manner to prevent the future use of outdated software.
+        \item \textbf{Priority:} Medium
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

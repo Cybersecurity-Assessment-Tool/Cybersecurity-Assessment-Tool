@@ -1,0 +1,158 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings without breaking
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Document Metadata
+\title{Cybersecurity Posture Report \\ \large For: Silver Leaf Collective}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Silver Leaf Collective}, based on a synthesis of network scan data, organizational security controls, and pre-existing risk information.
+
+The assessment reveals several critical and high-risk security gaps that expose the organization to significant threats, most notably unauthorized access and ransomware attacks. The primary findings include:
+
+\begin{itemize}
+    \item \textbf{Systemic Remote Desktop Protocol (RDP) Exposure:} A network scan identified an open RDP port on a new host (\texttt{10.10.10.51}). When correlated with existing risk data, this indicates a dangerous pattern of exposing a highly targeted service across the internal network.
+    \item \textbf{Insufficient Access Controls:} Multi-Factor Authentication (MFA) is not enforced for accessing email or other sensitive data systems. This severely weakens account security and provides a straightforward path for attackers with compromised credentials.
+    \item \textbf{Lack of Security Awareness Training:} The organization does not provide security awareness training for new or existing employees. This creates a workforce that is highly vulnerable to phishing and social engineering attacks, which are the primary vectors for initial compromise.
+\end{itemize}
+
+These findings are not isolated; they are interconnected and create a compounding risk profile. An attacker could exploit the lack of training via a phishing email, compromise an account that is not protected by MFA, and then use those credentials to access an internally exposed system via RDP. Immediate remediation of these issues is strongly recommended to reduce the organization's attack surface and mitigate the risk of a significant security incident.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+This section details the organizational data provided for the assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{Silver Leaf Collective} \\
+Email Domain & \texttt{SilverLeafCollective.org} \\
+Website Domain & \seqsplit{\url{http://www.SilverLeafCollective.org}} \\
+External IP Address & \texttt{137.205.253.86} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details.}
+\label{tab:org_info}
+\end{table}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to a security controls questionnaire. A red cross (\ding{55}) indicates a negative response, representing a potential security gap that requires attention.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees annually? & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis.}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The questionnaire reveals critical deficiencies in access control and employee security training. The absence of MFA for email and sensitive systems, combined with a complete lack of a security awareness program, significantly increases the risk of account compromise and subsequent data breaches.
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+An internal network scan was performed to identify active services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{10.10.10.51}
+    \item \textbf{Scan Status:} Host is up and responsive.
+\end{itemize}
+
+The following table details the open ports discovered on the target system.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} & \textbf{Product/Version} \\ \midrule
+3389/tcp & open & ms-wbt-server & \textit{Not Detected} \\ \bottomrule
+\end{tabular}
+\caption{Open Ports on \texttt{10.10.10.51}.}
+\label{tab:scan_results}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified that port \textbf{3389/tcp}, used for Microsoft's Remote Desktop Protocol (RDP), is open. RDP is a primary target for attackers who use it for lateral movement and as an entry point for ransomware deployment. The presence of this service, combined with the pre-existing risk of RDP exposure on another host (\texttt{10.10.10.50}), confirms a systemic misconfiguration that must be addressed network-wide.
+
+% --- 5. Correlated Risk Assessment ---
+\section{Correlated Risk Assessment}
+This section synthesizes the findings from the security control review, technical scan, and pre-existing risk data into a prioritized list of correlated risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\linewidth}p{0.25\linewidth}p{0.45\linewidth}p{0.1\linewidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\textbf{RISK-01} & Systemic RDP Exposure & RDP (port 3389) is confirmed open on \texttt{10.10.10.51}, in addition to a previously identified risk on \texttt{10.10.10.50}. This pattern indicates a lack of network segmentation and port security, creating multiple entry points for attackers. & \textbf{Critical} \\
+\addlinespace
+\textbf{RISK-02} & Insufficient Access Controls & MFA is not enforced on critical systems, including email and sensitive data platforms. This allows an attacker with stolen credentials to gain direct access without any additional security challenge. & \textbf{Critical} \\
+\addlinespace
+\textbf{RISK-03} & Inadequate Security Awareness Program & The complete absence of security awareness training makes employees highly susceptible to phishing and social engineering, which are the leading causes of credential theft. & \textbf{High} \\ \bottomrule
+\end{tabular}
+\caption{Summary of Correlated Risks.}
+\label{tab:risk_summary}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks. Recommendations are prioritized based on severity and potential impact.
+
+\subsection{RISK-01: Remediate Systemic RDP Exposure}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Apply host-based firewall rules or network Access Control Lists (ACLs) to block all access to TCP port 3389 on \texttt{10.10.10.51} and any other systems where it is not strictly required for business operations. Conduct a network-wide scan to identify and close all other instances of exposed RDP.
+    \item \textbf{Long-Term Strategy:} Implement a secure remote access solution, such as a Virtual Private Network (VPN) or a Zero-Trust Network Access (ZTNA) gateway. All remote administration should occur through this managed and authenticated channel, not via direct exposure of services.
+\end{itemize}
+
+\subsection{RISK-02: Implement Multi-Factor Authentication}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Enforce MFA for all user accounts on the organization's email platform (\texttt{SilverLeafCollective.org}). This is the single most effective control to prevent email account takeovers.
+    \item \textbf{Long-Term Strategy:} Conduct an inventory of all systems storing sensitive data and develop a phased plan to enforce MFA across all of them. Prioritize systems that are internet-facing or contain critical business information.
+\end{itemize}
+
+\subsection{RISK-03: Establish a Security Awareness Program}
+\begin{itemize}
+    \item \textbf{Immediate Action:} Enroll all current employees in a foundational security awareness training module. This should cover, at a minimum, how to identify phishing emails, best practices for password management, and the company's acceptable use policy.
+    \item \textbf{Long-Term Strategy:} Develop a formal security awareness program that includes mandatory training for all new hires during onboarding and annual refresher training for all staff. Supplement this with periodic phishing simulations to test and reinforce learning.
+\end{itemize}
+
+\end{document}
+```

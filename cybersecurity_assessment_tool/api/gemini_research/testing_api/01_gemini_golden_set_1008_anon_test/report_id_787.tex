@@ -1,0 +1,184 @@
+```latex
+\documentclass[12pt]{article}
+
+% Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define colors for severity
+\definecolor{criticalred}{HTML}{D10000}
+\definecolor{highorange}{HTML}{E87722}
+\definecolor{mediumyellow}{HTML}{F8C423}
+\definecolor{lowblue}{HTML}{0073E6}
+
+% --- Document Start ---
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    \Huge\textbf{Cybersecurity Posture Assessment Report}
+    \vspace{1.5cm}
+    \large
+    \begin{center}
+        \includegraphics[width=0.4\textwidth]{example-image-a} % Placeholder logo
+    \end{center}
+    \vspace{1.5cm}
+    \textbf{Prepared for:}\\
+    \vspace{0.2cm}
+    \Large\textbf{[Organization Name]}\\
+    \vspace{2cm}
+    \textbf{Date of Report:}\\
+    \vspace{0.2cm}
+    \large\today\\
+    \vfill
+    \small
+    \textit{This report contains sensitive information and is intended solely for the use of the recipient organization. Distribution without prior consent is prohibited.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% --- Section 1: Executive Summary ---
+\section{Executive Summary}
+This report provides a cybersecurity posture assessment for \textbf{[Organization Name]}, based on an analysis of organizational security controls, an external network scan, and a review of known risks. The assessment was conducted on \today.
+
+The key findings indicate critical gaps in identity and access management controls. Specifically, the absence of Multi-Factor Authentication (MFA) for email and computer logins presents a significant and immediate risk to the organization. These control failures could easily lead to account compromise, data breaches, and ransomware incidents.
+
+From a technical perspective, an external scan identified an open Secure Shell (SSH) port. While necessary for remote administration, its exposure to the public internet requires robust security configurations to prevent unauthorized access.
+
+Currently, the organization's security posture is considered high-risk due to the identified MFA deficiencies. We strongly recommend prioritizing the remediation actions outlined in Section \ref{sec:recommendations} to mitigate these threats and improve overall security resilience.
+
+% --- Section 2: Organizational Information ---
+\section{Organizational Information}
+The following details were used as the basis for this assessment. As per the provided data, placeholders have been used where specific information was not available.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Email Domain & \texttt{[Domain]} \\
+External IP Address (Target) & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\label{tab:org_info}
+\end{table}
+
+% --- Section 3: Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The results highlight both strengths and critical weaknesses in the current security program. "No" answers indicate significant gaps that require immediate attention.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} \\ \midrule
+Do you require MFA to access email? & \textcolor{criticalred}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{criticalred}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis}
+The lack of MFA on email and computer logins are critical security failures. Email is the primary target for phishing attacks leading to account takeovers, and unprotected computer logins remove a crucial layer of defense against unauthorized physical or remote access. While it is positive that MFA is used for sensitive data systems and that a security awareness program is in place, these strengths are undermined by the foundational weakness in account security.
+
+% --- Section 4: Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify exposed services and potential vulnerabilities.
+
+\subsection{Scan Metadata}
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Scanner Used:} Nmap
+\end{itemize}
+
+\subsection{Open Ports and Services}
+The scan revealed the following open port on the target system.
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Notes} \\ \midrule
+22/tcp & Open & SSH (Secure Shell) & Remote administration service. \\
+& & & No version information was available. \\ \bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{[Target IP]}}
+\label{tab:ports}
+\end{table}
+
+\subsection*{Analysis}
+The presence of an open SSH port (22) indicates that a system is configured for remote administration. Exposing this service directly to the internet is a common practice but carries inherent risks. Without strong password policies, key-based authentication, and monitoring, it can be a target for brute-force attacks. The lack of service version information from the scan prevents an assessment for known vulnerabilities in the SSH software itself.
+
+% --- Section 5: Risk Assessment ---
+\section{Risk Assessment}
+Based on the correlation of the security control review and technical scan results, the following risks have been identified. The list of pre-existing vulnerabilities was empty, so all risks listed below are new findings from this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\linewidth}p{0.25\linewidth}p{0.45\linewidth}l@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\ \midrule
+RISK-001 & Lack of MFA on Email Accounts & The absence of MFA on email exposes the organization to a high likelihood of account compromise via phishing or credential stuffing, leading to data breaches and further internal attacks. & \textcolor{criticalred}{\textbf{Critical}} \\
+\addlinespace
+RISK-002 & Lack of MFA on Workstations & User computers do not require MFA for login. This weakens endpoint security and increases the risk of unauthorized access if credentials are stolen or an insider threat exists. & \textcolor{highorange}{\textbf{High}} \\
+\addlinespace
+RISK-003 & Exposed SSH Management Port & Port 22 (SSH) is open to the public internet. If not securely configured (e.g., weak passwords allowed, outdated version), it is a prime target for automated brute-force attacks. & \textcolor{mediumyellow}{\textbf{Medium}} \\ \bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% --- Section 6: Recommendations ---
+\section{Recommendations}
+\label{sec:recommendations}
+The following prioritized recommendations are provided to address the identified risks and improve the overall security posture of \textbf{[Organization Name]}.
+
+\subsection{Priority 1: Critical}
+\begin{itemize}
+    \item \textbf{Implement MFA for Email (RISK-001):} Immediately enforce MFA for all user access to the email system (e.g., Microsoft 365, Google Workspace). This is the single most effective control to prevent email account takeovers.
+\end{itemize}
+
+\subsection{Priority 2: High}
+\begin{itemize}
+    \item \textbf{Enforce MFA for Workstations (RISK-002):} Deploy and require MFA for all computer logins, especially for privileged users and users with remote access capabilities. This adds a critical layer of security to endpoints.
+\end{itemize}
+
+\subsection{Priority 3: Medium}
+\begin{itemize}
+    \item \textbf{Secure the Exposed SSH Service (RISK-003):} Conduct a configuration review of the SSH service on \texttt{[Target IP]}.
+    \begin{itemize}
+        \item If possible, restrict access to the SSH port using a firewall to only allow connections from trusted IP addresses (e.g., corporate VPN, administrator locations).
+        \item Disable password-based authentication and enforce the use of public key cryptography.
+        \item Ensure the SSH service is patched to the latest stable version to protect against known vulnerabilities.
+        \item Implement an intrusion detection tool like Fail2ban to automatically block IPs that exhibit malicious behavior.
+    \end{itemize}
+\end{itemize}
+
+% --- Document End ---
+\end{document}
+```

@@ -1,0 +1,160 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{url}      % For URL formatting
+\usepackage{seqsplit} % For splitting long strings in tt font
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. Executive Summary ---
+\section{Executive Summary}
+
+This report provides a cybersecurity posture assessment for \textbf{Swift Current Labs}. The analysis is based on a combination of self-reported organizational data, an external network scan, and a review of known risks.
+
+The assessment reveals a mixed security posture. On a positive note, the external network scan of the target IP address (\seqsplit{\texttt{192.168.1.100}}) indicated no open ports, suggesting a well-configured perimeter firewall that effectively denies unsolicited inbound traffic. The organization also has foundational policies in place, such as an acceptable use policy and security training for new hires.
+
+However, several critical security gaps were identified through the organizational questionnaire. The lack of mandatory Multi-Factor Authentication (MFA) for email and computer logins represents a \textbf{Critical Risk}. These gaps expose the organization to significant threats, including business email compromise, credential theft, and ransomware. Furthermore, the absence of annual security awareness training for all staff constitutes a \textbf{High Risk}, as it increases susceptibility to phishing and social engineering attacks.
+
+Immediate remediation should focus on implementing a comprehensive MFA policy across all critical systems. Concurrently, establishing a recurring, mandatory security awareness training program for all employees is essential to mitigate human-factor risks.
+
+% --- 2. Organizational Information ---
+\section{Organizational Information}
+
+The following details were provided by the client for the purpose of this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{Swift Current Labs} \\
+Email Domain      & \texttt{SwiftCurrentLabs.net} \\
+Website Domain    & \texttt{www.SwiftCurrentLabs.net} \\
+External IP Address & \seqsplit{\texttt{58.189.41.171}} \\ \bottomrule
+\end{tabular}
+\caption{Client-Provided Information}
+\label{tab:org_info}
+\end{table}
+
+% --- 3. Security Control Review ---
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted based on a standardized questionnaire. The results are summarized below. Items marked with \ding{55} indicate a potential security gap that requires attention.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Security Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} \\
+Does your organization do security awareness training for all employees at least once per year? & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results (\ding{51}=Yes, \ding{55}=No)}
+\label{tab:controls}
+\end{table}
+
+\subsection*{Analysis of Findings}
+\begin{itemize}
+    \item \textbf{MFA Gaps:} The absence of MFA for email and computer access is a critical vulnerability. These are primary targets for attackers seeking to gain initial access to an organization's network and data.
+    \item \textbf{Training Gaps:} While new employees receive training, the lack of a mandatory annual refresher course for all staff leaves the organization vulnerable. Threat landscapes evolve, and continuous education is necessary to maintain a high level of security awareness.
+\end{itemize}
+
+% --- 4. Technical Scan Results ---
+\section{Technical Scan Results}
+
+An external network scan was performed to identify open ports and exposed services on the provided target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{192.168.1.100}}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Findings:} The scan reported that all ports were in a \textbf{closed} state. No open ports or active services were detected.
+\end{itemize}
+
+\subsection*{Analysis of Findings}
+This result is positive. It indicates that the target system is either not directly exposed to the internet or is protected by a well-configured firewall that is properly implementing a default-deny policy for inbound connections. This significantly reduces the external attack surface.
+
+% --- 5. Risk Assessment ---
+\section{Risk Assessment}
+
+This section correlates the findings from the security control review, technical scan, and pre-existing risk data to provide a consolidated view of the current risk landscape. As no pre-existing vulnerabilities were reported, this assessment is based solely on new findings.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.25\textwidth}p{0.55\textwidth}p{0.1\textwidth}@{}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\ \midrule
+\textbf{Lack of MFA for Email and Endpoints} & Without MFA, user credentials are a single point of failure. A compromised password (via phishing, brute-force, or credential stuffing) grants an attacker direct access to email accounts and workstations, facilitating data breaches, business email compromise (BEC), and ransomware deployment. & \textbf{Critical} \\
+\addlinespace
+\textbf{Inadequate Security Awareness Training} & The absence of annual, recurring security training for all employees increases the organization's susceptibility to social engineering and phishing attacks. This elevates the risk of an initial compromise that could bypass technical controls. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\end{table}
+
+% --- 6. Recommendations ---
+\section{Recommendations}
+
+Based on the analysis, the following actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Swift Current Labs}.
+
+\subsection*{Immediate Priority (Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Implement Comprehensive MFA:}
+    \begin{itemize}
+        \item Immediately enforce mandatory MFA for all user access to email systems (e.g., Office 365, Google Workspace).
+        \item Deploy an MFA solution for all computer and remote access logins (e.g., VPN, RDP). Solutions like Duo, Okta, or native platform tools (e.g., Windows Hello for Business) should be evaluated.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{High Priority}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Continue numbering from previous list
+    \item \textbf{Establish Annual Security Training Program:}
+    \begin{itemize}
+        \item Develop or procure a security awareness training program to be completed by all employees on an annual basis.
+        \item The training should cover current threats, including phishing identification, password hygiene, and social engineering tactics.
+        \item Supplement annual training with periodic phishing simulation campaigns to measure effectiveness and provide targeted remediation.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{General Recommendations}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Maintain Network Hardening:} Continue the practice of regular external network scanning and vulnerability management to ensure the perimeter remains secure and that no new, unauthorized services become exposed.
+\end{enumerate}
+
+\end{document}
+```

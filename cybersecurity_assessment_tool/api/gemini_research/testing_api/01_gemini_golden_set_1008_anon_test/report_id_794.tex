@@ -1,0 +1,168 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % Required for \ding
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % To split long strings in \texttt
+\usepackage{xcolor} % For colors
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% --- TITLE PAGE ---
+\title{
+    Cybersecurity Posture Assessment Report \\
+    \large For: \textbf{[Organization Name]}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- 1. EXECUTIVE SUMMARY ---
+\section*{1. Executive Summary}
+
+This report provides a comprehensive assessment of the current cybersecurity posture for \textbf{[Organization Name]}. The analysis is based on a correlation of external network scan data, a review of internal security controls via a questionnaire, and an evaluation of pre-existing documented risks.
+
+The overall security posture is assessed as \textbf{High Risk}. Several critical and high-severity vulnerabilities were identified that require immediate attention.
+
+Key findings include:
+\begin{itemize}
+    \item \textbf{Critical Risk - Exposed Vulnerable Service:} An external scan of the target IP address \texttt{[Target IP]} revealed an outdated and dangerously configured FTP server (\texttt{vsftpd 2.3.4}). This specific version is known to contain a critical backdoor vulnerability (CVE-2011-2523), and it is currently configured to allow anonymous logins, posing an immediate and severe threat of unauthorized access and system compromise.
+    \item \textbf{High Risk - Lack of Multi-Factor Authentication (MFA):} The organization has not implemented MFA for email, computer logins, or access to sensitive data systems. This represents a significant gap in access control, leaving critical assets vulnerable to compromise from stolen or weak credentials.
+    \item \textbf{Medium Risk - Outdated Operating Systems:} A pre-existing risk concerning workstations running the unsupported Windows 7 operating system remains a valid concern, increasing the attack surface for known and unpatched vulnerabilities.
+\end{itemize}
+
+Immediate remediation of the exposed FTP server and the phased implementation of MFA are strongly recommended to significantly reduce the organization's risk profile.
+
+% --- 2. ORGANIZATIONAL INFORMATION ---
+\section*{2. Organizational Information}
+
+This assessment was conducted for the following entity and associated assets. Due to the anonymized nature of the input data, placeholders are used where necessary.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Email Domain & \texttt{[Domain]} \\
+    Client External IP & \texttt{[Client IP]} \\
+    Target IP Scanned & \texttt{[Target IP]} \\
+    \bottomrule
+\end{tabular}
+
+% --- 3. SECURITY CONTROL REVIEW ---
+\section*{3. Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers indicate significant gaps in the security framework and are flagged as high-risk areas.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\textwidth}cc@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \textcolor{red}{\ding{55}} & High Risk Gap \\
+    Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} & High Risk Gap \\
+    Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} & High Risk Gap \\
+    Does your organization have an employee acceptable use policy? & \textcolor{green}{\ding{51}} & Best Practice Met \\
+    Does your organization do security awareness training for new employees? & \textcolor{green}{\ding{51}} & Best Practice Met \\
+    Does your organization do security awareness training for all employees at least once per year? & \textcolor{green}{\ding{51}} & Best Practice Met \\
+    \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+\subsection*{Analysis}
+The consistent lack of MFA across all critical access points (email, endpoints, data systems) is a major security deficiency. While foundational policies and training are in place, they are insufficient to protect against modern credential-based attacks without this technical control.
+
+% --- 4. TECHNICAL SCAN RESULTS ---
+\section*{4. Technical Scan Results}
+
+An Nmap scan was performed on the target IP address \texttt{[Target IP]} to identify open ports and exposed services.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{Service} & \textbf{Product / Version} & \textbf{Details} \\
+    \midrule
+    21/tcp & ftp & vsftpd 2.3.4 & \textbf{Anonymous FTP login allowed.} \\
+    \bottomrule
+\end{tabular}
+\caption{Open Ports and Services on \texttt{[Target IP]}}
+\end{table}
+
+\subsection*{Analysis of Findings}
+The scan identified one open port, 21/tcp, running \textbf{vsftpd version 2.3.4}. This is a critically outdated version of the FTP server software.
+\begin{itemize}
+    \item \textbf{Known Backdoor Vulnerability (CVE-2011-2523):} Version 2.3.4 of vsftpd was compromised in 2011, and a malicious backdoor was inserted into the source code. If a username containing the sequence `:)` is sent, the server opens a command shell on port 6200, allowing an attacker to execute arbitrary commands on the server.
+    \item \textbf{Anonymous Login Enabled:} The server is configured to allow anonymous FTP logins. This allows any attacker on the internet to connect to the server, enumerate files, and potentially upload malicious content without any authentication. This configuration drastically lowers the barrier to exploitation.
+\end{itemize}
+This finding represents a direct and immediate threat to the integrity and confidentiality of the affected server and the internal network it is connected to.
+
+% --- 5. CONSOLIDATED RISK ASSESSMENT ---
+\section*{5. Consolidated Risk Assessment}
+
+The following table consolidates findings from the security control review, technical scan, and pre-existing risk documentation into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.1\textwidth}p{0.4\textwidth}p{0.2\textwidth}p{0.2\textwidth}@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Description} & \textbf{Severity} & \textbf{Affected Elements} \\
+    \midrule
+    R-01 & A public-facing FTP server (vsftpd 2.3.4) with a known backdoor vulnerability and anonymous login enabled. & \textbf{Critical} & External Server (\texttt{[Target IP]}), Internal Network \\
+    \addlinespace
+    R-02 & Systemic lack of Multi-Factor Authentication (MFA) for email, endpoints, and sensitive systems. & \textbf{High} & User Accounts, Email, Sensitive Data, Workstations \\
+    \addlinespace
+    R-03 & Workstations are running the unsupported Windows 7 operating system, which no longer receives security updates. & \textbf{Medium} & Workstations \\
+    \bottomrule
+\end{tabular}
+\caption{Prioritized Risk Summary}
+\end{table}
+
+% --- 6. RECOMMENDATIONS ---
+\section*{6. Recommendations}
+
+The following actions are recommended to mitigate the identified risks.
+
+\subsection*{R-01: Remediate Exposed FTP Server (Critical)}
+\begin{itemize}
+    \item \textbf{Immediate (0-24 hours):} Take the FTP server offline immediately by stopping the vsftpd service or implementing a firewall rule to block all traffic to port 21 on \texttt{[Target IP]}.
+    \item \textbf{Short-Term (1-7 days):} If FTP is a business requirement, migrate to a secure alternative like SFTP (SSH File Transfer Protocol). If FTP must be used, upgrade the vsftpd software to the latest patched version and disable anonymous access.
+    \item \textbf{Long-Term:} Decommission the server if it serves no legitimate business purpose.
+\end{itemize}
+
+\subsection*{R-02: Implement Multi-Factor Authentication (High)}
+\begin{itemize}
+    \item \textbf{Immediate (0-30 days):} Begin a phased rollout of MFA. Prioritize enabling MFA on all administrator accounts, email accounts (e.g., via Office 365 or Google Workspace settings), and any remote access solutions (e.g., VPN).
+    \item \textbf{Short-Term (1-3 months):} Expand the MFA rollout to cover all employees and systems that process or store sensitive data.
+    \item \textbf{Long-Term:} Enforce MFA as a mandatory baseline for all new accounts and services.
+\end{itemize}
+
+\subsection*{R-03: Mitigate Outdated Operating Systems (Medium)}
+\begin{itemize}
+    \item \textbf{Immediate (0-30 days):} Ensure any remaining Windows 7 machines are isolated in a separate network segment with restricted access to critical resources.
+    \item \textbf{Short-Term (1-6 months):} Aggressively pursue the existing plan to upgrade or replace all Windows 7 workstations with a modern, supported operating system such as Windows 10 or 11.
+\end{itemize}
+
+\end{document}
+```

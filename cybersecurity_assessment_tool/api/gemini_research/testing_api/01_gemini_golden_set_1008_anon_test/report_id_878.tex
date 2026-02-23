@@ -1,0 +1,178 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry} % For setting page margins
+\usepackage{pifont}               % For symbols like checkmarks and crosses
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage[hidelinks]{hyperref}  % For hyperlinks without ugly boxes
+\usepackage{url}                  % For properly formatting URLs
+\usepackage{seqsplit}             % For splitting long strings in texttt
+\usepackage{graphicx}             % For logos, etc.
+\usepackage{xcolor}               % For colors
+
+% Custom Commands
+\newcommand{\yes}{\textcolor{green}{\ding{51}}}
+\newcommand{\no}{\textcolor{red}{\ding{55}}}
+\newcommand{\orgname}{\textbf{[Organization Name]}}
+\newcommand{\orgdomain}{\texttt{[Domain]}}
+\newcommand{\clientip}{\texttt{[Client IP]}}
+\newcommand{\targetip}{\texttt{[Target IP]}}
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ------------------------------------------------------------------------------
+% 1. EXECUTIVE SUMMARY
+% ------------------------------------------------------------------------------
+\section*{1. Executive Summary}
+
+This report details the findings of a cybersecurity posture assessment for \orgname. The analysis is based on a combination of external network scanning, a review of organizational security controls, and pre-existing risk data.
+
+The assessment has identified several \textbf{critical-severity risks} that require immediate attention. A publicly accessible FTP server was discovered running a dangerously outdated and vulnerable version of \texttt{vsftpd} (2.3.4), which is known to contain a backdoor enabling remote code execution. This service is also misconfigured to allow anonymous logins, presenting a trivial entry point for an attacker.
+
+Furthermore, the organizational security control review revealed a systemic lack of Multi-Factor Authentication (MFA) across all critical services, including email, computer logins, and access to sensitive data. This absence of a fundamental security layer significantly increases the risk of unauthorized access and account compromise.
+
+Additional high-risk findings include the lack of foundational security policies and training for new employees. While some positive controls are in place, such as annual security training, the identified vulnerabilities create a fragile security posture that must be addressed urgently. This report provides a detailed breakdown of these risks and offers prioritized, actionable recommendations to mitigate them.
+
+% ------------------------------------------------------------------------------
+% 2. ORGANIZATIONAL INFORMATION
+% ------------------------------------------------------------------------------
+\section*{2. Organizational Information}
+
+This assessment was conducted for the following entity. The information provided has been anonymized for this report template.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} \orgname
+    \item \textbf{Primary Email Domain:} \orgdomain
+    \item \textbf{External IP Address Scanned:} \clientip
+\end{itemize}
+
+% ------------------------------------------------------------------------------
+% 3. SECURITY CONTROL REVIEW
+% ------------------------------------------------------------------------------
+\section*{3. Security Control Review (Questionnaire)}
+
+The following table summarizes the organization's responses to a security controls questionnaire. Answers marked with a \no\ indicate a significant gap in the security framework and are correlated with findings in the Risk Assessment section.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{p{0.6\linewidth} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \no & Critical Gap \\
+Do you require MFA to log into computers? & \no & Critical Gap \\
+Do you require MFA to access sensitive data systems? & \no & Critical Gap \\
+Does your organization have an employee acceptable use policy? & \no & High Risk \\
+Does your organization do security awareness training for new employees? & \no & High Risk \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Control in Place \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The widespread lack of MFA is the most critical finding from this review. The absence of an acceptable use policy and new hire training creates an environment where employees may be unaware of their security responsibilities, increasing the likelihood of human error leading to a security incident.
+
+% ------------------------------------------------------------------------------
+% 4. TECHNICAL SCAN RESULTS
+% ------------------------------------------------------------------------------
+\section*{4. Technical Scan Results}
+
+An external network scan was performed on the target IP address. The results below detail the open ports and services discovered.
+
+\subsection*{Target: \targetip}
+A single host was found to be active at the target address with the following open port:
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services on \targetip}
+\begin{tabular}{l l l p{0.4\linewidth}}
+\toprule
+\textbf{Port} & \textbf{Service} & \textbf{Product / Version} & \textbf{Finding} \\
+\midrule
+21/tcp & ftp & vsftpd 2.3.4 & \textbf{Critical Vulnerability.} Anonymous FTP login is allowed. The identified version is known to be backdoored (CVE-2011-2523), allowing for unauthenticated remote code execution. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The presence of an FTP server running \texttt{vsftpd 2.3.4} is a severe and immediate threat. This specific version, released in 2011, contains a well-documented backdoor that was inserted into the source code. An attacker can gain a command shell on the server by simply sending a specific sequence of characters in the username field. The additional finding that anonymous login is permitted lowers the barrier to exploitation to near zero. This system should be considered compromised and must be taken offline immediately.
+
+% ------------------------------------------------------------------------------
+% 5. CONSOLIDATED RISK ASSESSMENT
+% ------------------------------------------------------------------------------
+\section*{5. Consolidated Risk Assessment}
+
+The following table synthesizes findings from the technical scan, security control review, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{l p{0.5\linewidth} l l}
+\toprule
+\textbf{Risk ID} & \textbf{Description} & \textbf{Severity} & \textbf{Source} \\
+\midrule
+RISK-001 & A publicly accessible FTP server is running a backdoored version of \texttt{vsftpd 2.3.4} with anonymous login enabled. & \textbf{Critical} & Network Scan \\
+\addlinespace
+RISK-002 & Multi-Factor Authentication (MFA) is not enforced for email, computer logins, or access to sensitive data systems. & \textbf{Critical} & Questionnaire \\
+\addlinespace
+RISK-003 & Foundational security policies (Acceptable Use) and mandatory training for new hires are not in place. & \textbf{High} & Questionnaire \\
+\addlinespace
+RISK-004 & Workstations are running the unsupported Windows 7 operating system, which no longer receives security updates. & Medium & Existing Risks \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------------------------
+% 6. RECOMMENDATIONS
+% ------------------------------------------------------------------------------
+\section*{6. Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection*{Immediate Actions (Within 24 Hours)}
+
+\paragraph{RISK-001: Remediate Vulnerable FTP Server}
+\begin{itemize}
+    \item \textbf{Action:} Immediately take the server at \targetip\ offline. Disconnect it from the network.
+    \item \textbf{Justification:} The server is running software with a known backdoor and is highly likely to be compromised. It poses an immediate threat to the entire network.
+    \item \textbf{Follow-up:} Conduct a forensic analysis of the server to determine if it has been compromised. If the FTP service is required, it must be rebuilt on a new, patched server with a modern FTP daemon, and anonymous access must be disabled. Secure alternatives like SFTP should be used instead.
+\end{itemize}
+
+\subsection*{Short-Term Actions (Next 30 Days)}
+
+\paragraph{RISK-002: Implement Multi-Factor Authentication (MFA)}
+\begin{itemize}
+    \item \textbf{Action:} Begin a phased rollout of MFA for all users.
+    \item \textbf{Priority 1:} Enable MFA for access to all email accounts (e.g., Office 365, Google Workspace).
+    \item \textbf{Priority 2:} Enable MFA for all remote access systems (VPNs, RDP).
+    \item \textbf{Priority 3:} Plan for the implementation of MFA for computer logins and access to all systems storing sensitive data.
+\end{itemize}
+
+\subsection*{Mid-Term Actions (Next 90 Days)}
+
+\paragraph{RISK-003: Establish Foundational Security Policies \& Training}
+\begin{itemize}
+    \item \textbf{Action:} Develop and ratify a formal Acceptable Use Policy (AUP) for all employees and contractors.
+    \item \textbf{Action:} Create a mandatory security awareness training module for all new employees as part of the onboarding process. This should cover the AUP, phishing identification, and password hygiene.
+\end{itemize}
+
+\paragraph{RISK-004: Accelerate Operating System Upgrades}
+\begin{itemize}
+    \item \textbf{Action:} Continue with the existing project to upgrade all Windows 7 workstations to a modern, supported operating system (e.g., Windows 10/11).
+    \item \textbf{Justification:} The lack of security patches for Windows 7 leaves these devices vulnerable to a wide range of exploits. This risk is amplified by the lack of MFA on computer logins.
+\end{itemize}
+
+\end{document}
+```

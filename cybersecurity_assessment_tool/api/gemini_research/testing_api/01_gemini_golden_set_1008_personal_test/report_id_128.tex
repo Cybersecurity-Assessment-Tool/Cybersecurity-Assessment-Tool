@@ -1,0 +1,149 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url}      % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage[T1]{fontenc}
+
+% Document Metadata
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analyst}
+\date{\today}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analyst},
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report provides a comprehensive cybersecurity assessment for Urban Jungle Planning. The analysis is based on a synthesis of network scan data, organizational security control questionnaires, and a review of pre-existing risk registers. The assessment identifies critical security gaps that expose the organization to significant risk, alongside areas where security controls are effectively implemented. Key findings include the absence of multi-factor authentication for computer logins and the exposure of an unencrypted web service. This document outlines these risks and provides actionable recommendations to mitigate them and enhance the overall security posture.
+\end{abstract}
+
+\section{Overview}
+The objective of this assessment is to provide a clear and concise overview of the current security posture of Urban Jungle Planning. While the organization has implemented several important security controls, such as mandatory security awareness training and MFA for email access, two high-severity risks were identified that require immediate attention.
+
+\begin{itemize}
+    \item \textbf{High Risk - Lack of Endpoint MFA:} The failure to enforce Multi-Factor Authentication (MFA) for computer logins presents a significant risk. A single compromised password could grant an attacker full access to an employee's workstation and potentially the internal network.
+    \item \textbf{High Risk - Unencrypted Web Traffic:} The network scan revealed an open port 80 (HTTP). This indicates that data transmitted to and from the web server, including potential credentials or sensitive information, is unencrypted and vulnerable to interception.
+\end{itemize}
+
+This report details these findings and provides specific, actionable steps to remediate the identified vulnerabilities.
+
+\section{Organizational Information}
+The following information was provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Urban Jungle Planning
+    \item \textbf{Email Domain:} \texttt{UrbanJunglePlanning.org}
+    \item \textbf{External IP Address:} \texttt{228.25.221.28}
+\end{itemize}
+
+\section{Security Control Review}
+The following table summarizes the organization's responses to the security controls questionnaire. Items marked with \ding{55} represent significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\label{tab:controls}
+\begin{tabular}{@{}p{0.6\linewidth} c p{0.25\linewidth}@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} & \textbf{Analyst Note} \\
+\midrule
+Do you require MFA to access email? & \ding{51} & Commendable. Protects a primary communication channel. \\
+\addlinespace
+Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} & \textbf{Critical Gap.} Compromised credentials can lead to direct endpoint and network access. \\
+\addlinespace
+Do you require MFA to access sensitive data systems? & \ding{51} & Good practice for protecting critical assets. \\
+\addlinespace
+Does your organization have an employee acceptable use policy? & \ding{51} & Foundational policy for setting security expectations. \\
+\addlinespace
+Does your organization do security awareness training for new employees? & \ding{51} & Excellent for establishing a security-first mindset. \\
+\addlinespace
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Essential for maintaining security awareness. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Technical Scan Results}
+A network scan was performed to identify exposed services on the network. The results from the scan are detailed below.
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{172.16.0.1}
+    \item \textbf{Host Status:} Up
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports Detected on \texttt{172.16.0.1}}
+\label{tab:scan}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service (Inferred)} & \textbf{Risk Analysis} \\
+\midrule
+80/tcp & Open & HTTP & \textbf{High.} Hypertext Transfer Protocol (HTTP) is unencrypted. \\
+& & & Any data, including usernames and passwords, sent over this \\
+& & & protocol can be intercepted and read by attackers. \\
+\bottomrule
+\end{tabular}
+\end{table}
+\textit{Note: The provided risk data in Input 3 was determined to be spurious and non-representative of a valid security threat. It has been disregarded in favor of an analysis based on the technical and organizational data.}
+
+\section{Consolidated Risk Assessment}
+The following table consolidates the findings from the security control review and the technical scan into a prioritized list of risks.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\label{tab:risks}
+\begin{tabular}{@{}p{0.05\linewidth} p{0.5\linewidth} p{0.2\linewidth} l@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Description} & \textbf{Source of Finding} & \textbf{Severity} \\
+\midrule
+\textbf{R-01} & \textbf{Lack of Multi-Factor Authentication on Endpoints.} A threat actor with valid, stolen credentials can gain direct access to employee computers, data, and the internal network. & Security Questionnaire & \textbf{High} \\
+\addlinespace
+\textbf{R-02} & \textbf{Unencrypted Web Traffic (HTTP).} The service on port 80 is active, exposing all transmitted data to potential eavesdropping and man-in-the-middle (MitM) attacks. & Network Scan & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Recommendations}
+To address the identified risks and strengthen the overall security posture, the following actions are recommended.
+
+\subsection{Immediate Actions (1-30 Days)}
+\begin{description}
+    \item[R-01 Mitigation:] \textbf{Enforce MFA for All Computer Logins.}
+    \begin{itemize}
+        \item Procure and deploy an MFA solution compatible with your operating systems (e.g., Windows Hello for Business, Duo, Okta).
+        \item Develop a phased rollout plan, starting with privileged users (IT administrators, executives) and extending to all employees.
+        \item Mandate the use of MFA for all endpoint access within 30 days.
+    \end{itemize}
+    
+    \item[R-02 Mitigation:] \textbf{Encrypt All Web Traffic.}
+    \begin{itemize}
+        \item Obtain and install a TLS/SSL certificate for the web service hosted at \texttt{172.16.0.1}.
+        \item Configure the web server to use HTTPS (port 443) exclusively.
+        \item Implement a permanent (301) redirect for all HTTP traffic to its secure HTTPS equivalent. This ensures all user connections are automatically encrypted.
+    \end{itemize}
+\end{description}
+
+\subsection{Long-Term Actions (30-90 Days)}
+\begin{description}
+    \item[Comprehensive Vulnerability Scanning:] Conduct authenticated and unauthenticated vulnerability scans across the internal and external network infrastructure to identify outdated software, missing patches, and further misconfigurations that were not visible in the initial basic port scan.
+\end{description}
+
+\section{Conclusion}
+Urban Jungle Planning has established a solid foundation for its cybersecurity program with strong policies around security awareness and MFA for critical systems. However, the identified gaps—specifically the lack of endpoint MFA and the use of unencrypted HTTP—present clear and immediate dangers to the organization. By implementing the recommendations outlined in this report, Urban Jungle Planning can significantly reduce its attack surface and protect its critical data and systems from common cyber threats.
+
+\end{document}
+```

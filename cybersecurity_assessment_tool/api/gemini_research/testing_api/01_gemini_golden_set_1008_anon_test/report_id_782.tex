@@ -1,0 +1,196 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry} % Set page margins
+\usepackage{pifont}               % For checkmark and cross symbols (\ding)
+\usepackage{booktabs}             % For professional-looking tables
+\usepackage{hyperref}             % For clickable links
+\usepackage{url}                  % For formatting URLs
+\usepackage{seqsplit}             % To split long strings in \texttt
+\usepackage{graphicx}             % For logos, etc. (optional but good practice)
+\usepackage{xcolor}               % For custom colors
+
+% Document Information
+\title{Cybersecurity Risk Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Risk Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Custom Commands
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+\setcounter{page}{1}
+
+% ==============================================================================
+% 1. EXECUTIVE SUMMARY
+% ==============================================================================
+\section*{1. Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The assessment incorporated an analysis of external network scans, a review of internal security controls via a questionnaire, and a correlation with pre-existing risk data.
+
+The organization demonstrates a solid foundation in identity and access management, with consistent implementation of Multi-Factor Authentication (MFA) across key systems. However, this strength is undermined by critical deficiencies in other areas.
+
+A high-risk external vulnerability was identified: an outdated and misconfigured FTP server (\texttt{vsftpd 2.3.4}) is exposed to the internet. This specific version is known to contain a critical backdoor vulnerability (CVE-2011-2523), and it is further misconfigured to allow anonymous access. This finding represents an immediate and severe threat that could lead to a full system compromise.
+
+Furthermore, significant gaps were identified in administrative controls. The absence of a formal Acceptable Use Policy and a structured security awareness training program for employees creates a high-risk environment susceptible to social engineering, insider threats, and inconsistent security practices.
+
+This report provides a detailed breakdown of these findings and offers prioritized, actionable recommendations to mitigate the identified risks and strengthen the overall security posture of \textbf{[Organization Name]}.
+
+% ==============================================================================
+% 2. ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section*{2. Organizational Information}
+
+This section provides the high-level details of the organization under review. The data has been templated where specific information was not provided.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{[Organization Name]} \\
+    Primary Domain & \texttt{[Domain]} \\
+    External IP Scanned & \texttt{[Client IP]} \\
+    \bottomrule
+\end{tabular}
+
+% ==============================================================================
+% 3. SECURITY CONTROL REVIEW (QUESTIONNAIRE ANALYSIS)
+% ==============================================================================
+\section*{3. Security Control Review (Questionnaire Analysis)}
+
+An internal security questionnaire was reviewed to assess the maturity of administrative and procedural controls. While the organization has successfully implemented MFA, there are critical gaps in employee policy and training. The absence of security awareness training and an acceptable use policy significantly increases the risk of security incidents originating from human error.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Results}
+\begin{tabular}{@{}p{0.8\linewidth}c@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Status} \\
+    \midrule
+    Do you require MFA to access email? & \yes \\
+    Do you require MFA to log into computers? & \yes \\
+    Do you require MFA to access sensitive data systems? & \yes \\
+    \addlinespace
+    Does your organization have an employee acceptable use policy? & \no \\
+    Does your organization do security awareness training for new employees? & \no \\
+    Does your organization do security awareness training for all employees at least once per year? & \no \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% 4. TECHNICAL SCAN RESULTS (NMAP)
+% ==============================================================================
+\section*{4. Technical Scan Results (Nmap)}
+
+An external network scan was performed on the target IP address to identify open ports and exposed services. The scan revealed a single open port running a critically outdated and misconfigured FTP service.
+
+\begin{itemize}
+    \item \textbf{Target IP:} \texttt{[Target IP]}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Open Ports and Services}
+\begin{tabular}{@{}lllll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Version} & \textbf{Notes} \\
+    \midrule
+    21/tcp & Open & ftp & vsftpd 2.3.4 & \begin{tabular}[t]{@{}l@{}}\textbf{CRITICAL}: Vulnerable to backdoor \\ (CVE-2011-2523). \\ Anonymous FTP login is allowed.\end{tabular} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% 5. CONSOLIDATED RISK ASSESSMENT
+% ==============================================================================
+\section*{5. Consolidated Risk Assessment}
+
+The following table synthesizes findings from the technical scan, control review, and pre-existing risk data. Risks are prioritized by severity to guide remediation efforts.
+
+\begin{table}[h!]
+\centering
+\caption{Prioritized Risk Register}
+\begin{tabular}{@{}p{0.1\linewidth}p{0.3\linewidth}p{0.15\linewidth}p{0.35\linewidth}@{}}
+    \toprule
+    \textbf{Risk ID} & \textbf{Description} & \textbf{Severity} & \textbf{Impact} \\
+    \midrule
+    \textbf{RISK-001} & \textbf{Vulnerable FTP Server:} An outdated version of vsftpd (2.3.4) is exposed, which contains a known remote command execution backdoor. Anonymous login is enabled. & \textbf{Critical} & An attacker could gain complete control of the server, leading to data theft, ransomware deployment, or use as a pivot point for further attacks. \\
+    \addlinespace
+    \textbf{RISK-002} & \textbf{Lack of Security Training:} Employees do not receive security awareness training upon hiring or annually. & \textbf{High} & Increased susceptibility to phishing, social engineering, and malware infections. Lack of awareness of security policies and procedures. \\
+    \addlinespace
+    \textbf{RISK-003} & \textbf{No Acceptable Use Policy:} The organization lacks a formal policy defining the acceptable use of company assets, data, and networks. & \textbf{High} & Inconsistent security practices, misuse of company resources, and lack of legal/HR recourse for policy violations. \\
+    \addlinespace
+    \textbf{RISK-004} & \textbf{Outdated Windows OS:} Workstations are running Windows 7, an end-of-life operating system that no longer receives security updates. & \textbf{Medium} & Workstations are vulnerable to a wide range of known exploits that have been patched in modern operating systems. \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+% ==============================================================================
+% 6. RECOMMENDATIONS
+% ==============================================================================
+\section*{6. Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized to address the most critical threats first.
+
+\subsection*{Immediate Actions (Within 72 Hours)}
+\begin{itemize}
+    \item \textbf{Remediate Vulnerable FTP Server (RISK-001):}
+    \begin{enumerate}
+        \item Immediately take the FTP server offline or firewall it from all external access.
+        \item If the service is business-critical, upgrade the \texttt{vsftpd} software to the latest stable version.
+        \item Disable anonymous FTP login. Enforce strong, unique passwords for all FTP accounts.
+        \item Implement logging and monitoring for all FTP server access.
+    \end{enumerate}
+\end{itemize}
+
+\subsection*{High-Priority Actions (Within 30 Days)}
+\begin{itemize}
+    \item \textbf{Implement Security Awareness Training (RISK-002):}
+    \begin{enumerate}
+        \item Procure and deploy a security awareness training platform for all employees.
+        \item Make training mandatory for all new hires as part of their onboarding process.
+        \item Schedule and enforce annual refresher training for all staff.
+        \item Conduct periodic phishing simulations to test and reinforce training.
+    \end{enumerate}
+    \item \textbf{Develop Acceptable Use Policy (RISK-003):}
+    \begin{enumerate}
+        \item Draft a formal Acceptable Use Policy (AUP) in collaboration with HR and legal counsel.
+        \item The AUP should cover topics such as data handling, internet usage, password security, and incident reporting.
+        \item Require all employees to read and formally acknowledge the policy.
+    \end{enumerate}
+\end{itemize}
+
+\subsection*{Scheduled Actions (Within 90 Days)}
+\begin{itemize}
+    \item \textbf{Upgrade End-of-Life Systems (RISK-004):}
+    \begin{enumerate}
+        \item Execute the existing plan to upgrade all Windows 7 workstations to a supported operating system (e.g., Windows 10/11).
+        \item Ensure all new systems are deployed with a modern, supported OS by default.
+    \end{enumerate}
+\end{itemize}
+
+\end{document}
+```

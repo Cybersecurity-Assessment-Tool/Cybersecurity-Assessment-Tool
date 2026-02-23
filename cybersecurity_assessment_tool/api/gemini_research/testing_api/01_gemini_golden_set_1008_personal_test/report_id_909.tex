@@ -1,0 +1,187 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links and references
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % For splitting long strings without spaces
+\usepackage{graphicx}
+\usepackage[table]{xcolor} % For coloring table rows
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+% Define colors for table rows
+\definecolor{critical}{HTML}{DC3545}
+\definecolor{high}{HTML}{FFC107}
+\definecolor{medium}{HTML}{0D6EFD}
+\definecolor{low}{HTML}{198754}
+\definecolor{ok}{HTML}{F8F9FA}
+
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+\begin{center}
+    \textbf{Client:} Falcon Heavy \\
+    \textbf{Report ID:} RPT-2023-4815
+\end{center}
+\vspace{1em}
+\hrule
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ==============================================================================
+\section{Executive Summary}
+
+This report provides a comprehensive cybersecurity assessment for \textbf{Falcon Heavy}, based on an analysis of network scan data, organizational security controls, and pre-existing risk information. The assessment reveals several critical and high-severity risks that require immediate attention to mitigate the potential for significant data breaches and operational disruption.
+
+The key findings indicate a critical misconfiguration exposing a database labeled \texttt{"TOP SECRET DB"} on an internal host. This technical finding directly contradicts a previous risk assessment which had marked the relevant port as secure. This discrepancy highlights a potential failure in the existing vulnerability management process.
+
+Furthermore, significant gaps were identified in fundamental security controls, most notably the lack of Multi-Factor Authentication (MFA) for computer and sensitive data system access. The absence of an Acceptable Use Policy (AUP) and security training for new hires exacerbates these technical risks by increasing the likelihood of human error.
+
+The overall security posture is considered poor. We strongly recommend immediate remediation of the exposed database and the swift implementation of the prioritized recommendations outlined in Section \ref{sec:recommendations} to strengthen the organization's defenses.
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+The following information was provided by the client and used as a baseline for this assessment.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name    & Falcon Heavy \\
+Email Domain         & \texttt{FalconHeavy.org} \\
+Website Domain       & \url{www.FalconHeavy.org} \\
+External IP Address  & \texttt{85.225.90.193} \\ \bottomrule
+\end{tabular}
+\caption{Client Profile}
+\end{table}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+A review of the organization's security controls was conducted via a questionnaire. The responses are benchmarked against industry best practices. "No" answers indicate significant gaps in the security framework.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.6\textwidth}cc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\ \midrule
+\rowcolor{ok}
+Do you require MFA to access email? & \ding{51} & Best Practice Met \\
+\rowcolor{critical!25}
+Do you require MFA to log into computers? & \ding{55} & \textbf{Critical Gap} \\
+\rowcolor{critical!25}
+Do you require MFA to access sensitive data systems? & \ding{55} & \textbf{Critical Gap} \\
+\rowcolor{high!25}
+Does your organization have an employee acceptable use policy? & \ding{55} & \textbf{High Risk} \\
+\rowcolor{high!25}
+Does your organization do security awareness training for new employees? & \ding{55} & \textbf{High Risk} \\
+\rowcolor{ok}
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Best Practice Met \\ \bottomrule
+\end{tabular}
+\caption{Security Questionnaire Analysis}
+\end{table}
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+An internal network scan was performed to identify open ports and exposed services. The following findings were observed.
+
+\subsection{Host: \texttt{10.5.5.5}}
+A single host was identified with a high-risk open port. The service running on this port appears to be a web application with a highly sensitive title, indicating a potential database interface.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service/Script} & \textbf{Output/Banner} \\ \midrule
+8080/tcp      & OPEN           & http-title              & \textbf{TOP SECRET DB} \\ \bottomrule
+\end{tabular}
+\caption{Scan Findings for Host \texttt{10.5.5.5}}
+\end{table}
+
+\textbf{Analysis:} The discovery of a service with the title \texttt{"TOP SECRET DB"} is a critical finding. This suggests that a sensitive, possibly unauthenticated, database interface is exposed on the network. This finding directly contradicts the information from the existing risk register (see Section \ref{sec:risk_assessment}), which had previously classified this port as secure.
+
+% ==============================================================================
+% SECTION 5: CORRELATED RISK ASSESSMENT
+% ==============================================================================
+\section{Correlated Risk Assessment}
+\label{sec:risk_assessment}
+
+This section synthesizes the findings from the security control review and the technical scan to provide a holistic view of the primary risks facing the organization.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}p{0.15\textwidth}p{0.65\textwidth}l@{}}
+\toprule
+\textbf{Risk Title} & \textbf{Description} & \textbf{Severity} \\ \midrule
+\rowcolor{critical!25}
+Exposed Sensitive Database & A network scan identified an open service on port 8080 of host \texttt{10.5.5.5} with the title \texttt{"TOP SECRET DB"}. This indicates a severe data exposure risk. This finding invalidates a previous assessment (\textit{"Port 8080 Secured"}) which claimed this port was a false positive. & \textbf{Critical} \\
+\rowcolor{critical!25}
+Lack of Multi-Factor Authentication (MFA) & The organization does not enforce MFA for logging into computers or accessing sensitive data systems. This significantly increases the risk of unauthorized access via compromised credentials. & \textbf{Critical} \\
+\rowcolor{high!25}
+Insufficient Security Policies \& Training & The organization lacks a formal Acceptable Use Policy (AUP) and does not provide security awareness training to new employees during onboarding. This creates a high-risk environment where employees are more likely to cause accidental breaches. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+\label{sec:recommendations}
+The following actions are recommended to address the identified risks. They are prioritized based on severity and potential impact.
+
+\subsection{Priority 1: Immediate Actions (0-7 Days)}
+\begin{itemize}
+    \item \textbf{Isolate Exposed Database:} Immediately apply a firewall rule to block all access to TCP port 8080 on host \texttt{10.5.5.5} from any source that does not explicitly require it.
+    \item \textbf{Investigate Exposed System:} Conduct a forensic investigation of the system at \texttt{10.5.5.5} to determine the nature of the \texttt{"TOP SECRET DB"} application, what data it contains, and whether it has been accessed by unauthorized parties.
+    \item \textbf{Deploy MFA on Critical Systems:} Begin an emergency rollout of MFA for all accounts with access to sensitive data systems, including the system identified in this report.
+\end{itemize}
+
+\subsection{Priority 2: Short-Term Actions (1-3 Months)}
+\begin{itemize}
+    \item \textbf{Enforce Endpoint MFA:} Implement a policy requiring MFA for all computer and laptop logins across the organization.
+    \item \textbf{Develop Acceptable Use Policy (AUP):} Draft and ratify a formal AUP that clearly defines the rules for using company IT assets. Require all employees to read and acknowledge the policy.
+    \item \textbf{Implement New Hire Training:} Integrate a mandatory security awareness training module into the onboarding process for all new employees, to be completed within their first week.
+\end{itemize}
+
+\subsection{Priority 3: Long-Term Actions (3-6 Months)}
+\begin{itemize}
+    \item \textbf{Establish Vulnerability Management Program:} Implement a formal process for regular internal and external vulnerability scanning. Ensure that all findings are tracked, validated, and remediated in a timely manner to prevent discrepancies like the one identified with port 8080.
+    \item \textbf{Conduct Architecture Review:} Perform a comprehensive review of the internal network architecture and segmentation to identify and correct other potential areas of unnecessary exposure.
+\end{itemize}
+
+\end{document}
+```

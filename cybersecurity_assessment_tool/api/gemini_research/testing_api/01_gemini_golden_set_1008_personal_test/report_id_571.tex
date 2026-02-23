@@ -1,0 +1,153 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+
+% Document Metadata and Hyperlink Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Cybersecurity, Risk, Assessment, Nmap, Controls}
+}
+
+\begin{document}
+
+% --- Title Section ---
+\begin{center}
+    \vspace*{1cm}
+    \huge{\textbf{Cybersecurity Posture Report}}
+    \vspace{0.5cm}
+    \large{\textbf{Prepared for: Aeon Pharmaceuticals}}
+    \vspace{1.5cm}
+    \hrule
+    \vspace{0.5cm}
+    \begin{tabular}{ll}
+        \textbf{Report Date:} & \today \\
+        \textbf{Author:} & Cybersecurity Analyst \\
+    \end{tabular}
+    \vspace{0.5cm}
+    \hrule
+\end{center}
+
+\newpage
+
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+% --- Executive Summary ---
+\section{Executive Summary}
+This report provides a comprehensive analysis of the cybersecurity posture for Aeon Pharmaceuticals, based on a review of organizational security controls, an external network scan, and pre-existing risk data. The assessment identified several critical and high-risk gaps that require immediate attention.
+
+Key findings indicate significant weaknesses in identity and access management, particularly the absence of Multi-Factor Authentication (MFA) for computer and sensitive data system access. Additionally, an externally exposed administrative service (SSH) was discovered on a public-facing IPv6 address. Finally, the security awareness program has a notable gap, as training is not provided to new employees during their onboarding process.
+
+These vulnerabilities, if left unaddressed, could expose the organization to significant risks, including unauthorized access to sensitive data, system compromise, and business disruption. This report concludes with prioritized, actionable recommendations to mitigate the identified risks and strengthen the overall security posture.
+
+% --- Organizational Information ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+\begin{itemize}
+    \item \textbf{Organization Name:} Aeon Pharmaceuticals
+    \item \textbf{Email Domain:} \texttt{AeonPharmaceuticals.com}
+    \item \textbf{Website Domain:} \url{www.AeonPharmaceuticals.com}
+    \item \textbf{External IP Address:} \texttt{114.24.75.52}
+\end{itemize}
+
+% --- Security Control Review ---
+\section{Security Control Review}
+A review of the organization's security controls was conducted via a questionnaire. The responses highlight critical gaps in the current security framework. A "No" response indicates a missing control that elevates organizational risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Control Questionnaire Analysis}
+\begin{tabular}{p{8cm} c l}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{51} & Control In Place \\
+Do you require MFA to log into computers? & \ding{55} & \textbf{Critical Control Gap} \\
+Do you require MFA to access sensitive data systems? & \ding{55} & \textbf{Critical Control Gap} \\
+Does your organization have an employee acceptable use policy? & \ding{51} & Control In Place \\
+Does your organization do security awareness training for new employees? & \ding{55} & \textbf{High-Risk Gap} \\
+Does your organization do security awareness training for all employees at least once per year? & \ding{51} & Control In Place \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Technical Scan Results ---
+\section{Technical Scan Results}
+An external network scan was performed to identify exposed services. The scan targeted the organization's known network infrastructure.
+
+\begin{itemize}
+    \item \textbf{Scan Target:} \seqsplit{\texttt{2001:db8::1}}
+    \item \textbf{Target Status:} Host is Up
+\end{itemize}
+
+The following open ports were discovered on the target system. Open ports represent services accessible from the public internet and are potential entry points for attackers.
+
+\begin{table}[h!]
+\centering
+\caption{Open Port Analysis}
+\begin{tabular}{l l l p{7cm}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/tcp & open & SSH (Secure Shell) & This port is used for remote system administration. Exposing SSH to the internet increases the risk of brute-force password attacks and exploitation of service vulnerabilities. The specific version was not identified in this scan. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Risk Assessment ---
+\section{Risk Assessment}
+This section synthesizes findings from the security control review and the technical scan. No pre-existing vulnerabilities were reported. The following new risks have been identified and prioritized based on their potential impact.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{p{2cm} p{4cm} p{6.5cm} l}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & Lack of MFA on Sensitive Systems & The absence of a second authentication factor for sensitive data systems exposes critical assets to unauthorized access via compromised credentials. & \textbf{Critical} \\
+\\[-0.8em]
+RISK-002 & Inadequate Endpoint MFA & The lack of MFA on employee computers allows an attacker with stolen credentials to gain initial access to the internal network, facilitating lateral movement. & \textbf{High} \\
+\\[-0.8em]
+RISK-003 & Exposed Administrative Service (SSH) & The SSH service on \seqsplit{\texttt{2001:db8::1}} is exposed to the public internet, making it a target for brute-force attacks and exploitation. This risk is amplified by the lack of MFA controls. & \textbf{High} \\
+\\[-0.8em]
+RISK-004 & Gaps in Security Awareness Program & New employees are not provided with security awareness training, creating a window of vulnerability where they are more susceptible to phishing and social engineering attacks. & \textbf{Medium} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- Recommendations ---
+\section{Recommendations}
+The following actions are recommended to mitigate the identified risks and improve the overall cybersecurity posture of Aeon Pharmaceuticals. Recommendations are prioritized based on risk severity.
+
+\begin{enumerate}
+    \item \textbf{[Critical] Implement MFA for Sensitive Systems (RISK-001):} Immediately prioritize the deployment of a robust MFA solution for all systems classified as containing sensitive or critical data. This is the single most effective control to prevent unauthorized data access.
+
+    \item \textbf{[High] Secure the Exposed SSH Service (RISK-003):}
+    \begin{itemize}
+        \item Review the business justification for exposing SSH on \seqsplit{\texttt{2001:db8::1}}.
+        \item If required, implement strict firewall rules to restrict access to only trusted, whitelisted IP addresses.
+        \item If not required, disable the service on the public interface.
+        \item For all SSH access, enforce the use of public key authentication and disable password-based logins.
+    \end{itemize}
+
+    \item \textbf{[High] Deploy Endpoint MFA (RISK-002):} Enforce MFA for all employee computer logins (desktops and laptops). This strengthens initial access controls and contains the impact of stolen credentials.
+
+    \item \textbf{[Medium] Integrate Security Training into Onboarding (RISK-004):} Develop and integrate a mandatory security awareness training module into the new-hire onboarding process. This training must be completed before a new employee is granted access to company systems and data.
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,172 @@
+```latex
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------
+% PREAMBLE
+% ----------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings in texttt
+\usepackage[utf8]{inputenc}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfpagemode=FullScreen,
+}
+
+% Custom Commands
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+
+% ----------------------------------------------------------------------
+% DOCUMENT START
+% ----------------------------------------------------------------------
+\begin{document}
+
+% ----------------------------------------------------------------------
+% TITLE PAGE
+% ----------------------------------------------------------------------
+\title{
+    Cybersecurity Posture Report \\
+    \large For: \textbf{Crestview Analytics}
+}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+\maketitle
+
+\hrule
+\vspace{1em}
+\begin{abstract}
+    This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Crestview Analytics}. The assessment is based on the correlation of network scan data, a security controls questionnaire, and a review of pre-existing risk documentation. The findings indicate a mixed security posture with strong practices in employee training but critical gaps in access control, specifically the lack of Multi-Factor Authentication (MFA) for key systems. Recommendations are provided to address these identified risks in a prioritized manner.
+\end{abstract}
+\vspace{1em}
+\hrule
+
+\tableofcontents
+\newpage
+
+% ----------------------------------------------------------------------
+% SECTION 1: ORGANIZATIONAL INFORMATION
+% ----------------------------------------------------------------------
+\section{Organizational Information}
+
+This section details the organizational data provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Crestview Analytics
+    \item \textbf{Email Domain:} \texttt{CrestviewAnalytics.org}
+    \item \textbf{Website Domain:} \url{www.CrestviewAnalytics.org}
+    \item \textbf{External IP Address:} \texttt{46.0.205.1}
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% SECTION 2: SECURITY CONTROL REVIEW
+% ----------------------------------------------------------------------
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. "No" answers represent significant gaps in the security framework and are primary sources of risk.
+
+\begin{table}[h!]
+\centering
+\caption{Security Controls Questionnaire Analysis}
+\begin{tabular}{@{}p{0.6\linewidth} c l@{}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \yes & Control In Place \\
+Do you require MFA to log into computers? & \no & \textbf{Critical Gap} \\
+Do you require MFA to access sensitive data systems? & \no & \textbf{Critical Gap} \\
+Does your organization have an employee acceptable use policy? & \no & \textbf{High Risk Gap} \\
+Does your organization do security awareness training for new employees? & \yes & Control In Place \\
+Does your organization do security awareness training for all employees at least once per year? & \yes & Control In Place \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The organization has successfully implemented security awareness training and has protected its email systems with MFA. However, the absence of MFA on employee computers and sensitive data systems presents a critical vulnerability. An attacker with stolen credentials could gain direct access to endpoints and critical data. Furthermore, the lack of an Acceptable Use Policy creates legal and operational risks.
+
+% ----------------------------------------------------------------------
+% SECTION 3: TECHNICAL SCAN RESULTS
+% ----------------------------------------------------------------------
+\section{Technical Scan Results}
+
+A network scan was performed to identify exposed services and potential technical vulnerabilities on the specified target.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.0.5}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Nmap Scan Results for \texttt{192.168.0.5}}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product / Version} \\
+\midrule
+80/tcp & closed & http & N/A \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Analysis:} The scan of the target host \texttt{192.168.0.5} revealed no open ports. This indicates that the host is not exposing any network services and is well-hardened from an external perspective, which is a positive security finding.
+
+\paragraph{Correlation with Existing Risks:} A pre-existing risk entry indicated that Port 80 was open and serving an unencrypted web server. This scan's finding that Port 80 is \textbf{closed} suggests that this specific risk has been successfully remediated on this host. The organization's risk register should be updated to reflect this positive change.
+
+% ----------------------------------------------------------------------
+% SECTION 4: CONSOLIDATED RISK ASSESSMENT
+% ----------------------------------------------------------------------
+\section{Consolidated Risk Assessment}
+
+This table synthesizes findings from the security control review, technical scans, and pre-existing risk data into a unified risk summary.
+
+\begin{table}[h!]
+\centering
+\caption{Summary of Identified Risks}
+\begin{tabular}{@{}p{0.1\linewidth} p{0.25\linewidth} p{0.4\linewidth} l@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+RISK-001 & Lack of MFA on Sensitive Data Systems & The absence of MFA on critical data systems exposes the organization to data breaches from compromised credentials. & \textbf{Critical} \\
+\addlinespace
+RISK-002 & Lack of MFA on Endpoints & User computers are not protected by MFA, allowing an attacker with valid credentials to gain full access to an endpoint and potentially move laterally. & \textbf{High} \\
+\addlinespace
+RISK-003 & No Acceptable Use Policy (AUP) & The lack of a formal AUP creates ambiguity for employees and exposes the organization to insider threat, compliance, and legal risks. & \textbf{High} \\
+\addlinespace
+RISK-004 & Unencrypted Web Server (Historical) & A previously identified risk of an open Port 80. The recent scan indicates this is now \textbf{remediated} on the scanned host. & Medium \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ----------------------------------------------------------------------
+% SECTION 5: RECOMMENDATIONS
+% ----------------------------------------------------------------------
+\section{Recommendations}
+
+The following prioritized actions are recommended to mitigate the identified risks and improve the overall security posture of \textbf{Crestview Analytics}.
+
+\subsection{Priority 1: Critical}
+\begin{description}
+    \item[Implement MFA on Sensitive Data Systems (RISK-001):] Immediately deploy a mandatory MFA solution for all systems that store, process, or access sensitive or critical business data. This is the single most effective control to prevent data breaches resulting from credential theft.
+\end{description}
+
+\subsection{Priority 2: High}
+\begin{description}
+    \item[Enforce MFA for Endpoint Logon (RISK-002):] Require MFA for all user logins to company-managed computers (desktops and laptops). This significantly hardens endpoints against unauthorized access.
+    \item[Develop and Implement an Acceptable Use Policy (RISK-003):] Create a formal AUP that clearly defines the rules and responsibilities for employees using company IT assets. This policy should be communicated to all staff and acknowledged in writing.
+\end{description}
+
+\subsection{Priority 3: Medium}
+\begin{description}
+    \item[Update Risk Register (RISK-004):] Based on the technical scan, update the internal risk register to reflect that the vulnerability associated with the open web server on \texttt{192.168.0.5} has been remediated. Conduct a follow-up verification scan across other relevant network segments to ensure the fix is comprehensive.
+\end{description}
+
+\end{document}
+```

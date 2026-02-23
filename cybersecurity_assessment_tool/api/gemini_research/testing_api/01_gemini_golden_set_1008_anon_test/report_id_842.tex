@@ -1,0 +1,202 @@
+```latex
+\documentclass[12pt, a4paper]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For formatting URLs
+\usepackage{seqsplit} % For splitting long strings to prevent overflow
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% --- Document Metadata ---
+\title{Cybersecurity Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% SECTION 1: EXECUTIVE SUMMARY
+% ==============================================================================
+\section{Executive Summary}
+
+This report details the findings of a cybersecurity assessment conducted for \textbf{[Organization Name]}. The assessment combined an external network scan, a review of existing risks, and an analysis of organizational security controls based on a questionnaire.
+
+The overall security posture is determined to be critically weak. Several high-impact vulnerabilities and control gaps were identified that expose the organization to significant risk of data breach, ransomware, and unauthorized access.
+
+\textbf{Key Critical Findings Include:}
+\begin{itemize}
+    \item \textbf{Exposed Vulnerable Service:} An internet-facing FTP server is running a dangerously outdated version of \texttt{vsftpd} (2.3.4), which is known to contain a critical backdoor vulnerability (CVE-2011-2523). Anonymous login is also enabled, allowing unauthenticated access.
+    \item \textbf{Lack of Multi-Factor Authentication (MFA):} MFA is not enforced for workstation logins or, most critically, for access to sensitive data systems. This significantly increases the risk of a successful breach via compromised credentials.
+    \item \textbf{Insufficient Security Policies and Training:} The organization lacks a formal Acceptable Use Policy and does not conduct security awareness training for employees. This human-layer defense gap makes the organization highly susceptible to phishing and social engineering attacks.
+    \item \textbf{Outdated Operating Systems:} Pre-existing risk data confirms the use of Windows 7, an end-of-life operating system that no longer receives security updates, leaving internal systems vulnerable to known exploits.
+\end{itemize}
+
+Immediate remediation of the identified critical risks is strongly advised to prevent a potential security incident. Detailed findings and actionable recommendations are provided in the subsequent sections of this report.
+
+\newpage
+
+% ==============================================================================
+% SECTION 2: ORGANIZATIONAL INFORMATION
+% ==============================================================================
+\section{Organizational Information}
+
+This assessment was performed for the following entity. The information below is based on the data provided for this analysis.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\ \midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \texttt{[Domain]} \\
+External IP Address Scanned & \texttt{[Client IP]} \\ \bottomrule
+\end{tabular}
+\caption{Client Organizational Details}
+\end{table}
+
+% ==============================================================================
+% SECTION 3: SECURITY CONTROL REVIEW
+% ==============================================================================
+\section{Security Control Review}
+
+The following table summarizes the organization's current security controls based on the provided questionnaire. A checkmark (\ding{51}) indicates a positive control is in place, while a cross (\ding{55}) indicates a control gap that presents a risk.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\ \midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{red}{\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{red}{\ding{55}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees annually? & \textcolor{red}{\ding{55}} \\ \bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Analysis}
+\end{table}
+
+\textbf{Analysis:} The lack of MFA on workstations and sensitive systems, combined with the absence of a security awareness program and an acceptable use policy, represents a critical failure in foundational cybersecurity controls. These gaps significantly elevate the risk of a successful cyberattack.
+
+\newpage
+
+% ==============================================================================
+% SECTION 4: TECHNICAL SCAN RESULTS
+% ==============================================================================
+\section{Technical Scan Results}
+
+An external network scan was performed on the target IP address. The results reveal an open port with a vulnerable service exposed to the internet.
+
+\textbf{Target IP Address:} \texttt{[Target IP]}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Product} & \textbf{Version} & \textbf{Notes} \\ \midrule
+21/tcp & Open & ftp & vsftpd & 2.3.4 & \begin{tabular}[c]{@{}l@{}}Anonymous FTP login allowed.\\ \textbf{Critically vulnerable version} \\ (Ref: CVE-2011-2523)\end{tabular} \\ \bottomrule
+\end{tabular}
+\caption{Open Ports and Services}
+\end{table}
+
+\textbf{Analysis:} The presence of an open FTP port is discouraged in modern environments in favor of more secure protocols like SFTP. The version of \texttt{vsftpd} (2.3.4) detected is notoriously vulnerable to a backdoor that allows for remote command execution. This finding is of the highest criticality and requires immediate attention. The allowance of anonymous logins further exacerbates the risk, potentially leading to data leakage or the server being used to host malicious files.
+
+% ==============================================================================
+% SECTION 5: RISK ASSESSMENT SUMMARY
+% ==============================================================================
+\section{Risk Assessment Summary}
+
+The following table synthesizes findings from the technical scan, control review, and pre-existing risk data into a prioritized list.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Risk ID} & \textbf{Risk Description} & \textbf{Severity} \\ \midrule
+RISK-001 & Exposed vulnerable FTP server (\texttt{vsftpd 2.3.4}) & \textbf{Critical} \\
+RISK-002 & No MFA for access to sensitive data systems & \textbf{Critical} \\
+RISK-003 & No security awareness training program for employees & \textbf{Critical} \\
+RISK-004 & Outdated Windows 7 workstations (End-of-Life OS) & High \\
+RISK-005 & Anonymous FTP login enabled on external server & High \\
+RISK-006 & No MFA for workstation logins & High \\
+RISK-007 & No formal Acceptable Use Policy for employees & Medium \\ \bottomrule
+\end{tabular}
+\caption{Consolidated Risk Register}
+\end{table}
+
+\newpage
+
+% ==============================================================================
+% SECTION 6: RECOMMENDATIONS
+% ==============================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks. They are prioritized by severity to address the most critical threats first.
+
+\subsection{Critical Priority Recommendations}
+
+\begin{itemize}
+    \item \textbf{RISK-001: Remediate Vulnerable FTP Server}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} If the FTP service is not essential, disable it and block port 21 at the firewall immediately.
+        \item \textbf{Long-Term:} If file transfer is required, decommission the FTP server and replace it with a secure alternative such as SFTP (SSH File Transfer Protocol). Ensure the new service is fully patched and configured securely.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{RISK-002: Implement MFA on Sensitive Systems}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Enforce MFA for all user accounts, especially administrative ones, that have access to critical and sensitive data repositories (e.g., databases, file servers, cloud applications).
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{RISK-003: Establish a Security Awareness Program}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Procure and enroll all employees in a foundational security awareness training program covering phishing, password hygiene, and acceptable use.
+        \item \textbf{Long-Term:} Schedule annual refresher training for all staff and ensure new hires complete the training as part of their onboarding process.
+    \end{itemize}
+\end{itemize}
+
+\subsection{High Priority Recommendations}
+
+\begin{itemize}
+    \item \textbf{RISK-004: Upgrade End-of-Life Operating Systems}
+    \begin{itemize}
+        \item \textbf{Action:} Initiate a project to upgrade all workstations running Windows 7 to a supported operating system, such as Windows 10 or 11, to ensure they receive critical security patches.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{RISK-005 \& RISK-006: Enforce MFA and Secure FTP Configuration}
+    \begin{itemize}
+        \item \textbf{Action:} Disable anonymous FTP access on any file transfer server. Concurrently, plan and execute the rollout of MFA for all employee workstation logins.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Medium Priority Recommendations}
+
+\begin{itemize}
+    \item \textbf{RISK-007: Develop an Acceptable Use Policy (AUP)}
+    \begin{itemize}
+        \item \textbf{Action:} Draft, approve, and distribute a formal AUP that clearly defines the rules and expectations for employees when using company-owned IT assets.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

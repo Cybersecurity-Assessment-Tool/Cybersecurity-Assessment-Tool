@@ -1,0 +1,175 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+% Document Metadata and Hyperlink Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Report},
+    pdfauthor={Cybersecurity Analyst},
+    pdfsubject={Security Assessment},
+    pdfkeywords={Security, Nmap, Risk, Assessment},
+    bookmarks=true
+}
+
+% Define colors for table rows
+\definecolor{critical}{RGB}{255, 204, 204}
+\definecolor{high}{RGB}{255, 230, 204}
+\definecolor{medium}{RGB}{255, 255, 204}
+\definecolor{low}{RGB}{204, 255, 204}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Cybersecurity Posture Report}
+\fancyhead[R]{Obsidian Operatives}
+\fancyfoot[C]{\thepage}
+
+% --- DOCUMENT START ---
+\begin{document}
+
+% Title Page
+\title{
+    \vspace{2cm}
+    \textbf{Cybersecurity Posture Report}\\
+    \large For\\
+    \vspace{0.5cm}
+    \textbf{Obsidian Operatives}
+    \vspace{2cm}
+}
+\author{Cybersecurity Analyst}
+\date{\today}
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report details the findings of a cybersecurity assessment conducted on \today. The assessment combined an external network vulnerability scan with a review of organizational security controls based on a provided questionnaire.
+
+The key finding from the technical scan is positive: the target host, \texttt{192.168.1.100}, presented a strong security posture with \textbf{no open ports detected}. This suggests a well-configured firewall is in place for that specific asset.
+
+However, the organizational security control review revealed \textbf{critical deficiencies} that expose Obsidian Operatives to significant risk. The complete absence of Multi-Factor Authentication (MFA) across all systems (email, computers, sensitive data) is the most severe vulnerability. This gap dramatically increases the likelihood of successful account compromise via credential theft or phishing attacks.
+
+Furthermore, the lack of a formal security awareness training program and an acceptable use policy indicates a foundational weakness in the organization's security culture. While the technical perimeter of the scanned host appears secure, the organization is highly vulnerable to attacks targeting its employees. Immediate remediation of these policy and procedural gaps is strongly recommended.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were provided for the assessment. This information is used to establish the context and scope of the review.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & Obsidian Operatives \\
+Email Domain & \texttt{ObsidianOperatives.net} \\
+Website Domain & \url{www.ObsidianOperatives.net} \\
+External IP Address & \texttt{33.39.59.164} \\
+\bottomrule
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+The following table summarizes the organization's responses to key security control questions. A "No" response indicates a significant gap in security posture that requires attention.
+
+\begin{tabular}{p{0.6\linewidth} c p{0.25\linewidth}}
+\toprule
+\textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+\midrule
+Do you require MFA to access email? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+\midrule
+Do you require MFA to log into computers? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+\midrule
+Do you require MFA to access sensitive data systems? & \ding{55} & \textcolor{red}{\textbf{Critical Gap}} \\
+\midrule
+Does your organization have an employee acceptable use policy? & \ding{55} & \textcolor{orange}{\textbf{High Risk}} \\
+\midrule
+Does your organization do security awareness training for new employees? & \ding{55} & \textcolor{orange}{\textbf{High Risk}} \\
+\midrule
+Does your organization do security awareness training for all employees at least once per year? & \ding{55} & \textcolor{orange}{\textbf{High Risk}} \\
+\bottomrule
+\end{tabular}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+An external network scan was performed to identify open ports and exposed services on the target system.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \texttt{192.168.1.100}
+    \item \textbf{Scan Date:} \today
+    \item \textbf{Finding:} The scan reported that all 1000 scanned ports were in a "closed" state.
+    \item \textbf{Analysis:} \textbf{No open ports were detected.} This is a positive security finding, indicating that the host is not exposing any network services to the scanner's point of origin. This typically suggests the presence of a well-configured firewall that denies unsolicited inbound traffic.
+\end{itemize}
+
+While this result is favorable, it represents a single point-in-time assessment of one specific host. Continuous monitoring and regular scanning are essential to maintain this security posture.
+
+% --- IDENTIFIED RISKS AND VULNERABILITIES ---
+\section{Identified Risks and Vulnerabilities}
+This section synthesizes findings from all data sources into a prioritized list of identified risks. The primary risks stem from organizational policy gaps rather than technical vulnerabilities.
+
+\begin{tabular}{p{0.15\linewidth} p{0.65\linewidth} p{0.15\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Overview} & \textbf{Severity} \\
+\midrule
+\rowcolor{critical}
+Lack of Multi-Factor Authentication (MFA) & The absence of MFA for email, computer, and sensitive data access makes user accounts highly susceptible to takeover. A compromised password is all an attacker needs to gain access. & \textbf{Critical} \\
+\midrule
+\rowcolor{high}
+No Security Awareness Program & Without training, employees are more likely to fall victim to phishing, social engineering, and other common attack vectors. They represent an untrained and vulnerable first line of defense. & \textbf{High} \\
+\midrule
+\rowcolor{high}
+No Acceptable Use Policy (AUP) & The lack of a formal AUP creates ambiguity regarding secure practices for company assets. It weakens the organization's ability to enforce security standards and hold individuals accountable. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+
+% --- RECOMMENDATIONS ---
+\section{Recommendations}
+Based on the analysis, the following actions are recommended to mitigate the identified risks and improve the overall security posture of Obsidian Operatives. Recommendations are prioritized by severity.
+
+\begin{enumerate}
+    \item \textbf{[CRITICAL] Implement Multi-Factor Authentication (MFA) Immediately:}
+    \begin{itemize}
+        \item \textbf{Action:} Deploy MFA across all critical systems.
+        \item \textbf{Priority:} Start with email (e.g., Office 365, Google Workspace), followed by access to sensitive data systems, VPNs, and finally, all employee computer logins.
+        \item \textbf{Justification:} This is the single most effective control to prevent unauthorized account access and will drastically reduce the risk of a breach.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{[HIGH] Establish a Security Awareness Training Program:}
+    \begin{itemize}
+        \item \textbf{Action:} Procure and implement a security awareness training solution.
+        \item \textbf{Priority:} Ensure all new employees complete training upon hiring. Mandate annual refresher training for all staff, including simulated phishing campaigns to measure effectiveness.
+        \item \textbf{Justification:} A well-trained workforce is a critical security layer that can detect and report threats like phishing before they cause damage.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{[HIGH] Develop and Enforce an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item \textbf{Action:} Draft a clear AUP that outlines the rules for using company technology, data handling, password requirements, and the consequences of non-compliance.
+        \item \textbf{Priority:} Require all employees to read and formally acknowledge the policy.
+        \item \textbf{Justification:} An AUP establishes a baseline for secure behavior, reduces insider risk, and provides a framework for enforcing security standards.
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \textbf{[INFORMATIONAL] Maintain Regular Network Scanning:}
+    \begin{itemize}
+        \item \textbf{Action:} Continue to perform regular, authenticated and unauthenticated vulnerability scans of all internal and external network assets.
+        \item \textbf{Justification:} While the assessed host was secure, the IT environment is dynamic. Continuous scanning ensures new vulnerabilities or misconfigurations are identified and remediated promptly.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```

@@ -1,0 +1,174 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For \ding
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in texttt
+\usepackage[utf8]{inputenc}
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% --- HYPERREF SETUP ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfauthor={Cybersecurity Analysis Division},
+}
+
+% --- BEGIN DOCUMENT ---
+\begin{document}
+
+\maketitle
+\hrule
+\vspace{1em}
+
+% ===================================================================
+% 1. EXECUTIVE SUMMARY
+% ===================================================================
+\section*{Executive Summary}
+
+This report provides a comprehensive analysis of the cybersecurity posture for \textbf{Pacific Rim Exports}. The assessment is based on a correlation of network scan data, organizational security control questionnaires, and a review of pre-existing risks.
+
+The analysis reveals a mixed security posture. While the organization has implemented critical controls such as Multi-Factor Authentication (MFA) for email and sensitive data systems, significant and high-risk gaps exist that expose the organization to substantial threats.
+
+The most critical findings are the lack of MFA for computer logins, combined with the discovery of an openly accessible Remote Desktop Protocol (RDP) service on an internal system. This combination presents a direct and high-impact path for attackers to gain unauthorized remote access. Furthermore, administrative control gaps, including the absence of an Acceptable Use Policy and a mandatory annual security training program, weaken the organization's human firewall and overall defense-in-depth strategy.
+
+Immediate remediation is required to address the RDP exposure and endpoint MFA gap. Strategic initiatives must be undertaken to mature the organization's security policies and training programs to mitigate future risks.
+
+% ===================================================================
+% 2. ORGANIZATIONAL INFORMATION
+% ===================================================================
+\section{Organizational Information}
+
+The following information was provided for the assessment.
+
+\begin{itemize}
+    \item \textbf{Organization Name:} Pacific Rim Exports
+    \item \textbf{Email Domain:} \seqsplit{\texttt{PacificRimExports.org}}
+    \item \textbf{Website Domain:} \url{www.PacificRimExports.org}
+    \item \textbf{External IP Address:} \seqsplit{\texttt{86.140.130.121}}
+\end{itemize}
+
+% ===================================================================
+% 3. SECURITY CONTROL REVIEW (QUESTIONNAIRE)
+% ===================================================================
+\section{Security Control Review}
+
+The following table summarizes the organization's responses to the security controls questionnaire. A green checkmark (\ding{51}) indicates a positive control, while a red 'X' (\ding{55}) indicates a potential security gap.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.8\linewidth} c}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \ding{51} \\
+Do you require MFA to log into computers? & \textbf{\color{red}\ding{55}} \\
+Do you require MFA to access sensitive data systems? & \ding{51} \\
+Does your organization have an employee acceptable use policy? & \textbf{\color{red}\ding{55}} \\
+Does your organization do security awareness training for new employees? & \ding{51} \\
+Does your organization do security awareness training for all employees at least once per year? & \textbf{\color{red}\ding{55}} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Summary}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+\begin{itemize}
+    \item \textbf{No MFA for Computer Logins:} This is a critical vulnerability. If an attacker compromises employee credentials through phishing or other means, they can gain direct access to workstations without a second authentication factor, enabling lateral movement and further compromise.
+    \item \textbf{No Acceptable Use Policy (AUP):} The absence of a formal AUP creates ambiguity regarding safe computing practices. It weakens the organization's ability to enforce security standards for employees.
+    \item \textbf{No Annual Security Training:} Security threats evolve constantly. The lack of annual refresher training means employees' security awareness will degrade over time, making them more susceptible to social engineering and phishing attacks.
+\end{itemize}
+
+% ===================================================================
+% 4. TECHNICAL SCAN RESULTS
+% ===================================================================
+\section{Technical Scan Results}
+
+A network scan was performed on the target system to identify open ports and exposed services.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{10.10.10.51}}
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l l l}
+\toprule
+\textbf{Port} & \textbf{State} & \textbf{Service Name} \\
+\midrule
+3389/tcp & open & ms-wbt-server (Microsoft Remote Desktop Protocol) \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports Detected on \texttt{10.10.10.51}}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified that port 3389, used for Microsoft's Remote Desktop Protocol (RDP), is open. RDP is a primary target for attackers who use brute-force password attacks or exploit known vulnerabilities (e.g., BlueKeep, DejaBlue) to gain complete control over a system. This finding, combined with the pre-existing risk of RDP exposure on another host (\texttt{10.10.10.50}), indicates a systemic misconfiguration issue.
+
+% ===================================================================
+% 5. CORRELATED RISK ASSESSMENT
+% ===================================================================
+\section{Correlated Risk Assessment}
+
+The following table synthesizes findings from the security questionnaire, technical scans, and pre-existing risk data into a prioritized list of organizational risks.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.2\linewidth} p{0.5\linewidth} p{0.15\linewidth}}
+\toprule
+\textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+\midrule
+\textbf{Systemic RDP Exposure without Endpoint MFA} & RDP is exposed on multiple internal systems (\texttt{10.10.10.50}, \texttt{10.10.10.51}). The lack of MFA on computer logins means a single compromised password could lead to a complete system takeover. & \textbf{Critical} \\
+\addlinespace
+\textbf{Lack of Endpoint MFA} & The absence of a second authentication factor for computer logins significantly increases the risk of unauthorized access via stolen or weak credentials. & \textbf{Critical} \\
+\addlinespace
+\textbf{Inadequate Security Governance} & The organization lacks a formal Acceptable Use Policy, leading to inconsistent security practices and a lack of enforceable standards for employees. & \textbf{High} \\
+\addlinespace
+\textbf{Insufficient Security Awareness Program} & While new hires receive training, the lack of an annual refresher program for all staff increases susceptibility to phishing and evolving social engineering tactics. & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\caption{Synthesized Risk Summary}
+\end{table}
+
+% ===================================================================
+% 6. RECOMMENDATIONS
+% ===================================================================
+\section{Recommendations}
+
+The following actions are recommended to mitigate the identified risks, prioritized by severity.
+
+\subsection*{Immediate Priority (Critical Risks)}
+\begin{enumerate}
+    \item \textbf{Isolate Remote Desktop Protocol (RDP):} Immediately close port 3389 on \texttt{10.10.10.51} and any other systems where it is not strictly required for business operations. For necessary remote access, implement a secure solution such as a Virtual Private Network (VPN) or a bastion host with strong access controls.
+    \item \textbf{Enforce Endpoint MFA:} Deploy and mandate the use of Multi-Factor Authentication for all computer and server logins across the organization. This is the single most effective control to mitigate the risk of compromised credentials.
+\end{enumerate}
+
+\subsection*{High Priority (High Risks)}
+\begin{enumerate}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):} Create a formal AUP that clearly defines rules for computer, network, and data usage. Ensure all employees read and acknowledge the policy.
+    \item \textbf{Establish Annual Security Awareness Training:} Implement a mandatory security awareness training program for all employees, to be completed at least once per year. The training should cover current threats such as phishing, ransomware, and proper data handling.
+\end{enumerate}
+
+\subsection*{General Recommendations}
+\begin{enumerate}
+    \item \textbf{Conduct Comprehensive Vulnerability Scanning:} Perform a credentialed vulnerability scan across the entire internal network to identify other misconfigurations, outdated software, and security weaknesses.
+\end{enumerate}
+
+% ===================================================================
+% 7. CONCLUSION
+% ===================================================================
+\section*{Conclusion}
+\textbf{Pacific Rim Exports} has established a foundational layer of security but is currently exposed to critical risks that require immediate attention. The combination of exposed administrative services like RDP and weak endpoint authentication controls creates a significant threat vector. By implementing the prioritized recommendations in this report, the organization can substantially improve its defensive posture, reduce its attack surface, and build a more resilient security program.
+
+\end{document}
+```

@@ -1,0 +1,135 @@
+```latex
+\documentclass[12pt]{article}
+
+% --- PACKAGES ---
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage[utf8]{inputenc}
+
+% --- DOCUMENT METADATA ---
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+\setcounter{page}{1}
+
+% --- SECTION 1: EXECUTIVE SUMMARY ---
+\section{Executive Summary}
+This report provides a comprehensive cybersecurity assessment for \textbf{Radiant Life}, based on a technical network scan, a review of existing risks, and an analysis of organizational security controls.
+
+The assessment reveals a mixed security posture. The organization demonstrates positive security practices in key areas, including the mandatory use of Multi-Factor Authentication (MFA) for email and computer access, and a consistent security awareness training program. Furthermore, a technical scan confirmed that a previously identified risk involving an open, unencrypted web server port (Port 80) has been successfully remediated.
+
+However, critical gaps were identified that expose the organization to significant risk. The two most pressing issues are:
+\begin{enumerate}
+    \item \textbf{Lack of MFA for Sensitive Data Systems:} The absence of mandatory MFA for systems containing sensitive data is a critical vulnerability, significantly increasing the risk of a data breach through compromised credentials.
+    \item \textbf{Absence of an Acceptable Use Policy (AUP):} The lack of a formal AUP creates ambiguity regarding the proper use of company assets, increasing the potential for insider threats and non-compliance.
+\end{enumerate}
+
+Immediate action is recommended to address these high-risk findings to strengthen the organization's overall defense against common cyber threats.
+
+% --- SECTION 2: ORGANIZATIONAL INFORMATION ---
+\section{Organizational Information}
+The following details were provided for the assessment.
+
+\begin{tabular}{@{}ll}
+    \toprule
+    \textbf{Attribute} & \textbf{Value} \\
+    \midrule
+    Organization Name & \textbf{Radiant Life} \\
+    Email Domain & \seqsplit{\texttt{RadiantLife.net}} \\
+    Website Domain & \seqsplit{\texttt{www.RadiantLife.net}} \\
+    External IP Address & \seqsplit{\texttt{153.56.73.52}} \\
+    \bottomrule
+\end{tabular}
+
+% --- SECTION 3: SECURITY CONTROL REVIEW ---
+\section{Security Control Review}
+An analysis of the organization's self-reported security controls was conducted. The findings below highlight both strengths and critical areas for improvement. A green checkmark (\ding{51}) indicates an implemented control, while a red 'X' (\ding{55}) indicates a gap.
+
+\begin{tabular}{@{}p{0.6\textwidth}cp{0.2\textwidth}@{}}
+    \toprule
+    \textbf{Control Question} & \textbf{Response} & \textbf{Assessment} \\
+    \midrule
+    Do you require MFA to access email? & \ding{51} Yes & Best Practice Met \\
+    Do you require MFA to log into computers? & \ding{51} Yes & Best Practice Met \\
+    Do you require MFA to access sensitive data systems? & \ding{55} No & \textbf{Critical Gap} \\
+    Does your organization have an employee acceptable use policy? & \ding{55} No & \textbf{High Risk} \\
+    Does your organization do security awareness training for new employees? & \ding{51} Yes & Best Practice Met \\
+    Does your organization do security awareness training for all employees at least once per year? & \ding{51} Yes & Best Practice Met \\
+    \bottomrule
+\end{tabular}
+
+% --- SECTION 4: TECHNICAL SCAN RESULTS ---
+\section{Technical Scan Results}
+A network scan was performed to identify externally exposed services and potential vulnerabilities.
+
+\begin{itemize}
+    \item \textbf{Target IP Address:} \seqsplit{\texttt{192.168.0.5}}
+    \item \textbf{Scan Date:} \today
+\end{itemize}
+
+The scan results are summarized in the table below.
+
+\begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Port} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+    \midrule
+    80 & Closed & http & No unencrypted web service detected. \\
+    \bottomrule
+\end{tabular}
+
+\subsection*{Analysis}
+The technical scan found no open ports on the target system. Specifically, Port 80 (HTTP) was found to be closed. This is a positive finding, as it mitigates risks associated with unencrypted web traffic. This result indicates that the previously documented risk, "Unencrypted Web Server," has been successfully remediated.
+
+% --- SECTION 5: CONSOLIDATED RISK ASSESSMENT ---
+\section{Consolidated Risk Assessment}
+The following table synthesizes findings from the security control review, technical scan, and pre-existing risk data into a consolidated list.
+
+\begin{tabular}{@{}p{0.3\textwidth}p{0.5\textwidth}l@{}}
+    \toprule
+    \textbf{Risk Name} & \textbf{Description} & \textbf{Severity} \\
+    \midrule
+    \textbf{Lack of MFA for Sensitive Data Systems} & The absence of a second authentication factor for critical systems makes them highly vulnerable to unauthorized access via stolen credentials. & \textbf{High} \\
+    \textbf{No Employee Acceptable Use Policy (AUP)} & Without a formal policy, there is no clear guidance for employees on safe and acceptable use of corporate resources, increasing insider risk. & \textbf{Medium} \\
+    Unencrypted Web Server & Port 80 was previously identified as open, exposing the organization to unencrypted communications. & \textit{Remediated} \\
+    \bottomrule
+\end{tabular}
+
+% --- SECTION 6: RECOMMENDATIONS ---
+\section{Recommendations}
+Based on the consolidated risk assessment, the following actions are recommended to improve the security posture of \textbf{Radiant Life}.
+
+\subsection*{High Priority Recommendations}
+\begin{itemize}
+    \item \textbf{Implement MFA for Sensitive Data Systems:}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Inventory all applications and systems that store, process, or transmit sensitive data (e.g., financial, customer, employee data).
+        \item \textbf{Short-Term Goal:} Prioritize the inventory and deploy MFA on the most critical systems within the next 90 days.
+        \item \textbf{Long-Term Strategy:} Establish a policy requiring MFA as a default security control for any new system handling sensitive information.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Medium Priority Recommendations}
+\begin{itemize}
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item \textbf{Immediate Action:} Draft a formal AUP that clearly defines rules for employee use of company networks, devices, email, and internet access.
+        \item \textbf{Short-Term Goal:} Have the draft AUP reviewed by management and legal/HR. Upon approval, distribute the policy to all employees and obtain signed acknowledgments.
+        \item \textbf{Long-Term Strategy:} Integrate the AUP review and acknowledgment into the new employee onboarding process and conduct annual refresher training for all staff.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
+```

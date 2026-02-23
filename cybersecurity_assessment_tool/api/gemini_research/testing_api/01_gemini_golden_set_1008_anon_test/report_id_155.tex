@@ -1,0 +1,191 @@
+```latex
+\documentclass[12pt]{article}
+
+% Preamble: Required Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{pifont} % For checkmarks and crosses
+\usepackage{booktabs} % For professional tables
+\usepackage{hyperref} % For clickable links
+\usepackage{url} % For URL formatting
+\usepackage{seqsplit} % To split long strings in tt font
+\usepackage{graphicx} % For potential logos
+\usepackage{xcolor} % For color definitions
+
+% Document Information
+\title{Cybersecurity Posture Assessment Report}
+\author{Cybersecurity Analysis Division}
+\date{\today}
+
+% Hyperlink Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Cybersecurity Posture Assessment Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- EXECUTIVE SUMMARY ---
+\section*{Executive Summary}
+
+This report provides a consolidated cybersecurity assessment for \textbf{[Organization Name]}, based on an analysis of network scan data, a security controls questionnaire, and a review of pre-existing risks.
+
+The assessment reveals a mixed security posture. The organization demonstrates strong identity and access management controls, with Multi-Factor Authentication (MFA) widely implemented across key systems. However, this strength is significantly undermined by critical deficiencies in foundational security policies and employee training. Specifically, the absence of an employee acceptable use policy and the lack of security awareness training for new hires create a high-risk environment susceptible to human error and insider threats.
+
+Technical analysis identified an externally exposed Secure Shell (SSH) service on the network perimeter. Compounding this, a pre-existing critical vulnerability, "Localhost Exposed" (CVSS 10.0), was noted, indicating a severe misconfiguration that requires immediate attention.
+
+The primary recommendations focus on immediate risk mitigation by addressing the policy and training gaps, securing the exposed SSH service, and investigating the critical "Localhost Exposed" vulnerability. Implementing these foundational controls is essential to reduce the organization's attack surface and improve its overall resilience against cyber threats.
+
+% --- ORGANIZATIONAL INFORMATION ---
+\section*{Organizational Information}
+
+This section details the organizational information used for this assessment. As the provided data was anonymized, placeholders have been used.
+
+\begin{tabular}{@{}ll}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Organization Name & \textbf{[Organization Name]} \\
+Primary Domain & \texttt{[Domain]} \\
+External IP Address Assessed & \texttt{[Client IP]} \\
+\bottomrule
+\end{tabular}
+
+% --- SECURITY CONTROL REVIEW ---
+\section*{Security Control Review}
+
+The following table summarizes the organization's responses to a security controls questionnaire. "Yes" answers, indicating a control is in place, are marked with a green checkmark (\textcolor{green}{\ding{51}}). "No" answers, indicating a control gap, are marked with a red cross (\textcolor{red}{\ding{55}}).
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lc}
+\toprule
+\textbf{Control Question} & \textbf{Status} \\
+\midrule
+Do you require MFA to access email? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to log into computers? & \textcolor{green}{\ding{51}} \\
+Do you require MFA to access sensitive data systems? & \textcolor{green}{\ding{51}} \\
+Does your organization have an employee acceptable use policy? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for new employees? & \textcolor{red}{\ding{55}} \\
+Does your organization do security awareness training for all employees? & \textcolor{green}{\ding{51}} \\
+\bottomrule
+\end{tabular}
+\caption{Security Controls Questionnaire Results}
+\end{table}
+
+\subsection*{Analysis of Control Gaps}
+The questionnaire highlights two significant control gaps:
+\begin{itemize}
+    \item \textbf{Lack of an Acceptable Use Policy (AUP):} This is a critical administrative gap. An AUP is a foundational document that defines how employees may use company IT assets, protecting the organization from legal and security risks. Without it, there is no clear standard for employee behavior or recourse for misuse.
+    \item \textbf{No Security Training for New Employees:} Failing to train new hires on security best practices from day one exposes the organization to immediate risk. New employees are often prime targets for phishing and social engineering attacks.
+\end{itemize}
+
+% --- TECHNICAL SCAN RESULTS ---
+\section*{Technical Scan Results}
+
+A network scan was performed on the target host to identify open ports and exposed services. As the target IP was not specified in the input data, the placeholder \texttt{[Target IP]} is used.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll}
+\toprule
+\textbf{Port/Proto} & \textbf{State} & \textbf{Service} & \textbf{Notes} \\
+\midrule
+22/tcp & open & ssh & Secure Shell service is accessible from the internet. \\
+ & & & No version information was available in the scan data. \\
+\bottomrule
+\end{tabular}
+\caption{Open Ports on Target: \texttt{[Target IP]}}
+\end{table}
+
+\subsection*{Analysis of Technical Findings}
+The scan identified that port 22 (SSH) is open to the public. While SSH is a secure protocol, its exposure on the internet presents several risks:
+\begin{itemize}
+    \item \textbf{Brute-Force Attacks:} Automated tools can continuously attempt to guess usernames and passwords.
+    \item \textbf{Vulnerability Exploitation:} If the SSH server software is outdated or has a known vulnerability, it can be exploited by attackers to gain unauthorized access.
+\end{itemize}
+The lack of version information in the scan prevents a full vulnerability assessment of the service.
+
+% --- CONSOLIDATED RISK ASSESSMENT ---
+\section*{Consolidated Risk Assessment}
+
+This section synthesizes findings from the security questionnaire, technical scan, and pre-existing risk data into a single prioritized list.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll}
+\toprule
+\textbf{Risk Name} & \textbf{Severity} & \textbf{Description} & \textbf{Source} \\
+\midrule
+Localhost Exposed & \textbf{Critical} & A service intended for local access is exposed. & Current Risks \\
+ & (CVSS 10.0) & This represents a severe misconfiguration. & \\
+\addlinespace
+Lack of Acceptable & High & No formal policy defining proper use of IT & Questionnaire \\
+Use Policy & & assets, increasing insider and legal risk. & \\
+\addlinespace
+No Security Training & High & New employees are not trained on security, & Questionnaire \\
+for New Hires & & making them susceptible to attacks. & \\
+\addlinespace
+Exposed SSH Service & Medium & SSH port 22 is open to the internet, risking & Network Scan \\
+ & & brute-force attacks and exploitation. & \\
+\bottomrule
+\end{tabular}
+\caption{Summary of Identified Risks}
+\end{table}
+
+% --- RECOMMENDATIONS ---
+\section*{Recommendations}
+
+The following actionable recommendations are provided to address the identified risks. They are prioritized based on severity.
+
+\subsection*{Critical Priority}
+\begin{enumerate}
+    \item \textbf{Investigate and Remediate "Localhost Exposed" Vulnerability:}
+    \begin{itemize}
+        \item \textbf{Action:} Immediately identify the service associated with this finding. Reconfigure the service to bind only to the loopback interface (e.g., \texttt{127.0.0.1} or \texttt{::1}) so it is not accessible from the network.
+        \item \textbf{Impact:} Mitigates a critical (CVSS 10.0) risk of remote code execution or complete system compromise.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{High Priority}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Continue numbering
+    \item \textbf{Develop and Implement an Acceptable Use Policy (AUP):}
+    \begin{itemize}
+        \item \textbf{Action:} Draft an AUP that clearly outlines the rules for using company networks, devices, and data. This policy should be reviewed by legal counsel, communicated to all employees, and formally acknowledged via signature.
+        \item \textbf{Impact:} Establishes a baseline for secure behavior and provides a framework for enforcing security standards.
+    \end{itemize}
+    \item \textbf{Institute Mandatory Onboarding Security Training:}
+    \begin{itemize}
+        \item \textbf{Action:} Integrate a mandatory security awareness training module into the new employee onboarding process. This training should cover phishing, password hygiene, data handling, and the new AUP.
+        \item \textbf{Impact:} Reduces the likelihood of security incidents caused by new employees and fosters a culture of security from day one.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Medium Priority}
+\begin{enumerate}
+    \setcounter{enumi}{3} % Continue numbering
+    \item \textbf{Restrict Access to the Exposed SSH Service:}
+    \begin{itemize}
+        \item \textbf{Action:} Apply firewall rules to restrict access to port 22 to only known, trusted IP addresses (e.g., administrator workstations or a VPN gateway). If external access is not required, block the port entirely from the internet.
+        \item \textbf{Impact:} Drastically reduces the attack surface by preventing unauthorized scanning and brute-force attempts.
+    \end{itemize}
+    \item \textbf{Perform Authenticated Vulnerability Scanning:}
+    \begin{itemize}
+        \item \textbf{Action:} Conduct a comprehensive, credentialed vulnerability scan of the host at \texttt{[Target IP]} to identify the specific version of the SSH service and check for known vulnerabilities.
+        \item \textbf{Impact:} Provides detailed insight into the specific software flaws that may exist, allowing for targeted patching and remediation.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
+```
