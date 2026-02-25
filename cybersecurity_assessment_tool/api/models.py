@@ -137,3 +137,21 @@ class Risk(models.Model):
 
     def __str__(self):
         return self.risk_name
+    
+class Vulnerability(models.Model):
+    SEVERITY_CHOICES = [
+        ('Critical', 'Critical'),
+        ('High', 'High'),
+        ('Medium', 'Medium'),
+        ('Low', 'Low'),
+        ('Info', 'Informational')
+    ]
+    name = models.CharField(max_length=500)
+    severity = models.CharField(choices=SEVERITY_CHOICES)
+    description = models.TextField()
+    # cvss_score = models.FloatField()
+    # host = models.ForeignKey(Host, on_delete=models.CASCADE) # Which host has this flaw
+    # plugin_output = models.TextField() # The actual evidence from the scan
+
+    def __str__(self):
+        return f"{self.severity}: {self.name}"

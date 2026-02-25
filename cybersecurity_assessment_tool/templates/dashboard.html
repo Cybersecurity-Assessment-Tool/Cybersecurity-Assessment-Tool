@@ -1,19 +1,239 @@
 {% extends 'base.html' %}
 
-{% block title %}Welcome - {{ block.super }}{% endblock %}
+{% block title %}Dashboard - {{ block.super }}{% endblock %}
 
 {% block content %}
 <div class="text-center py-2">
     <div class="row align-items-center py-3" style="min-height: 200px;">
         <div class="col-lg-5">
-            <div class="card bg-light" style="height: 200px;"></div>
+            <div class="card bg-light" id="chart" style="height: 200px;">
+                <!-- CHART.JS START -->
+                <!-- Canvas element where the pie chart will be drawn -->
+                <div style="height: 300px; position: relative;">
+                    <canvas id="severityPieChart"></canvas>
+                </div>
+                <!-- CHART.JS END -->
+            </div>
         </div>
         <div class="col-lg">
-            <div class="card bg-light" style="height: 200px;"></div>
+            <div class="card bg-light" style="height: 200px;">
+                <!-- We'll display the same data in text form -->
+                <div class="mt-4" id="severitySummary">
+                    <!-- This will be populated by our script -->
+                </div>
+            </div>
         </div>
     </div>
     <div class="col-lg py-3">
-        <div class="card bg-light" style="height: 500px;"></div>
+        <div class="card bg-light" style="height: 500px;">
+            <!-- TABLE START -->
+            <div class="table-responsive">
+                <table class="table table-hover" id="vulnerabilityTable">
+                    <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Vulnerability Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- TABLE END -->
+        </div>
     </div>
 </div>
 {% endblock %}
+
+<!-- CHART.JS START -->
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // const ctx = document.getElementById('myChart');
+
+    const dummyVulnerabilities = [
+    { severity: 'Critical', name: 'RCE in Apache' },
+    { severity: 'Critical', name: 'RCE in Nginx' },
+    { severity: 'Critical', name: 'RCE in IIS' },
+    { severity: 'Critical', name: 'RCE in Tomcat' },
+    { severity: 'High', name: 'SQL Injection in WordPress' },
+    { severity: 'High', name: 'SQL Injection in Joomla' },
+    { severity: 'Medium', name: 'XSS in Drupal' },
+    { severity: 'Low', name: 'Information Disclosure in Apache' },
+    { severity: 'Info', name: 'Outdated Software Detected' }
+    ];
+
+
+    // new Chart(ctx, {
+    //     type: 'bar',
+    //     data: {
+    //         labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+    //         datasets: [{
+    //             label: '# of Votes',
+    //             data: [12, 19, 3, 5, 2, 3],
+    //             borderWidth: 1
+    //         }]
+    //     },
+    //     options: {
+    //         scales: {
+    //             y: {
+    //                 beginAtZero: true
+    //             }
+    //         },
+    //         responsive: true,
+    //         maintainAspectRatio: false
+    //     }
+    // });
+
+    $(document).ready(function() {
+        // STEP 4: Process the data for our pie chart
+        // Count vulnerabilities by severity
+        const severityCounts = {
+            'Critical': 0,
+            'High': 0,
+            'Medium': 0,
+            'Low': 0
+        };
+        
+        // Loop through our dummy data and count
+        dummyVulnerabilities.forEach(vuln => {
+            severityCounts[vuln.severity]++;
+        });
+        
+        // STEP 5: Create the pie chart
+        const ctx = document.getElementById('severityPieChart').getContext('2d');
+        
+        // Define colors for each severity (matches Nessus/Qualys style)
+        const severityColors = {
+            'Critical': '#dc3545', // Red
+            'High': '#fd7e14',     // Orange
+            'Medium': '#ffc107',    // Yellow
+            'Low': '#28a745'        // Green
+        };
+        
+        // Create the chart
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Critical', 'High', 'Medium', 'Low'],
+                datasets: [{
+                    data: [
+                        severityCounts['Critical'],
+                        severityCounts['High'],
+                        severityCounts['Medium'],
+                        severityCounts['Low']
+                    ],
+                    backgroundColor: [
+                        severityColors['Critical'],
+                        severityColors['High'],
+                        severityColors['Medium'],
+                        severityColors['Low']
+                    ],
+                    borderWidth: 1,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // STEP 6: Populate the severity summary box
+        const totalVulns = dummyVulnerabilities.length;
+        let summaryHtml = '';
+        
+        for (const [severity, count] of Object.entries(severityCounts)) {
+            const percentage = Math.round((count / totalVulns) * 100);
+            const colorClass = `severity-${severity.toLowerCase()}`;
+            
+            summaryHtml += `
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="fw-bold ${colorClass}">${severity}</span>
+                    </div>
+                    <div>
+                        <span class="badge bg-secondary me-2">${count}</span>
+                        <span class="text-muted">(${percentage}%)</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        summaryHtml += `
+            <hr>
+            <div class="d-flex justify-content-between">
+                <span class="fw-bold">Total Vulnerabilities</span>
+                <span class="badge bg-primary">${totalVulns}</span>
+            </div>
+        `;
+        
+        $('#severitySummary').html(summaryHtml);
+        
+        // STEP 7: Populate the vulnerability table
+        let tableRows = '';
+        
+        dummyVulnerabilities.forEach(vuln => {
+            // Determine badge color based on severity
+            let badgeClass = '';
+            switch(vuln.severity) {
+                case 'Critical':
+                    badgeClass = 'bg-danger';
+                    break;
+                case 'High':
+                    badgeClass = 'bg-warning text-dark';
+                    break;
+                case 'Medium':
+                    badgeClass = 'bg-warning';
+                    break;
+                case 'Low':
+                    badgeClass = 'bg-success';
+                    break;
+            }
+            
+            tableRows += `
+                <tr>
+                    <td><span class="badge ${badgeClass}">${vuln.severity}</span></td>
+                    <td>${vuln.name}</td>
+                </tr>
+            `;
+        });
+        
+        $('#vulnerabilityTable tbody').html(tableRows);
+    });
+
+    // new Chart(ctx, {
+    //     type: 'bar',
+    //     data: {
+    //         labels: data.map(item => item.severity),
+    //         datasets: [{
+    //             label: 'Vulnerabilities',
+    //             data: data.map(item => item.count)
+    //         }]
+    //     }
+    // });
+</script>
+{% endblock %}
+<!-- CHART.JS END -->
