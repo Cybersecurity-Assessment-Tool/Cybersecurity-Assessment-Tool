@@ -7,19 +7,19 @@ Run these commands in your terminal:
 1. python manage.py makemigrations
 2. python manage.py migrate
 
-How to decrypt the encrypted values 
-    Via Django Shell:
-        1. python manage.py shell
-        2. Then run the following commands:
-            from api.model import Organization
-            org = Organization.objects.first()
-            print(f"Decrypted IP: {org.external_ip}")
-    Via PostgreSQL:
-        Locally:
-            ex: SELECT external_ip FROM api_organization
-        On Heroku:
-            ex: heroku pg:psql -a your-app-name
-                SELECT external_ip FROM api_organization LIMIT 1;
+How to decrypt the encrypted values:
+- Via Django Shell:
+    1. python manage.py shell
+    2. Then run the following commands:
+        from api.model import Organization
+        org = Organization.objects.first()
+        print(f"Decrypted IP: {org.external_ip}")
+- Via PostgreSQL:
+    Locally:
+        ex: SELECT external_ip FROM api_organization
+    On Heroku:
+        ex: heroku pg:psql -a your-app-name
+            SELECT external_ip FROM api_organization LIMIT 1;
 """
 import uuid
 from django.db import models
