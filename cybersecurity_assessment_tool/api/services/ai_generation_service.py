@@ -4,6 +4,9 @@ import os
 import sys
 from dotenv import load_dotenv, find_dotenv
 import google.generativeai as genai
+from django.db import transaction
+from django.utils import timezone
+from models import Report, Risk, Organization, User
 
 load_dotenv(find_dotenv())
 
@@ -352,9 +355,7 @@ def _add_risks(report: json, current_risks: json, max_retries=4, delay=2):
 
 def ai_generation_service(personal_info: json, current_risks: json, context: str, system_instruction: str = ""):
     """
-    The main function to call for creating a report and adding any new risks to an Organization's database.
-    Calls _generate_report_content to create the report, adds the personal information,
-    then puts the report into the database. Calls _add_risks and adds the new risks into the database.
+    Generates a report and risks using Gemini, then saves to PostgreSQL.
 
     Args:
         personal_info: A JSON of the organization's personal information such os Org Name, IP address, questionnaire questions, etc.
@@ -367,13 +368,58 @@ def ai_generation_service(personal_info: json, current_risks: json, context: str
         True | False: Returns True if successfully, False otherwise.
     """
 
-    report = _generate_report_content(context, system_instruction)
+    report_json_str = _generate_report_content(context, system_instruction)
 
-    #check if none
-    #adds personal info
-    #puts report in database
-    
-    risks = _add_risks(report, current_risks)
+    if not report_json_str:
+        print("[ERROR] Report generation failed.")
+        return False
 
-    #check if none
-    #puts new risks in database, figure out how to add the report ID to each new risk added
+    try:
+        # Generate the Report
+        report_data = json.loads(report_json_str)
+        
+        # Get the Organization and User instances
+        # personal_info should contain organization_id or similar unique identifier
+        org = Organization.objects.get(organization_id=personal_info['organization_id'])
+        user = User.objects.get(user_id=User.user_id)
+
+        with transaction.atomic():
+            # Create the Report record
+            new_report = Report.objects.create(
+                user_created=user,
+                organization=org,
+                report_name=f"Security Assessment - {org.org_name} - {timezone.now().strftime('%Y-%m-%d')}",
+                report_text=report_data, # Saves the full JSON structure
+                completed=timezone.now()
+            )
+
+            # Generate the Risks based on the new report
+            risks_json_str = _add_risks(report_data, current_risks)
+            
+            if risks_json_str:
+                risks_data = json.loads(risks_json_str)
+                
+                # Iterate through risks and save to database
+                for risk_item in risks_data.get('vulnerabilities', []):
+                    Risk.objects.create(
+                        risk_name=risk_item.get('risk_name'),
+                        report=new_report, # Links the risk to the report ID
+                        organization=org,
+                        overview=risk_item.get('overview'),
+                        recommendations=risk_item.get('recommendations'),
+                        severity=risk_item.get('severity'),
+                        # affected_elements is a TextField in model, but AI returns a list
+                        affected_elements=", ".join(risk_item.get('affected_elements', [])),
+                    )
+            
+            print(f"--- Successfully saved Report {new_report.report_id} and associated risks. ---")
+            return True
+
+    except Organization.DoesNotExist:
+        print(f"[ERROR] Organization with ID {personal_info.get('organization_id')} not found.")
+    except User.DoesNotExist:
+        print(f"[ERROR] User with ID {User.user_id} not found.")
+    except Exception as e:
+        print(f"[ERROR] Database save failed: {e}")
+        
+    return False

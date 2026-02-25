@@ -6,11 +6,25 @@ For local databases, it should be run regularly whenever the migration has been 
 Run these commands in your terminal:
 1. python manage.py makemigrations
 2. python manage.py migrate
+
+How to decrypt the encrypted values 
+    Via Django Shell:
+        1. python manage.py shell
+        2. Then run the following commands:
+            from api.model import Organization
+            org = Organization.objects.first()
+            print(f"Decrypted IP: {org.external_ip}")
+    Via PostgreSQL:
+        Locally:
+            ex: SELECT external_ip FROM api_organization
+        On Heroku:
+            ex: heroku pg:psql -a your-app-name
+                SELECT external_ip FROM api_organization LIMIT 1;
 """
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator
+from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, EncryptedJSONField
 
 class Color(models.TextChoices):
     DARK = 'd', 'Dark'
@@ -33,10 +47,10 @@ class Organization(models.Model):
         default=uuid.uuid4,
         editable=False
     )
-    org_name = models.CharField(max_length=300)
-    email_domain = models.CharField(max_length=100)
-    website_domain = models.CharField(max_length=100)
-    external_ip = models.CharField(max_length=100)
+    org_name = EncryptedCharField(max_length=300)
+    email_domain = EncryptedCharField(max_length=100)
+    website_domain = EncryptedCharField(max_length=100)
+    external_ip = EncryptedCharField(max_length=100)
     require_mfa_email = models.BooleanField()
     require_mfa_sensitive_data = models.BooleanField()
     employee_acceptable_use_policy = models.BooleanField()
@@ -98,7 +112,7 @@ class Report(models.Model):
     report_name = models.CharField(max_length=300)
     started = models.DateTimeField(auto_now_add=True)
     completed = models.DateTimeField(blank=True, null=True)
-    report_text = models.JSONField(default=dict)
+    report_text = EncryptedJSONField(default=dict)
     #is_checked = models.BooleanField(default=False)
 
     class Meta:
@@ -128,10 +142,10 @@ class Risk(models.Model):
     risk_name = models.CharField(max_length=500)
     report = models.ForeignKey(Report, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    overview = models.TextField()
-    recommendations = models.JSONField()
+    overview = EncryptedTextField()
+    recommendations = EncryptedJSONField()
     severity = models.CharField(choices=SEVERITY_CHOICES)
-    affected_elements = models.TextField()
+    affected_elements = EncryptedTextField()
     is_archived = models.BooleanField(default=False)
 
     class Meta:
