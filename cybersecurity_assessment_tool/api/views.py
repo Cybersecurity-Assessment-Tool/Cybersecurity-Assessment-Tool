@@ -72,18 +72,10 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
-from django.db.models import Count
 from .models import Vulnerability
-from django.http import JsonResponse
-
-def dashboard_stats(request):
-    severity_data = Vulnerability.objects.values('severity').annotate(count=Count('id'))
-    # Returns: [{'severity': 'Critical', 'count': 25}, ...]
-    return JsonResponse(list(severity_data), safe=False)
-
 def dashboard(request):
     """Display dashboard page"""
-    vulnerabilities = list(Vulnerability.objects.values('severity', 'name'))
+    vulnerabilities = list(Vulnerability.objects.values('severity', 'name', 'description'))
     return render(request, 'dashboard.html', {'vulnerabilities': vulnerabilities})
 
 def report_list(request):
