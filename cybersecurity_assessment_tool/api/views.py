@@ -72,11 +72,14 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
+import json
 from .models import Vulnerability
 def dashboard(request):
     """Display dashboard page"""
     vulnerabilities = list(Vulnerability.objects.values('severity', 'name', 'description'))
-    return render(request, 'dashboard.html', {'vulnerabilities': vulnerabilities})
+    return render(request, 'dashboard.html', {
+        'vulnerabilities_json': json.dumps(vulnerabilities)  # Pass as JSON string
+    })
 
 def report_list(request):
     """Display list of reports"""
