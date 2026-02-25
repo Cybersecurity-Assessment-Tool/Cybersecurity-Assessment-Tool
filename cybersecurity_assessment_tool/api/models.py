@@ -98,12 +98,12 @@ class Report(models.Model):
     report_name = models.CharField(max_length=300)
     started = models.DateTimeField(auto_now_add=True)
     completed = models.DateTimeField(blank=True, null=True)
-    report_text = models.TextField(blank=True, null=True)
-    is_checked = models.BooleanField(default=False)
+    report_text = models.JSONField(default=dict)
+    #is_checked = models.BooleanField(default=False)
 
     class Meta:
         permissions = [
-            ("can_check_report", "Can check a report before publishing."),
+            #("can_check_report", "Can check a report before publishing."),
             ("can_view_any_report", "Can review any report, regardless of organization."),
             ("can_generate_report", "Can generate a new report."),
             ("can_export_report", "Can export report data."),
@@ -113,18 +113,25 @@ class Report(models.Model):
         return self.report_name
 
 class Risk(models.Model):
+    SEVERITY_CHOICES = [
+        ('Critical', 'Critical'),
+        ('High', 'High'),
+        ('Medium', 'Medium'),
+        ('Low', 'Low'),
+        ('Info', 'Informational')
+    ]
     risk_id = models.UUIDField(
         primary_key = True,
         default=uuid.uuid4,
         editable=False
     )
-    risk_name = models.CharField(max_length=300)
+    risk_name = models.CharField(max_length=500)
     report = models.ForeignKey(Report, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     overview = models.TextField()
     recommendations = models.JSONField()
-    severity = models.SmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
-    affected = models.TextField()
+    severity = models.CharField(choices=SEVERITY_CHOICES)
+    affected_elements = models.TextField()
     is_archived = models.BooleanField(default=False)
 
     class Meta:
@@ -136,4 +143,4 @@ class Risk(models.Model):
         ]
 
     def __str__(self):
-        return self.risk_name
+        return f"{self.severity}: {self.risk_name}"
