@@ -156,6 +156,7 @@ INTERNAL_IPS = [
 
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 
 if not TESTING:
