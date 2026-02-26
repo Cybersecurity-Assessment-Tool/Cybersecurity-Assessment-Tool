@@ -379,16 +379,55 @@ def _add_risks(report: dict, current_risks: dict, max_retries=4, delay=2):
     print(f"--- FAILED to generate risk content after {max_retries} attempts. ---")
     return None
 
+#TODO: MUST edit this function if the questionnaire changes. 
+def _inject_overview_and_questionnaire(report_data: dict, org: Organization) -> dict:
+    """
+    Injects the Overview and Questionnaire Review sections at the top 
+    of the AI-generated report data using information from the database.
+    """
+
+    new_section_data = {
+        "Overview": {
+            "Organization Name": org.org_name,
+            "Primary Domain": org.email_domain,
+            "External IP Address": org.external_ip,
+            "Report Date": timezone.now().strftime('%Y-%m-%d')
+        },
+        "Questionnaire Review": {
+            "Do you require MFA to access email?": "Yes" if org.require_mfa_email else "No",
+            "Do you require MFA to log into computers?": "Yes" if org.require_mfa_computer else "No",
+            "Do you require MFA to access sensitive data systems?": "Yes" if org.require_mfa_sensitive_data else "No",
+            "Does your organization have an employee acceptable use policy?": "Yes" if org.employee_acceptable_use_policy else "No",
+            "Does your organization do security awareness training for new employees?": "Yes" if org.training_new_employees else "No",
+            "Does your organization do security awareness training for all employees at least once per year?": "Yes" if org.training_once_per_year else "No"
+        }
+    }
+
+    if "report" in report_data and isinstance(report_data["report"], list):
+        for i, report_item in enumerate(report_data["report"]):
+            rebuilt_report_item = {}
+            
+            for key, value in new_section_data.items():
+                rebuilt_report_item[key] = value
+                
+            for key, value in report_item.items():
+                rebuilt_report_item[key] = value
+                
+            report_data["report"][i] = rebuilt_report_item
+
+    return report_data
+
 def ai_generation_service(personal_info: dict, current_risks: dict, context_filepath: str, system_instruction: str = ""):
     """
-    Generates a report and risks using Gemini, then saves to PostgreSQL.
+    Generates a report and risks using Gemini.
+    Returns the created Report object and a list of created Risk objects.
     """
 
     report_json_str = _generate_report_content(context_filepath, system_instruction)
 
     if not report_json_str:
         print("[ERROR] Report generation failed.")
-        return False
+        return None, None
 
     try:
         report_data = json.loads(report_json_str)
@@ -397,22 +436,26 @@ def ai_generation_service(personal_info: dict, current_risks: dict, context_file
         user_id = personal_info.get('user_id') 
         user = User.objects.get(user_id=user_id) if user_id else None
 
+        report_data = _inject_overview_and_questionnaire(report_data, org)
+
         with transaction.atomic():
             new_report = Report.objects.create(
                 user_created=user,
                 organization=org,
-                report_name=f"Security Assessment - {org.org_name} - {timezone.now().strftime('%Y-%m-%d')}",
+                report_name=f"Report - {org.org_name} - {timezone.now().strftime('%Y-%m-%d')}",
                 report_text=report_data, 
                 completed=timezone.now()
             )
 
             risks_json_str = _add_risks(report_data, current_risks)
+
+            created_risks = []
             
             if risks_json_str:
                 risks_data = json.loads(risks_json_str)
                 
                 for risk_item in risks_data.get('new vulnerabilities', []):
-                    Risk.objects.create(
+                    new_risk = Risk.objects.create(
                         risk_name=risk_item.get('risk_name'),
                         report=new_report, 
                         organization=org,
@@ -421,9 +464,10 @@ def ai_generation_service(personal_info: dict, current_risks: dict, context_file
                         severity=risk_item.get('severity'),
                         affected_elements=", ".join(risk_item.get('affected_elements', [])),
                     )
+                    created_risks.append(new_risk)
             
             print(f"--- Successfully saved Report {new_report.report_id} and associated risks. ---")
-            return True
+            return new_report, created_risks
 
     except Organization.DoesNotExist:
         print(f"[ERROR] Organization with ID {personal_info.get('organization_id')} not found.")
@@ -432,4 +476,4 @@ def ai_generation_service(personal_info: dict, current_risks: dict, context_file
     except Exception as e:
         print(f"[ERROR] Database save failed: {e}")
         
-    return False
+    return None, None

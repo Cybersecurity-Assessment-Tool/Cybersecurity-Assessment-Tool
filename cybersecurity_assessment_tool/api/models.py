@@ -51,11 +51,12 @@ class Organization(models.Model):
     email_domain = EncryptedCharField(max_length=100)
     website_domain = EncryptedCharField(max_length=100)
     external_ip = EncryptedCharField(max_length=100)
-    require_mfa_email = models.BooleanField()
-    require_mfa_sensitive_data = models.BooleanField()
-    employee_acceptable_use_policy = models.BooleanField()
-    training_new_employees = models.BooleanField()
-    training_once_per_year = models.BooleanField()
+    require_mfa_email = models.BooleanField(default=False)
+    require_mfa_computer = models.BooleanField(default=False)
+    require_mfa_sensitive_data = models.BooleanField(default=False)
+    employee_acceptable_use_policy = models.BooleanField(default=False)
+    training_new_employees = models.BooleanField(default=False)
+    training_once_per_year = models.BooleanField(default=False)
 
     def __str__(self):
         return self.org_name
