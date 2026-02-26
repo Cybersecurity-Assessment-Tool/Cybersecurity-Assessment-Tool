@@ -23,6 +23,7 @@ from api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("accounts/", include("accounts.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     
     # Test segment 2
@@ -33,7 +34,6 @@ urlpatterns = [
     path('settings/', views.settings, name='settings'),  # /settings/
     path('profile/', views.profile, name='profile'),  # /profile/
 
-    path('login/', views.home, name='login'),  # /login/ (not implemented yet)
     # path('questionnaire/', views.home, name='questionnaire'),  # /questionnaire/ (not implemented yet)
 ]
 
