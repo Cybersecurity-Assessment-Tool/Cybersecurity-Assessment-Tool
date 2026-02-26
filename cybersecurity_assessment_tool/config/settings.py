@@ -152,6 +152,8 @@ INTERNAL_IPS = [
     '127.0.0.1'
 ]
 
+
+LOGIN_REDIRECT_URL = "/"  # new
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 
 if not TESTING:
