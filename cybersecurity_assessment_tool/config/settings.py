@@ -153,7 +153,8 @@ INTERNAL_IPS = [
 ]
 
 
-LOGIN_REDIRECT_URL = "/"  # new
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 
 if not TESTING:
