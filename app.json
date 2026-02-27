@@ -1,0 +1,60 @@
+{
+  "name": "Cybersecurity Assessment Tool",
+  "description": "A full-stack web application to help organizations evaluate cybersecurity risk.",
+  "repository": "https://github.com/Cybersecurity-Assessment-Tool/Cybersecurity-Assessment-Tool",
+  "keywords": ["django", "cybersecurity", "heroku", "postgresql"],
+  "stack": "heroku-24",
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "env": {
+    "SECRET_KEY": {
+      "description": "Django secret key. Generate one at https://djecrety.ir/",
+      "generator": "secret"
+    },
+    "DEBUG": {
+      "description": "Set to False for deployed environments.",
+      "value": "False"
+    },
+    "DJANGO_ENVIRONMENT": {
+      "description": "Environment name: integration | staging | production",
+      "required": true
+    },
+    "ALLOWED_HOSTS": {
+      "description": "Comma-separated hostnames (e.g., myapp.herokuapp.com)",
+      "required": true
+    },
+    "GEMINI_API_KEY": {
+      "description": "Google Gemini API key for AI-powered report generation.",
+      "required": true
+    },
+    "DISABLE_COLLECTSTATIC": {
+      "description": "Set to 1 to skip collectstatic during build (handled in release phase).",
+      "value": "1"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:essential-0"
+    }
+  ],
+  "environments": {
+    "review": {
+      "addons": [
+        "heroku-postgresql:essential-0"
+      ],
+      "env": {
+        "DJANGO_ENVIRONMENT": "integration",
+        "DEBUG": "True"
+      }
+    }
+  }
+}

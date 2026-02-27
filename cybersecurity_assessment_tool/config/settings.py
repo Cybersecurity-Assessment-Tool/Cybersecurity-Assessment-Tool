@@ -13,33 +13,37 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 import sys
 from pathlib import Path
+
+import dj_database_url
 from dotenv import load_dotenv, find_dotenv
 
-# Load environment variables from .env file
+# Load environment variables from .env file (only affects local dev;
+# on Heroku, env vars are set via Config Vars)
 load_dotenv(find_dotenv())
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# ---------------------------------------------------------------------------
+# Environment Detection
+# Set DJANGO_ENVIRONMENT to: local | integration | staging | production
+# ---------------------------------------------------------------------------
+ENVIRONMENT = os.environ.get('DJANGO_ENVIRONMENT', 'local')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-try:
-    SECRET_KEY = os.environ['SECRET_KEY']
-except KeyError:
-    sys.stderr.write("Error: SECRET_KEY not found in environment variables. Please set it.")
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
+if not SECRET_KEY:
+    if ENVIRONMENT == 'local':
+        SECRET_KEY = 'django-insecure-local-dev-key-CHANGE-ME-in-production'
+    else:
+        raise ValueError('SECRET_KEY environment variable is required in non-local environments.')
 
-try:
-    DEBUG = os.environ['DEBUG']
-except KeyError:
-    sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-try:
-    DATABASE_PASSWORD = os.environ['DATABASE_PASSWORD']
-except KeyError:
-    sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
-
-ALLOWED_HOSTS = []
+# Comma-separated list of allowed hosts, e.g. "myapp.herokuapp.com,mydomain.com"
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
 
@@ -56,6 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -86,20 +91,23 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# On Heroku, DATABASE_URL is set automatically by the Heroku Postgres add-on.
+# Locally, falls back to the default local PostgreSQL connection.
+
+DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD', '')
+
+_DEFAULT_DB_URL = (
+    f"postgres://postgres:{DATABASE_PASSWORD}@localhost:5432/postgres"
+    if DATABASE_PASSWORD
+    else 'postgres://postgres@localhost:5432/postgres'
+)
 
 DATABASES = {
-    'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-
-        # works for local but must be changed to environment variable for cloud
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': DATABASE_PASSWORD,
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=_DEFAULT_DB_URL,
+        conn_max_age=600,
+        ssl_require=(ENVIRONMENT not in ('local', 'test')),
+    )
 }
 
 
@@ -139,9 +147,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # MEDIA_URL = '/media/'
+
+# Whitenoise compressed & hashed static files
+STORAGES = {
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -154,7 +170,7 @@ INTERNAL_IPS = [
 
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 
-if not TESTING:
+if not TESTING and ENVIRONMENT == 'local':
     INSTALLED_APPS = [
         *INSTALLED_APPS,
         'debug_toolbar'
@@ -163,3 +179,39 @@ if not TESTING:
         "debug_toolbar.middleware.DebugToolbarMiddleware",
         *MIDDLEWARE
     ]
+
+# ---------------------------------------------------------------------------
+# Security settings — enabled for staging & production
+# ---------------------------------------------------------------------------
+if ENVIRONMENT in ('staging', 'production'):
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31_536_000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# ---------------------------------------------------------------------------
+# Logging — basic config that works on Heroku (stdout)
+# ---------------------------------------------------------------------------
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {name} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO' if ENVIRONMENT != 'local' else 'DEBUG',
+    },
+}
