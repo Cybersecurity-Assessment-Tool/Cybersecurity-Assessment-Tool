@@ -44,6 +44,9 @@ DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 # Comma-separated list of allowed hosts, e.g. "myapp.herokuapp.com,mydomain.com"
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Always allow Heroku subdomains in non-local environments
+if ENVIRONMENT != 'local' and '.herokuapp.com' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.herokuapp.com')
 
 # Application definition
 
