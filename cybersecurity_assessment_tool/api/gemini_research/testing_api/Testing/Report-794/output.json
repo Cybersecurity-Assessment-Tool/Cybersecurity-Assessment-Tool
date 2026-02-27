@@ -1,0 +1,49 @@
+{
+    "report": [
+        {
+            "Risk Assessment & Readiness": {
+                "Summary": "The organization's network includes an FTP server running vsftpd 2.3.4 with anonymous login enabled. Internally, the organization uses workstations, some of which are running outdated Windows 7. While Multi-Factor Authentication (MFA) is used for email and sensitive data systems, it is not required for computer logins. Furthermore, the organization lacks an employee acceptable use policy, though security awareness training is conducted for new and existing employees annually.",
+                "Vulnerabilites Found": [
+                    {
+                        "Risk": "Anonymous FTP Login Allowed",
+                        "Overview": "The FTP service (vsftpd 2.3.4) on port 21 allows anonymous login. This can lead to unauthorized access to files, data leakage, or even arbitrary file uploads if not properly configured, posing a significant risk to data confidentiality and integrity. This was identified via an Nmap scan script 'ftp-anon'.",
+                        "Severity": "High",
+                        "Affected Elements": [
+                            "FTP Server (vsftpd 2.3.4)",
+                            "Port 21"
+                        ]
+                    },
+                    {
+                        "Risk": "No MFA for Computer Login",
+                        "Overview": "The organization does not require Multi-Factor Authentication (MFA) for computer logins. This significantly increases the risk of unauthorized access if credentials are stolen or compromised, as a single factor (password) is sufficient for authentication. This was identified through organizational data indicating 'Do you require MFA to log into computers?': 'No'.",
+                        "Severity": "High",
+                        "Affected Elements": [
+                            "All employee computers/endpoints",
+                            "Login systems"
+                        ]
+                    },
+                    {
+                        "Risk": "No Employee Acceptable Use Policy",
+                        "Overview": "The organization lacks an employee acceptable use policy. This means there are no clear guidelines for employees regarding the proper and secure use of company IT resources, potentially leading to misuse, data breaches, or non-compliance with security standards due to employee actions. This was identified through organizational data indicating 'Does your organization have an employee acceptable use policy?': 'No'.",
+                        "Severity": "Medium",
+                        "Affected Elements": [
+                            "All employees",
+                            "IT systems",
+                            "Data"
+                        ]
+                    },
+                    {
+                        "Risk": "Outdated Windows Policy",
+                        "Overview": "Computers are running Windows 7. Windows 7 has reached its end-of-life, meaning it no longer receives security updates from Microsoft. This leaves systems vulnerable to newly discovered exploits and malware, significantly increasing the risk of compromise. This was identified from the current risks assessment.",
+                        "Severity": "High",
+                        "Affected Elements": [
+                            "Workstations"
+                        ]
+                    }
+                ]
+            },
+            "Recommendations": "To mitigate the identified risks, it is strongly recommended to immediately disable anonymous FTP login on the vsftpd server. If anonymous access is absolutely necessary, ensure it is strictly read-only and limited to non-sensitive directories, and consider migrating to more secure file transfer protocols like SFTP or SCP. All workstations running Windows 7 must be upgraded to a currently supported operating system (e.g., Windows 10 or 11) to ensure they receive critical security updates. Implement Multi-Factor Authentication (MFA) for all computer logins to significantly enhance protection against credential theft. Finally, develop and enforce a comprehensive employee acceptable use policy, ensuring all employees are trained on its contents and acknowledge their understanding and compliance.",
+            "Conclusion": "The organization exhibits a mixed security posture. While there are positive aspects such as MFA for email and sensitive data systems, and regular security awareness training, several critical vulnerabilities exist. The presence of an anonymous FTP server, the lack of MFA for computer logins, the use of outdated operating systems, and the absence of an acceptable use policy significantly elevate the overall risk profile. Addressing these issues promptly is crucial to improve the organization's cybersecurity readiness and protect against potential breaches."
+        }
+    ]
+}

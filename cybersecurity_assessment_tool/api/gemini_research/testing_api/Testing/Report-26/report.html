@@ -1,0 +1,68 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cybersecurity Assessment Report</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 2rem auto; padding: 0 2rem; }
+            h1, h2, h3 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
+            .summary, .conclusion { background-color: #f8f9fa; padding: 1.5rem; border-left: 4px solid #007bff; border-radius: 4px; margin-bottom: 2rem; }
+            .risk-card { background: #fff; border: 1px solid #ddd; padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+            .severity-Critical { color: #dc3545; font-weight: bold; }
+            .severity-High { color: #fd7e14; font-weight: bold; }
+            .severity-Medium { color: #ffc107; font-weight: bold; }
+            .severity-Low { color: #28a745; font-weight: bold; }
+            ul { padding-left: 1.5rem; }
+        </style>
+    </head>
+    <body>
+        <h1>Cybersecurity Assessment Report</h1>
+    
+        <div class="summary">
+            <h2>Overview</h2>
+            <p>The organization's network currently operates an FTP server (vsftpd 2.3.4) that permits anonymous login, posing a significant risk for unauthorized data access or potential malicious uploads. While Multi-Factor Authentication (MFA) is utilized for email access, it is notably absent for computer logins and sensitive data systems, leaving critical access points vulnerable to credential compromise. Furthermore, the organization lacks comprehensive security awareness training for both new and existing employees, increasing susceptibility to social engineering and human error. An acceptable use policy is in place, but its effectiveness is diminished without accompanying training. A critical finding is the continued use of Windows 7 on workstations, an end-of-life operating system, which exposes the network to numerous unpatched vulnerabilities.</p>
+        </div>
+        <h2>Identified Risks</h2>
+            <div class="risk-card">
+                <h3>Anonymous FTP Access - <span class="severity-High">High</span></h3>
+                <p><strong>Overview:</strong> The FTP server, identified as vsftpd version 2.3.4, is configured to allow anonymous login. This configuration permits unauthorized users to access, and potentially modify or upload, files without authentication. This can lead to data leakage, unauthorized data manipulation, or the introduction of malicious content onto the server. The vulnerability was identified via an Nmap scan using the 'ftp-anon' script, which confirmed anonymous login is allowed.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>FTP Server (vsftpd 2.3.4) on port 21</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Lack of MFA for Computer Login - <span class="severity-High">High</span></h3>
+                <p><strong>Overview:</strong> The organization does not require Multi-Factor Authentication (MFA) for employees to log into their computers. This significantly increases the risk of unauthorized access to internal systems and data if a single set of credentials (username and password) is compromised through phishing, brute-force attacks, or other means. Without MFA, a compromised password provides direct access to the workstation.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>All employee computers/workstations</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Lack of MFA for Sensitive Data Systems - <span class="severity-Critical">Critical</span></h3>
+                <p><strong>Overview:</strong> Multi-Factor Authentication (MFA) is not enforced for accessing systems containing sensitive organizational data. This critical oversight means that if credentials for these systems are compromised, attackers can gain direct, unauthorized access to sensitive information without an additional layer of security. The impact could include severe data breaches, regulatory non-compliance, and significant reputational damage.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>Sensitive data systems</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Lack of Security Awareness Training - <span class="severity-High">High</span></h3>
+                <p><strong>Overview:</strong> The organization does not conduct security awareness training for new employees, nor does it provide annual training for all employees. This absence leaves employees vulnerable to social engineering attacks (e.g., phishing, pretexting), increases the likelihood of human error leading to security incidents (e.g., clicking malicious links, mishandling sensitive data), and reduces overall organizational resilience against cyber threats.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>All employees</li><li>Organizational data</li><li>Network infrastructure</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Outdated Windows Policy - <span class="severity-Critical">Critical</span></h3>
+                <p><strong>Overview:</strong> A significant number of workstations are currently running Windows 7. Windows 7 reached its end-of-life on January 14, 2020, meaning it no longer receives security updates, patches, or technical support from Microsoft. This exposes these workstations to known and newly discovered vulnerabilities, making them highly susceptible to exploitation by malware, ransomware, and other cyberattacks. Continued use of this operating system poses a severe risk to the entire network.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>Workstations running Windows 7</li></ul>
+            </div>
+            <h2>Recommendations</h2><ul><li>Immediate action is required to address the identified vulnerabilities. Firstly, the anonymous access on the FTP server (vsftpd 2.3.4) must be disabled, and the server should be upgraded to a supported version or replaced with a more secure file transfer solution like SFTP or FTPS. Secondly, Multi-Factor Authentication (MFA) must be implemented across the board for all computer logins and, critically, for access to all sensitive data systems to prevent unauthorized access from compromised credentials. Thirdly, a mandatory and recurring security awareness training program should be established for all employees, including new hires and annual refreshers, to educate them on common cyber threats and best security practices. Finally, all workstations running Windows 7 must be upgraded to a currently supported operating system, such as Windows 10 or 11, to ensure they receive essential security updates and patches, thereby mitigating the risk of exploitation from known vulnerabilities.</li></ul>
+        <div class="conclusion">
+            <h2>Conclusion</h2>
+            <p>The organization currently faces several critical and high-severity cybersecurity risks, primarily stemming from outdated software, inadequate access controls, and a lack of comprehensive security awareness. The presence of an anonymous FTP server, the absence of MFA for critical systems and computer logins, and the continued use of end-of-life operating systems like Windows 7 create significant attack vectors that could lead to data breaches, system compromise, and operational disruption. While an acceptable use policy is in place, the overall security posture indicates a low readiness level against sophisticated cyber threats. Addressing these vulnerabilities immediately through system upgrades, MFA implementation, and robust security training is paramount to safeguarding organizational assets and data.</p>
+        </div>
+        <hr>
+        </body></html>

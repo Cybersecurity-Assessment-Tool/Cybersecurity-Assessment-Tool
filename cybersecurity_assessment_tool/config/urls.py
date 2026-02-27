@@ -18,8 +18,22 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include, path
 
+# Test segment 1
+from api import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # Test segment 2
+    path('', views.home, name='home'),  # Home page
+    path('dashboard/', views.dashboard, name='dashboard'),  # /dashboard/
+    path('reports/', views.report_list, name='report_list'),  # /reports/
+    # path('reports/<int:id>/', views.report_detail, name='report_detail'),  # /reports/1/
+    path('settings/', views.settings, name='settings'),  # /settings/
+    path('profile/', views.profile, name='profile'),  # /profile/
+
+    path('login/', views.home, name='login'),  # /login/ (not implemented yet)
+    # path('questionnaire/', views.home, name='questionnaire'),  # /questionnaire/ (not implemented yet)
 ]
 
 if not settings.TESTING:

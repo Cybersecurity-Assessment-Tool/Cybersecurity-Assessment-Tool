@@ -58,3 +58,47 @@ class RiskViewSet(viewsets.ModelViewSet):
     
     # will restrict this further (only show risks related to reports the user can access)
     # for now, it shows all risks
+
+
+
+# TEST below
+from django.shortcuts import get_object_or_404
+
+def home(request):
+    """Display home page"""
+    context = {
+        'page_title': 'LogoSoon',
+        'description': 'Cybersecurity assessment tool',
+    }
+    return render(request, 'home.html', context)
+
+def dashboard(request):
+    """Display dashboard page"""
+    return render(request, 'dashboard.html')
+
+def report_list(request):
+    """Display list of reports"""
+    reports = Report.objects.all()
+    
+    context = {
+        'reports': reports,
+        'total_count': reports.count()
+    }
+    return render(request, 'report_list.html', context)
+
+# def report_detail(request, id):
+#     """Display single report (not implemented yet)"""
+#     report = get_object_or_404(Report, id=id)
+    
+#     context = {
+#         'report': report
+#     }
+#     return render(request, 'reports/report_detail.html', context)
+
+def settings(request):
+    """Display settings page"""
+    return render(request, 'settings.html')
+
+def profile(request):
+    """Display profile page"""
+    return render(request, 'profile.html')

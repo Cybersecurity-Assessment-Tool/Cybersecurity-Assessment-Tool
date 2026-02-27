@@ -1,0 +1,75 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cybersecurity Assessment Report</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 2rem auto; padding: 0 2rem; }
+            h1, h2, h3 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
+            .summary, .conclusion { background-color: #f8f9fa; padding: 1.5rem; border-left: 4px solid #007bff; border-radius: 4px; margin-bottom: 2rem; }
+            .risk-card { background: #fff; border: 1px solid #ddd; padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+            .severity-Critical { color: #dc3545; font-weight: bold; }
+            .severity-High { color: #fd7e14; font-weight: bold; }
+            .severity-Medium { color: #ffc107; font-weight: bold; }
+            .severity-Low { color: #28a745; font-weight: bold; }
+            ul { padding-left: 1.5rem; }
+        </style>
+    </head>
+    <body>
+        <h1>Cybersecurity Assessment Report</h1>
+    
+        <div class="summary">
+            <h2>Overview</h2>
+            <p>The organization's network currently hosts an FTP server running vsftpd version 2.3.4, which was found to allow anonymous login. This version of vsftpd is significantly outdated and known to contain critical vulnerabilities. Furthermore, the organization's workstations are running Windows 7, an operating system that has reached its end-of-life and no longer receives security updates. From an organizational policy standpoint, there is a critical lack of Multi-Factor Authentication (MFA) for accessing email, logging into computers, and accessing sensitive data systems. The organization also lacks an employee acceptable use policy and does not provide security awareness training for new employees, although annual training is conducted for all existing employees. These factors collectively indicate a low security readiness posture with several significant risks.</p>
+        </div>
+        <h2>Identified Risks</h2>
+            <div class="risk-card">
+                <h3>Anonymous FTP Login Allowed - <span class="severity-High">High</span></h3>
+                <p><strong>Overview:</strong> The FTP server (vsftpd 2.3.4) is configured to allow anonymous login. This configuration can lead to unauthorized access to files, potential data leakage, or even server compromise if write permissions are misconfigured. This vulnerability was identified during an Nmap scan which detected anonymous FTP login was permitted.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>FTP Server (vsftpd 2.3.4)</li><li>Port 21</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Outdated FTP Software (vsftpd 2.3.4) - <span class="severity-Critical">Critical</span></h3>
+                <p><strong>Overview:</strong> The FTP server is running vsftpd version 2.3.4, which is an outdated version known to have critical vulnerabilities, including a backdoor command execution vulnerability (CVE-2011-2523). Running unpatched and end-of-life software significantly increases the attack surface and risk of system compromise. This was identified via Nmap service detection.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>FTP Server (vsftpd 2.3.4)</li><li>Port 21</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Outdated Windows Operating System - <span class="severity-High">High</span></h3>
+                <p><strong>Overview:</strong> Several workstations within the organization are running Windows 7. Windows 7 has reached its end-of-life, meaning it no longer receives security updates or patches from Microsoft. This leaves these systems highly vulnerable to new and existing exploits, malware, and other cyber threats, posing a significant risk to the entire network.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>Workstations running Windows 7</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Lack of Multi-Factor Authentication (MFA) - <span class="severity-High">High</span></h3>
+                <p><strong>Overview:</strong> The organization does not require Multi-Factor Authentication (MFA) for critical access points such as email, computer logins, or sensitive data systems. This significantly increases the risk of unauthorized access in the event of credential theft, phishing attacks, or brute-force attempts, as a single compromised password could grant full access.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>Email systems</li><li>User accounts</li><li>Sensitive data systems</li><li>Computer logins</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Absence of Employee Acceptable Use Policy (AUP) - <span class="severity-Medium">Medium</span></h3>
+                <p><strong>Overview:</strong> The organization currently lacks a formal Employee Acceptable Use Policy. Without clear guidelines on the appropriate use of company IT resources, employees may inadvertently or intentionally engage in activities that introduce security risks, violate compliance requirements, or lead to data breaches.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>Organizational IT resources</li><li>Employee behavior</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Insufficient New Employee Security Training - <span class="severity-Medium">Medium</span></h3>
+                <p><strong>Overview:</strong> New employees do not receive dedicated security awareness training upon joining the organization. This gap means new hires may be unaware of critical security policies, best practices, and common threats like phishing, making them more susceptible to social engineering attacks and potentially introducing vulnerabilities from the outset.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>New employees</li><li>Organizational security posture</li></ul>
+            </div>
+            <h2>Recommendations</h2><ul><li>To mitigate the identified risks, it is strongly recommended to immediately disable anonymous login on the FTP server and either upgrade vsftpd to a current, supported version or replace it with a more secure file transfer solution. All workstations running Windows 7 must be upgraded to a currently supported operating system, such as Windows 10 or 11, to ensure they receive critical security updates. Implementing Multi-Factor Authentication (MFA) across all critical access points, including email, computer logins, and sensitive data systems, is paramount to enhance credential security. Furthermore, the organization should develop and enforce a comprehensive Employee Acceptable Use Policy to guide employee behavior regarding IT resource usage. Finally, mandatory security awareness training should be introduced for all new employees, complementing the existing annual training for all staff, to foster a strong security culture from day one.</li></ul>
+        <div class="conclusion">
+            <h2>Conclusion</h2>
+            <p>The current cybersecurity assessment reveals significant vulnerabilities and gaps in the organization's security posture. Critical technical risks include an outdated and insecure FTP server, end-of-life operating systems on workstations, and a pervasive lack of Multi-Factor Authentication. These technical issues are compounded by policy and training deficiencies, specifically the absence of an acceptable use policy and initial security training for new employees. While annual security training is a positive step, the overall readiness is low, exposing the organization to a high risk of data breaches, unauthorized access, and system compromise. Addressing these findings with urgency is crucial to improve the organization's security resilience.</p>
+        </div>
+        <hr>
+        </body></html>

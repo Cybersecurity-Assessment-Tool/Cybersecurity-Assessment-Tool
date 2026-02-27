@@ -14,6 +14,7 @@ import os
 import sys
 from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
+import dj_database_url
 
 # Load environment variables from .env file
 load_dotenv(find_dotenv())
@@ -30,6 +31,11 @@ except KeyError:
     sys.stderr.write("Error: SECRET_KEY not found in environment variables. Please set it.")
 
 try:
+    SALT_KEY = os.environ['SALT_KEY']
+except KeyError:
+    sys.stderr.write("Error: SALT_KEY not found in environment variables. Please set it.")
+
+try:
     DEBUG = os.environ['DEBUG']
 except KeyError:
     sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
@@ -38,6 +44,10 @@ try:
     DATABASE_PASSWORD = os.environ['DATABASE_PASSWORD']
 except KeyError:
     sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
+
+FIELD_ENCRYPTION_KEYS = [
+    'f164h6a7591d3d540a946c6e0d2344ef9ae1951cddf3241430edc4273954513a', # Example 32-byte hex key
+]
 
 ALLOWED_HOSTS = []
 
@@ -69,7 +79,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -101,6 +111,14 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+# Will override local database with cloud one once database URL is provided.
+database_url = os.environ["DATABASE_URL"]
+if database_url:
+    DATABASES['default'] = dj_database_url.config(
+        default=database_url
+        # add any other configurations here
+    )
 
 
 # Password validation

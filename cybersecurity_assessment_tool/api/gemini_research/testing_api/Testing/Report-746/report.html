@@ -1,0 +1,82 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cybersecurity Assessment Report</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 2rem auto; padding: 0 2rem; }
+            h1, h2, h3 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
+            .summary, .conclusion { background-color: #f8f9fa; padding: 1.5rem; border-left: 4px solid #007bff; border-radius: 4px; margin-bottom: 2rem; }
+            .risk-card { background: #fff; border: 1px solid #ddd; padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+            .severity-Critical { color: #dc3545; font-weight: bold; }
+            .severity-High { color: #fd7e14; font-weight: bold; }
+            .severity-Medium { color: #ffc107; font-weight: bold; }
+            .severity-Low { color: #28a745; font-weight: bold; }
+            ul { padding-left: 1.5rem; }
+        </style>
+    </head>
+    <body>
+        <h1>Cybersecurity Assessment Report</h1>
+    
+        <div class="summary">
+            <h2>Overview</h2>
+            <p>The organization's network includes an FTP server running vsftpd version 2.3.4, which allows anonymous login. Internally, the organization does not enforce Multi-Factor Authentication (MFA) for email access or computer logins, though it is used for sensitive data systems. There is no employee acceptable use policy in place, and while new employees receive security awareness training, annual training for all employees is not conducted. Furthermore, workstations are running an outdated operating system, Windows 7.</p>
+        </div>
+        <h2>Identified Risks</h2>
+            <div class="risk-card">
+                <h3>Anonymous FTP Access - <span class="severity-Critical">Critical</span></h3>
+                <p><strong>Overview:</strong> The FTP server (vsftpd 2.3.4) is configured to allow anonymous logins. This means unauthorized users can access and potentially modify files on the server, leading to data breaches, data integrity issues, or even server compromise. Identified via Nmap scan with 'ftp-anon' script.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>FTP Server (vsftpd 2.3.4 on port 21)</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Outdated vsftpd Version - <span class="severity-Critical">Critical</span></h3>
+                <p><strong>Overview:</strong> The FTP server is running vsftpd version 2.3.4. This version is known to have several security vulnerabilities, including a backdoor vulnerability (CVE-2011-2523) that allows remote code execution. Running outdated software increases the risk of exploitation. Identified via Nmap service detection.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>FTP Server (vsftpd 2.3.4 on port 21)</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Lack of Multi-Factor Authentication (MFA) for Email - <span class="severity-High">High</span></h3>
+                <p><strong>Overview:</strong> The organization does not require MFA for email access. This significantly increases the risk of account compromise through phishing or brute-force attacks, as a single compromised password can grant an attacker full access to an employee's email. Identified via organizational policy review.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>Email system</li><li>Employee accounts</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Lack of Multi-Factor Authentication (MFA) for Computer Login - <span class="severity-High">High</span></h3>
+                <p><strong>Overview:</strong> The organization does not require MFA for computer logins. This leaves employee workstations vulnerable to unauthorized access if passwords are stolen or guessed, potentially leading to internal network breaches and data exfiltration. Identified via organizational policy review.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>Employee workstations</li><li>Internal network access</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>No Employee Acceptable Use Policy - <span class="severity-Medium">Medium</span></h3>
+                <p><strong>Overview:</strong> The organization lacks an employee acceptable use policy. Without clear guidelines, employees may engage in activities that introduce security risks, such as installing unauthorized software, visiting malicious websites, or mishandling sensitive data, leading to increased exposure to threats. Identified via organizational policy review.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>All employees</li><li>Organizational data and systems</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>No Annual Security Awareness Training - <span class="severity-Medium">Medium</span></h3>
+                <p><strong>Overview:</strong> While new employees receive security awareness training, annual training for all employees is not conducted. This results in a degradation of security knowledge over time, making employees more susceptible to social engineering attacks, phishing, and other human-factor vulnerabilities. Identified via organizational policy review.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>All employees</li><li>Organizational security posture</li></ul>
+            </div>
+            
+            <div class="risk-card">
+                <h3>Outdated Operating System (Windows 7) - <span class="severity-High">High</span></h3>
+                <p><strong>Overview:</strong> Workstations are running Windows 7, an operating system that has reached its end-of-life and no longer receives security updates from Microsoft. This leaves systems highly vulnerable to known and newly discovered exploits, significantly increasing the risk of malware infection and system compromise. Identified via internal risk assessment.</p>
+                <p><strong>Affected Elements:</strong></p>
+                <ul><li>Workstations running Windows 7</li></ul>
+            </div>
+            <h2>Recommendations</h2><ul><li>Immediately disable anonymous FTP access and upgrade vsftpd to the latest stable version or replace it with a more secure file transfer solution (e.g., SFTP, SCP). Implement mandatory Multi-Factor Authentication (MFA) for all email accounts and computer logins across the organization to significantly enhance authentication security. Develop and enforce a comprehensive employee acceptable use policy. Establish a mandatory annual security awareness training program for all employees to maintain a high level of security posture. Prioritize upgrading all workstations running Windows 7 to a currently supported operating system like Windows 10 or 11. If immediate upgrades are not feasible, isolate these systems from the main network and implement strict compensating controls.</li></ul>
+        <div class="conclusion">
+            <h2>Conclusion</h2>
+            <p>The organization faces significant cybersecurity risks stemming from critical vulnerabilities in its FTP server, including anonymous access and outdated software. Furthermore, a lack of fundamental security controls such as Multi-Factor Authentication for email and computer logins, the absence of an acceptable use policy, and insufficient annual security awareness training expose the organization to a wide range of threats. The continued use of end-of-life operating systems like Windows 7 on workstations further exacerbates the risk profile, leaving the organization highly susceptible to data breaches, system compromises, and operational disruptions. Immediate action is required to address these critical and high-severity findings to improve the overall security posture.</p>
+        </div>
+        <hr>
+        </body></html>
