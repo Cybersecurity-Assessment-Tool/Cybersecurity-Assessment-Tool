@@ -11,24 +11,24 @@ class Command(BaseCommand):
         # Dummy vulnerability data (AI SLOP)
         dummy_vulnerabilities = [
             # Critical severity
-            {'name': 'Remote Code Execution in Apache', 'severity': 'Critical', 'description': 'Apache HTTP Server 2.4.48 and earlier allows remote code execution'},
-            {'name': 'SQL Injection Vulnerability', 'severity': 'Critical', 'description': 'Blind SQL injection in login parameter'},
-            {'name': 'Default Admin Credentials', 'severity': 'Critical', 'description': 'Default username/password combination still enabled'},
+            {'risk_name': 'Remote Code Execution in Apache', 'severity': 'Critical', 'overview': 'Apache HTTP Server 2.4.48 and earlier allows remote code execution'},
+            {'risk_name': 'SQL Injection Vulnerability', 'severity': 'Critical', 'overview': 'Blind SQL injection in login parameter'},
+            {'risk_name': 'Default Admin Credentials', 'severity': 'Critical', 'overview': 'Default username/password combination still enabled'},
             
             # High severity
-            {'name': 'Outdated SSL/TLS Configuration', 'severity': 'High', 'description': 'Server supports weak SSL/TLS protocols'},
-            {'name': 'Cross-Site Scripting (XSS)', 'severity': 'High', 'description': 'Reflected XSS in search parameter'},
-            {'name': 'Weak Password Policy', 'severity': 'High', 'description': 'Password policy allows weak passwords'},
+            {'risk_name': 'Outdated SSL/TLS Configuration', 'severity': 'High', 'overview': 'Server supports weak SSL/TLS protocols'},
+            {'risk_name': 'Cross-Site Scripting (XSS)', 'severity': 'High', 'overview': 'Reflected XSS in search parameter'},
+            {'risk_name': 'Weak Password Policy', 'severity': 'High', 'overview': 'Password policy allows weak passwords'},
             
             # Medium severity
-            {'name': 'Missing HTTP Security Headers', 'severity': 'Medium', 'description': 'X-Frame-Options, CSP headers missing'},
-            {'name': 'Directory Listing Enabled', 'severity': 'Medium', 'description': 'Web server exposes directory contents'},
-            {'name': 'Session Fixation', 'severity': 'Medium', 'description': 'Session ID not regenerated after login'},
+            {'risk_name': 'Missing HTTP Security Headers', 'severity': 'Medium', 'overview': 'X-Frame-Options, CSP headers missing'},
+            {'risk_name': 'Directory Listing Enabled', 'severity': 'Medium', 'overview': 'Web server exposes directory contents'},
+            {'risk_name': 'Session Fixation', 'severity': 'Medium', 'overview': 'Session ID not regenerated after login'},
             
             # Low severity
-            {'name': 'Server Banner Disclosure', 'severity': 'Low', 'description': 'Server reveals version information'},
-            {'name': 'Cookie Without Secure Flag', 'severity': 'Low', 'description': 'Cookies transmitted over unencrypted connection'},
-            {'name': 'Unnecessary Service Running', 'severity': 'Low', 'description': 'Unused network service is enabled'},
+            {'risk_name': 'Server Banner Disclosure', 'severity': 'Low', 'overview': 'Server reveals version information'},
+            {'risk_name': 'Cookie Without Secure Flag', 'severity': 'Low', 'overview': 'Cookies transmitted over unencrypted connection'},
+            {'risk_name': 'Unnecessary Service Running', 'severity': 'Low', 'overview': 'Unused network service is enabled'},
         ]
         
         # Create vulnerabilities

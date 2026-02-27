@@ -73,10 +73,9 @@ def home(request):
     return render(request, 'home.html', context)
 
 import json
-from .models import Vulnerability
 def dashboard(request):
     """Display dashboard page"""
-    vulnerabilities = list(Vulnerability.objects.values('severity', 'name', 'description'))
+    vulnerabilities = list(Risk.objects.values('severity', 'risk_name', 'overview'))
     return render(request, 'dashboard.html', {
         'vulnerabilities_json': json.dumps(vulnerabilities)  # Pass as JSON string
     })
