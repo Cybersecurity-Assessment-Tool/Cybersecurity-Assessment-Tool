@@ -242,7 +242,7 @@ def generate_report_content(context: str, system_instruction: str = "", max_retr
                 print(f"--- Finished creating response successfully on attempt {retry_count + 1}! ---")
                 return response.text
             else:
-                print(f"[WARNING in generate_report_content] Not a valid LaTeX {retry_count + 1}: {e}. Retrying in {delay} seconds...")
+                print(f"[WARNING in generate_report_content] Not a valid LaTeX {retry_count + 1}: Retrying in {delay} seconds...")
                 retry_count += 1
                 time.sleep(delay)
                 continue
