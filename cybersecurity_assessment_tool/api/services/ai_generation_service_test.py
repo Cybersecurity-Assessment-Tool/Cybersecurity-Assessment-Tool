@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open, MagicMock
 import json
-from .services.ai_generation_service import _json_to_str, _create_example, generate_report_content 
+from services.ai_generation_service import _json_to_str, _create_example, generate_report_content 
 
 #TODO: Will fix this for the new JSON output approach
 class TestReportGenerator(unittest.TestCase):
