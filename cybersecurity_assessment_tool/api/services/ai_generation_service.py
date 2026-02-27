@@ -193,9 +193,14 @@ def _generate_report_content(context_filepath: str, system_instruction: str = ""
                 json_data = json.loads(response.text)
                 print(f"--- Finished creating response successfully on attempt {retry_count + 1}! ---")
                 return response.text
+<<<<<<< ai-report-fixes
             
             except json.JSONDecodeError as e:
                 print(f"[ERROR in generate_report_content] Response text is not valid JSON on attempt {retry_count + 1}. Error: {e}. Retrying in {delay} seconds...")
+=======
+            else:
+                print(f"[WARNING in generate_report_content] Not a valid LaTeX {retry_count + 1}: Retrying in {delay} seconds...")
+>>>>>>> main
                 retry_count += 1
                 time.sleep(delay)
                 continue
