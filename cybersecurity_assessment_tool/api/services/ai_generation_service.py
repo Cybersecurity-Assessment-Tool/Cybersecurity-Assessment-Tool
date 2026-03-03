@@ -124,14 +124,14 @@ def _generate_report_content(context_filepath: str, system_instruction: str = ""
                                     "type": "object",
                                     "properties": {
                                         "Risks & Recommendations": {
-                                            "type": "object",
+                                            "type": "array",
                                             "description": "A paragraph summary of the organization's network and a list of found vulnerabilites.",
                                             "items": {
                                                 "Summary": {
                                                     "type": "string",
                                                     "description": "A summary of the organization's network."
                                                 },
-                                                "Vulnerabilites Found": {
+                                                "Vulnerabilities Found": {
                                                     "type": "object",
                                                     "description": "A list of found vulnerabilities.",
                                                     "properties": {
@@ -158,15 +158,13 @@ def _generate_report_content(context_filepath: str, system_instruction: str = ""
                                                             "type": "object",
                                                             "description": "Specific recommendations for mitigating each risk in Vulnerabilities Found.",
                                                             "properties": {
-                                                                "properties": {
-                                                                    "easy_fix": {
-                                                                        "type": "string",
-                                                                        "description": "A quick, immediate, or easy-to-implement mitigation step."
-                                                                    },
-                                                                    "long_term_fix": {
-                                                                        "type": "string",
-                                                                        "description": "A more difficult, time-consuming, or comprehensive architectural fix, if necessary."
-                                                                    }
+                                                                "easy_fix": {
+                                                                    "type": "string",
+                                                                    "description": "A quick, immediate, or easy-to-implement mitigation step."
+                                                                },
+                                                                "long_term_fix": {
+                                                                    "type": "string",
+                                                                    "description": "A more difficult, time-consuming, or comprehensive architectural fix, if necessary."
                                                                 }
                                                             }
                                                         },
@@ -175,7 +173,7 @@ def _generate_report_content(context_filepath: str, system_instruction: str = ""
                                             }
                                         }, 
                                         "Observations": {
-                                            "type": "object",
+                                            "type": "array",
                                             "description": "A list of what the organization did well.",
                                                 "properties": {
                                                     "Observation": {

@@ -1,10 +1,10 @@
 {
   "report": [
     {
-      "Risk Assessment & Readiness": {
-        "Summary": "G.A.S. Inc. operates a network environment with a single primary external IP (104.28.1.189) that serves as both the web host and the gateway for several critical services. The organization utilizes third-party email hosting via Mailhostbox and manages its own DNS. The current infrastructure is characterized by a high degree of service exposure and lacks fundamental security protocols and authentication layers.",
-        "Vulnerabilites Found": [
-          {
+      "Risks & Recommendations": [
+        {
+          "Summary": "The organization's current infrastructure is characterized by a high degree of service exposure on its primary external IP, acting as a gateway for critical services.",
+          "Vulnerabilites Found": {
             "Risk": "Critical Network Service Exposure",
             "Overview": "Multiple high-risk ports, including RDP (3389), SSH (22), and FTP (21), are open to the public internet. This allows attackers to attempt brute-force credential attacks or exploit service-level vulnerabilities to gain direct access to the server.",
             "Severity": "Critical",
@@ -15,9 +15,16 @@
               "Port 25 (SMTP)",
               "Port 110 (POP3)",
               "Port 3389 (RDP)"
-            ]
-          },
-          {
+            ],
+            "Recommendation": {
+              "easy_fix": "Close unnecessary management ports (RDP, SSH, FTP) directly on the external firewall.",
+              "long_term_fix": "Move required administrative access behind a secure VPN, ensuring services are not exposed to the public internet."
+            }
+          }
+        },
+        {
+          "Summary": "The organization's email domains lack fundamental security protocols, increasing the risk of domain spoofing.",
+          "Vulnerabilites Found": {
             "Risk": "Inadequate Email Authentication",
             "Overview": "The domain lacks a DMARC record and utilizes a 'softfail' SPF policy (~all). This combination makes it easy for malicious actors to spoof the gasinc.net domain, increasing the risk of successful phishing campaigns targeting employees and partners.",
             "Severity": "High",
@@ -25,35 +32,56 @@
               "gasinc.net",
               "SPF Record",
               "DMARC Policy"
-            ]
-          },
-          {
+            ],
+            "Recommendation": {
+              "easy_fix": "Strengthen SPF by updating the record to use a hardfail (-all) mechanism.",
+              "long_term_fix": "Implement DMARC by deploying a record starting with p=none, monitor reports, and systematically move toward a p=reject enforcement policy."
+            }
+          }
+        },
+        {
+          "Summary": "Authentication layers are currently missing across core organizational services, leaving accounts highly vulnerable to credential theft.",
+          "Vulnerabilites Found": {
             "Risk": "Weak Identity and Access Management",
             "Overview": "Multi-Factor Authentication (MFA) is not implemented for email or computer logins. Without MFA, compromised passwords lead directly to account takeovers.",
             "Severity": "High",
             "Affected Elements": [
               "Email System",
               "Workstation Logins"
-            ]
-          },
-          {
+            ],
+            "Recommendation": {
+              "easy_fix": "Mandate Multi-Factor Authentication (MFA) for the most critical access points immediately, such as VPNs and administrator accounts.",
+              "long_term_fix": "Roll out and enforce MFA enterprise-wide for all standard email and workstation computer logins."
+            }
+          }
+        },
+        {
+          "Summary": "The organization lacks foundational policy and training frameworks needed to build a resilient, security-aware culture.",
+          "Vulnerabilites Found": {
             "Risk": "Deficient Security Governance",
             "Overview": "The organization lacks an Acceptable Use Policy (AUP) and formal security awareness training. This creates a human-centric vulnerability where employees are unaware of best practices or organizational expectations regarding security.",
             "Severity": "Medium",
             "Affected Elements": [
               "Employee Training Program",
               "Internal Policy Documentation"
-            ]
+            ],
+            "Recommendation": {
+              "easy_fix": "Draft and establish an Acceptable Use Policy (AUP) requiring written acknowledgment from all staff.",
+              "long_term_fix": "Develop, budget for, and implement a mandatory, annual security awareness training program for all employees."
+            }
           }
-        ]
-      },
-      "Recommendations": {
-        "1": "Harden Network Perimeter: Close unnecessary ports (RDP, SSH, FTP) on the external firewall or move them behind a VPN.",
-        "2": "Implement DMARC: Deploy a DMARC record starting with p=none and moving toward p=reject.",
-        "3": "Strengthen SPF: Update the SPF record to use a hardfail (-all) mechanism.",
-        "4": "Enforce MFA: Mandate Multi-Factor Authentication for email, VPN, and computer logins.",
-        "5": "Policy Development: Establish an Acceptable Use Policy and annual security training for all staff."
-      },
+        }
+      ],
+      "Observations": [
+        {
+          "Observation": "Managed Core Services",
+          "Overview": "G.A.S. Inc. utilizes third-party email hosting via Mailhostbox and manages its own DNS, establishing a centralized baseline for core communications infrastructure.",
+          "Affected Elements": [
+            "Mailhostbox",
+            "DNS Management"
+          ]
+        }
+      ],
       "Conclusion": "G.A.S. Inc. currently exhibits a high-risk cybersecurity posture. The combination of exposed management ports (RDP/SSH), lack of email spoofing protection, and absent MFA for core services creates a high probability of a data breach. Implementing the recommended perimeter hardening and identity controls is critical to establishing a baseline of security readiness."
     }
   ]
