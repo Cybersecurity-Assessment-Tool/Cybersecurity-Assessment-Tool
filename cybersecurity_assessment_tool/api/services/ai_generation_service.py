@@ -123,7 +123,7 @@ def _generate_report_content(context_filepath: str, system_instruction: str = ""
                                 "items": {
                                     "type": "object",
                                     "properties": {
-                                        "Risk Assessment & Readiness": {
+                                        "Risks & Recommendations": {
                                             "type": "object",
                                             "description": "A paragraph summary of the organization's network and a list of found vulnerabilites.",
                                             "items": {
@@ -154,15 +154,36 @@ def _generate_report_content(context_filepath: str, system_instruction: str = ""
                                                                 "type": "string"
                                                             }
                                                         },
+                                                         "Recommendation": {
+                                                            "type": "object",
+                                                            "description": "Specific recommendations for mitigating each risk in Vulnerabilities Found.",
+                                                            "properties": {
+                                                                "type": "string"
+                                                            }
+                                                        },
                                                     }
                                                 },
                                             }
                                         }, 
-                                        "Recommendations": {
+                                        "Observations": {
                                             "type": "object",
-                                            "description": "Specific recommendations for mitigating each risk in Vulnerabilities Found.",
-                                            "properties": {
-                                                "type": "string"
+                                            "description": "A list of what the organization did well.",
+                                                "properties": {
+                                                    "Observation": {
+                                                        "type": "string",
+                                                        "description": "A short name of what the observation is."
+                                                    },
+                                                    "Overview": {
+                                                        "type": "string",
+                                                        "description": "A text description of the observation, explaining what it is, its impact, and how it was identified."
+                                                    },
+                                                    "Affected Elements": {
+                                                        "type": "array",
+                                                        "description": "A list of system components, files, URLs, or specific functions/code areas involved by this observation.",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
                                             }
                                         },
                                         "Conclusion": {
