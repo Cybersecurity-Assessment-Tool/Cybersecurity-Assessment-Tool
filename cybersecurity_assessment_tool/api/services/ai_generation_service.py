@@ -158,7 +158,16 @@ def _generate_report_content(context_filepath: str, system_instruction: str = ""
                                                             "type": "object",
                                                             "description": "Specific recommendations for mitigating each risk in Vulnerabilities Found.",
                                                             "properties": {
-                                                                "type": "string"
+                                                                "properties": {
+                                                                    "easy_fix": {
+                                                                        "type": "string",
+                                                                        "description": "A quick, immediate, or easy-to-implement mitigation step."
+                                                                    },
+                                                                    "long_term_fix": {
+                                                                        "type": "string",
+                                                                        "description": "A more difficult, time-consuming, or comprehensive architectural fix, if necessary."
+                                                                    }
+                                                                }
                                                             }
                                                         },
                                                     }
@@ -191,8 +200,8 @@ def _generate_report_content(context_filepath: str, system_instruction: str = ""
                                             "description": "A summary of the organization's current vulnerabilites and readiness."
                                         },
                                         "required": [
-                                            "Risk Assessment & Readiness",
-                                            "Recommendations",
+                                            "Risks & Recommendations",
+                                            "Observations",
                                             "Conclusion"
                                         ]
                                     }
