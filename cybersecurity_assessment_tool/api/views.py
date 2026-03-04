@@ -99,6 +99,14 @@ def report_list(request):
 #     }
 #     return render(request, 'reports/report_detail.html', context)
 
+def risks(request):
+    """Display risks page"""
+    return render(request, 'risks.html')
+
+def scan(request):
+    """Display scan page"""
+    return render(request, 'scan.html')
+
 def settings(request):
     """Display settings page"""
     return render(request, 'settings.html')
