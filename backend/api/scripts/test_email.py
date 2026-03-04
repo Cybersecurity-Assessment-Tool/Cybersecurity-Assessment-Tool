@@ -8,7 +8,7 @@ def run(*args):
     """
 
     # Get recipient from script args (optional)
-    #recipient = args[0] if args else "corabigsky@gmail.com"
+    #recipient = args[0] if args else "onellamoitra@gmail.com"
 
     subject = "SMTP Email from Django RunScript"
     message = """
