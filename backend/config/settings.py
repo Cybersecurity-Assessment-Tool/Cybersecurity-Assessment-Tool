@@ -196,10 +196,10 @@ try:
 except KeyError:
     sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
 
-try:
-    DATABASE_PASSWORD = os.environ['DATABASE_PASSWORD']
-except KeyError:
-    sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
+#try:
+    #DATABASE_PASSWORD = os.environ['DATABASE_PASSWORD']
+#except KeyError:
+    #sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
 
 ALLOWED_HOSTS = []
 
