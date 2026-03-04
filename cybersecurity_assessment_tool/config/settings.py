@@ -16,6 +16,7 @@ from pathlib import Path
 
 import dj_database_url
 from dotenv import load_dotenv, find_dotenv
+import dj_database_url
 
 # Load environment variables from .env file (only affects local dev;
 # on Heroku, env vars are set via Config Vars)
@@ -40,7 +41,24 @@ if not SECRET_KEY:
     else:
         raise ValueError('SECRET_KEY environment variable is required in non-local environments.')
 
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
+try:
+    SALT_KEY = os.environ['SALT_KEY']
+except KeyError:
+    sys.stderr.write("Error: SALT_KEY not found in environment variables. Please set it.")
+
+try:
+    DEBUG = os.environ['DEBUG']
+except KeyError:
+    sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
+
+try:
+    DATABASE_PASSWORD = os.environ['DATABASE_PASSWORD']
+except KeyError:
+    sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
+
+FIELD_ENCRYPTION_KEYS = [
+    'f164h6a7591d3d540a946c6e0d2344ef9ae1951cddf3241430edc4273954513a', # Example 32-byte hex key
+]
 
 # Comma-separated list of allowed hosts, e.g. "myapp.herokuapp.com,mydomain.com"
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
@@ -57,8 +75,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts',
     'api',
-    'rest_framework'
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -112,6 +131,14 @@ DATABASES = {
         ssl_require=(ENVIRONMENT not in ('local', 'test')),
     )
 }
+
+# Will override local database with cloud one once database URL is provided.
+# database_url = os.environ["DATABASE_URL"]
+# if database_url:
+#     DATABASES['default'] = dj_database_url.config(
+#         default=database_url
+#         # add any other configurations here
+#     )
 
 
 # Password validation
@@ -171,6 +198,10 @@ INTERNAL_IPS = [
     '127.0.0.1'
 ]
 
+
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 
 if not TESTING and ENVIRONMENT == 'local':

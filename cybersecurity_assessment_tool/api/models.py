@@ -1,16 +1,32 @@
 """
 This script MUST be run first before running any other code.
 It only needs to be run once to configure the tables in the cloud database.
-For local databases, it should be run regularly whenever the migration has been changed.
+1. python manage.py migrate
 
+
+For local databases, this should be run whenever the migration has been changed.
 Run these commands in your terminal:
 1. python manage.py makemigrations
 2. python manage.py migrate
+
+How to decrypt the encrypted values:
+- Via Django Shell:
+    1. python manage.py shell
+    2. Then run the following commands:
+        from api.model import Organization
+        org = Organization.objects.first()
+        print(f"Decrypted IP: {org.external_ip}")
+- Via PostgreSQL:
+    Locally:
+        ex: SELECT external_ip FROM api_organization
+    On Heroku:
+        ex: heroku pg:psql -a your-app-name
+            SELECT external_ip FROM api_organization LIMIT 1;
 """
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator
+from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, EncryptedJSONField
 
 class Color(models.TextChoices):
     DARK = 'd', 'Dark'
@@ -33,15 +49,16 @@ class Organization(models.Model):
         default=uuid.uuid4,
         editable=False
     )
-    org_name = models.CharField(max_length=300)
-    email_domain = models.CharField(max_length=100)
-    website_domain = models.CharField(max_length=100)
-    external_ip = models.CharField(max_length=100)
-    require_mfa_email = models.BooleanField()
-    require_mfa_sensitive_data = models.BooleanField()
-    employee_acceptable_use_policy = models.BooleanField()
-    training_new_employees = models.BooleanField()
-    training_once_per_year = models.BooleanField()
+    org_name = EncryptedCharField(max_length=300)
+    email_domain = EncryptedCharField(max_length=100)
+    website_domain = EncryptedCharField(max_length=100)
+    external_ip = EncryptedCharField(max_length=100)
+    require_mfa_email = models.BooleanField(default=False)
+    require_mfa_computer = models.BooleanField(default=False)
+    require_mfa_sensitive_data = models.BooleanField(default=False)
+    employee_acceptable_use_policy = models.BooleanField(default=False)
+    training_new_employees = models.BooleanField(default=False)
+    training_once_per_year = models.BooleanField(default=False)
 
     def __str__(self):
         return self.org_name
@@ -98,12 +115,12 @@ class Report(models.Model):
     report_name = models.CharField(max_length=300)
     started = models.DateTimeField(auto_now_add=True)
     completed = models.DateTimeField(blank=True, null=True)
-    report_text = models.TextField(blank=True, null=True)
-    is_checked = models.BooleanField(default=False)
+    report_text = EncryptedJSONField(default=dict)
+    #is_checked = models.BooleanField(default=False)
 
     class Meta:
         permissions = [
-            ("can_check_report", "Can check a report before publishing."),
+            #("can_check_report", "Can check a report before publishing."),
             ("can_view_any_report", "Can review any report, regardless of organization."),
             ("can_generate_report", "Can generate a new report."),
             ("can_export_report", "Can export report data."),
@@ -113,18 +130,25 @@ class Report(models.Model):
         return self.report_name
 
 class Risk(models.Model):
+    SEVERITY_CHOICES = [
+        ('Critical', 'Critical'),
+        ('High', 'High'),
+        ('Medium', 'Medium'),
+        ('Low', 'Low'),
+        ('Info', 'Informational')
+    ]
     risk_id = models.UUIDField(
         primary_key = True,
         default=uuid.uuid4,
         editable=False
     )
-    risk_name = models.CharField(max_length=300)
+    risk_name = models.CharField(max_length=500)
     report = models.ForeignKey(Report, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    overview = models.TextField()
-    recommendations = models.JSONField()
-    severity = models.SmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
-    affected = models.TextField()
+    overview = EncryptedTextField()
+    recommendations = EncryptedJSONField()
+    severity = models.CharField(choices=SEVERITY_CHOICES)
+    affected_elements = EncryptedTextField()
     is_archived = models.BooleanField(default=False)
 
     class Meta:
@@ -136,4 +160,4 @@ class Risk(models.Model):
         ]
 
     def __str__(self):
-        return self.risk_name
+        return f"{self.severity}: {self.risk_name}"
