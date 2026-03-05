@@ -1,0 +1,83 @@
+# =============================================================================
+# CI Pipeline — Cybersecurity Assessment Tool
+# Runs on every push/PR to develop, staging, and main branches.
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [develop, staging, main]
+  pull_request:
+    branches: [develop, staging, main]
+
+jobs:
+  test:
+    name: Django Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      SECRET_KEY: ci-test-secret-key-not-for-production
+      DEBUG: "True"
+      DJANGO_ENVIRONMENT: test
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run migrations
+        working-directory: cybersecurity_assessment_tool
+        run: python manage.py migrate --noinput
+
+      - name: Run tests
+        working-directory: cybersecurity_assessment_tool
+        run: python manage.py test --verbosity=2
+
+  lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install flake8
+
+      - name: Run flake8
+        working-directory: cybersecurity_assessment_tool
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
