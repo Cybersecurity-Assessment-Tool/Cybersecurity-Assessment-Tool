@@ -20,6 +20,7 @@ def create_organizations(num_orgs=5):
             external_ip=fake.ipv4(),
             require_mfa_email=fake.boolean(),
             require_mfa_sensitive_data=fake.boolean(),
+            require_mfa_computer=fake.boolean(),
             employee_acceptable_use_policy=fake.boolean(),
             training_new_employees=fake.boolean(),
             training_once_per_year=fake.boolean(),
