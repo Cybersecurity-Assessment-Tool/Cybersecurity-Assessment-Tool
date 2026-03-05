@@ -3,14 +3,10 @@ import os
 import sys
 from dotenv import load_dotenv, find_dotenv
 import google.generativeai as gen
-from django.db import transaction
 from django.utils import timezone
 import jsonschema
-from ..models import Report, Risk, Organization, User
-from google import genai
 from google.genai import types
 from typing import Dict, Any
-from django.conf import settings
 
 # -----------------------------------------------------------------------------
 # MODEL AND API KEY SETUP
@@ -28,7 +24,7 @@ except KeyError:
 
 # Change the model here
 MODEL_NAME = 'gemini-2.5-flash'
-model = gen.GenerativeModel(model_name=MODEL_NAME, )
+model = gen.GenerativeModel(model_name=MODEL_NAME)
 
 # -----------------------------------------------------------------------------
 # REPORT SCHEMA
@@ -118,7 +114,7 @@ REPORT_SCHEMA_JSON: Dict[str, Any] = {
                     "Risks & Recommendations": {
                         "type": "object",
                         "description": "A paragraph summary of the organization's network and a list of found vulnerabilites.",
-                        "properties": { # FIXED: Changed 'items' to 'properties'
+                        "properties": { 
                             "Summary": {
                                 "type": "string",
                                 "description": "A summary of the organization's network."
@@ -126,11 +122,11 @@ REPORT_SCHEMA_JSON: Dict[str, Any] = {
                             "Vulnerabilities Found": {
                                 "type": "array",
                                 "description": "A list of found vulnerabilities.",
-                                "items": { # FIXED: Added 'items' wrapper
+                                "items": { 
                                     "type": "object",
                                     "properties": {
                                         "Risk": {"type": "string", "description": "A short name of what the risk is."},
-                                        "Overview": {"type": "string", "description": "A text description of the risk, explaining what it is, its impact, and how it was identified."},
+                                        "Overview": {"type": "string", "description": "A concise text description (maximum 3 sentences) of the observation, explaining what it is, its impact, and how it was identified."},
                                         "Severity": {"type": "string", "description": "The calculated severity score (Critical, High, Medium, Low, or Info) for the risk."},
                                         "Affected Elements": {
                                             "type": "array",
@@ -294,9 +290,8 @@ def _create_risk_prompt() -> str:
     Do not end the analysis until the entire report vulnerabilities list has been checked.
     The current risk list tells you which risks are already known.
     Each entry corresponds to a vulnerability already tracked by the organization. 
-    Pass the new vulnerabilities that are NOT in the known risks list into the "_new_vulnerabilities" section. 
-    If you identify multiple new risks in the report then pass all of the new risks as a list into the
-    "new_vulnerabilities" section. Assign accurate severities and provide an 'easy_fix' and 'long_term_fix'.
+    Pass all new vulnerabilities that are NOT in the known risks list into the "new vulnerabilities" section. 
+    Assign accurate severities and provide an 'easy_fix' and 'long_term_fix'.
     Process the lists carefully to ensure no duplicates are created.
     Do not include any conversational text or markdown. If all vulnerabilities have been processed, end the
     analysis.
@@ -402,96 +397,24 @@ def _add_risks(report: dict, current_risks: dict):
     print("--- Finished creating and validating risk response successfully! ---")
     return data
 
-#TODO: MUST edit this function if the questionnaire changes. 
-def _inject_overview_and_questionnaire(report_data: dict, org: Organization) -> dict:
+def ai_generation_service(current_risks: dict, context: str):
     """
-    Injects the Overview and Questionnaire Review sections at the top 
-    of the AI-generated report data using information from the database.
-    """
-    new_section_data = {
-        "Overview": {
-            "Organization Name": org.org_name,
-            "Primary Domain": org.email_domain,
-            "External IP Address": org.external_ip,
-            "Report Date": timezone.now().strftime('%Y-%m-%d')
-        },
-        "Questionnaire Review": {
-            "Do you require MFA to access email?": "Yes" if org.require_mfa_email else "No",
-            "Do you require MFA to log into computers?": "Yes" if org.require_mfa_computer else "No",
-            "Do you require MFA to access sensitive data systems?": "Yes" if org.require_mfa_sensitive_data else "No",
-            "Does your organization have an employee acceptable use policy?": "Yes" if org.employee_acceptable_use_policy else "No",
-            "Does your organization do security awareness training for new employees?": "Yes" if org.training_new_employees else "No",
-            "Does your organization do security awareness training for all employees at least once per year?": "Yes" if org.training_once_per_year else "No"
-        }
-    }
-
-    if "report" in report_data and isinstance(report_data["report"], list):
-        for i, report_item in enumerate(report_data["report"]):
-            rebuilt_report_item = {}
-            
-            for key, value in new_section_data.items():
-                rebuilt_report_item[key] = value
-                
-            for key, value in report_item.items():
-                rebuilt_report_item[key] = value
-                
-            report_data["report"][i] = rebuilt_report_item
-
-    return report_data
-
-def ai_generation_service(personal_info: dict, current_risks: dict, context):
-    """
-    Generates a report and risks using Gemini.
-    Returns the created Report object and a list of created Risk objects.
+    Generates report and risks data using Gemini.
+    Returns the raw parsed JSON dictionaries: (report_data, risks_data)
     """
     try:
-        # 1. Generate and validate report data
+        # 1. Generate and validate base report data
         report_data = _generate_report_content(context)
         
-        # 2. Fetch database records
-        org = Organization.objects.get(organization_id=personal_info.get('organization_id'))
-        user_id = personal_info.get('user_id') 
-        user = User.objects.get(user_id=user_id) if user_id else None
+        # 2. Generate and validate risks data based on the report and existing DB risks
+        risks_data = _add_risks(report_data, current_risks)
 
-        # 3. Inject context
-        report_data = _inject_overview_and_questionnaire(report_data, org)
-
-        # 4. Save to database
-        with transaction.atomic():
-            new_report = Report.objects.create(
-                user_created=user,
-                organization=org,
-                report_name=f"Report - {org.org_name} - {timezone.now().strftime('%Y-%m-%d')}",
-                report_text=report_data, 
-                completed=timezone.now()
-            )
-
-            # 5. Generate and validate risks data
-            risks_data = _add_risks(report_data, current_risks)
-
-            created_risks = []
-            for risk_item in risks_data.get('new vulnerabilities', []):
-                new_risk = Risk.objects.create(
-                    risk_name=risk_item.get('risk_name'),
-                    report=new_report, 
-                    organization=org,
-                    overview=risk_item.get('overview'),
-                    recommendations=risk_item.get('recommendations'),
-                    severity=risk_item.get('severity'),
-                    affected_elements=", ".join(risk_item.get('affected_elements', [])),
-                )
-                created_risks.append(new_risk)
-        
-            print(f"--- Successfully saved Report {new_report.report_id} and associated risks. ---")
-            return new_report, created_risks
+        print("--- Successfully generated report and risk data dictionaries. ---")
+        return report_data, risks_data
 
     except jsonschema.ValidationError as e:
         print(f"[ERROR] AI output did not match required schema: {e.message}")
-    except Organization.DoesNotExist:
-        print(f"[ERROR] Organization with ID {personal_info.get('organization_id')} not found.")
-    except User.DoesNotExist:
-        print(f"[ERROR] User with ID {personal_info.get('user_id')} not found.")
     except Exception as e:
-        print(f"[ERROR] Pipeline failed: {e}")
+        print(f"[ERROR] AI Pipeline failed: {e}")
         
     return None, None
