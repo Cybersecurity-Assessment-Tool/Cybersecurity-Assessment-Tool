@@ -1,25 +1,266 @@
-import time
 import json
 import os
 import sys
 from dotenv import load_dotenv, find_dotenv
-import google.generativeai as genai
+import google.generativeai as gen
 from django.db import transaction
 from django.utils import timezone
-from models import Report, Risk, Organization, User
+import jsonschema
+from ..models import Report, Risk, Organization, User
+from google import genai
+from google.genai import types
+from typing import Dict, Any
+from django.conf import settings
+
+# -----------------------------------------------------------------------------
+# MODEL AND API KEY SETUP
+# -----------------------------------------------------------------------------
 
 load_dotenv(find_dotenv())
 
 try: 
     API_KEY = os.environ["GEMINI_API_KEY"]
-    genai.configure(api_key=API_KEY)
+    gen.configure(api_key=API_KEY)
 except KeyError:
     sys.stderr.write("Error: GEMINI_API_KEY not found in environment variables. Please set it.\n")
     # Using placeholder will allow initalization, but calls will fail until user provides a real key.
-    genai.configure(api_key="placeholder_key")
+    gen.configure(api_key="placeholder_key")
 
 # Change the model here
 MODEL_NAME = 'gemini-2.5-flash'
+model = gen.GenerativeModel(model_name=MODEL_NAME, )
+
+# -----------------------------------------------------------------------------
+# REPORT SCHEMA
+# -----------------------------------------------------------------------------
+
+REPORT_SCHEMA_TYPED = types.Schema(
+    type=types.Type.OBJECT,
+    properties={
+        "report": types.Schema(
+            type=types.Type.ARRAY,
+            description="A cybersecurity assessment report on an organization's current security risks.",
+            items=types.Schema(
+                type=types.Type.OBJECT,
+                properties={
+                    "Risks & Recommendations": types.Schema(
+                        type=types.Type.OBJECT,
+                        description="A paragraph summary of the organization's network and a list of found vulnerabilites.",
+                        properties={ 
+                            "Summary": types.Schema(
+                                type=types.Type.STRING,
+                                description="A summary of the organization's network."
+                            ),
+                            "Vulnerabilities Found": types.Schema(
+                                type=types.Type.ARRAY,
+                                description="A list of found vulnerabilities.",
+                                items=types.Schema( 
+                                    type=types.Type.OBJECT,
+                                    properties={
+                                        "Risk": types.Schema(type=types.Type.STRING, description="A short name of what the risk is."),
+                                        "Overview": types.Schema(type=types.Type.STRING, description="A text description of the risk, explaining what it is, its impact, and how it was identified."),
+                                        "Severity": types.Schema(type=types.Type.STRING, description="The calculated severity score (Critical, High, Medium, Low, or Info) for the risk."),
+                                        "Affected Elements": types.Schema(
+                                            type=types.Type.ARRAY,
+                                            description="A list of system components, files, URLs, or specific functions/code areas affected by this risk.",
+                                            items=types.Schema(type=types.Type.STRING)
+                                        ),
+                                        "Recommendation": types.Schema(
+                                            type=types.Type.OBJECT,
+                                            description="Specific recommendations for mitigating each risk in Vulnerabilities Found.",
+                                            properties={
+                                                "easy_fix": types.Schema(type=types.Type.STRING, description="A quick, immediate, or easy-to-implement mitigation step."),
+                                                "long_term_fix": types.Schema(type=types.Type.STRING, description="A more difficult, time-consuming, or comprehensive architectural fix, if necessary.")
+                                            }
+                                        )
+                                    }
+                                )
+                            )
+                        }
+                    ),
+                    "Observations": types.Schema(
+                        type=types.Type.ARRAY, 
+                        description="A list of what the organization did well.",
+                        items=types.Schema(
+                            type=types.Type.OBJECT,
+                            properties={
+                                "Observation": types.Schema(type=types.Type.STRING, description="A short name of what the observation is."),
+                                "Overview": types.Schema(type=types.Type.STRING, description="A text description of the observation, explaining what it is, its impact, and how it was identified."),
+                                "Affected Elements": types.Schema(
+                                    type=types.Type.ARRAY,
+                                    description="A list of system components, files, URLs, or specific functions/code areas involved by this observation.",
+                                    items=types.Schema(type=types.Type.STRING)
+                                )
+                            }
+                        )
+                    ),
+                    "Conclusion": types.Schema(
+                        type=types.Type.STRING,
+                        description="A summary of the organization's current vulnerabilites and readiness."
+                    )
+                },
+                required=["Risks & Recommendations", "Observations", "Conclusion"]
+            )
+        )
+    },
+    required=["report"]
+)
+
+REPORT_SCHEMA_JSON: Dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "report": {
+            "type": "array",
+            "description": "A cybersecurity assessment report on an organization's current security risks.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "Risks & Recommendations": {
+                        "type": "object",
+                        "description": "A paragraph summary of the organization's network and a list of found vulnerabilites.",
+                        "properties": { # FIXED: Changed 'items' to 'properties'
+                            "Summary": {
+                                "type": "string",
+                                "description": "A summary of the organization's network."
+                            },
+                            "Vulnerabilities Found": {
+                                "type": "array",
+                                "description": "A list of found vulnerabilities.",
+                                "items": { # FIXED: Added 'items' wrapper
+                                    "type": "object",
+                                    "properties": {
+                                        "Risk": {"type": "string", "description": "A short name of what the risk is."},
+                                        "Overview": {"type": "string", "description": "A text description of the risk, explaining what it is, its impact, and how it was identified."},
+                                        "Severity": {"type": "string", "description": "The calculated severity score (Critical, High, Medium, Low, or Info) for the risk."},
+                                        "Affected Elements": {
+                                            "type": "array",
+                                            "description": "A list of system components, files, URLs, or specific functions/code areas affected by this risk.",
+                                            "items": {"type": "string"}
+                                        },
+                                        "Recommendation": {
+                                            "type": "object",
+                                            "description": "Specific recommendations for mitigating each risk in Vulnerabilities Found.",
+                                            "properties": {
+                                                "easy_fix": {"type": "string", "description": "A quick, immediate, or easy-to-implement mitigation step."},
+                                                "long_term_fix": {"type": "string", "description": "A more difficult, time-consuming, or comprehensive architectural fix, if necessary."}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "Observations": {
+                        "type": "array", # FIXED: Made an array
+                        "description": "A list of what the organization did well.",
+                        "items": {
+                            "type": "object", # FIXED: Made items objects
+                            "properties": {
+                                "Observation": {"type": "string", "description": "A short name of what the observation is."},
+                                "Overview": {"type": "string", "description": "A text description of the observation, explaining what it is, its impact, and how it was identified."},
+                                "Affected Elements": {
+                                    "type": "array",
+                                    "description": "A list of system components, files, URLs, or specific functions/code areas involved by this observation.",
+                                    "items": {"type": "string"}
+                                }
+                            }
+                        }
+                    },
+                    "Conclusion": {
+                        "type": "string",
+                        "description": "A summary of the organization's current vulnerabilites and readiness."
+                    }
+                },
+                "required": ["Risks & Recommendations", "Observations", "Conclusion"]
+            }
+        }
+    },
+    "required": ["report"]
+}
+
+# -----------------------------------------------------------------------------
+# RISKS SCHEMA
+# -----------------------------------------------------------------------------
+
+_vulnerability_schema = types.Schema(
+    type=types.Type.OBJECT,
+    properties={
+        "risk_name": types.Schema(type=types.Type.STRING, description="A concise, descriptive name for the risk (e.g., 'SQL Injection Vulnerability', 'Outdated Library')."),
+        "overview": types.Schema(type=types.Type.STRING, description="A text summary of the risk, explaining what it is, its impact, and how it was identified."),
+        "severity": types.Schema(type=types.Type.STRING, description="The calculated severity score (Critical, High, Medium, Low, or Info) for the risk."),
+        "affected_elements": types.Schema(
+            type=types.Type.ARRAY,
+            description="A list of system components, files, URLs, or specific functions/code areas affected by this risk.",
+            items=types.Schema(type=types.Type.STRING)
+        ),
+        "recommendations": types.Schema(
+            type=types.Type.OBJECT,
+            description="Specific recommendations for mitigating the risk.",
+            properties={
+                "easy_fix": types.Schema(type=types.Type.STRING, description="A quick, immediate, or easy-to-implement mitigation step."),
+                "long_term_fix": types.Schema(type=types.Type.STRING, description="A more difficult, time-consuming, or comprehensive architectural fix, if necessary.")
+            }
+        )
+    },
+    required=["risk_name", "overview", "severity", "affected_elements", "recommendations"]
+)
+
+RISK_SCHEMA_TYPED = types.Schema(
+    type=types.Type.OBJECT,
+    properties={
+        "new vulnerabilities": types.Schema(
+            type=types.Type.ARRAY,
+            description="A list of all new identified cybersecurity risks/vulnerabilities from the report.",
+            items=_vulnerability_schema
+        ),
+        "all vulnerabilities": types.Schema(
+            type=types.Type.ARRAY,
+            description="A list of all cybersecurity risks/vulnerabilities.",
+            items=_vulnerability_schema
+        )
+    },
+    required=["new vulnerabilities", "all vulnerabilities"]
+)
+
+_vulnerability_json = {
+    "type": "object",
+    "properties": {
+        "risk_name": {"type": "string", "description": "A concise, descriptive name for the risk (e.g., 'SQL Injection Vulnerability', 'Outdated Library')."},
+        "overview": {"type": "string", "description": "A text summary of the risk, explaining what it is, its impact, and how it was identified."},
+        "severity": {"type": "string", "description": "The calculated severity score (Critical, High, Medium, Low, or Info) for the risk."},
+        "affected_elements": {
+            "type": "array",
+            "description": "A list of system components, files, URLs, or specific functions/code areas affected by this risk.",
+            "items": {"type": "string"}
+        },
+        "recommendations": {
+            "type": "object",
+            "description": "Specific recommendations for mitigating the risk.",
+            "properties": {
+                "easy_fix": {"type": "string", "description": "A quick, immediate, or easy-to-implement mitigation step."},
+                "long_term_fix": {"type": "string", "description": "A more difficult, time-consuming, or comprehensive architectural fix, if necessary."}
+            }
+        }
+    },
+    "required": ["risk_name", "overview", "severity", "affected_elements", "recommendations"]
+}
+
+RISK_SCHEMA_JSON: Dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "new vulnerabilities": {
+            "type": "array",
+            "description": "A list of all new identified cybersecurity risks/vulnerabilities from the report.",
+            "items": _vulnerability_json
+        },
+        "all vulnerabilities": {
+            "type": "array",
+            "description": "A list of all cybersecurity risks/vulnerabilities.",
+            "items": _vulnerability_json
+        }
+    },
+    "required": ["new vulnerabilities", "all vulnerabilities"]
+}
 
 def _create_report_prompt() -> str:
     """
@@ -83,328 +324,83 @@ def _create_example(example_input, example_output) -> str:
         print(f"[WARNING] Could not load examples: {e}")
         return "Example context missing or invalid."
 
-def _generate_report_content(context_filepath: str, system_instruction: str = "", max_retries=4, delay=2):
+def _generate_report_content(context):
     """
     Calls the AI model to generate report content.
     """
-    retry_count = 0
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    context_path = os.path.join(current_dir, "..", "assets", "report_template", "context.json")
+    test_report_path = os.path.join(current_dir, "..", "assets", "report_template", "test_report.json")
 
-    try:
-        with open(context_filepath, 'r') as f:
-            context_data = f.read()
-    except Exception as e:
-        print(f"[ERROR] Failed to read context file '{context_filepath}': {e}")
-        return None
+    context_path = os.path.normpath(context_path)
+    test_report_path = os.path.normpath(test_report_path)
 
-    example = _create_example(
-        "../assets/report_template/context.json", 
-        "../assets/report_template/test_report.json"
-    )
+    example = _create_example(context_path, test_report_path)
 
-    model = genai.GenerativeModel(
-        model_name=MODEL_NAME, 
-        system_instruction=system_instruction
-    )
-
-    while retry_count < max_retries:
-        print(f"--- Calling Gemini API with model: {MODEL_NAME} (Attempt {retry_count + 1}/{max_retries}) ---")
+    print(f"--- Calling Gemini API with model: {MODEL_NAME} ---")
+    
+    full_prompt = f"{_create_report_prompt()}\n\nContext:\n{context}\n\n{example}"
         
-        try:
-            response = model.generate_content(
-                contents=[_create_report_prompt(), context_data + "\n\n" + example],
-                generation_config={
-                    'response_mime_type': 'application/json',
-                    'response_schema': {
-                        "type": "object",
-                        "properties": {
-                            "report": {
-                                "type": "array",
-                                "description": "A cybersecurity assessment report on an organization's current security risks.",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "Risks & Recommendations": {
-                                            "type": "array",
-                                            "description": "A paragraph summary of the organization's network and a list of found vulnerabilites.",
-                                            "items": {
-                                                "Summary": {
-                                                    "type": "string",
-                                                    "description": "A summary of the organization's network."
-                                                },
-                                                "Vulnerabilities Found": {
-                                                    "type": "object",
-                                                    "description": "A list of found vulnerabilities.",
-                                                    "properties": {
-                                                        "Risk": {
-                                                            "type": "string",
-                                                            "description": "A short name of what the risk is."
-                                                        },
-                                                        "Overview": {
-                                                            "type": "string",
-                                                            "description": "A text description of the risk, explaining what it is, its impact, and how it was identified."
-                                                        },
-                                                        "Severity": {
-                                                            "type": "string",
-                                                            "description": "The calculated severity score (Critical, High, Medium, Low, or Info) for the risk."
-                                                        },
-                                                        "Affected Elements": {
-                                                            "type": "array",
-                                                            "description": "A list of system components, files, URLs, or specific functions/code areas affected by this risk.",
-                                                            "items": {
-                                                                "type": "string"
-                                                            }
-                                                        },
-                                                         "Recommendation": {
-                                                            "type": "object",
-                                                            "description": "Specific recommendations for mitigating each risk in Vulnerabilities Found.",
-                                                            "properties": {
-                                                                "easy_fix": {
-                                                                    "type": "string",
-                                                                    "description": "A quick, immediate, or easy-to-implement mitigation step."
-                                                                },
-                                                                "long_term_fix": {
-                                                                    "type": "string",
-                                                                    "description": "A more difficult, time-consuming, or comprehensive architectural fix, if necessary."
-                                                                }
-                                                            }
-                                                        },
-                                                    }
-                                                },
-                                            }
-                                        }, 
-                                        "Observations": {
-                                            "type": "array",
-                                            "description": "A list of what the organization did well.",
-                                                "properties": {
-                                                    "Observation": {
-                                                        "type": "string",
-                                                        "description": "A short name of what the observation is."
-                                                    },
-                                                    "Overview": {
-                                                        "type": "string",
-                                                        "description": "A text description of the observation, explaining what it is, its impact, and how it was identified."
-                                                    },
-                                                    "Affected Elements": {
-                                                        "type": "array",
-                                                        "description": "A list of system components, files, URLs, or specific functions/code areas involved by this observation.",
-                                                        "items": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                            }
-                                        },
-                                        "Conclusion": {
-                                            "type": "string",
-                                            "description": "A summary of the organization's current vulnerabilites and readiness."
-                                        },
-                                        "required": [
-                                            "Risks & Recommendations",
-                                            "Observations",
-                                            "Conclusion"
-                                        ]
-                                    }
-                                }
-                            },
-                        },
-                        "required": ["report"]
-                    }
-                }
-            )
-
-            if not response.text:
-                print(f"[WARNING] Empty response text on attempt {retry_count + 1}. Retrying in {delay} seconds...")
-                retry_count += 1
-                time.sleep(delay)
-                continue
-
-            try: 
-                json_data = json.loads(response.text)
-                print(f"--- Finished creating response successfully on attempt {retry_count + 1}! ---")
-                return response.text
-            except:
-                print(f"[WARNING in generate_report_content] Not a valid LaTeX {retry_count + 1}: Retrying in {delay} seconds...")
-                retry_count += 1
-                time.sleep(delay)
-                continue
-
-        except Exception as e:
-            print(f"[ERROR in generate_report_content] API call failed on attempt {retry_count + 1}: {e}. Retrying in {delay} seconds...")
-            retry_count += 1
-            time.sleep(delay)
-            continue
-
-    print(f"--- FAILED to generate report content after {max_retries} attempts. ---")
-    return None
-
-def _add_risks(report: dict, current_risks: dict, max_retries=4, delay=2):
-    """
-    Calls the AI model to add the new risks to the database based on the JSON formatted report given.
-    """
-    retry_count = 0
-    
-    example = _create_example(
-        "../assets/risk_template/current_risk.json",
-        "../assets/risk_template/test_risk_list.json"
+    response = model.generate_content(
+        contents=full_prompt,
+        generation_config=gen.types.GenerationConfig(
+            response_mime_type="application/json",
+            response_schema=REPORT_SCHEMA_JSON
+        )
     )
-    
-    # Drill down into the report dictionary to extract only the vulnerabilities
-    extracted_vulnerabilities = []
-    try:
-        # Check if 'report' exists and is a list with at least one item
-        if "report" in report and isinstance(report["report"], list) and len(report["report"]) > 0:
-            readiness_section = report["report"][0].get("Risk Assessment & Readiness", {})
-            extracted_vulnerabilities = readiness_section.get("Vulnerabilities Found", [])
-    except Exception as e:
-        print(f"[WARNING] Could not parse vulnerabilities from report: {e}")
+        
+    if not response.text:
+        raise RuntimeError("Empty response from Gemini for report generation.")
 
-    # Add both the extracted report vulnerabilities and current risks to the context
+    data = json.loads(response.text)
+    jsonschema.validate(instance=data, schema=REPORT_SCHEMA_JSON)
+            
+    print("--- Finished creating and validating report response successfully! ---")
+    return data
+
+def _add_risks(report: dict, current_risks: dict):
+    """
+    Calls the AI model to create new risks based on the JSON formatted report given.
+    """
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    current_risk_path = os.path.join(current_dir, "..", "assets", "risk_template", "current_risk.json")
+    test_risk_path = os.path.join(current_dir, "..", "assets", "risk_template", "test_risk_list.json")
+
+    current_risk_path = os.path.normpath(current_risk_path)
+    test_risk_path = os.path.normpath(test_risk_path)
+
+    example = _create_example(current_risk_path, test_risk_path)
+    
+    extracted_vulnerabilities = []
+    if "report" in report and isinstance(report["report"], list) and len(report["report"]) > 0:
+        readiness_section = report["report"][0].get("Risks & Recommendations", {})
+        extracted_vulnerabilities = readiness_section.get("Vulnerabilities Found", [])
+
     context = (
         f"Report Vulnerabilities:\n{json.dumps(extracted_vulnerabilities, indent=2)}\n\n"
         f"Current Risks:\n{json.dumps(current_risks, indent=2)}"
     )
 
-    model = genai.GenerativeModel(model_name=MODEL_NAME)
-
-    while retry_count < max_retries:
-        print(f"--- Calling Gemini API with model: {MODEL_NAME} (Attempt {retry_count + 1}/{max_retries}) ---")
+    print(f"--- Calling Gemini API with model: {MODEL_NAME} ---")
+    
+    full_prompt = f"{_create_risk_prompt()}\n\n{context}\n\n{example}"
         
-        try:
-            response = model.generate_content(
-                contents=[_create_risk_prompt(), context + "\n\n" + example],
-                generation_config={
-                    'response_mime_type': 'application/json',
-                    'response_schema': {
-                        "type": "object",
-                        "properties": {
-                            "new vulnerabilities": {
-                                "type": "array",
-                                "description": "A list of all new identified cybersecurity risks/vulnerabilities from the report.",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "risk_name": {
-                                            "type": "string",
-                                            "description": "A concise, descriptive name for the risk (e.g., 'SQL Injection Vulnerability', 'Outdated Library')."
-                                        },
-                                        "overview": {
-                                            "type": "string",
-                                            "description": "A text summary of the risk, explaining what it is, its impact, and how it was identified."
-                                        },
-                                        "severity": {
-                                            "type": "string",
-                                            "description": "The calculated severity score (Critical, High, Medium, Low, or Info) for the risk."
-                                        },
-                                        "affected_elements": {
-                                            "type": "array",
-                                            "description": "A list of system components, files, URLs, or specific functions/code areas affected by this risk.",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "recommendations": {
-                                            "type": "object",
-                                            "description": "Specific recommendations for mitigating the risk.",
-                                            "properties": {
-                                                "easy_fix": {
-                                                    "type": "string",
-                                                    "description": "A quick, immediate, or easy-to-implement mitigation step."
-                                                },
-                                                "long_term_fix": {
-                                                    "type": "string",
-                                                    "description": "A more difficult, time-consuming, or comprehensive architectural fix, if necessary."
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "required": [
-                                        "risk_name",
-                                        "overview",
-                                        "severity",
-                                        "affected_elements",
-                                        "recommendations"
-                                    ]
-                                }
-                            },
-                            "all vulnerabilities": {
-                                "type": "array",
-                                "description": "A list of all cybersecurity risks/vulnerabilities.",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "risk_name": {
-                                            "type": "string",
-                                            "description": "A concise, descriptive name for the risk (e.g., 'SQL Injection Vulnerability', 'Outdated Library')."
-                                        },
-                                        "overview": {
-                                            "type": "string",
-                                            "description": "A text summary of the risk, explaining what it is, its impact, and how it was identified."
-                                        },
-                                        "severity": {
-                                            "type": "string",
-                                            "description": "The calculated severity score (Critical, High, Medium, Low, or Info) for the risk."
-                                        },
-                                        "affected_elements": {
-                                            "type": "array",
-                                            "description": "A list of system components, files, URLs, or specific functions/code areas affected by this risk.",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "recommendations": {
-                                            "type": "object",
-                                            "description": "Specific recommendations for mitigating the risk.",
-                                            "properties": {
-                                                "easy_fix": {
-                                                    "type": "string",
-                                                    "description": "A quick, immediate, or easy-to-implement mitigation step."
-                                                },
-                                                "long_term_fix": {
-                                                    "type": "string",
-                                                    "description": "A more difficult, time-consuming, or comprehensive architectural fix, if necessary."
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "required": [
-                                        "risk_name",
-                                        "overview",
-                                        "severity",
-                                        "affected_elements",
-                                        "recommendations"
-                                    ]
-                                }
-                            }
-                        },
-                        "required": ["new vulnerabilities", "all vulnerabilities"]
-                    }
-                }
-            )
+    response = model.generate_content(
+        contents=full_prompt,
+        generation_config=gen.types.GenerationConfig(
+            response_mime_type="application/json",
+            response_schema=RISK_SCHEMA_JSON
+        )
+    )
+    
+    if not response.text:
+        raise RuntimeError("Empty response from Gemini for risk generation.")
 
-            if not response.text:
-                print(f"[WARNING] Empty response text on attempt {retry_count + 1}. Retrying in {delay} seconds...")
-                retry_count += 1
-                time.sleep(delay)
-                continue
-
-            try: 
-                json_data = json.loads(response.text)
-                print(f"--- Finished creating response successfully on attempt {retry_count + 1}! ---")
-                return response.text
-            
-            except json.JSONDecodeError as e:
-                print(f"[ERROR in _add_risks] Response text is not valid JSON on attempt {retry_count + 1}. Error: {e}. Retrying in {delay} seconds...")
-                retry_count += 1
-                time.sleep(delay)
-                continue
-
-        except Exception as e:
-            print(f"[ERROR in _add_risks] API call failed on attempt {retry_count + 1}: {e}. Retrying in {delay} seconds...")
-            retry_count += 1
-            time.sleep(delay)
-            continue
-
-    print(f"--- FAILED to generate risk content after {max_retries} attempts. ---")
-    return None
+    data = json.loads(response.text)
+    jsonschema.validate(instance=data, schema=RISK_SCHEMA_JSON)
+        
+    print("--- Finished creating and validating risk response successfully! ---")
+    return data
 
 #TODO: MUST edit this function if the questionnaire changes. 
 def _inject_overview_and_questionnaire(report_data: dict, org: Organization) -> dict:
@@ -412,7 +408,6 @@ def _inject_overview_and_questionnaire(report_data: dict, org: Organization) -> 
     Injects the Overview and Questionnaire Review sections at the top 
     of the AI-generated report data using information from the database.
     """
-
     new_section_data = {
         "Overview": {
             "Organization Name": org.org_name,
@@ -444,27 +439,24 @@ def _inject_overview_and_questionnaire(report_data: dict, org: Organization) -> 
 
     return report_data
 
-def ai_generation_service(personal_info: dict, current_risks: dict, context_filepath: str, system_instruction: str = ""):
+def ai_generation_service(personal_info: dict, current_risks: dict, context):
     """
     Generates a report and risks using Gemini.
     Returns the created Report object and a list of created Risk objects.
     """
-
-    report_json_str = _generate_report_content(context_filepath, system_instruction)
-
-    if not report_json_str:
-        print("[ERROR] Report generation failed.")
-        return None, None
-
     try:
-        report_data = json.loads(report_json_str)
+        # 1. Generate and validate report data
+        report_data = _generate_report_content(context)
         
+        # 2. Fetch database records
         org = Organization.objects.get(organization_id=personal_info.get('organization_id'))
         user_id = personal_info.get('user_id') 
         user = User.objects.get(user_id=user_id) if user_id else None
 
+        # 3. Inject context
         report_data = _inject_overview_and_questionnaire(report_data, org)
 
+        # 4. Save to database
         with transaction.atomic():
             new_report = Report.objects.create(
                 user_created=user,
@@ -474,33 +466,32 @@ def ai_generation_service(personal_info: dict, current_risks: dict, context_file
                 completed=timezone.now()
             )
 
-            risks_json_str = _add_risks(report_data, current_risks)
+            # 5. Generate and validate risks data
+            risks_data = _add_risks(report_data, current_risks)
 
             created_risks = []
-            
-            if risks_json_str:
-                risks_data = json.loads(risks_json_str)
-                
-                for risk_item in risks_data.get('new vulnerabilities', []):
-                    new_risk = Risk.objects.create(
-                        risk_name=risk_item.get('risk_name'),
-                        report=new_report, 
-                        organization=org,
-                        overview=risk_item.get('overview'),
-                        recommendations=risk_item.get('recommendations'),
-                        severity=risk_item.get('severity'),
-                        affected_elements=", ".join(risk_item.get('affected_elements', [])),
-                    )
-                    created_risks.append(new_risk)
-            
+            for risk_item in risks_data.get('new vulnerabilities', []):
+                new_risk = Risk.objects.create(
+                    risk_name=risk_item.get('risk_name'),
+                    report=new_report, 
+                    organization=org,
+                    overview=risk_item.get('overview'),
+                    recommendations=risk_item.get('recommendations'),
+                    severity=risk_item.get('severity'),
+                    affected_elements=", ".join(risk_item.get('affected_elements', [])),
+                )
+                created_risks.append(new_risk)
+        
             print(f"--- Successfully saved Report {new_report.report_id} and associated risks. ---")
             return new_report, created_risks
 
+    except jsonschema.ValidationError as e:
+        print(f"[ERROR] AI output did not match required schema: {e.message}")
     except Organization.DoesNotExist:
         print(f"[ERROR] Organization with ID {personal_info.get('organization_id')} not found.")
     except User.DoesNotExist:
         print(f"[ERROR] User with ID {personal_info.get('user_id')} not found.")
     except Exception as e:
-        print(f"[ERROR] Database save failed: {e}")
+        print(f"[ERROR] Pipeline failed: {e}")
         
     return None, None

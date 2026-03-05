@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'api',
     'rest_framework'
 ]
@@ -113,12 +114,12 @@ DATABASES = {
 }
 
 # Will override local database with cloud one once database URL is provided.
-database_url = os.environ["DATABASE_URL"]
-if database_url:
-    DATABASES['default'] = dj_database_url.config(
-        default=database_url
-        # add any other configurations here
-    )
+# database_url = os.environ["DATABASE_URL"]
+# if database_url:
+#     DATABASES['default'] = dj_database_url.config(
+#         default=database_url
+#         # add any other configurations here
+#     )
 
 
 # Password validation
