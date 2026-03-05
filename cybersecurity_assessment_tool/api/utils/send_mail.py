@@ -1,21 +1,15 @@
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 
+def send_mail(to_email, subject, message, html_message=None):
+    email = EmailMultiAlternatives(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [to_email]  # <-- already a list
+    )
 
-def send_mail(recipient, subject, message):
-    try:
-        email = EmailMessage(
-            subject=subject,
-            body=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[recipient],
-        )
+    if html_message:
+        email.attach_alternative(html_message, "text/html")
 
-        email.send(fail_silently=False)
-
-        return True
-
-    except Exception as e:
-        return False
-
-        # todo - add error logging here
+    email.send()
