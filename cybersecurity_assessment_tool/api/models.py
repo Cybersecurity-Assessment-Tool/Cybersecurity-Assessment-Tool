@@ -97,8 +97,6 @@ class User(AbstractUser):
     profile_img = models.ImageField()
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
-    email = EncryptedEmailField()
-    password = EncryptedCharField(max_length=100)
 
     class Meta:
         permissions = [
@@ -185,7 +183,7 @@ class Invitation(models.Model):
     # The user who sent the invite
     sender = models.ForeignKey(
         User,
-        one_delete=models.CASCADE,
+        on_delete=models.CASCADE,
         related_name='sent_invitations'
     )
     # The organization the new user is being invited to join
