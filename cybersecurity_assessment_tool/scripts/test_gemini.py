@@ -1,5 +1,4 @@
 import json
-# Update this import path if gemini_client is located elsewhere in your app structure
 from api.services.gemini_client import generate_and_process_report
 
 def run(*args):

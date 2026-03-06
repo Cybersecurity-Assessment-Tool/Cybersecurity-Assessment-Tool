@@ -44,8 +44,6 @@ def build_current_risks_dict(organization_id: int) -> dict:
     into a dictionary that the AI service expects.
     """
     existing_risks = Risk.objects.filter(organization_id=organization_id)
-    
-    # Format this to match what your ai_generation_service expects for `current_risks`
     current_risks = {
         "all_vulnerabilities": [
             {
@@ -104,7 +102,6 @@ def generate_and_process_report(
     Acts as the client to gather DB fields, call the AI service, 
     sort the resulting data, inject database context, and save objects.
     """
-    
     # 1. Fetch current risks
     current_risks = build_current_risks_dict(organization_id)
 
