@@ -53,6 +53,9 @@ class Organization(models.Model):
     email_domain = EncryptedCharField(max_length=100)
     website_domain = EncryptedCharField(max_length=100)
     external_ip = EncryptedCharField(max_length=100)
+    
+    # Questionnaire questions
+    # TODO: edit these to the question bank
     require_mfa_email = models.BooleanField(default=False)
     require_mfa_computer = models.BooleanField(default=False)
     require_mfa_sensitive_data = models.BooleanField(default=False)
@@ -94,6 +97,8 @@ class User(AbstractUser):
     profile_img = models.ImageField()
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
+    email = EncryptedEmailField()
+    password = EncryptedCharField(max_length=100)
 
     class Meta:
         permissions = [
@@ -143,7 +148,9 @@ class Risk(models.Model):
         editable=False
     )
     risk_name = models.CharField(max_length=500)
+    # The report that the risk was created from
     report = models.ForeignKey(Report, on_delete=models.CASCADE)
+    # The organization that the risk is tied to
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     overview = EncryptedTextField()
     recommendations = EncryptedJSONField()
@@ -165,7 +172,7 @@ class Risk(models.Model):
 
 class Invitation(models.Model):
     STATUS_CHOICES = (
-        ('send', 'Sent'),
+        ('sent', 'Sent'),
         ('awaiting_approval', 'Awaiting Approval'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected')
