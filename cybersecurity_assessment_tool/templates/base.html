@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My Django App{% endblock %}</title>
+    <title>{% block title %}LOGOSOON{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,6 +11,8 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    {% block auth %}
+    {% if user.is_authenticated %}
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
@@ -23,9 +25,27 @@
                     <a class="navbar-brand" href="/profile/">Profile</a>
                 </li>
             </ul>
-            <a class="navbar-brand" href="/login/">Login</a>
+            <form action="{% url 'logout' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="navbar-brand" style="border: none; background: transparent;">Log Out</button>
+            </form>
         </div>
     </nav>
+    {% else %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="navbar-brand" href="/">Home</a>
+                    <a class="navbar-brand" href="#about">About</a>
+                    <a class="navbar-brand" href="#contact">Contact</a>
+                </li>
+            </ul>
+            <a class="navbar-brand" href="{% url 'login' %}">Login</a>
+        </div>
+    </nav>
+    {% endif %}
+    {% endblock %}
 
     <!-- Main Content -->
     <main class="container my-4">
@@ -34,9 +54,11 @@
     </main>
 
     <!-- Footer -->
+    {% block footer %}
     <footer class="bg-dark text-white text-center py-3 mt-5">
         <p>Footer stuff blah blah blah</p>
     </footer>
+    {% endblock %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
