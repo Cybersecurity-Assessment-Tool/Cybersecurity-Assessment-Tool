@@ -16,7 +16,6 @@ class SignUpView(CreateView):
 ### Test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
-from api.models import User
 
 class UserDetailView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/user_detail.html"
@@ -25,6 +24,20 @@ class UserDetailView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
         return context
+    
+from django.shortcuts import render
+    
+def settings(request):
+    """Display settings page"""
+    return render(request, 'accounts/settings.html')
+
+def upload_profile_image(request):
+    """Display upload profile image page"""
+    return render(request, 'accounts/upload_profile_image.html')
+
+def organization(request):
+    """Display organization page"""
+    return render(request, 'accounts/organization.html')
     
 # from django.shortcuts import render, redirect, get_object_or_404
 # from django.contrib.auth.decorators import login_required
