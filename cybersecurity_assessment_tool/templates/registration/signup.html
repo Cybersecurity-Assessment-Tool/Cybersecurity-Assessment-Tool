@@ -3,28 +3,226 @@
 
 {% block title %}Sign Up{% endblock %}
 
+<!-- different styling -->
+{% block extra_css %}
+<style>
+    /* Barebones but clean styling */
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f9fafb;
+        padding: 1.5rem;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        width: 100%;
+        max-width: 400px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .auth-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-error {
+        background-color: #fee2e2;
+        border: 1px solid #fecaca;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+        color: #b91c1c;
+    }
+
+    .auth-error p {
+        margin: 0.25rem 0;
+    }
+
+    .auth-form {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        box-sizing: border-box;
+        transition: border-color 0.15s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-input::placeholder {
+        color: #9ca3af;
+    }
+
+    .password-requirements {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+        padding-left: 0.5rem;
+        border-left: 2px solid #e5e7eb;
+    }
+
+    .password-requirements ul {
+        margin: 0.25rem 0;
+        padding-left: 1rem;
+    }
+
+    .form-text {
+        display: block;
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    .auth-button {
+        width: 100%;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: white;
+        background-color: #111827;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.15s;
+    }
+
+    .auth-button:hover {
+        background-color: #1f2937;
+    }
+
+    .auth-footer {
+        text-align: center;
+        font-size: 0.875rem;
+        color: #6b7280;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 1.5rem;
+    }
+
+    .signup-link {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .signup-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
 <!-- removed nav bar -->
 {% block auth %} {% endblock %}
 
 {% block content %}
-<h2>Sign up</h2>
-<p>I KNOW IT IS ROUGH, LEAVE ME ALONE :cry:</p>
-<form method="post">
-  {% csrf_token %}
-  {{ form }}
-  <button type="submit">Sign Up</button>
-</form>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Sign up</h1>
+        </div>
+
+        <!-- Error Messages -->
+        {% if form.errors %}
+        <div class="auth-error">
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <p><strong>{{ field.label }}:</strong> {{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Sign Up Form -->
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            
+            <!-- Username Field -->
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+                <!-- {% if form.username.help_text %}
+                <span class="form-text">{{ form.username.help_text }}</span>
+                {% endif %} -->
+            </div>
+
+            <!-- Email Field (New!) -->
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+                {% if form.email.help_text %}
+                <span class="form-text">{{ form.email.help_text }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}">Password</label>
+                {{ form.password1 }}
+                <!-- {% if form.password1.help_text %}
+                <div class="password-requirements">
+                    {{ form.password1.help_text|safe }}
+                </div>
+                {% endif %} -->
+            </div>
+
+            <!-- Confirm Password Field -->
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                {{ form.password2 }}
+                <!-- {% if form.password2.help_text %}
+                <span class="form-text">{{ form.password2.help_text }}</span>
+                {% endif %} -->
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="auth-button">Sign Up</button>
+        </form>
+
+        <!-- Login Link -->
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{% url 'login' %}" class="signup-link">Log In</a></p>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 <!-- removed footer -->
 {% block footer %} {% endblock %}
-
-<!-- reminder to self, add these files to rework the corresponding UI:
-password_change_done.html
-password_change_form.html
-password_reset_confirm.html
-password_reset_done.html
-password_reset_form.html
--->
-
-<!-- http://127.0.0.1:8000/accounts/signup/ -->

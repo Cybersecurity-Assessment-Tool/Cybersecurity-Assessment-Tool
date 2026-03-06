@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
 from .models import UserProfile
 
 User = get_user_model()
@@ -11,10 +12,9 @@ class UserProfileForm(forms.ModelForm):
     """
     class Meta:
         model = UserProfile
-        fields = ['display_name', 'profile_image','default_view']
+        fields = ['display_name', 'profile_image']
         widgets = {
             'display_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter your display name'}),
-            'default_view': forms.Select(attrs={'class': 'form-select'}),
             'profile_image': forms.FileInput(attrs={'class': 'form-file', 'accept': 'image/*'}),
         }
         # 'display_name', 'profile_image', 'job_title', 'phone_number', 'timezone', 'email_notifications', 'email_on_critical', 'email_on_scan_complete', 'email_digest', 'items_per_page', 'default_view'
@@ -24,6 +24,7 @@ class UserProfileForm(forms.ModelForm):
         # 'timezone': forms.Select(attrs={'class': 'form-select'}),
         # 'email_digest': forms.Select(attrs={'class': 'form-select'}),
         # 'items_per_page': forms.Select(attrs={'class': 'form-select'}),
+        # 'default_view': forms.Select(attrs={'class': 'form-select'}),
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -68,3 +69,46 @@ class TwoFactorSetupForm(forms.Form):
         if code and not code.isdigit():
             raise forms.ValidationError('Code must contain only numbers')
         return code
+    
+class CustomUserCreationForm(UserCreationForm):
+    """
+    Custom signup form that requires email and adds basic styling.
+    """
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'your@email.com'
+        })
+    )
+    
+    class Meta(UserCreationForm.Meta):
+        model = User  # This uses your custom User model from api.models
+        fields = ('username', 'email', 'password1', 'password2')
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add CSS classes and placeholders to all fields
+        for field_name in self.fields:
+            self.fields[field_name].widget.attrs.update({
+                'class': 'form-input',
+                'placeholder': self.fields[field_name].label or field_name
+            })
+        
+        # Customize specific fields
+        self.fields['username'].widget.attrs.update({
+            'placeholder': 'Choose a username'
+        })
+        self.fields['password1'].widget.attrs.update({
+            'placeholder': 'Create a password'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'placeholder': 'Confirm your password'
+        })
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        if commit:
+            user.save()
+        return user

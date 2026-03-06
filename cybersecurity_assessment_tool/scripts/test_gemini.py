@@ -19,8 +19,8 @@ def run(*args):
     
     # 2. UPDATE THESE IDs to match a valid Organization and User in your DB.
     # The client will use these to build the personal_info dict and fetch current_risks.
-    organization_id = "68e1d320-1fe3-4f14-8d1f-760e9dc1da82" 
-    user_id = "58f961f8-a5e9-4e58-9efb-8b066abd9f28"
+    organization_id = "6299dc43-e136-48b7-80b1-4331dbecde33" 
+    user_id = "7c489eb4-cae1-4a7a-ac8c-7f43453e253a"
     
     print(f"\n--- Calling Gemini Client with context ---\n{context}\n")
 
