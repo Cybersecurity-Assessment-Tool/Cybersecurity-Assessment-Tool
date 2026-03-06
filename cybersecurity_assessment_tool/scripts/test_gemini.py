@@ -7,7 +7,7 @@ def run(*args):
         python manage.py runscript test_gemini
         python manage.py runscript test_gemini --script-args "Your prompt here"
     """
-
+    
     # 1. Context is the raw technical data/prompt you want Gemini to analyze.
     # We grab it from args if provided, otherwise use a default test string.
     context = args[0] if args else (
@@ -22,12 +22,16 @@ def run(*args):
     organization_id = "68e1d320-1fe3-4f14-8d1f-760e9dc1da82" 
     user_id = "58f961f8-a5e9-4e58-9efb-8b066abd9f28"
     
-    print(f"\n--- Calling Gemini Client with context ---\n{context}\n")
+    print("\n" + "="*60)
+    print("Calling Gemini Client")
+    print("="*60)
 
     # 3. generate_and_process_report returns a tuple: (Report object, sorted list of Risk objects)
     report, risks = generate_and_process_report(organization_id, user_id, context)
 
-    print("\n--- Generation Complete ---\n")
+    print("\n" + "="*60)
+    print("Generation Complete")
+    print("="*60)
     
     if report:
         print(f"✅ Report Created: {report.report_name} (ID: {report.pk})")

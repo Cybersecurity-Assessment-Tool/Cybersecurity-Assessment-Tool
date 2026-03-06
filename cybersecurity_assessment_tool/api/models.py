@@ -26,7 +26,7 @@ How to decrypt the encrypted values:
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, EncryptedJSONField
+from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, EncryptedJSONField, EncryptedEmailField
 
 class Color(models.TextChoices):
     DARK = 'd', 'Dark'
@@ -161,3 +161,55 @@ class Risk(models.Model):
 
     def __str__(self):
         return f"{self.severity}: {self.risk_name}"
+
+
+class Invitation(models.Model):
+    STATUS_CHOICES = (
+        ('send', 'Sent'),
+        ('awaiting_approval', 'Awaiting Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    )
+    invitation_id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    # The user who sent the invite
+    sender = models.ForeignKey(
+        User,
+        one_delete=models.CASCADE,
+        related_name='sent_invitations'
+    )
+    # The organization the new user is being invited to join
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name='invitations'
+    )
+    # The email address the invite was sent to
+    recipient_email = EncryptedEmailField()
+    # The new user account (null until they click the link and sign up)
+    recipient_user = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='received_invitations'
+    )
+    # A secure, unique token for the email link
+    token = models.UUIDField(
+        default=uuid.uuid4, 
+        editable=False, 
+        unique=True
+    )
+    status = models.CharField(
+        max_length=20, 
+        choices=STATUS_CHOICES, 
+        default='sent'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Invite from {self.sender.username} to {self.recipient_email} - {self.status}"
