@@ -11,4 +11,6 @@ router.register(r'risks', RiskViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('otp/verify/', views.otp_verify_view, name='otp_verify'),
+    path('otp/send/', views.send_otp_view, name='resend_otp'),
 ]
