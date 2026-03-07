@@ -1,9 +1,18 @@
-from django.shortcuts import render
+import json
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth import get_user_model
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
+from celery.result import AsyncResult
+
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
+
 from .models import Organization, User, Report, Risk
 from .serializers import OrganizationSerializer, UserSerializer, ReportSerializer, RiskSerializer
-from django.contrib.auth import get_user_model
+from .services.report_manager import generate_network_ai_report
 
 User = get_user_model()
 
@@ -40,8 +49,18 @@ class ReportViewSet(viewsets.ModelViewSet):
     
     # restrict reports to the user's organization for basic data separation
     def get_queryset(self):
+        user = self.request.user
+        
         # Only show reports belonging to the user's organization
-        return Report.objects.filter(organization=self.request.user.organization).order_by('-started')
+        if user.has_perm('api.can_view_any_report'):
+            return Report.objects.all().order_by('-started')
+        
+        # Filter by organization
+        if user.organization:
+            return Report.objects.filter(organization=user.organization).order_by('-started')
+        
+        # Fallback
+        return Report.objects.none()
         
     # automatically set the user_created and organization fields on creation
     def perform_create(self, serializer):
@@ -52,17 +71,22 @@ class RiskViewSet(viewsets.ModelViewSet):
     """
     ViewSet for viewing and editing Risk instances.
     """
-    queryset = Risk.objects.all()
     serializer_class = RiskSerializer
     permission_classes = [IsAuthenticated]
     
-    # will restrict this further (only show risks related to reports the user can access)
-    # for now, it shows all risks
-
-
-
-# TEST below
-from django.shortcuts import get_object_or_404
+    def get_queryset(self):
+        user = self.request.user
+        
+        # Master override
+        if user.has_perm('api.can_view_all_risk'):
+            return Risk.objects.all()
+        
+        # Filter by organization
+        if user.organization:
+            return Risk.objects.filter(organization=user.organization)
+        
+        # Fallback
+        return Risk.objects.none()
 
 def home(request):
     """Display home page"""
@@ -72,17 +96,40 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
-import json
+@login_required
+@permission_required('api.view_risk', raise_exception=True)
 def dashboard(request):
     """Display dashboard page"""
-    vulnerabilities = list(Risk.objects.values('severity', 'risk_name', 'overview'))
+    user = request.user
+    
+    # Filter risks securely
+    if user.has_perm('api.can_view_all_risk'):
+        risks = Risk.objects.all()
+    elif user.organization:
+        risks = Risk.objects.filter(organization=user.organization)
+    else:
+        risks = Risk.objects.none()
+
+    # Convert the filtered queryset into a list of dictionaries for JSON
+    vulnerabilities = list(risks.values('severity', 'risk_name', 'overview'))
+    
     return render(request, 'dashboard.html', {
-        'vulnerabilities_json': json.dumps(vulnerabilities)  # Pass as JSON string
+        'vulnerabilities_json': json.dumps(vulnerabilities)
     })
 
+@login_required
+@permission_required('api.view_report', raise_exception=True)
 def report_list(request):
     """Display list of reports"""
-    reports = Report.objects.all()
+    user = request.user
+    
+    # Filter reports securely
+    if user.has_perm('api.can_view_any_report'):
+        reports = Report.objects.all()
+    elif user.organization:
+        reports = Report.objects.filter(organization=user.organization)
+    else:
+        reports = Report.objects.none()
     
     context = {
         'reports': reports,
@@ -99,10 +146,51 @@ def report_list(request):
 #     }
 #     return render(request, 'reports/report_detail.html', context)
 
+@login_required
 def settings(request):
     """Display settings page"""
     return render(request, 'settings.html')
 
+@login_required
 def profile(request):
     """Display profile page"""
     return render(request, 'profile.html')
+
+@login_required
+@require_POST
+def trigger_report_generation(request):
+    """
+    Triggers the background network scan and AI generation task.
+    Returns the task ID immediately so the frontend can begin polling.
+    """
+    task = generate_network_ai_report.delay(
+        request.user.organization.external_ip,
+        request.user.user_id,
+        request.user.organization_id
+    )
+    
+    return JsonResponse({
+        'task_id': task.id,
+        'status': 'Processing started...'
+    }, status=202)
+
+@login_required
+def check_task_status(request, task_id):
+    """
+    Global reusable view to check the status of ANY Celery task.
+    Takes a task_id and returns its current state and metadata.
+    """
+    task = AsyncResult(task_id)
+    
+    response_data = {
+        'task_status': task.status,
+        'task_id': task.id
+    }
+    
+    if task.status == 'SUCCESS':
+        # You can return the actual report data or a URL to download it here
+        response_data['result'] = task.result
+    elif task.status == 'FAILURE':
+        response_data['error'] = str(task.info)
+        
+    return JsonResponse(response_data)

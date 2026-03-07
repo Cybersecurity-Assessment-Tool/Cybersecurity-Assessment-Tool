@@ -158,7 +158,6 @@ class Risk(models.Model):
 
     class Meta:
         permissions = [
-            ("can_view_risk", "Can view the risk."),
             ("can_view_all_risk", "Can view any risk, regardless of organization."),
             ("can_resolve_risk", "Can resolve the risk and set as archived."),
             ("can_generate_risk", "Can generate new risks."),

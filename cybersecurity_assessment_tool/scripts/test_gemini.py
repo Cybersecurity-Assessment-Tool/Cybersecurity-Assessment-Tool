@@ -13,8 +13,7 @@ def run(*args):
     context = args[0] if args else (
         # "Assess a company that has no MFA, reuses admin passwords,"
         # "does not have the port 3389 open to the internet, and does not lack DMARC records."
-        "Assess a company that is running an outdated, highly vulnerable FTP server on port 21 "
-        "and uses default administrator credentials for their local router."
+        "Assess a company that is doing all network security secure but only has a minor issue with Severity Medium and Severity Info"
     )
     
     # 2. UPDATE THESE IDs to match a valid Organization and User in your DB.

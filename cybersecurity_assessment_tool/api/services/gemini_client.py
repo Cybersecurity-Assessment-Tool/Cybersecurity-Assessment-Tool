@@ -24,7 +24,6 @@ from .ai_generation_service import ai_generation_service
 #         return JsonResponse({"status": "error", "message": "Failed to generate"}, status=500)
 
 # Define a sorting map for severities to translate strings to sortable integers
-
 SEVERITY_WEIGHTS = {
     "Critical": 1,
     "High": 2,

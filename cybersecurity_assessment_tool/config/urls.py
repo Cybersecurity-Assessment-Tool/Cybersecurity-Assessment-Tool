@@ -31,6 +31,10 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),  # /dashboard/
     path('reports/', views.report_list, name='report_list'),  # /reports/
     # path('reports/<int:id>/', views.report_detail, name='report_detail'),  # /reports/1/
+    
+    path('reports/trigger/', views.trigger_report_generation, name='trigger_report'),
+    path('tasks/<str:task_id>/', views.check_task_status, name='check_task_status'),
+    
     path('settings/', views.settings, name='settings'),  # /settings/
     path('profile/', views.profile, name='profile'),  # /profile/
 

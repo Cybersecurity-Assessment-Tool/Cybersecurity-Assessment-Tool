@@ -41,21 +41,9 @@ if not SECRET_KEY:
     else:
         raise ValueError('SECRET_KEY environment variable is required in non-local environments.')
 
-try:
-    SALT_KEY = os.environ['SALT_KEY']
-except KeyError:
-    sys.stderr.write("Error: SALT_KEY not found in environment variables. Please set it.")
-
-try:
-    DEBUG = os.environ['DEBUG']
-except KeyError:
-    sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
-
-try:
-    DATABASE_PASSWORD = os.environ['DATABASE_PASSWORD']
-except KeyError:
-    sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
-
+SALT_KEY = os.environ.get('SALT_KEY', '')
+DEBUG = os.environ.get('DEBUG', True)
+DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD', '')
 FIELD_ENCRYPTION_KEYS = [
     'f164h6a7591d3d540a946c6e0d2344ef9ae1951cddf3241430edc4273954513a', # Example 32-byte hex key
 ]
@@ -65,6 +53,17 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(','
 # Always allow Heroku subdomains in non-local environments
 if ENVIRONMENT != 'local' and '.herokuapp.com' not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append('.herokuapp.com')
+
+# ---------------------------------------------------------------------------
+# Celery Background Worker
+# ---------------------------------------------------------------------------
+# Use the Heroku Redis URL in production, or localhost for local development
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+
+# Standard Celery settings
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
 
 # Application definition
 

@@ -147,10 +147,10 @@ REPORT_SCHEMA_JSON: Dict[str, Any] = {
                         }
                     },
                     "Observations": {
-                        "type": "array", # FIXED: Made an array
+                        "type": "array",
                         "description": "A list of what the organization did well.",
                         "items": {
-                            "type": "object", # FIXED: Made items objects
+                            "type": "object",
                             "properties": {
                                 "Observation": {"type": "string", "description": "A short name of what the observation is."},
                                 "Overview": {"type": "string", "description": "A text description of the observation, explaining what it is, its impact, and how it was identified."},
