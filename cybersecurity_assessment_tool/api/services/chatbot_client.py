@@ -1,144 +1,99 @@
-# import os
-# import requests
-# import re
-# from dotenv import load_dotenv
+import json
+import logging
+import os
+import sys
+import google.generativeai as genai
+from django.conf import settings
+from ..models import Report, Risk
 
-# # Presidio for PII Redaction
-# from presidio_analyzer import AnalyzerEngine
-# from presidio_anonymizer import AnonymizerEngine
+logger = logging.getLogger(__name__)
 
-# # LangChain Components
-# from langchain_openai import ChatOpenAI
-# from langchain_core.tools import tool
-# from langchain.agents import AgentExecutor, create_tool_calling_agent
-# from langchain_core.prompts import ChatPromptTemplate
-# from langchain_community.tools import DuckDuckGoSearchResults
+try: 
+    API_KEY = os.environ["GEMINI_API_KEY"]
+    genai.configure(api_key=API_KEY)
+except KeyError:
+    sys.stderr.write("Error: GEMINI_API_KEY not found in environment variables. Please set it.\n")
+    # Using placeholder will allow initalization, but calls will fail until user provides a real key.
+    genai.configure(api_key="placeholder_key")
 
-# #pip install langchain langchain-openai langchain-community duckduckgo-search presidio-analyzer presidio-anonymizer requests python-dotenv
+MODEL_NAME = 'gemini-2.5-flash'
 
-# # Example Frontend implementation
-# # from django.http import JsonResponse
-# # from .chatbot_client import get_chatbot_response
-# # from .models import VulnerabilityReport # Assuming you have a model
+def sanitize_report_json(report_data: dict, keys_to_remove: list = None) -> dict:
+    """
+    Recursively searches through the report JSON and removes specific keys 
+    that contain PII before sending the context to Gemini.
+    """
+    if keys_to_remove is None:
+        keys_to_remove = ["Overview", "Questionnaire Review"]
 
-# # def chat_api_view(request):
-# #     user_question = request.POST.get('question')
-# #     report_id = request.POST.get('report_id')
-    
-# #     # Fetch your JSON report from PostgreSQL
-# #     report = VulnerabilityReport.objects.get(id=report_id)
-# #     raw_json_data = report.json_data 
-    
-# #     # Get the AI response
-# #     answer = get_chatbot_response(user_question, raw_json_data)
-    
-# #     return JsonResponse({"answer": answer})
+    if not isinstance(report_data, (dict, list)):
+        return report_data
 
-# def verify_link(url):
-#     """Checks if a URL is alive and returns a 200 OK status."""
-#     try:
-#         # Use a short timeout and a standard User-Agent to avoid blocks
-#         headers = {'User-Agent': 'Mozilla/5.0'}
-#         response = requests.head(url, headers=headers, timeout=3, allow_redirects=True)
-#         if response.status_code == 200:
-#             return True
-#         return False
-#     except requests.RequestException:
-#         return False
+    if isinstance(report_data, list):
+        return [sanitize_report_json(item, keys_to_remove) for item in report_data]
 
-# # Load environment variables (e.g., OPENAI_API_KEY)
-# load_dotenv()
-
-# # ==========================================
-# # 1. PII Redaction Setup
-# # ==========================================
-# analyzer = AnalyzerEngine()
-# anonymizer = AnonymizerEngine()
-
-# def scrub_report_data(report_text: str) -> str:
-#     """
-#     Analyzes the text for PII (IPs, emails, names, etc.) and replaces them 
-#     with placeholder tags like [IP_ADDRESS] or [EMAIL_ADDRESS].
-#     """
-#     # Analyze text for PII
-#     results = analyzer.analyze(text=report_text, language='en')
-#     # Redact the findings
-#     anonymized_result = anonymizer.anonymize(text=report_text, analyzer_results=results)
-#     return anonymized_result.text
-
-# # ==========================================
-# # 2. LangChain Tools Setup
-# # ==========================================
-# def verify_link(url: str) -> bool:
-#     """Checks if a URL is alive and returns a 200 OK status."""
-#     try:
-#         headers = {'User-Agent': 'Mozilla/5.0'}
-#         response = requests.head(url, headers=headers, timeout=5, allow_redirects=True)
-#         return response.status_code == 200
-#     except requests.RequestException:
-#         return False
-
-# @tool
-# def search_and_verify_resources(query: str) -> str:
-#     """
-#     Searches the internet for information on a vulnerability and verifies 
-#     that the returned URLs are accessible. Use this when the user asks for 
-#     more context, websites, or videos about a specific threat.
-#     """
-#     # Using DuckDuckGo for free tier testing; swap to Tavily or Google Search in production.
-#     search = DuckDuckGoSearchResults(num_results=5)
-#     raw_results = search.run(query)
-    
-#     # Simple regex to extract URLs from the raw search string
-#     urls = re.findall(r'(https?://[^\s\]]+)', raw_results)
-    
-#     valid_urls = []
-#     for url in set(urls): # Use set to remove duplicates
-#         if verify_link(url):
-#             valid_urls.append(url)
-            
-#     if not valid_urls:
-#         return "I found some resources, but the links were dead or inaccessible. Please try a different query."
+    sanitized_dict = {}
+    for key, value in report_data.items():
+        if key in keys_to_remove:
+            continue # Skip adding this key, effectively removing it
+        sanitized_dict[key] = sanitize_report_json(value, keys_to_remove)
         
-#     return f"Here are verified, accessible resources I found: {', '.join(valid_urls)}. \nRaw context: {raw_results}"
+    return sanitized_dict
 
-# # ==========================================
-# # 3. Agent Architecture Setup
-# # ==========================================
-# def get_chatbot_response(user_question: str, raw_report_json: str) -> str:
-#     """
-#     Main function to be called from Django views.py.
-#     Takes the user's question and the raw report, scrubs the report, 
-#     and passes it to the LangChain agent.
-#     """
-#     # 1. Scrub the sensitive data first
-#     safe_report_data = scrub_report_data(raw_report_json)
+def get_gemini_response(user_prompt: str, context_instance=None) -> str:
+    """
+    Takes a user prompt, detects if context is a Report or Risk, 
+    sanitizes PII if necessary, and calls Gemini.
+    """
+    context_string = ""
+
+    # Handle Report instances
+    if isinstance(context_instance, Report):
+        try:
+            # report_text is an EncryptedJSONField, so it should load as a dict/list natively in Django
+            raw_report_data = context_instance.report_text 
+            
+            # Sanitize the report data
+            clean_report_data = sanitize_report_json(raw_report_data)
+            
+            context_string = f"\n\nContext (Cybersecurity Report):\n{json.dumps(clean_report_data, indent=2)}"
+        except Exception as e:
+            logger.error(f"Error processing Report context: {e}")
+            context_string = "\n\n[Error loading report context]"
+
+    # Handle Risk instances
+    elif isinstance(context_instance, Risk):
+        # Risks don't contain PII, so we can format them directly
+        context_string = (
+            f"\n\nContext (Cybersecurity Risk):\n"
+            f"Risk Name: {context_instance.risk_name}\n"
+            f"Severity: {context_instance.severity}\n"
+            f"Overview: {context_instance.overview}\n"
+            f"Affected Elements: {context_instance.affected_elements}\n"
+            f"Recommendations: {json.dumps(context_instance.recommendations, indent=2)}"
+        )
+
+    # Combine the user prompt with the sanitized context
+    final_prompt = f"{user_prompt}{context_string}"
+
+    try:
+        # Initialize the Gemini model
+        model = genai.GenerativeModel(model_name=MODEL_NAME)
+        
+        # Generate the response
+        response = model.generate_content(final_prompt)
+        return response.text
+
+    except Exception as e:
+        logger.error(f"Error calling Gemini API: {e}")
+        return "I'm sorry, I encountered an error while trying to generate a response. Please try again later."
     
-#     # 2. Initialize the LLM (using OpenAI GPT-4o-mini as a fast, capable default)
-#     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.2)
-    
-#     # 3. Bind our custom tools to the LLM
-#     tools = [search_and_verify_resources]
-    
-#     # 4. Create the System Prompt
-#     prompt = ChatPromptTemplate.from_messages([
-#         ("system", "You are a helpful cybersecurity assistant for an internal IT team. "
-#                    "You are provided with an anonymized vulnerability report. "
-#                    "Answer the user's questions based on the report. If they ask for external "
-#                    "resources, tutorials, or fixes, use your search tool to find verified links.\n\n"
-#                    "Context Report:\n{report_data}"),
-#         ("human", "{input}"),
-#         ("placeholder", "{agent_scratchpad}"),
-#     ])
-    
-#     # 5. Construct and run the Agent
-#     agent = create_tool_calling_agent(llm, tools, prompt)
-#     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-    
-#     # Execute the agent
-#     response = agent_executor.invoke({
-#         "input": user_question,
-#         "report_data": safe_report_data
-#     })
-    
-#     return response["output"]
+def generate_chat_reply_report(report_id, user_message):
+    from ..models import Report
+    report = Report.objects.get(pk=report_id)
+    return get_gemini_response(user_prompt=user_message, context_instance=report)
+
+def generate_chat_reply_risk(risk_id, user_message):
+    from ..models import Risk
+    risk = Risk.objects.get(pk=risk_id)
+    return get_gemini_response(user_prompt=user_message, context_instance=risk)

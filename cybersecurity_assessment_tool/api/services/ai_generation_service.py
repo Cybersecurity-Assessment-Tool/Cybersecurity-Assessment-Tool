@@ -3,7 +3,7 @@ import os
 import sys
 from dotenv import load_dotenv, find_dotenv
 import google.generativeai as gen
-from django.utils import timezone
+from django.conf import settings
 import jsonschema
 from google.genai import types
 from typing import Dict, Any

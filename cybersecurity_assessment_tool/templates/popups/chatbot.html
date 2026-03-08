@@ -1,0 +1,254 @@
+{% if user.is_authenticated %}
+<style>
+    /* Floating Button */
+    #chat-widget-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 15px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        z-index: 9999;
+    }
+
+    /* Chat Window Container */
+    #chat-widget-window {
+        display: none;
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 350px;
+        height: 450px;
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        z-index: 9999;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* Header, Messages Area, Input Area */
+    .chat-header {
+        background-color: #007bff;
+        color: white;
+        padding: 15px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .chat-header button {
+        background: none; border: none; color: white; cursor: pointer; font-size: 16px;
+    }
+    .chat-messages {
+        flex-grow: 1;
+        padding: 15px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background-color: #f9f9f9;
+    }
+    .chat-input-area {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ccc;
+        background: white;
+    }
+    .chat-input-area input {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-right: 10px;
+    }
+    .chat-input-area button {
+        padding: 10px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    /* Message Bubbles */
+    .msg { max-width: 80%; padding: 10px; border-radius: 10px; font-size: 14px; }
+    .msg.user { background-color: #007bff; color: white; align-self: flex-end; }
+    .msg.bot { background-color: #e9ecef; color: black; align-self: flex-start; }
+    .msg p {
+        margin: 0 0 10px 0; /* Space between paragraphs */
+        line-height: 1.4;
+    }
+    .msg p:last-child {
+        margin-bottom: 0; /* Remove margin from the very last paragraph */
+    }
+    .msg ul, .msg ol {
+        margin: 0 0 10px 0;
+        padding-left: 20px; /* Indent bullet points nicely */
+    }
+    .msg ul:last-child, .msg ol:last-child {
+        margin-bottom: 0;
+    }
+    .msg strong {
+        font-weight: 600; /* Make bold text pop */
+    }
+</style>
+
+<button id="chat-widget-button">💬 Ask AI</button>
+
+<div id="chat-widget-window">
+    <div class="chat-header">
+        <span>Cyber Assistant</span>
+        <button id="close-chat-btn">✖</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        <div class="msg bot">Hi! What would you like to know about this item?</div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Type your question...">
+        <button id="send-chat-btn">Send</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script>
+    // --- UI Toggle Logic ---
+    const chatBtn = document.getElementById('chat-widget-button');
+    const chatWindow = document.getElementById('chat-widget-window');
+    const closeBtn = document.getElementById('close-chat-btn');
+
+    chatBtn.addEventListener('click', () => {
+        chatWindow.style.display = 'flex';
+        chatBtn.style.display = 'none';
+    });
+
+    closeBtn.addEventListener('click', () => {
+        chatWindow.style.display = 'none';
+        chatBtn.style.display = 'block';
+    });
+
+    // --- Django CSRF Token Helper ---
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // --- Chat Logic ---
+    document.getElementById('send-chat-btn').addEventListener('click', sendMessage);
+    document.getElementById('chat-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    function sendMessage() {
+        const inputField = document.getElementById('chat-input');
+        const messagesContainer = document.getElementById('chat-messages');
+        const message = inputField.value.trim();
+
+        if (!message) return;
+
+        // 1. Display User Message
+        messagesContainer.innerHTML += `<div class="msg user">${message}</div>`;
+        inputField.value = '';
+        messagesContainer.scrollTop = messagesContainer.scrollHeight; // Scroll to bottom
+
+        // 2. Add loading indicator
+        const loadingId = 'loading-' + Date.now();
+        messagesContainer.innerHTML += `<div class="msg bot" id="${loadingId}">Thinking...</div>`;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        // 3. Determine the Context URL
+        // We look for meta tags on the page to tell us if we are looking at a Risk or a Report
+        const reportId = document.querySelector('meta[name="context-report-id"]')?.content;
+        const riskId = document.querySelector('meta[name="context-risk-id"]')?.content;
+        
+        let apiUrl = null;
+        if (reportId) apiUrl = `/api/chat/report/${reportId}/`; // Adjust to match your urls.py
+        else if (riskId) apiUrl = `/api/chat/risk/${riskId}/`;   // Adjust to match your urls.py
+
+        if (!apiUrl) {
+            document.getElementById(loadingId).innerText = "Error: I don't have context for this page.";
+            return;
+        }
+
+        // 4. Send to Django Backend and Poll for Result
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: new URLSearchParams({ 'prompt': message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.task_id) {
+                // Task started successfully! Now we poll the status endpoint.
+                pollTaskStatus(data.task_id, loadingId);
+            } else {
+                // Handle direct errors (like Unauthorized)
+                document.getElementById(loadingId).innerText = data.error || "An error occurred.";
+            }
+        })
+        .catch(error => {
+            document.getElementById(loadingId).innerText = "Connection error.";
+            console.error(error);
+        });
+    }
+
+    // --- Polling Logic ---
+    function pollTaskStatus(taskId, elementId) {
+        const statusUrl = `/check-task/${taskId}/`; // Adjust to your urls.py
+        
+        const pollInterval = setInterval(() => {
+            fetch(statusUrl)
+            .then(response => response.json())
+            .then(data => {
+                const messagesContainer = document.getElementById('chat-messages');
+                
+                if (data.state === 'SUCCESS') {
+                    clearInterval(pollInterval);
+                    
+                    // 1. Parse the Markdown into raw HTML
+                    const rawHtml = marked.parse(data.result);
+                    
+                    // 2. Sanitize the HTML to prevent XSS attacks
+                    const cleanHtml = DOMPurify.sanitize(rawHtml);
+                    
+                    // 3. Inject the clean HTML
+                    document.getElementById(elementId).innerHTML = cleanHtml;
+                    
+                    // Scroll to the bottom
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    
+                } else if (data.state === 'FAILURE') {
+                    clearInterval(pollInterval);
+                    document.getElementById(elementId).innerText = "Sorry, I encountered an error generating the response.";
+                    console.error("Task failed:", data.error);
+                }
+                // If state is PENDING, do nothing, let it poll again
+            })
+            .catch(error => {
+                clearInterval(pollInterval);
+                document.getElementById(elementId).innerText = "Error checking status.";
+            });
+        }, 2000); 
+    }
+</script>
+{% endif %}
