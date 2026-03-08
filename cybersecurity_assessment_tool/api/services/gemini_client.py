@@ -43,6 +43,10 @@ def build_current_risks_dict(organization_id: int) -> dict:
     into a dictionary that the AI service expects.
     """
     existing_risks = Risk.objects.filter(organization_id=organization_id)
+    
+    # Sort the existing risks
+    sorted_existing_risks = sorted(existing_risks, key=lambda r: get_severity_weight(r.severity))
+    
     current_risks = {
         "all_vulnerabilities": [
             {
@@ -51,7 +55,7 @@ def build_current_risks_dict(organization_id: int) -> dict:
                 "severity": risk.severity,
                 "affected_elements": [e.strip() for e in risk.affected_elements.split(",")] if risk.affected_elements else []
             }
-            for risk in existing_risks
+            for risk in sorted_existing_risks
         ]
     }
     return current_risks
@@ -155,9 +159,10 @@ def generate_and_process_report(
         print(f"--- Successfully saved Report {new_report.pk} and associated risks. ---")
 
         # 4. Sort the Python list of Risk objects for returning to the frontend
-        created_risks.sort(key=lambda r: get_severity_weight(r.severity))
+        all_org_risks = list(Risk.objects.filter(organization=org))
+        all_org_risks.sort(key=lambda r: get_severity_weight(r.severity))
 
-        return new_report, created_risks
+        return new_report, all_org_risks
 
     except Organization.DoesNotExist:
         print(f"[ERROR] Organization with ID {organization_id} not found.")

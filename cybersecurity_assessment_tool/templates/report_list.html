@@ -112,11 +112,11 @@
                     showError(data.error || "Task failed to process.");
                 } else {
                     // Task is PENDING or PROGRESS.
-                    if (data.step) {
-                        statusText.innerText = data.step;
-                    }
+                    // Fallback to a generic message since Q2 doesn't natively stream steps
+                    statusText.innerText = "Processing in background... this may take a minute.";
+                    
                     // Keep polling
-                    setTimeout(() => pollTaskStatus(taskId), 2000); 
+                    setTimeout(() => pollTaskStatus(taskId), 2000);
                 }
             })
             .catch(error => showError("Error checking task status."));

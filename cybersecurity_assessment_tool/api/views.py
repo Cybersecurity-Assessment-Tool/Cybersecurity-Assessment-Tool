@@ -4,8 +4,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-
-from celery.result import AsyncResult
+from django_q.tasks import async_task
+from django_q.models import Task
 
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -160,37 +160,46 @@ def profile(request):
 @require_POST
 def trigger_report_generation(request):
     """
-    Triggers the background network scan and AI generation task.
-    Returns the task ID immediately so the frontend can begin polling.
+    Triggers the background network scan using Django Q2.
     """
-    task = generate_network_ai_report.delay(
+    task_id = async_task(
+        generate_network_ai_report,
         request.user.organization.external_ip,
         request.user.user_id,
         request.user.organization_id
     )
     
     return JsonResponse({
-        'task_id': task.id,
+        'task_id': task_id,
         'status': 'Processing started...'
     }, status=202)
 
 @login_required
 def check_task_status(request, task_id):
     """
-    Global reusable view to check the status of ANY Celery task.
-    Takes a task_id and returns its current state and metadata.
+    Checks status using Django Q2's Task model.
     """
-    task = AsyncResult(task_id)
+    # get_task returns the Task object if finished, or None if still running/queued
+    task = Task.get_task(task_id)
     
-    response_data = {
-        'task_status': task.status,
-        'task_id': task.id
-    }
-    
-    if task.status == 'SUCCESS':
-        # You can return the actual report data or a URL to download it here
-        response_data['result'] = task.result
-    elif task.status == 'FAILURE':
-        response_data['error'] = str(task.info)
-        
-    return JsonResponse(response_data)
+    if task:
+        # Task is finished (either succeeded or failed)
+        if task.success:
+            return JsonResponse({
+                'state': 'SUCCESS',
+                'task_id': task.id,
+                'result': task.result
+            })
+        else:
+            return JsonResponse({
+                'state': 'FAILURE',
+                'task_id': task.id,
+                'error': str(task.result) # Q2 stores the error traceback in 'result' on failure
+            })
+    else:
+        # Task is not in the database yet, meaning it is still running
+        return JsonResponse({
+            'state': 'PENDING',
+            'task_id': task_id,
+            'step': 'Processing in background...'
+        })

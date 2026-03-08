@@ -54,16 +54,28 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(','
 if ENVIRONMENT != 'local' and '.herokuapp.com' not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append('.herokuapp.com')
 
-# ---------------------------------------------------------------------------
-# Celery Background Worker
-# ---------------------------------------------------------------------------
-# Use the Heroku Redis URL in production, or localhost for local development
-CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+# ------------------------------------------
+# Django Q2 (Background Worker) Settings
+# ------------------------------------------
 
-# Standard Celery settings
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
+Q_CLUSTER = {
+    'name': 'logodiscover_cluster',
+    'orm': 'default',  
+    
+    # WORKER CONFIGURATION
+    'workers': 4,       # Number of concurrent worker processes. 4 is a safe default for a Standard Heroku Dyno.
+    'recycle': 500,     # Restarts a worker after it processes 500 tasks to prevent memory leaks.
+    'timeout': 300,     # Max time (in seconds) a task is allowed to run before being killed. 
+    'retry': 360,       # Set to 5 minutes (300s) here, but adjust if Gemini AI generation takes longer
+    
+    # DATABASE MANAGEMENT
+    'compress': True,   # Compresses task data in the DB to save storage space.
+    'save_limit': 250,  # Only keeps the history of the last 250 successful tasks in the DB to prevent bloat.
+    
+    # QUEUE BEHAVIOR
+    'queue_limit': 500, # Max number of tasks that can be queued in memory at once.
+    'catch_up': False,  # If your worker goes offline, don't execute missed scheduled tasks all at once when it boots back up.
+}
 
 # Application definition
 
@@ -78,6 +90,7 @@ INSTALLED_APPS = [
     'accounts',
     'api',
     'rest_framework',
+    'django_q'
 ]
 
 MIDDLEWARE = [
