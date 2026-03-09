@@ -97,7 +97,7 @@ def risks_list(request):
         risks = Risk.objects.filter(organization=organization)
         has_organization = True
     else:
-        risks = Risk.objects.none()  # Empty queryset that won't break
+        risks = Risk.objects.none()
         has_organization = False
     
     severity_filter = request.GET.get('severity', '')
@@ -105,20 +105,31 @@ def risks_list(request):
         risks = risks.filter(severity=severity_filter)
     
     search_query = request.GET.get('search', '')
+    # Add debug prints
     if search_query:
-        risks = risks.filter(
-            Q(risk_name__icontains=search_query) | 
-            Q(overview__icontains=search_query)
-        )
+        # Get ALL risks for this organization (unfiltered)
+        all_risks = list(risks)
+        
+        # Filter in Python
+        matching_risk_ids = []
+        for risk in all_risks:
+            if (search_query.lower() in risk.risk_name.lower() or 
+                search_query.lower() in risk.overview.lower()):
+                matching_risk_ids.append(risk.risk_id)
+        
+        # Now filter the queryset to only include matching IDs
+        risks = risks.filter(risk_id__in=matching_risk_ids)
+    
+    print(f"Python filter found: {len(matching_risk_ids)} matches")
     
     # Severity counts for filter badges - Calculate from BASE queryset (unfiltered)
     base_risks = Risk.objects.filter(organization=organization) if organization else Risk.objects.none()
     severity_counts = {
-        'Critical': base_risks.filter(severity='Critical').count() if base_risks.exists() else 0,
-        'High': base_risks.filter(severity='High').count() if base_risks.exists() else 0,
-        'Medium': base_risks.filter(severity='Medium').count() if base_risks.exists() else 0,
-        'Low': base_risks.filter(severity='Low').count() if base_risks.exists() else 0,
-        'Info': base_risks.filter(severity='Info').count() if base_risks.exists() else 0,
+        'Critical': base_risks.filter(severity='Critical').count(),
+        'High': base_risks.filter(severity='High').count(),
+        'Medium': base_risks.filter(severity='Medium').count(),
+        'Low': base_risks.filter(severity='Low').count(),
+        'Info': base_risks.filter(severity='Info').count(),
     }
     
     # Pagination - order by report completion date
@@ -146,12 +157,14 @@ def risks_list(request):
         'page_obj': page_obj,
         'severity_counts': severity_counts,
         'current_severity': severity_filter,
+        'severity_filter': severity_filter,
         'search_query': search_query,
-        'risks_json': risks_json,
-        'total_risks': risks.count(),
-        'has_data': risks.exists(),
+        'total_risks': base_risks.count(),
+        'filtered_count': risks.count(),
         'has_organization': has_organization,
-        'has_risks': risks.exists(),
+        'has_risks': base_risks.exists(),
+        # 'risks_json': risks_json,
+        # 'has_data': risks.exists(),
     }
     return render(request, 'api/risks.html', context)
 
