@@ -105,22 +105,17 @@ def risks_list(request):
         risks = risks.filter(severity=severity_filter)
     
     search_query = request.GET.get('search', '')
-    # Add debug prints
     if search_query:
-        # Get ALL risks for this organization (unfiltered)
         all_risks = list(risks)
-        
-        # Filter in Python
+
+        # Filtering in Python because the database has encrypted data which can't be filtered
         matching_risk_ids = []
         for risk in all_risks:
             if (search_query.lower() in risk.risk_name.lower() or 
                 search_query.lower() in risk.overview.lower()):
                 matching_risk_ids.append(risk.risk_id)
-        
-        # Now filter the queryset to only include matching IDs
+
         risks = risks.filter(risk_id__in=matching_risk_ids)
-    
-    print(f"Python filter found: {len(matching_risk_ids)} matches")
     
     # Severity counts for filter badges - Calculate from BASE queryset (unfiltered)
     base_risks = Risk.objects.filter(organization=organization) if organization else Risk.objects.none()

@@ -404,38 +404,6 @@
         margin-bottom: 1rem;
     }
     
-    .no-results-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        align-items: center;
-    }
-    
-    .clear-filters-btn {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        background-color: #3b82f6;
-        color: white;
-        text-decoration: none;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        transition: background-color 0.15s;
-    }
-    
-    .clear-filters-btn:hover {
-        background-color: #2563eb;
-    }
-    
-    .clear-search-link {
-        color: #6b7280;
-        text-decoration: underline;
-        font-size: 0.875rem;
-    }
-    
-    .clear-search-link:hover {
-        color: #111827;
-    }
-    
     .text-muted {
         color: #9ca3af;
         font-size: 0.875rem;
@@ -710,26 +678,15 @@
             {% endif %}
 
         {% else %}
-            <!-- We have NO results to show - check WHY -->
+            <!-- No results -->
             {% if severity_filter or search_query %}
-                <!-- Case 1: Filters are active but no matches -->
+                <!-- Case 1: Filters find no matches -->
                 <div class="no-results">
                     <p>No risks match your filters.</p>
-                    <div class="no-results-actions">
-                        <a href="/risks/" class="clear-filters-btn">Clear all filters</a>
-                        {% if search_query %}
-                            <a href="?{% if severity_filter %}severity={{ severity_filter }}{% endif %}" class="clear-search-link">
-                                Clear search only
-                            </a>
-                        {% endif %}
-                    </div>
                 </div>
             {% else %}
-                <!-- Case 2: No filters, but no risks in database for this organization -->
+                <!-- Case 2: No risks in database for this organization -->
                 <div class="empty-state-container">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="#9ca3af">
-                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" fill="currentColor"/>
-                    </svg>
                     <p>No vulnerabilities found for your organization.</p>
                     <p class="empty-sub">Run a scan to generate security findings.</p>
                     <a href="{% url 'scan' %}" class="empty-action-btn">Run New Scan</a>
