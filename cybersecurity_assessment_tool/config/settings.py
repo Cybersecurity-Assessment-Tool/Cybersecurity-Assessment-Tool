@@ -16,7 +16,6 @@ from pathlib import Path
 
 import dj_database_url
 from dotenv import load_dotenv, find_dotenv
-import dj_database_url
 
 # Load environment variables from .env file (only affects local dev;
 # on Heroku, env vars are set via Config Vars)
@@ -41,20 +40,9 @@ if not SECRET_KEY:
     else:
         raise ValueError('SECRET_KEY environment variable is required in non-local environments.')
 
-try:
-    SALT_KEY = os.environ['SALT_KEY']
-except KeyError:
-    sys.stderr.write("Error: SALT_KEY not found in environment variables. Please set it.")
+SALT_KEY = os.environ.get('SALT_KEY', 'local-dev-salt-key-CHANGE-ME')
 
-try:
-    DEBUG = os.environ['DEBUG']
-except KeyError:
-    sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
-
-try:
-    DATABASE_PASSWORD = os.environ['DATABASE_PASSWORD']
-except KeyError:
-    sys.stderr.write("Error: DEBUG not found in environment variables. Please set it.")
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
 FIELD_ENCRYPTION_KEYS = [
     'f164h6a7591d3d540a946c6e0d2344ef9ae1951cddf3241430edc4273954513a', # Example 32-byte hex key
