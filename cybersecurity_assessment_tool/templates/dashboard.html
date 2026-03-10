@@ -4,6 +4,27 @@
 
 {% block content %}
 <div class="container-fluid py-3">
+    <!-- Add this after the container-fluid py-3 div starts -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>Showing data from most recent scan:</strong>
+                    {% if latest_report %}
+                        {{ latest_report.report_name }} - {{ report_date|date:"F j, Y H:i" }}
+                    {% else %}
+                        No scan data available
+                    {% endif %}
+                </div>
+                {% if latest_report %}
+                <a href="{% url 'report_detail' latest_report.report_id %}" class="btn btn-sm btn-outline-primary">
+                    View Full Report
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
     <div class="row align-items-stretch">
         <!-- Pie Chart Card -->
         <div class="col-lg-5 mb-3">
@@ -108,31 +129,6 @@
 $(document).ready(function() {
     // Parse as JSON string so it doesn't give red squiggly lines in the editor.
     const vulnerabilitiesData = JSON.parse('{{ vulnerabilities_json|safe }}');
-
-    // dummy data if database isn't working
-    /*
-    const vulnerabilitiesData = [
-        // Critical severity
-        { severity: 'Critical', risk_name: 'Remote Code Execution in Apache', overview: 'Apache HTTP Server 2.4.48 and earlier allows remote code execution' },
-        { severity: 'Critical', risk_name: 'SQL Injection Vulnerability', overview: 'Blind SQL injection in login parameter' },
-        { severity: 'Critical', risk_name: 'Default Admin Credentials', overview: 'Default username/password combination still enabled' },
-        
-        // High severity
-        { severity: 'High', risk_name: 'Outdated SSL/TLS Configuration', overview: 'Server supports weak SSL/TLS protocols' },
-        { severity: 'High', risk_name: 'Cross-Site Scripting (XSS)', overview: 'Reflected XSS in search parameter' },
-        { severity: 'High', risk_name: 'Weak Password Policy', overview: 'Password policy allows weak passwords' },
-        
-        // Medium severity
-        { severity: 'Medium', risk_name: 'Missing HTTP Security Headers', overview: 'X-Frame-Options, CSP headers missing' },
-        { severity: 'Medium', risk_name: 'Directory Listing Enabled', overview: 'Web server exposes directory contents' },
-        { severity: 'Medium', risk_name: 'Session Fixation', overview: 'Session ID not regenerated after login' },
-        
-        // Low severity
-        { severity: 'Low', risk_name: 'Server Banner Disclosure', overview: 'Server reveals version information' },
-        { severity: 'Low', risk_name: 'Cookie Without Secure Flag', overview: 'Cookies transmitted over unencrypted connection' },
-        { severity: 'Low', risk_name: 'Unnecessary Service Running', overview: 'Unused network service is enabled' },
-    ];
-    */
     
     initializeDashboard(vulnerabilitiesData);
 });

@@ -80,11 +80,38 @@ from django.contrib import messages
 
 @login_required
 def dashboard(request):
-    """Display dashboard page"""
-    vulnerabilities = list(Risk.objects.values('severity', 'risk_name', 'overview'))
-    return render(request, 'dashboard.html', {
-        'vulnerabilities_json': json.dumps(vulnerabilities)  # Pass as JSON string
-    })
+    """Display dashboard page with data from most recent scan only"""
+    user = request.user
+    organization = user.organization
+    
+    # Initialize empty data in case no reports exist
+    vulnerabilities = []
+    latest_report = None
+    report_date = None
+    
+    if organization:
+        # Get the most recent report for this organization
+        latest_report = Report.objects.filter(
+            organization=organization
+        ).order_by('-completed').first()
+        
+        if latest_report:
+            # Get all risks associated with this report
+            vulnerabilities = list(
+                Risk.objects.filter(
+                    report_id=latest_report.report_id
+                ).values('severity', 'risk_name', 'overview')
+            )
+            report_date = latest_report.completed
+    
+    context = {
+        'vulnerabilities_json': json.dumps(vulnerabilities),
+        'has_data': len(vulnerabilities) > 0,
+        'latest_report': latest_report,
+        'report_date': report_date,
+        'total_vulns': len(vulnerabilities),
+    }
+    return render(request, 'dashboard.html', context)
 
 @login_required
 def risks_list(request):
