@@ -97,6 +97,7 @@ class User(AbstractUser):
     profile_img = models.ImageField()
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
+    is_active = models.BooleanField(default=False)
 
     class Meta:
         permissions = [
