@@ -219,6 +219,8 @@ def report_list(request):
         medium_count = report_risks.filter(severity='Medium').count()
         low_count = report_risks.filter(severity='Low').count()
         info_count = report_risks.filter(severity='Info').count()
+
+        print(f"{report.report_name} crit: {critical_count}")
         
         # Create a safe report object with calculated fields
         report_data = {
@@ -237,7 +239,7 @@ def report_list(request):
         report_list.append(report_data)
     
     # Pagination
-    paginator = Paginator(reports, 10)
+    paginator = Paginator(report_list, 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
@@ -290,14 +292,17 @@ def report_detail(request, report_id):
     }
     return render(request, 'api/report_detail.html', context)
 
+@login_required
 def scan(request):
     """Display scan page"""
     return render(request, 'scan.html')
 
+@login_required
 def settings(request):
     """Display settings page"""
     return render(request, 'settings.html')
 
+@login_required
 def profile(request):
     """Display profile page"""
     return render(request, 'profile.html')
