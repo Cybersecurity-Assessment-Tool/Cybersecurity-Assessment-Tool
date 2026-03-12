@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reports - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .organization-message {
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        color: #856404;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .organization-message svg {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+    }
+
+    .reports-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #111827;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .page-subtitle {
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .total-count {
+        background-color: #f3f4f6;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        color: #374151;
+    }
+
+    /* Reports Grid */
+    .reports-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .report-card {
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.2s;
+    }
+
+    .report-card:hover {
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .report-card-header {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .report-title h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #111827;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .report-date {
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    .report-card-body {
+        padding: 1.5rem;
+    }
+
+    .severity-summary {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem;
+        background-color: #f9fafb;
+        border-radius: 6px;
+    }
+
+    .severity-item {
+        text-align: center;
+    }
+
+    .severity-item.critical .severity-count {
+        color: #dc2626;
+        font-weight: 600;
+    }
+
+    .severity-item.high .severity-count {
+        color: #f97316;
+        font-weight: 600;
+    }
+
+    .severity-item.medium .severity-count {
+        color: #eab308;
+        font-weight: 600;
+    }
+
+    .severity-label {
+        display: block;
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-bottom: 0.25rem;
+    }
+
+    .severity-count {
+        font-size: 1.125rem;
+        font-weight: 500;
+    }
+
+    .report-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .meta-item {
+        text-align: center;
+    }
+
+    .meta-label {
+        display: block;
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-bottom: 0.25rem;
+    }
+
+    .meta-value {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #111827;
+    }
+
+    .report-card-footer {
+        display: flex;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .report-action {
+        flex: 1;
+        padding: 1rem;
+        text-align: center;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.15s;
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
+
+    .report-action.view {
+        color: #3b82f6;
+        border-right: 1px solid #e5e7eb;
+    }
+
+    .report-action.view:hover {
+        background-color: #eff6ff;
+    }
+
+    .report-action.download {
+        color: #111827;
+    }
+
+    .report-action.download:hover {
+        background-color: #f3f4f6;
+    }
+
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 4rem;
+        color: #9ca3af;
+    }
+
+    .empty-state svg {
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        font-size: 1.125rem;
+        margin: 0.5rem 0;
+    }
+
+    .empty-sub {
+        font-size: 0.875rem !important;
+        color: #d1d5db;
+    }
+
+    /* Pagination (same as risks) */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .page-link {
+        padding: 0.5rem 1rem;
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        color: #374151;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+
+    .page-link:hover {
+        background-color: #f9fafb;
+    }
+
+    .current-page {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+        .messages {
+        margin-bottom: 2rem;
+    }
+    
+    .alert {
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+    
+    .alert-info {
+        background-color: #dbeafe;
+        border: 1px solid #bfdbfe;
+        color: #1e40af;
+    }
+    
+    .empty-action-btn {
+        display: inline-block;
+        margin-top: 1.5rem;
+        padding: 0.75rem 1.5rem;
+        background-color: #3b82f6;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: background-color 0.15s;
+    }
+    
+    .empty-action-btn:hover {
+        background-color: #2563eb;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reports-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-left">
+            <h1 class="page-title">Security Reports</h1>
+            <p class="page-subtitle">View and download generated security assessment reports</p>
+        </div>
+        <div class="header-right">
+            <span class="total-count">{{ total_reports }} total reports</span>
+        </div>
+    </div>
+
+    <!-- Message -->
+    {% if not has_organization %}
+    <div class="organization-message">
+        <span>No organization associated with your account. Please contact an administrator.</span>
+    </div>
+    {% endif %}
+
+    <!-- Reports Grid -->
+    {% if has_data %}
+    <div class="reports-grid">
+        {% for report in page_obj %}
+        <div class="report-card">
+            <div class="report-card-header">
+                <div class="report-title">
+                    <h3>{{ report.report_name }}</h3>
+                    <span class="report-date">{{ report.completed|date:"F j, Y" }}</span>
+                </div>
+            </div>
+
+            <div class="report-card-body">
+                <!-- Severity Summary -->
+                <div class="severity-summary">
+                    <div class="severity-item critical">
+                        <span class="severity-label">Critical</span>
+                        <span class="severity-count">{{ report.critical_count }}</span>
+                    </div>
+                    <div class="severity-item high">
+                        <span class="severity-label">High</span>
+                        <span class="severity-count">{{ report.high_count }}</span>
+                    </div>
+                    <div class="severity-item medium">
+                        <span class="severity-label">Medium</span>
+                        <span class="severity-count">{{ report.medium_count }}</span>
+                    </div>
+                </div>
+
+                <div class="report-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Total Findings</span>
+                        <span class="meta-value">{{ report.risk_count }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Generated By</span>
+                        <span class="meta-value">{{ report.user_created.username }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="report-card-footer">
+                <a href="{% url 'report_detail' report.report_id %}" class="report-action view">
+                    View Details
+                </a>
+                <button class="report-action download" data-report-id="{{ report.report_id }}" onclick="downloadReport(this)">
+                    Download
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State - No Reports -->
+    <div class="empty-state">
+        <p>No reports generated yet</p>
+        <p class="empty-sub">Run a vulnerability scan to generate your first security report.</p>
+        
+        <!-- Optional: Add a call-to-action button -->
+        <a href="{% url 'scan' %}" class="empty-action-btn">Start New Scan</a>
+    </div>
+    {% endif %}
+
+    <!-- Pagination (only show if there are reports) -->
+    {% if has_data and page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="page-link">&laquo; First</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="page-link">Previous</a>
+        {% endif %}
+        
+        <span class="current-page">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">Last &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function downloadReport(button) {
+    const reportId = button.getAttribute('data-report-id');
+    // TODO: Implement actual download
+    alert('Download functionality coming soon! Report ID: ' + reportId);
+}
+</script>
+{% endblock %}

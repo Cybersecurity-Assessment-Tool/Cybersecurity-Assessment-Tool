@@ -1,19 +1,324 @@
 {% extends 'base.html' %}
 
-{% block title %}Welcome - {{ block.super }}{% endblock %}
+{% block title %}Dashboard - {{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="text-center py-2">
-    <div class="row align-items-center py-3" style="min-height: 200px;">
-        <div class="col-lg-5">
-            <div class="card bg-light" style="height: 200px;"></div>
-        </div>
-        <div class="col-lg">
-            <div class="card bg-light" style="height: 200px;"></div>
+<div class="container-fluid py-3">
+    <!-- Add this after the container-fluid py-3 div starts -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>Showing data from most recent scan:</strong>
+                    {% if latest_report %}
+                        {{ latest_report.report_name }} - {{ report_date|date:"F j, Y H:i" }}
+                    {% else %}
+                        No scan data available
+                    {% endif %}
+                </div>
+                {% if latest_report %}
+                <a href="{% url 'report_detail' latest_report.report_id %}" class="btn btn-sm btn-outline-primary">
+                    View Full Report
+                </a>
+                {% endif %}
+            </div>
         </div>
     </div>
-    <div class="col-lg py-3">
-        <div class="card bg-light" style="height: 500px;"></div>
+
+    <div class="row align-items-stretch">
+        <!-- Pie Chart Card -->
+        <div class="col-lg-5 mb-3">
+            <div class="card bg-light h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        Vulnerabilities by Severity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 250px; position: relative;">
+                        <!-- Here is where the pie chart is rendered -->
+                        <canvas id="severityPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Summary Card -->
+        <div class="col-lg-7 mb-3">
+            <div class="card bg-light h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        Severity Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="severitySummary">
+                        <!-- Here is where the data summary is rendered (not sold on this section tbh) -->
+                        <div class="text-center text-muted">
+                            PUT LOADING LOOP HERE
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Table Card -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        Recent Findings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover" id="vulnerabilityTable">
+                            <thead class="sticky-top bg-light">
+                                <tr>
+                                    <th>Severity</th>
+                                    <th>Vulnerability Name</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Here is where the table of vulnerability data is rendered -->
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">
+                                        PUT LOADING LOOP HERE
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+    /* Custom styles for severity colors */
+    .severity-critical { color: #dc3545; }
+    .severity-high { color: #fd7e14; }
+    .severity-medium { color: #ffc107; }
+    .severity-low { color: #28a745; }
+    .severity-info { color: #17a2b8; }
+    
+    /* Ensure cards have equal height */
+    .row.align-items-stretch .card {
+        height: 100%;
+    }
+    
+    /* Sticky table header */
+    .sticky-top {
+        top: 0;
+        z-index: 10;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Load jQuery first -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Load Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Parse as JSON string so it doesn't give red squiggly lines in the editor.
+    const vulnerabilitiesData = JSON.parse('{{ vulnerabilities_json|safe }}');
+    
+    initializeDashboard(vulnerabilitiesData);
+});
+
+function initializeDashboard(vulnerabilities) {
+    // Count vulnerabilities by severity
+    const severityCounts = {
+        'Critical': 0,
+        'High': 0,
+        'Medium': 0,
+        'Low': 0
+    };
+    
+    // Also track Info severity if it exists
+    let hasInfo = false;
+    
+    // Loop through data and count
+    vulnerabilities.forEach(vuln => {
+        if (severityCounts.hasOwnProperty(vuln.severity)) {
+            severityCounts[vuln.severity]++;
+        } else if (vuln.severity === 'Info' || vuln.severity === 'Informational') {
+            hasInfo = true;
+            // We'll handle Info separately if needed
+        }
+    });
+    
+    // Create visualizations
+    createPieChart(severityCounts);
+    createSummary(vulnerabilities, severityCounts);
+    createTable(vulnerabilities);
+}
+
+function createPieChart(severityCounts) {
+    const ctx = document.getElementById('severityPieChart').getContext('2d');
+    
+    // Define colors for each severity
+    const severityColors = {
+        'Critical': '#dc3545', // Red
+        'High': '#fd7e14',     // Orange
+        'Medium': '#ffc107',    // Yellow
+        'Low': '#28a745'        // Green
+    };
+    
+    // Prepare data (only include severities with counts > 0)
+    const labels = [];
+    const data = [];
+    const colors = [];
+    
+    for (const [severity, count] of Object.entries(severityCounts)) {
+        if (count > 0) {
+            labels.push(severity);
+            data.push(count);
+            colors.push(severityColors[severity]);
+        }
+    }
+    
+    // Create the chart
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderWidth: 1,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 12 },
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createSummary(vulnerabilities, severityCounts) {
+    const totalVulns = vulnerabilities.length;
+    let summaryHtml = '';
+    
+    // Define severity order for display
+    const severityOrder = ['Critical', 'High', 'Medium', 'Low', 'Info'];
+    
+    for (const severity of severityOrder) {
+        const count = severityCounts[severity] || 0;
+        if (count > 0) {
+            const percentage = Math.round((count / totalVulns) * 100);
+            const colorClass = `severity-${severity.toLowerCase()}`;
+            
+            // Determine badge color
+            let badgeClass = 'bg-secondary';
+            if (severity === 'Critical') badgeClass = 'bg-danger';
+            else if (severity === 'High') badgeClass = 'bg-warning text-dark';
+            else if (severity === 'Medium') badgeClass = 'bg-warning';
+            else if (severity === 'Low') badgeClass = 'bg-success';
+            else if (severity === 'Info') badgeClass = 'bg-info text-dark';
+            
+            summaryHtml += `
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="fw-bold ${colorClass}">${severity}</span>
+                    </div>
+                    <div>
+                        <span class="badge ${badgeClass} me-2">${count}</span>
+                        <span class="text-muted">(${percentage}%)</span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    summaryHtml += `
+        <hr>
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Total Vulnerabilities</span>
+            <span class="badge bg-primary fs-6">${totalVulns}</span>
+        </div>
+    `;
+    
+    $('#severitySummary').html(summaryHtml);
+}
+
+function createTable(vulnerabilities) {
+    let tableRows = '';
+    
+    vulnerabilities.forEach(vuln => {
+        // Determine badge color based on severity
+        let badgeClass = 'bg-secondary';
+        switch(vuln.severity) {
+            case 'Critical':
+                badgeClass = 'bg-danger';
+                break;
+            case 'High':
+                badgeClass = 'bg-warning text-dark';
+                break;
+            case 'Medium':
+                badgeClass = 'bg-warning';
+                break;
+            case 'Low':
+                badgeClass = 'bg-success';
+                break;
+            case 'Info':
+            case 'Informational':
+                badgeClass = 'bg-info text-dark';
+                break;
+        }
+        
+        // Truncate overview if too long
+        const overview = vuln.overview || 'No overview available';
+        const shortDesc = overview.length > 100 ? overview.substring(0, 100) + '...' : overview;
+        
+        tableRows += `
+            <tr>
+                <td><span class="badge ${badgeClass}">${vuln.severity}</span></td>
+                <td>${vuln.risk_name}</td>
+                <td>${shortDesc}</td>
+            </tr>
+        `;
+    });
+    
+    if (tableRows === '') {
+        tableRows = `
+            <tr>
+                <td colspan="3" class="text-center text-muted">
+                    No vulnerabilities found
+                </td>
+            </tr>
+        `;
+    }
+    
+    $('#vulnerabilityTable tbody').html(tableRows);
+}
+</script>
 {% endblock %}

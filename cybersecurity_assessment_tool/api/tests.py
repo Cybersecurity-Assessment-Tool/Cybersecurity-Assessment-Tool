@@ -1,65 +1,83 @@
-import unittest
-from unittest.mock import patch, mock_open, MagicMock
-import json
-from .services.ai_generation_service import _json_to_str, _create_example, generate_report_content 
+from django.test import TestCase
+from api.models import Organization, User, Report, Risk
 
-class TestReportGenerator(unittest.TestCase):
-
-    # --- Test Cases for json_to_str ---
-    @patch('builtins.open', new_callable=mock_open)
-    def test_json_to_str_success(self, mock_file):
-        """Tests successful compilation of multiple valid JSON files."""
-        file1_content = '{"key1": "value1"}'
-        file2_content = '{"key2": [1, 2, 3]}'
-        
-        mock_file.side_effect = (
-            mock_open(read_data=file1_content).return_value,
-            mock_open(read_data=file2_content).return_value
-        )
-
-        filepaths = ['data1.json', 'data2.json']
-        result = _json_to_str(filepaths)
-        
-        expected_output = (
-            'data1.json:\n{\n  "key1": "value1"\n}\n--\n' +
-            'data2.json:\n{\n  "key2": [\n    1,\n    2,\n    3\n  ]\n}\n--\n'
+class DatabaseEncryptionTests(TestCase):
+    def setUp(self):
+        # 1. Set up the prerequisite Foreign Keys needed for Reports and Risks
+        self.org = Organization.objects.create(
+            org_name="Wayne Enterprises",
+            email_domain="wayne.com",
+            website_domain="wayne.com",
+            external_ip="198.51.100.14"
         )
         
-        self.assertEqual(result, expected_output)
-        self.assertEqual(mock_file.call_count, 2)
+        self.user = User.objects.create_user(
+            username="bwayne",
+            password="securepassword123",
+            organization=self.org
+        )
 
-    @patch('builtins.open', side_effect=FileNotFoundError)
-    def test_json_to_str_file_not_found(self, mock_file):
-        """Tests handling of FileNotFoundError."""
-        filepaths = ['missing.json']
-        result = _json_to_str(filepaths)
-        self.assertEqual(result, '')
-        mock_file.assert_called_once_with('missing.json', 'r', encoding='utf-8')
+    def test_report_json_decryption(self):
+        """Test that EncryptedJSONField on the Report model encrypts/decrypts properly."""
+        
+        # 1. Define the plaintext JSON data
+        plaintext_report_data = {
+            "Overview": {
+                "Primary Domain": "wayne.com",
+                "External IP Address": "198.51.100.14"
+            },
+            "Vulnerabilities": {}
+        }
 
-    @patch('builtins.open', new_callable=mock_open, read_data='invalid json')
-    @patch('json.load', side_effect=json.JSONDecodeError('Expecting value', doc='invalid json', pos=1))
-    def test_json_to_str_json_decode_error(self, mock_json_load, mock_file):
-        """Tests handling of JSONDecodeError."""
-        filepaths = ['bad_data.json']
-        result = _json_to_str(filepaths)
-        self.assertEqual(result, '')
-        mock_file.assert_called_once()
-        mock_json_load.assert_called_once()
-        
-    # --- Test Cases for create_example ---
-    def test_create_example_basic(self):
-        """Tests the basic string concatenation for create_example."""
-        prompt = "Create a security report."
-        data = "file1.json:\n{...}\n--\n"
-        result_str = "Report Content"
-        
-        expected = "Example:\nCreate a security report.\nfile1.json:\n{...}\n--\nReport Content"
-        
-        self.assertEqual(_create_example(prompt, data, result_str), expected)
-        
-    def test_create_example_empty_inputs(self):
-        """Tests create_example with empty strings."""
-        self.assertEqual(_create_example("", "", ""), "Example:\n\n")
+        # 2. Save to the database (Django encrypts it into a gAAAAAB... string here)
+        report = Report.objects.create(
+            report_name="Q1 Security Audit",
+            user_created=self.user,
+            organization=self.org,
+            report_text=plaintext_report_data
+        )
 
-    # --- Test Cases for generate_report_content ---
-    # Haven't done these yet, as mocking the generation is a little difficult.
+        # 3. Fetch a fresh copy from the database (Django decrypts it back to JSON here)
+        fetched_report = Report.objects.get(report_id=report.report_id)
+
+        # 4. Assert the fetched dictionary matches our original plaintext dictionary
+        self.assertEqual(fetched_report.report_text, plaintext_report_data)
+        self.assertEqual(fetched_report.report_text["Overview"]["Primary Domain"], "wayne.com")
+
+    def test_risk_fields_decryption(self):
+        """Test that both EncryptedTextField and EncryptedJSONField on the Risk model work."""
+        
+        # 1. Create a prerequisite Report to attach the Risk to
+        report = Report.objects.create(
+            report_name="Penetration Test Results",
+            user_created=self.user,
+            organization=self.org,
+        )
+
+        # 2. Define the plaintext strings and JSON
+        plaintext_overview = "An unpatched vulnerability was found on the main server."
+        plaintext_affected = "Server 01, Server 02"
+        plaintext_recommendations = {
+            "easy_fix": "Apply the latest security patch.",
+            "long_term_fix": "Implement automated patch management."
+        }
+
+        # 3. Save to the database
+        risk = Risk.objects.create(
+            risk_name="Unpatched Server Software",
+            report=report,
+            organization=self.org,
+            overview=plaintext_overview,
+            recommendations=plaintext_recommendations,
+            severity="Critical",
+            affected_elements=plaintext_affected
+        )
+
+        # 4. Fetch a fresh copy from the database
+        fetched_risk = Risk.objects.get(risk_id=risk.risk_id)
+
+        # 5. Assert the decrypted values match our original plaintext
+        self.assertEqual(fetched_risk.overview, plaintext_overview)
+        self.assertEqual(fetched_risk.affected_elements, plaintext_affected)
+        self.assertEqual(fetched_risk.recommendations, plaintext_recommendations)
+        self.assertEqual(fetched_risk.recommendations["easy_fix"], "Apply the latest security patch.")

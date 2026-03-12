@@ -1,0 +1,767 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile Settings{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Settings Page Specific Styles */
+    .settings-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .settings-header {
+        margin-bottom: 2rem;
+    }
+
+    .settings-title {
+        font-size: 1.875rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.5rem;
+    }
+
+    .settings-subtitle {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    /* Tabs */
+    .settings-tabs {
+        display: flex;
+        gap: 0.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        margin-bottom: 2rem;
+        overflow-x: auto;
+        padding-bottom: 1px;
+    }
+
+    .tab-button {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #6b7280;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        white-space: nowrap;
+    }
+
+    .tab-button:hover {
+        color: #111827;
+        border-bottom-color: #d1d5db;
+    }
+
+    .tab-button.active {
+        color: #3b82f6;
+        border-bottom-color: #3b82f6;
+    }
+
+    /* Cards */
+    .settings-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+    }
+
+    .card-header h2 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+    }
+
+    .card-header p {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .card-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-input,
+    .form-select,
+    .form-file {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        transition: all 0.15s ease;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Two column layout */
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    /* Checkbox styling */
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .form-checkbox {
+        width: 1rem;
+        height: 1rem;
+        cursor: pointer;
+    }
+
+    .checkbox-group label {
+        margin: 0;
+        cursor: pointer;
+    }
+
+    /* Save indicator */
+    .save-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: #6b7280;
+        padding: 0.25rem 0.5rem;
+        background-color: #f3f4f6;
+        border-radius: 4px;
+    }
+
+    .save-indicator.unsaved {
+        color: #b45309;
+        background-color: #fffbeb;
+    }
+
+    /* Avatar upload */
+    .avatar-section {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .current-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #e5e7eb;
+    }
+
+    .avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #3b82f6;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 600;
+        border: 3px solid #e5e7eb;
+    }
+
+    /* Messages */
+    .messages {
+        margin-bottom: 1.5rem;
+    }
+
+    .alert {
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .alert-success {
+        background-color: #d1fae5;
+        border: 1px solid #a7f3d0;
+        color: #065f46;
+    }
+
+    .alert-error {
+        background-color: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #b91c1c;
+    }
+
+    .alert-info {
+        background-color: #dbeafe;
+        border: 1px solid #bfdbfe;
+        color: #1e40af;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        border: 1px solid transparent;
+    }
+
+    .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #2563eb;
+    }
+
+    .btn-secondary {
+        background-color: white;
+        border-color: #d1d5db;
+        color: #374151;
+    }
+
+    .btn-secondary:hover {
+        background-color: #f9fafb;
+    }
+
+    .btn-danger {
+        background-color: #ef4444;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #dc2626;
+    }
+
+    /* Info boxes */
+    .info-box {
+        background-color: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-box-title {
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-box-content {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    /* QR Code placeholder */
+    .qr-placeholder {
+        width: 200px;
+        height: 200px;
+        background: linear-gradient(45deg, #f3f4f6 25%, #e5e7eb 25%, #e5e7eb 50%, #f3f4f6 50%, #f3f4f6 75%, #e5e7eb 75%);
+        background-size: 20px 20px;
+        border: 2px dashed #9ca3af;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 1rem auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .avatar-section {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- Header -->
+    <div class="settings-header">
+        <h1 class="settings-title">Settings</h1>
+        <p class="settings-subtitle">Manage your account settings and preferences</p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Tabs -->
+    <div class="settings-tabs">
+        <button class="tab-button {% if active_tab == 'profile' %}active{% endif %}" 
+                onclick="location.href='?tab=profile'">
+            Profile
+        </button>
+        <button class="tab-button {% if active_tab == 'notifications' %}active{% endif %}" 
+                onclick="location.href='?tab=notifications'">
+            Notifications
+        </button>
+        <button class="tab-button {% if active_tab == 'security' %}active{% endif %}" 
+                onclick="location.href='?tab=security'">
+            Security
+        </button>
+        {% if is_admin %}
+        <button class="tab-button {% if active_tab == 'organization' %}active{% endif %}" 
+                onclick="location.href='?tab=organization'">
+            Organization
+        </button>
+        {% endif %}
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Profile Tab -->
+        {% if active_tab == 'profile' %}
+        <div class="settings-card">
+            <form method="post" enctype="multipart/form-data" id="profileForm">
+                {% csrf_token %}
+                <input type="hidden" name="active_tab" value="profile">
+                
+                <div class="card-header">
+                    <h2>Profile Information</h2>
+                    <p>Update your personal information and how others see you</p>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Avatar Section -->
+                    <div class="avatar-section">
+                        {% if profile.profile_image %}
+                            <img src="{{ profile.profile_image.url }}" alt="Profile" class="current-avatar" id="profileImage">
+                        {% else %}
+                            <div class="avatar-placeholder" id="profileImagePlaceholder">
+                                {{ user.username|first|upper }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            <label for="{{ profile_form.profile_image.id_for_label }}" class="btn btn-secondary">
+                                Change Photo
+                            </label>
+                            <p class="form-text">JPG, PNG or GIF. Max 2MB.</p>
+                            {{ profile_form.profile_image }}
+                        </div>
+                    </div>
+
+                    <!-- Two Column Layout -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ profile_form.display_name.id_for_label }}">Display Name</label>
+                            {{ profile_form.display_name }}
+                            <span class="form-text">How your name appears to others</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ profile_form.job_title.id_for_label }}">Job Title</label>
+                            {{ profile_form.job_title }}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ profile_form.phone_number.id_for_label }}">Phone Number</label>
+                            {{ profile_form.phone_number }}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ profile_form.timezone.id_for_label }}">Timezone</label>
+                            {{ profile_form.timezone }}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ profile_form.items_per_page.id_for_label }}">Items Per Page</label>
+                            {{ profile_form.items_per_page }}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ profile_form.default_view.id_for_label }}">Default View</label>
+                            {{ profile_form.default_view }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <span class="save-indicator" id="profileSaveIndicator">All changes saved</span>
+                    <button type="submit" name="update_profile" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Email Settings Card -->
+        <div class="settings-card">
+            <form method="post" id="emailForm">
+                {% csrf_token %}
+                <input type="hidden" name="active_tab" value="profile">
+                
+                <div class="card-header">
+                    <h2>Email Address</h2>
+                    <p>Your primary email for notifications and account recovery</p>
+                </div>
+                
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="{{ email_form.email.id_for_label }}">Email</label>
+                        {{ email_form.email }}
+                        {% if email_form.email.errors %}
+                            <div class="alert alert-error">{{ email_form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <span class="save-indicator" id="emailSaveIndicator">Current email</span>
+                    <button type="submit" name="update_email" class="btn btn-primary">Update Email</button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Notifications Tab -->
+        {% if active_tab == 'notifications' %}
+        <div class="settings-card">
+            <form method="post" id="notificationForm">
+                {% csrf_token %}
+                <input type="hidden" name="active_tab" value="notifications">
+                
+                <div class="card-header">
+                    <h2>Email Notifications</h2>
+                    <p>Choose what updates you receive via email</p>
+                </div>
+                
+                <div class="card-body">
+                    <div class="checkbox-group">
+                        {{ profile_form.email_notifications }}
+                        <label for="{{ profile_form.email_notifications.id_for_label }}">
+                            Enable email notifications
+                        </label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        {{ profile_form.email_on_critical }}
+                        <label for="{{ profile_form.email_on_critical.id_for_label }}">
+                            Critical vulnerabilities discovered
+                        </label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        {{ profile_form.email_on_scan_complete }}
+                        <label for="{{ profile_form.email_on_scan_complete.id_for_label }}">
+                            Scan completion reports
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ profile_form.email_digest.id_for_label }}">Digest Frequency</label>
+                        {{ profile_form.email_digest }}
+                        <span class="form-text">How often to receive summary emails</span>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <span class="save-indicator" id="notificationSaveIndicator">All changes saved</span>
+                    <button type="submit" name="update_profile" class="btn btn-primary">Save Preferences</button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Security Tab -->
+        {% if active_tab == 'security' %}
+        <!-- Password Change (from Django auth) -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h2>Password</h2>
+                <p>Change your password regularly to keep your account secure</p>
+            </div>
+            
+            <div class="card-body">
+                <a href="{% url 'password_change' %}" class="btn btn-secondary">Change Password</a>
+            </div>
+        </div>
+
+        <!-- Two-Factor Authentication -->
+        <div class="settings-card">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="active_tab" value="security">
+                
+                <div class="card-header">
+                    <h2>Two-Factor Authentication (2FA)</h2>
+                    <p>Add an extra layer of security to your account</p>
+                </div>
+                
+                <div class="card-body">
+                    <!-- TODO: Implement actual 2FA -->
+                    <!-- 
+                        Implementation Plan:
+                        1. Install django-otp or pyotp
+                        2. Add OTP model to User
+                        3. Generate secret key per user
+                        4. Display QR code for authenticator apps
+                        5. Verify code before enabling
+                        6. Store backup codes for recovery
+                    -->
+                    
+                    <div class="info-box">
+                        <div class="info-box-title">📱 Setup Two-Factor Authentication</div>
+                        <div class="info-box-content">
+                            <p>1. Install an authenticator app like Google Authenticator or Authy</p>
+                            <p>2. Scan the QR code below with your app</p>
+                            <p>3. Enter the 6-digit code to verify setup</p>
+                        </div>
+                    </div>
+
+                    <!-- QR Code Placeholder -->
+                    <div class="qr-placeholder">
+                        <span class="text-muted">QR Code Preview</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ twofa_form.verification_code.id_for_label }}">Verification Code</label>
+                        {{ twofa_form.verification_code }}
+                        <span class="form-text">Enter the 6-digit code from your authenticator app</span>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <button type="submit" name="setup_2fa" class="btn btn-primary">Enable 2FA</button>
+                    <span class="text-muted">(Placeholder - not functional)</span>
+                </div>
+            </form>
+        </div>
+
+        <!-- Active Sessions -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h2>Active Sessions</h2>
+                <p>Devices and locations where you're logged in</p>
+            </div>
+            
+            <div class="card-body">
+                <!-- TODO: Implement session management -->
+                <!-- 
+                    Implementation Plan:
+                    1. Use django.contrib.sessions to track sessions
+                    2. Store additional metadata (IP, device, location)
+                    3. Allow users to revoke specific sessions
+                    4. Show current session highlighted
+                -->
+                <p class="text-muted">Session management coming soon...</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Organization Tab (Phase 3 - Admin only) -->
+        {% if active_tab == 'organization' and is_admin %}
+        <div class="settings-card">
+            <div class="card-header">
+                <h2>Team Members</h2>
+                <p>Manage your organization's team members and their roles</p>
+            </div>
+            
+            <div class="card-body">
+                <!-- TODO: Implement organization management -->
+                <!-- 
+                    Implementation Plan:
+                    1. Create Organization model with name, billing info, etc.
+                    2. Add organization ForeignKey to UserProfile
+                    3. Create Invitation model with token and expiry
+                    4. Implement email-based invitation system
+                    5. Add role-based permissions (admin, analyst, viewer, auditor)
+                    6. Create audit log for organization changes
+                -->
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>Current Members</h3>
+                    <button class="btn btn-primary" onclick="alert('Invite functionality coming soon!')">
+                        Invite Member
+                    </button>
+                </div>
+
+                <table class="table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td><span class="badge bg-primary">Admin</span></td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td>2024-01-15</td>
+                            <td>
+                                <button class="btn btn-secondary btn-sm" onclick="alert('Role management coming soon!')">
+                                    Change Role
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Pending Invites -->
+                <h3 style="margin-top: 2rem;">Pending Invitations</h3>
+                <p class="text-muted">No pending invitations</p>
+            </div>
+        </div>
+
+        <!-- Organization Settings -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h2>Organization Settings</h2>
+                <p>Configure your organization's default settings</p>
+            </div>
+            
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Organization Name</label>
+                    <input type="text" class="form-input" value="Your Organization" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Default Scan Settings</label>
+                    <select class="form-select" disabled>
+                        <option>Standard Scan</option>
+                        <option>Deep Scan</option>
+                        <option>Quick Scan</option>
+                    </select>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" class="form-checkbox" id="autoScan" checked disabled>
+                    <label for="autoScan">Automatically scan new assets</label>
+                </div>
+
+                <p class="text-muted" style="margin-top: 1rem;">
+                    Organization settings will be fully implemented in a future update.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- JavaScript for Save Indicators and AJAX Upload -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Save indicator for profile form
+    const profileForm = document.getElementById('profileForm');
+    const profileIndicator = document.getElementById('profileSaveIndicator');
+    
+    if (profileForm) {
+        const initialProfileData = new FormData(profileForm);
+        
+        profileForm.addEventListener('input', function() {
+            const currentData = new FormData(profileForm);
+            let hasChanges = false;
+            
+            // Compare form data
+            for (let [key, value] of currentData.entries()) {
+                if (key.startsWith('profile-')) {
+                    const initialValue = initialProfileData.get(key);
+                    if (value !== initialValue) {
+                        hasChanges = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (hasChanges) {
+                profileIndicator.textContent = 'You have unsaved changes';
+                profileIndicator.classList.add('unsaved');
+            } else {
+                profileIndicator.textContent = 'All changes saved';
+                profileIndicator.classList.remove('unsaved');
+            }
+        });
+    }
+
+    // Profile image preview
+    const imageInput = document.getElementById('{{ profile_form.profile_image.id_for_label }}');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const image = document.getElementById('profileImage');
+                    const placeholder = document.getElementById('profileImagePlaceholder');
+                    
+                    if (image) {
+                        image.src = e.target.result;
+                    } else if (placeholder) {
+                        // Replace placeholder with image
+                        const avatarDiv = placeholder.parentElement;
+                        const newImage = document.createElement('img');
+                        newImage.src = e.target.result;
+                        newImage.className = 'current-avatar';
+                        newImage.id = 'profileImage';
+                        avatarDiv.replaceChild(newImage, placeholder);
+                    }
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
