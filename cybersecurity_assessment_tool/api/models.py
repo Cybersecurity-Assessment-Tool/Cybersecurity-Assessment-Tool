@@ -109,11 +109,17 @@ class User(AbstractUser):
         return self.username
 
 class Report(models.Model):
+    STATUS_CHOICES = (
+        ('running', 'Running'),
+        ('failed', 'Failed'),
+        ('success', 'Success'),
+    )
     report_id = models.UUIDField(
         primary_key = True,
         default=uuid.uuid4,
         editable=False
     )
+    status = models.CharField(choices=STATUS_CHOICES)
     user_created = models.ForeignKey(User, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     report_name = models.CharField(max_length=300)
@@ -175,6 +181,11 @@ class Invitation(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected')
     )
+    ROLE_CHOICES = {
+        ('Org Admin', 'Organization Admin'),
+        ('Observer', 'Observer'),
+        ('Tester', 'Tester')
+    }
     invitation_id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -202,6 +213,8 @@ class Invitation(models.Model):
         blank=True, 
         related_name='received_invitations'
     )
+    # The new user's role
+    recipient_role = models.CharField(choices=ROLE_CHOICES, default='Observer')
     # A secure, unique token for the email link
     token = models.UUIDField(
         default=uuid.uuid4, 
