@@ -50,9 +50,9 @@ class Organization(models.Model):
         editable=False
     )
     org_name = EncryptedCharField(max_length=300)
-    email_domain = EncryptedCharField(max_length=100)
-    website_domain = EncryptedCharField(max_length=100)
-    external_ip = EncryptedCharField(max_length=100)
+    email_domain = EncryptedCharField(max_length=100, null=True, blank=True)
+    website_domain = EncryptedCharField(max_length=100, null=True, blank=True)
+    external_ip = EncryptedCharField(max_length=100, null=True, blank=True)
     
     # Questionnaire questions
     # TODO: edit these to the question bank
@@ -87,7 +87,7 @@ class User(AbstractUser):
         help_text='Specific permissions for this user (for exceptions).',
         verbose_name='user permissions',
     )
-    organization = organization = models.ForeignKey(
+    organization = models.ForeignKey(
         Organization, 
         on_delete=models.CASCADE,
         null=True,     # allows null value in the database
@@ -98,7 +98,9 @@ class User(AbstractUser):
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
     email = EncryptedEmailField()
-    password = EncryptedCharField(max_length=100)
+    password = EncryptedCharField(max_length=50)
+    first_name = EncryptedCharField(max_length=50)
+    last_name = EncryptedCharField(max_length=50)
 
     class Meta:
         permissions = [
@@ -177,6 +179,13 @@ class Invitation(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected')
     )
+    
+    RECIPIENT_ROLE_CHOICES = (
+        ('org_admin', 'Org Admin'),
+        ('observer', 'Observer'),
+        ('tester', 'Tester'),
+    )
+    
     invitation_id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -185,7 +194,7 @@ class Invitation(models.Model):
     # The user who sent the invite
     sender = models.ForeignKey(
         User,
-        one_delete=models.CASCADE,
+        on_delete=models.CASCADE,
         related_name='sent_invitations'
     )
     # The organization the new user is being invited to join
@@ -215,6 +224,11 @@ class Invitation(models.Model):
         choices=STATUS_CHOICES, 
         default='sent'
     )
+    recipient_role = models.CharField(
+        max_length=20,
+        choices=RECIPIENT_ROLE_CHOICES,
+        default='tester',
+    )# Default role for new users, can be changed by admin later
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
