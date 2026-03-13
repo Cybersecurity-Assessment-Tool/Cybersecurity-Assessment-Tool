@@ -181,12 +181,12 @@ def public_registration(request):
                 "override_context": True,
             })
         
-            return render(request, 'public_registration.html')
+            return render(request, 'registration/public_registration.html')
         else:
             # print("Here")
             form = PublicRegistrationForm()
     
-    return render(request, 'public_registration.html')
+    return render(request, 'registration/public_registration.html')
 
 class OrganizationViewSet(viewsets.ModelViewSet):
     """
