@@ -94,7 +94,11 @@ class User(AbstractUser):
         blank=True     # allows the field to be optional in forms/admin
     )
     auto_frequency = models.CharField(max_length=1, choices=Frequency.choices)
-    profile_img = models.ImageField()
+    profile_img = models.ImageField(
+        upload_to='profile_images/',
+        blank=True,
+        null=True  # Modified profile_img to not be a required field since we haven't implemented a way to store images yet.
+    )
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
     is_active = models.BooleanField(default=False)

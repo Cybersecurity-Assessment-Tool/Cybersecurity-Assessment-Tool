@@ -16,7 +16,6 @@ from pathlib import Path
 
 import dj_database_url
 from dotenv import load_dotenv, find_dotenv
-import dj_database_url
 
 # Load environment variables from .env file (only affects local dev;
 # on Heroku, env vars are set via Config Vars)
@@ -41,9 +40,10 @@ if not SECRET_KEY:
     else:
         raise ValueError('SECRET_KEY environment variable is required in non-local environments.')
 
-SALT_KEY = os.environ.get('SALT_KEY', '')
-DEBUG = os.environ.get('DEBUG', True)
-DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD', '')
+SALT_KEY = os.environ.get('SALT_KEY', 'local-dev-salt-key-CHANGE-ME')
+
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
+
 FIELD_ENCRYPTION_KEYS = [
     'f164h6a7591d3d540a946c6e0d2344ef9ae1951cddf3241430edc4273954513a', # Example 32-byte hex key
 ]
@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+	'debug_toolbar',
     'accounts',
     'api',
     'rest_framework',
@@ -102,6 +103,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'config.urls'

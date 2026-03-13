@@ -30,7 +30,10 @@ urlpatterns = [
     path('', views.home, name='home'),  # Home page
     path('dashboard/', views.dashboard, name='dashboard'),  # /dashboard/
     path('reports/', views.report_list, name='report_list'),  # /reports/
-    # path('reports/<int:id>/', views.report_detail, name='report_detail'),  # /reports/1/
+    path('reports/<uuid:report_id>/', views.report_detail, name='report_detail'),  # /reports/1/
+    path('risks/', views.risks_list, name='risks_list'),  # /risks/
+    path('risks/<uuid:risk_id>/', views.risk_detail, name='risk_detail'),  # /risk/1/
+    path('scan/', views.scan, name='scan'),  # /scan/
     
     path('reports/trigger/', views.trigger_report_generation, name='trigger_report'),
     path('tasks/<str:task_id>/', views.check_task_status, name='check_task_status'),
