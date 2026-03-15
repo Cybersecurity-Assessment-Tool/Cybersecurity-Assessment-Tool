@@ -1,6 +1,5 @@
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView
-from api.models import User
 from .forms import CustomUserCreationForm
 
 class SignUpView(CreateView):
@@ -33,6 +32,204 @@ def upload_profile_image(request):
 def organization(request):
     """Display organization page"""
     return render(request, 'accounts/organization.html')
+
+# TEST 2
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.contrib import messages
+from django.utils import timezone
+from api.models import Invitation
+import random
+import string
+
+
+# Public Registration View
+def public_register(request):
+    """Public registration page for new organizations"""
+    if request.method == 'POST':
+        # TODO: Implement registration logic
+        # - Get form data (company_name, email, password)
+        # - Create organization with status='pending'
+        # - Create user as organization admin with is_active=False
+        # - Send notification email to admins
+        # - Redirect to waiting page
+        
+        company_name = request.POST.get('company_name')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        
+        # Placeholder - replace with actual implementation
+        messages.success(request, 'Registration submitted successfully!')
+        return redirect('accounts:waiting')
+    
+    return render(request, 'registration/public_register.html')
+
+# Waiting Page
+def waiting_page(request):
+    """Page shown after registration while awaiting approval"""
+    # TODO: Get organization status from database
+    context = {
+        'company_name': request.session.get('company_name', 'Your Organization'),
+        'email': request.session.get('email', ''),
+        'submitted_at': timezone.now(),
+    }
+    return render(request, 'registration/waiting.html', context)
+
+# OTP Endpoints
+def send_otp(request):
+    """Send OTP code to email for verification"""
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        purpose = request.POST.get('purpose', 'registration')
+        
+        # Generate 6-digit OTP
+        otp = ''.join(random.choices(string.digits, k=6))
+        
+        # TODO: Store OTP in database with expiration
+        # TODO: Send OTP email
+        
+        # For testing, print to console
+        print(f"OTP for {email} ({purpose}): {otp}")
+        
+        # Store in session for testing
+        request.session['otp_code'] = otp
+        request.session['otp_email'] = email
+        request.session['otp_purpose'] = purpose
+        
+        return JsonResponse({'success': True, 'message': 'OTP sent successfully'})
+    
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+def verify_otp(request):
+    """Verify OTP code"""
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        otp_code = request.POST.get('otp_code')
+        purpose = request.POST.get('purpose', 'registration')
+        
+        # TODO: Check OTP from database
+        # For testing, check against session
+        stored_otp = request.session.get('otp_code')
+        stored_email = request.session.get('otp_email')
+        stored_purpose = request.session.get('otp_purpose')
+        
+        if (stored_otp == otp_code and 
+            stored_email == email and 
+            stored_purpose == purpose):
+            # Mark as verified in session
+            request.session[f'{purpose}_verified_{email}'] = True
+            # Store the verified email
+            request.session['verified_email'] = email
+            request.session['email_verified'] = True
+            return JsonResponse({'success': True, 'message': 'OTP verified successfully'})
+        else:
+            return JsonResponse({'error': 'Invalid OTP code'}, status=400)
+    
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+# Questionnaire Page
+@login_required
+def questionnaire(request):
+    """First-time questionnaire for organization setup"""
+    # TODO: Check if user has already completed questionnaire
+    # If yes, redirect to home
+    
+    if request.method == 'POST':
+        # TODO: Save questionnaire data to database
+        ip_address = request.POST.get('ip_address')
+        has_security_policy = request.POST.get('has_security_policy') == 'on'
+        conducts_regular_audits = request.POST.get('conducts_regular_audits') == 'on'
+        has_incident_response = request.POST.get('has_incident_response') == 'on'
+        uses_encryption = request.POST.get('uses_encryption') == 'on'
+        
+        # Store in session for now (replace with database storage)
+        request.session['questionnaire_completed'] = True
+        request.session['questionnaire_data'] = {
+            'ip_address': ip_address,
+            'has_security_policy': has_security_policy,
+            'conducts_regular_audits': conducts_regular_audits,
+            'has_incident_response': has_incident_response,
+            'uses_encryption': uses_encryption,
+        }
+        
+        messages.success(request, 'Questionnaire completed successfully!')
+        return redirect('home')
+    
+    return render(request, 'registration/questionnaire.html')
+
+# Team Management API Endpoints
+@login_required
+def team_members(request):
+    """Return list of team members for the current organization"""
+    # TODO: Get actual team members from database
+    if not request.user.organization:
+        return JsonResponse({'members': []})
+    
+    # Placeholder data
+    members = [
+        {
+            'username': request.user.username,
+            'email': request.user.email,
+            'role': 'Admin',
+            'name': request.user.get_full_name() or request.user.username,
+        }
+    ]
+    return JsonResponse({'members': members})
+
+@login_required
+def pending_invites(request):
+    """Return list of pending invitations"""
+    # TODO: Get actual pending invites from database
+    # Placeholder data
+    invites = []
+    return JsonResponse({'invites': invites})
+
+@login_required
+def send_invitation(request):
+    """Send invitation email to new team member"""
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        role = request.POST.get('role', 'analyst')
+        
+        # TODO: Create invitation record in database
+        # TODO: Send invitation email
+        
+        messages.success(request, f'Invitation sent to {email}')
+        return JsonResponse({'success': True})
+    
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+@login_required
+def resend_invitation(request):
+    """Resend a pending invitation"""
+    if request.method == 'POST':
+        invite_id = request.POST.get('invite_id')
+        # TODO: Find invitation and resend email
+        return JsonResponse({'success': True})
+    
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+@login_required
+def cancel_invitation(request):
+    """Cancel a pending invitation"""
+    if request.method == 'POST':
+        invite_id = request.POST.get('invite_id')
+        # TODO: Update invitation status to 'cancelled'
+        return JsonResponse({'success': True})
+    
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+def accept_invitation(request, token):
+    """Handle invitation acceptance - redirect to signup with pre-filled email"""
+    # TODO: Validate token and get invitation details
+    # TODO: Redirect to signup with email pre-filled
+    return redirect(f"{reverse('signup')}?email={Invitation.email}")
+
+def check_registration_status(request):
+    """AJAX endpoint to check if registration has been approved"""
+    # TODO: Check organization status in database
+    return JsonResponse({'status': 'pending'})
     
 # from django.shortcuts import render, redirect, get_object_or_404
 # from django.contrib.auth.decorators import login_required

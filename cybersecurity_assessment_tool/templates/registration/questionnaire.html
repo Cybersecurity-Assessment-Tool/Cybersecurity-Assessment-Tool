@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block title %}Organization Setup Questionnaire{% endblock %}
+
+{% block content %}
+<div class="questionnaire-container">
+    <div class="questionnaire-card">
+        <div class="questionnaire-header">
+            <h1 class="questionnaire-title">Welcome to Your Organization Setup</h1>
+            <p class="questionnaire-subtitle">
+                Before we get started, we need some basic information about your organization's security posture.
+                This helps us tailor our recommendations to your needs.
+            </p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="questionnaire-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h2 class="section-title">Network Information</h2>
+                
+                <div class="form-group">
+                    <label for="ip_address">Primary IP Address / Network Range</label>
+                    <input type="text" 
+                           name="ip_address" 
+                           id="ip_address" 
+                           class="form-input" 
+                           placeholder="e.g., 192.168.1.0/24 or 10.0.0.1"
+                           required>
+                    <span class="help-text">The IP address or CIDR range you want to scan</span>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Security Practices</h2>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" name="has_security_policy" id="has_security_policy">
+                    <label for="has_security_policy">
+                        Does your organization have a formal security policy?
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" name="conducts_regular_audits" id="conducts_regular_audits">
+                    <label for="conducts_regular_audits">
+                        Do you conduct regular security audits?
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" name="has_incident_response" id="has_incident_response">
+                    <label for="has_incident_response">
+                        Do you have an incident response plan?
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" name="uses_encryption" id="uses_encryption">
+                    <label for="uses_encryption">
+                        Do you use encryption for sensitive data?
+                    </label>
+                </div>
+            </div>
+
+            <!-- TODO: Store questionnaire data in database -->
+            <!-- Implementation plan:
+                 1. Create OrganizationQuestionnaire model if not exists
+                 2. Save IP address and checkbox responses
+                 3. Link to current organization
+                 4. Set organization.questionnaire_completed = True
+            -->
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Complete Setup</button>
+                <p class="form-note">You can update these settings later in your organization profile.</p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .questionnaire-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f9fafb;
+        padding: 2rem;
+    }
+    
+    .questionnaire-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        padding: 3rem;
+        width: 100%;
+        max-width: 600px;
+    }
+    
+    .questionnaire-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .questionnaire-title {
+        font-size: 1.875rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 1rem;
+    }
+    
+    .questionnaire-subtitle {
+        color: #6b7280;
+        line-height: 1.6;
+    }
+    
+    .form-section {
+        margin-bottom: 2.5rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+    
+    .help-text {
+        display: block;
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        background-color: #f9fafb;
+        border-radius: 6px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+        cursor: pointer;
+    }
+    
+    .checkbox-group label {
+        cursor: pointer;
+        font-size: 0.9375rem;
+        color: #374151;
+    }
+    
+    .form-actions {
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .btn-primary {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        color: white;
+        background-color: #111827;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.15s;
+    }
+    
+    .btn-primary:hover {
+        background-color: #1f2937;
+    }
+    
+    .form-note {
+        margin-top: 1rem;
+        font-size: 0.75rem;
+        color: #9ca3af;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Registration Pending{% endblock %}
+
+{% block extra_css %}
+<style>
+    .waiting-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f9fafb;
+        padding: 1.5rem;
+    }
+    
+    .waiting-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        padding: 3rem;
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+    }
+    
+    .waiting-icon {
+        margin-bottom: 1.5rem;
+        color: #fbbf24;
+    }
+    
+    .waiting-title {
+        font-size: 1.875rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 1.5rem;
+    }
+    
+    .waiting-message {
+        color: #4b5563;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    
+    .waiting-details {
+        background-color: #f9fafb;
+        border-radius: 6px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+    
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .detail-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .detail-label {
+        color: #6b7280;
+    }
+    
+    .detail-value {
+        font-weight: 500;
+        color: #111827;
+    }
+    
+    .status-pending {
+        color: #d97706;
+        background-color: #fef3c7;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+    }
+    
+    .waiting-note {
+        background-color: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 6px;
+        padding: 1rem;
+        color: #1e40af;
+        font-size: 0.875rem;
+        margin-bottom: 2rem;
+    }
+    
+    .waiting-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+    }
+    
+    .btn-primary {
+        background-color: #111827;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #1f2937;
+    }
+    
+    .btn-secondary {
+        background-color: white;
+        border: 1px solid #d1d5db;
+        color: #374151;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #f9fafb;
+    }
+</style>
+{% endblock %}
+
+<!-- removed nav bar -->
+{% block auth %} {% endblock %}
+
+{% block content %}
+<div class="waiting-container">
+    <div class="waiting-card">
+        <div class="waiting-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="#fbbf24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+        </div>
+        
+        <h1 class="waiting-title">Registration Pending Approval</h1>
+        
+        <div class="waiting-message">
+            <p>Thank you for registering <strong>{{ company_name }}</strong>!</p>
+            <p>Your registration request has been submitted and is now pending approval from our team.</p>
+            <p>You will receive an email confirmation once your organization has been approved.</p>
+        </div>
+        
+        <div class="waiting-details">
+            <div class="detail-item">
+                <span class="detail-label">Organization:</span>
+                <span class="detail-value">{{ company_name }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Contact Email:</span>
+                <span class="detail-value">{{ email }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Status:</span>
+                <span class="detail-value status-pending">Pending Review</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Submitted:</span>
+                <span class="detail-value">{{ submitted_at|date:"F j, Y H:i" }}</span>
+            </div>
+        </div>
+        
+        <div class="waiting-note">
+            <p>Please allow 24-48 hours for review. You can close this window and check your email for updates.</p>
+        </div>
+        
+        <div class="waiting-actions">
+            <a href="{% url 'home' %}" class="btn btn-secondary">Return to Home</a>
+            <button class="btn btn-primary" id="checkStatusBtn">Check Status</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- removed footer -->
+{% block footer %} {% endblock %}
+
+{% block extra_js %}
+<script>
+$('#checkStatusBtn').click(function() {
+    $.ajax({
+        url: '{% url "check_registration_status" %}',
+        method: 'GET',
+        success: function(response) {
+            if (response.status === 'approved') {
+                window.location.href = '{% url "login" %}';
+            } else if (response.status === 'rejected') {
+                alert('Your registration has been rejected. Please contact support for more information.');
+            } else {
+                alert('Your registration is still pending approval.');
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

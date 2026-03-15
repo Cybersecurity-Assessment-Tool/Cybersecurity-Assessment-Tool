@@ -1,0 +1,424 @@
+{% extends 'base.html' %}
+
+{% block title %}Register Your Organization{% endblock %}
+
+{% block extra_css %}
+<style>
+    .email-verify-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .email-verify-group .form-input {
+        flex: 1;
+    }
+    
+    .verified-badge {
+        color: #28a745;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f9fafb;
+        padding: 1.5rem;
+    }
+    
+    .auth-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 2rem;
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .auth-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.5rem;
+    }
+    
+    .auth-subtitle {
+        color: #6b7280;
+        margin-bottom: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+    
+    .btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        border-radius: 6px;
+        cursor: pointer;
+        border: 1px solid transparent;
+    }
+    
+    .btn-secondary {
+        background-color: #f3f4f6;
+        border-color: #d1d5db;
+        color: #374151;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #e5e7eb;
+    }
+    
+    .auth-button {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #111827;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+    
+    .auth-button:hover {
+        background-color: #1f2937;
+    }
+    
+    .auth-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e7eb;
+        font-size: 0.875rem;
+    }
+    
+    .auth-footer a {
+        color: #3b82f6;
+        text-decoration: none;
+    }
+    
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+<!-- removed nav bar -->
+{% block auth %} {% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Register Your Organization</h1>
+            <p class="auth-subtitle">Get started with vulnerability scanning</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" id="registrationForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="company_name">Company Name</label>
+                <input type="text" 
+                       name="company_name" 
+                       id="company_name" 
+                       class="form-input" 
+                       placeholder="Blah Inc."
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="email-verify-group">
+                    <input type="email" 
+                           name="email" 
+                           id="email" 
+                           class="form-input" 
+                           placeholder="blah@blah.com"
+                           required>
+                    <button type="button" class="btn btn-secondary" id="verifyEmailBtn">
+                        Verify Email
+                    </button>
+                </div>
+                <div id="emailVerified" class="verified-badge" style="display: none;">
+                    ✓ Email verified
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" 
+                       name="password" 
+                       id="password" 
+                       class="form-input" 
+                       placeholder="Choose a strong password"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" 
+                       name="confirm_password" 
+                       id="confirm_password" 
+                       class="form-input" 
+                       placeholder="Re-enter your password"
+                       required>
+            </div>
+
+            <button type="submit" class="auth-button" id="submitBtn" disabled>
+                Submit Registration Request
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- Include OTP Popup -->
+{% include 'components/otp_popup.html' %}
+
+<!-- removed footer -->
+{% block footer %} {% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    let emailVerified = false;
+    let currentEmail = '';
+
+    // Verify Email button click handler
+    $('#verifyEmailBtn').click(function(e) {
+        e.preventDefault();
+        console.log('Verify email button clicked'); // Debug log
+        
+        const email = $('#email').val();
+        if (!email) {
+            alert('Please enter an email address.');
+            return;
+        }
+        
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+        
+        currentEmail = email;
+        console.log('Sending OTP to:', email); // Debug log
+        
+        // Disable button to prevent multiple clicks
+        $('#verifyEmailBtn').prop('disabled', true).text('Sending...');
+        
+        // Send OTP
+        $.ajax({
+            url: '{% url "accounts:send_otp" %}',
+            method: 'POST',
+            data: {
+                email: email,
+                purpose: 'registration',
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log('OTP sent successfully', response); // Debug log
+                // Re-enable button
+                $('#verifyEmailBtn').prop('disabled', false).text('Verify Email');
+                
+                // Open OTP modal
+                initOtpModal(email, 'registration', function() {
+                    emailVerified = true;
+                    $('#emailVerified').show();
+                    $('#submitBtn').prop('disabled', false);
+                    $('#verifyEmailBtn').prop('disabled', true).text('Verified');
+                    
+                    console.log('Email verified successfully')
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error('Error sending OTP:', error); // Debug log
+                $('#verifyEmailBtn').prop('disabled', false).text('Verify Email');
+                alert('Failed to send verification code. Please try again.');
+            }
+        });
+    });
+
+    // Password match validation
+    $('#password, #confirm_password').on('input', function() {
+        const password = $('#password').val();
+        const confirm = $('#confirm_password').val();
+        
+        if (password && confirm && password !== confirm) {
+            $('#confirm_password')[0].setCustomValidity('Passwords do not match');
+        } else {
+            $('#confirm_password')[0].setCustomValidity('');
+        }
+    });
+
+    // Form submission validation
+    $('#registrationForm').submit(function(e) {
+        if (!emailVerified) {
+            e.preventDefault();
+            alert('Please verify your email before submitting.');
+            return false;
+        }
+        
+        const password = $('#password').val();
+        const confirm = $('#confirm_password').val();
+        
+        if (password !== confirm) {
+            e.preventDefault();
+            alert('Passwords do not match.');
+            return false;
+        }
+        
+        return true;
+    });
+});
+
+// OTP Modal functions
+function initOtpModal(email, purpose, onSuccess) {
+    console.log('Initializing OTP modal for:', email); // Debug log
+    
+    $('#otpEmailDisplay').text(email);
+    
+    // Clear previous inputs
+    $('.otp-input').val('');
+    $('#otpError').hide();
+    $('#otpSuccess').hide();
+    
+    // Auto-focus handling
+    $('.otp-input').off('input keydown').on('input', function() {
+        const index = $(this).data('index');
+        if (this.value.length === 1 && index < 5) {
+            $(`.otp-input[data-index="${index + 1}"]`).focus();
+        }
+    }).on('keydown', function(e) {
+        const index = $(this).data('index');
+        if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+            $(`.otp-input[data-index="${index - 1}"]`).focus();
+        }
+    });
+    
+    // Focus first input
+    setTimeout(() => {
+        $('.otp-input[data-index="0"]').focus();
+    }, 500);
+    
+    // Remove previous event handlers and attach new ones
+    $('#verifyOtpBtn').off('click').on('click', function() {
+        const otpCode = $('.otp-input').map(function() { return this.value; }).get().join('');
+        console.log('Verifying OTP:', otpCode); // Debug log
+        
+        if (otpCode.length !== 6) {
+            $('#otpError').text('Please enter all 6 digits.').show();
+            return;
+        }
+        
+        $('#verifyOtpBtn').prop('disabled', true).text('Verifying...');
+        
+        $.ajax({
+            url: '{% url "accounts:verify_otp" %}',
+            method: 'POST',
+            data: {
+                email: email,
+                otp_code: otpCode,
+                purpose: purpose,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log('OTP verified successfully', response); // Debug log
+                $('#otpSuccess').text('Email verified successfully!').show();
+                $('#otpError').hide();
+                
+                setTimeout(function() {
+                    $('#otpModal').modal('hide');
+                    $('#verifyOtpBtn').prop('disabled', false).text('Verify');
+                    if (onSuccess) onSuccess();
+                }, 1000);
+            },
+            error: function(xhr) {
+                console.error('OTP verification failed', xhr); // Debug log
+                $('#otpError').text(xhr.responseJSON?.error || 'Invalid verification code.').show();
+                $('#verifyOtpBtn').prop('disabled', false).text('Verify');
+                
+                // Clear inputs on error
+                $('.otp-input').val('');
+                $('.otp-input[data-index="0"]').focus();
+            }
+        });
+    });
+    
+    // Resend button
+    $('#resendOtpBtn').off('click').on('click', function() {
+        console.log('Resending OTP to:', email); // Debug log
+        
+        $.ajax({
+            url: '{% url "accounts:send_otp" %}',
+            method: 'POST',
+            data: {
+                email: email,
+                purpose: purpose,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function() {
+                $('#otpSuccess').text('New verification code sent!').show();
+                $('#otpError').hide();
+                setTimeout(function() { $('#otpSuccess').fadeOut(); }, 3000);
+                
+                // Clear inputs for new code
+                $('.otp-input').val('');
+                $('.otp-input[data-index="0"]').focus();
+            },
+            error: function() {
+                $('#otpError').text('Failed to send code. Please try again.').show();
+            }
+        });
+    });
+    
+    // Show modal
+    $('#otpModal').modal('show');
+}
+</script>
+{% endblock %}
+
+{% endblock %}

@@ -320,6 +320,96 @@
             text-align: center;
         }
     }
+
+    /* Other */
+    .member-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .member-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .member-name {
+        font-weight: 500;
+        color: #111827;
+    }
+    
+    .member-email {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+    
+    .member-role-badge {
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+    
+    .invite-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .invite-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .invite-email {
+        font-weight: 500;
+        color: #856404;
+    }
+    
+    .invite-role {
+        font-size: 0.75rem;
+        color: #856404;
+        opacity: 0.8;
+    }
+    
+    .invite-status {
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        background-color: #ffeeba;
+        color: #856404;
+    }
+    
+    .invite-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+    }
 </style>
 {% endblock %}
 
@@ -607,100 +697,105 @@
         </div>
         {% endif %}
 
-        <!-- Organization Tab (Phase 3 - Admin only) -->
+        <!-- Organization Tab -->
         {% if active_tab == 'organization' and is_admin %}
+        <!-- Team Members Card -->
         <div class="settings-card">
             <div class="card-header">
                 <h2>Team Members</h2>
                 <p>Manage your organization's team members and their roles</p>
             </div>
-            
+
             <div class="card-body">
-                <!-- TODO: Implement organization management -->
-                <!-- 
-                    Implementation Plan:
-                    1. Create Organization model with name, billing info, etc.
-                    2. Add organization ForeignKey to UserProfile
-                    3. Create Invitation model with token and expiry
-                    4. Implement email-based invitation system
-                    5. Add role-based permissions (admin, analyst, viewer, auditor)
-                    6. Create audit log for organization changes
-                -->
+                <!-- Current Team Members List -->
+                <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Current Members</h3>
+                <div id="teamMembersList" style="margin-bottom: 2rem;">
+                    <!-- Populated by JavaScript -->
+                    <div class="text-center text-muted py-3">
+                        <div class="spinner-border spinner-border-sm" role="status"></div>
+                        Loading team members...
+                    </div>
+                </div>
+            
+                <!-- Invite New Member Form -->
+                <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Invite New Member</h3>
+                <form id="inviteForm" class="invite-form" style="background-color: #f9fafb; padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+                    {% csrf_token %}
+                    <input type="hidden" name="active_tab" value="organization">
+
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label for="invite_email">Email Address</label>
+                            <input type="email" 
+                                   id="invite_email" 
+                                   name="email" 
+                                   class="form-input" 
+                                   placeholder="colleague@company.com"
+                                   required>
+                        </div>
+
+                        <div class="form-group" style="flex: 1;">
+                            <label for="invite_role">Role</label>
+                            <select id="invite_role" name="role" class="form-select">
+                                <option value="analyst">Security Analyst</option>
+                                <option value="viewer">Viewer</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                        <button type="submit" class="btn btn-primary" id="sendInviteBtn">
+                            <span class="spinner-border spinner-border-sm d-none" id="inviteSpinner" role="status"></span>
+                            Send Invitation
+                        </button>
+                    </div>
+                    <div id="inviteMessage" class="mt-2"></div>
+                </form>
+            
+                <!-- Pending Invitations List -->
+                <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Pending Invitations</h3>
+                <div id="pendingInvitesList">
+                    <!-- Populated by JavaScript -->
+                    <div class="text-center text-muted py-3">
+                        <div class="spinner-border spinner-border-sm" role="status"></div>
+                        Loading pending invitations...
+                    </div>
+                </div>
+            </div>
+        
+            <!-- TODO: Implement team management functionality -->
+            <!-- 
+                Implementation Plan:
+                1. Create Invitation model with fields:
+                   - organization (ForeignKey)
+                   - email (EmailField)
+                   - role (CharField with choices)
+                   - invited_by (ForeignKey to User)
+                   - token (UUIDField, unique)
+                   - status (CharField: pending, accepted, expired)
+                   - created_at (DateTimeField)
+                   - expires_at (DateTimeField)
+
+                2. Create API endpoints:
+                   - GET /api/team/members/ - List current members
+                   - GET /api/team/invites/ - List pending invites
+                   - POST /api/team/invite/ - Send new invitation
+                   - POST /api/team/invite/resend/ - Resend invitation
+                   - POST /api/team/invite/cancel/ - Cancel invitation
+                   - GET /invite/<token>/ - Accept invitation page
                 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h3>Current Members</h3>
-                    <button class="btn btn-primary" onclick="alert('Invite functionality coming soon!')">
-                        Invite Member
-                    </button>
-                </div>
-
-                <table class="table" style="width: 100%;">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Joined</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{ user.username }}</td>
-                            <td><span class="badge bg-primary">Admin</span></td>
-                            <td><span class="badge bg-success">Active</span></td>
-                            <td>2024-01-15</td>
-                            <td>
-                                <button class="btn btn-secondary btn-sm" onclick="alert('Role management coming soon!')">
-                                    Change Role
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <!-- Pending Invites -->
-                <h3 style="margin-top: 2rem;">Pending Invitations</h3>
-                <p class="text-muted">No pending invitations</p>
-            </div>
-        </div>
-
-        <!-- Organization Settings -->
-        <div class="settings-card">
-            <div class="card-header">
-                <h2>Organization Settings</h2>
-                <p>Configure your organization's default settings</p>
-            </div>
-            
-            <div class="card-body">
-                <div class="form-group">
-                    <label>Organization Name</label>
-                    <input type="text" class="form-input" value="Your Organization" readonly>
-                </div>
-
-                <div class="form-group">
-                    <label>Default Scan Settings</label>
-                    <select class="form-select" disabled>
-                        <option>Standard Scan</option>
-                        <option>Deep Scan</option>
-                        <option>Quick Scan</option>
-                    </select>
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" class="form-checkbox" id="autoScan" checked disabled>
-                    <label for="autoScan">Automatically scan new assets</label>
-                </div>
-
-                <p class="text-muted" style="margin-top: 1rem;">
-                    Organization settings will be fully implemented in a future update.
-                </p>
-            </div>
+                3. Email template for invitations
+                4. Auto-login or redirect to signup with pre-filled email
+                5. Add user to organization upon acceptance
+            -->
         </div>
         {% endif %}
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <!-- JavaScript for Save Indicators and AJAX Upload -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -763,5 +858,202 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Team Management JavaScript
+$(document).ready(function() {
+    // Only load team data if we're on the organization tab and user is admin
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTab = urlParams.get('tab');
+    if (activeTab === 'organization' && {{ is_admin|lower }}) {
+        loadTeamMembers();
+        loadPendingInvites();
+    }
+});
+
+// function loadTeamMembers() {
+//     $('#teamMembersList').html(`
+//         <div class="text-center text-muted py-3">
+//             <div class="spinner-border spinner-border-sm" role="status"></div>
+//             Loading team members...
+//         </div>
+//     `);
+    
+//     $.ajax({
+//         url: '{% url "team_members" %}',
+//         method: 'GET',
+//         success: function(data) {
+//             if (data.members && data.members.length > 0) {
+//                 let html = '';
+//                 data.members.forEach(member => {
+//                     html += `
+//                         <div class="member-item">
+//                             <div class="member-info">
+//                                 <span class="member-name">${member.name || member.username || member.email}</span>
+//                                 <span class="member-email">${member.email}</span>
+//                             </div>
+//                             <span class="member-role-badge">${member.role || 'Member'}</span>
+//                         </div>
+//                     `;
+//                 });
+//                 $('#teamMembersList').html(html);
+//             } else {
+//                 $('#teamMembersList').html(`
+//                     <div class="text-center text-muted py-3">
+//                         No team members yet. Invite someone to get started!
+//                     </div>
+//                 `);
+//             }
+//         },
+//         error: function() {
+//             $('#teamMembersList').html(`
+//                 <div class="alert alert-error" style="margin: 0;">
+//                     Failed to load team members. Please refresh the page.
+//                 </div>
+//             `);
+//         }
+//     });
+// }
+
+// function loadPendingInvites() {
+//     $('#pendingInvitesList').html(`
+//         <div class="text-center text-muted py-3">
+//             <div class="spinner-border spinner-border-sm" role="status"></div>
+//             Loading pending invitations...
+//         </div>
+//     `);
+    
+//     $.ajax({
+//         url: '{% url "pending_invites" %}',
+//         method: 'GET',
+//         success: function(data) {
+//             if (data.invites && data.invites.length > 0) {
+//                 let html = '';
+//                 data.invites.forEach(invite => {
+//                     html += `
+//                         <div class="invite-item" data-invite-id="${invite.id}">
+//                             <div class="invite-info">
+//                                 <span class="invite-email">${invite.email}</span>
+//                                 <span class="invite-role">Role: ${invite.role}</span>
+//                             </div>
+//                             <div class="invite-actions">
+//                                 <span class="invite-status">Pending</span>
+//                                 <button class="btn btn-secondary btn-sm" onclick="resendInvite('${invite.id}')">
+//                                     Resend
+//                                 </button>
+//                                 <button class="btn btn-danger btn-sm" onclick="cancelInvite('${invite.id}')">
+//                                     Cancel
+//                                 </button>
+//                             </div>
+//                         </div>
+//                     `;
+//                 });
+//                 $('#pendingInvitesList').html(html);
+//             } else {
+//                 $('#pendingInvitesList').html(`
+//                     <div class="text-center text-muted py-3">
+//                         No pending invitations.
+//                     </div>
+//                 `);
+//             }
+//         },
+//         error: function() {
+//             $('#pendingInvitesList').html(`
+//                 <div class="alert alert-error" style="margin: 0;">
+//                     Failed to load pending invitations.
+//                 </div>
+//             `);
+//         }
+//     });
+// }
+
+// $('#inviteForm').submit(function(e) {
+//     e.preventDefault();
+    
+//     const email = $('#invite_email').val();
+//     const role = $('#invite_role').val();
+    
+//     if (!email) {
+//         $('#inviteMessage').html(`
+//             <div class="alert alert-error">Please enter an email address.</div>
+//         `);
+//         return;
+//     }
+    
+//     // Disable button and show spinner
+//     $('#sendInviteBtn').prop('disabled', true);
+//     $('#inviteSpinner').removeClass('d-none');
+//     $('#inviteMessage').empty();
+    
+//     $.ajax({
+//         url: '{% url "send_invitation" %}',
+//         method: 'POST',
+//         data: {
+//             email: email,
+//             role: role,
+//             csrfmiddlewaretoken: '{{ csrf_token }}'
+//         },
+//         success: function(response) {
+//             $('#inviteMessage').html(`
+//                 <div class="alert alert-success">Invitation sent successfully to ${email}!</div>
+//             `);
+//             $('#inviteForm')[0].reset();
+//             loadPendingInvites();
+//         },
+//         error: function(xhr) {
+//             const errorMsg = xhr.responseJSON?.error || 'Failed to send invitation.';
+//             $('#inviteMessage').html(`
+//                 <div class="alert alert-error">${errorMsg}</div>
+//             `);
+//         },
+//         complete: function() {
+//             $('#sendInviteBtn').prop('disabled', false);
+//             $('#inviteSpinner').addClass('d-none');
+            
+//             setTimeout(() => {
+//                 $('#inviteMessage').fadeOut(function() {
+//                     $(this).empty().show();
+//                 });
+//             }, 5000);
+//         }
+//     });
+// });
+
+// function resendInvite(inviteId) {
+//     $.ajax({
+//         url: '{% url "resend_invitation" %}',
+//         method: 'POST',
+//         data: {
+//             invite_id: inviteId,
+//             csrfmiddlewaretoken: '{{ csrf_token }}'
+//         },
+//         success: function() {
+//             alert('Invitation resent successfully!');
+//         },
+//         error: function() {
+//             alert('Failed to resend invitation.');
+//         }
+//     });
+// }
+
+// function cancelInvite(inviteId) {
+//     if (!confirm('Are you sure you want to cancel this invitation?')) {
+//         return;
+//     }
+    
+//     $.ajax({
+//         url: '{% url "cancel_invitation" %}',
+//         method: 'POST',
+//         data: {
+//             invite_id: inviteId,
+//             csrfmiddlewaretoken: '{{ csrf_token }}'
+//         },
+//         success: function() {
+//             loadPendingInvites();
+//         },
+//         error: function() {
+//             alert('Failed to cancel invitation.');
+//         }
+//     });
+// }
 </script>
 {% endblock %}

@@ -27,6 +27,9 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, EncryptedJSONField
+from datetime import timedelta
+from django.utils import timezone
+
 
 class Color(models.TextChoices):
     DARK = 'd', 'Dark'
@@ -59,6 +62,18 @@ class Organization(models.Model):
     employee_acceptable_use_policy = models.BooleanField(default=False)
     training_new_employees = models.BooleanField(default=False)
     training_once_per_year = models.BooleanField(default=False)
+    registration_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending Approval'),
+            ('approved', 'Approved'),
+            ('rejected', 'Rejected'),
+        ],
+        default='pending'
+    )
+    questionnaire_completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.org_name
@@ -165,3 +180,67 @@ class Risk(models.Model):
 
     def __str__(self):
         return f"{self.severity}: {self.risk_name}"
+    
+
+# TEST
+class OrganizationQuestionnaire(models.Model):
+    """Store questionnaire responses for organization setup"""
+    organization = models.OneToOneField(Organization, on_delete=models.CASCADE, related_name='questionnaire')
+    ip_address = models.GenericIPAddressField()
+    has_security_policy = models.BooleanField(default=False)
+    conducts_regular_audits = models.BooleanField(default=False)
+    has_incident_response = models.BooleanField(default=False)
+    uses_encryption = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Questionnaire for {self.organization.org_name}"
+    
+class Invitation(models.Model):
+    """Track invitations sent to new team members"""
+    ROLE_CHOICES = [
+        ('org_admin', 'Org Admin'),
+        ('observer', 'Observer'),
+        ('tester', 'Tester'),
+    ]
+
+    INVITATION_STATUS = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('expired', 'Expired'),
+    ]
+    
+    invitation_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='invitations')
+    email = models.EmailField()
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='observer')
+    invited_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_invitations')
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    status = models.CharField(max_length=20, choices=INVITATION_STATUS, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(default=timezone.now() + timedelta(days=7))
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    
+    def is_valid(self):
+        return self.status == 'pending' and self.expires_at > timezone.now()
+    
+class OTPVerification(models.Model):
+    """Store OTP codes for email verification"""
+    email = models.EmailField()
+    otp_code = models.CharField(max_length=6)
+    purpose = models.CharField(max_length=20, choices=[
+        ('registration', 'Registration'),
+        ('login', 'Login'),
+        ('invitation', 'Invitation'),
+    ])
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(default=timezone.now() + timedelta(minutes=5))
+    is_verified = models.BooleanField(default=False)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['email', 'otp_code', 'purpose']),
+        ]
+    
+    def is_valid(self):
+        return not self.is_verified and self.expires_at > timezone.now()

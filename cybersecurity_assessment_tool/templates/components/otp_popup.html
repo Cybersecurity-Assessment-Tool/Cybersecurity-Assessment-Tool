@@ -1,0 +1,131 @@
+<!-- OTP Verification Modal -->
+<div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="otpModalLabel">Verify Your Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>We've sent a verification code to <strong id="otpEmailDisplay"></strong>.</p>
+                <p>Please enter the 6-digit code below:</p>
+                
+                <div class="otp-input-group">
+                    {% for i in "123456"|make_list %}
+                    <input type="text" 
+                           class="otp-input form-control" 
+                           maxlength="1" 
+                           pattern="[0-9]" 
+                           inputmode="numeric"
+                           data-index="{{ forloop.counter0 }}">
+                    {% endfor %}
+                </div>
+                
+                <div id="otpError" class="alert alert-danger mt-3" style="display: none;"></div>
+                <div id="otpSuccess" class="alert alert-success mt-3" style="display: none;"></div>
+                
+                <div class="text-center mt-3">
+                    <button type="button" class="btn btn-link" id="resendOtpBtn">Resend Code</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="verifyOtpBtn">Verify</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .otp-input-group {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin: 1.5rem 0;
+    }
+    
+    .otp-input {
+        width: 3rem;
+        height: 3rem;
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+</style>
+
+<script>
+function initOtpModal(email, purpose, onSuccess) {
+    $('#otpEmailDisplay').text(email);
+    
+    // Clear previous inputs
+    $('.otp-input').val('');
+    $('#otpError').hide();
+    $('#otpSuccess').hide();
+    
+    // Auto-focus handling
+    $('.otp-input').on('input', function() {
+        const index = $(this).data('index');
+        if (this.value.length === 1 && index < 5) {
+            $(`.otp-input[data-index="${index + 1}"]`).focus();
+        }
+    }).on('keydown', function(e) {
+        const index = $(this).data('index');
+        if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+            $(`.otp-input[data-index="${index - 1}"]`).focus();
+        }
+    });
+    
+    // Verify button
+    $('#verifyOtpBtn').off('click').on('click', function() {
+        const otpCode = $('.otp-input').map(function() { return this.value; }).get().join('');
+        
+        if (otpCode.length !== 6) {
+            $('#otpError').text('Please enter all 6 digits.').show();
+            return;
+        }
+        
+        $.ajax({
+            url: '{% url "accounts:verify_otp" %}',
+            method: 'POST',
+            data: {
+                email: email,
+                otp_code: otpCode,
+                purpose: purpose,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                $('#otpSuccess').text('Email verified successfully!').show();
+                setTimeout(function() {
+                    $('#otpModal').modal('hide');
+                    if (onSuccess) onSuccess();
+                }, 1000);
+            },
+            error: function(xhr) {
+                $('#otpError').text(xhr.responseJSON?.error || 'Invalid verification code.').show();
+            }
+        });
+    });
+    
+    // Resend button
+    $('#resendOtpBtn').off('click').on('click', function() {
+        $.ajax({
+            url: '{% url "accounts:send_otp" %}',
+            method: 'POST',
+            data: {
+                email: email,
+                purpose: purpose,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function() {
+                $('#otpSuccess').text('New verification code sent!').show();
+                setTimeout(function() { $('#otpSuccess').fadeOut(); }, 3000);
+            },
+            error: function() {
+                $('#otpError').text('Failed to send code. Please try again.').show();
+            }
+        });
+    });
+    
+    $('#otpModal').modal('show');
+}
+</script>

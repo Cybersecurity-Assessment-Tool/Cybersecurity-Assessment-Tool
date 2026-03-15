@@ -63,6 +63,12 @@ class RiskViewSet(viewsets.ModelViewSet):
 
 # TEST below
 from django.shortcuts import get_object_or_404, redirect
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .services.report_manager import generate_network_ai_report
+from django_q.tasks import async_task
+from django_q.models import Task
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     """Display home page"""
@@ -72,8 +78,95 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
+@login_required
+@require_POST
+def trigger_report_generation(request):
+    """
+    Triggers the background network scan using Django Q2.
+    """
+    task_id = async_task(
+        generate_network_ai_report,
+        request.user.organization.external_ip,
+        request.user.user_id,
+        request.user.organization_id
+    )
+    
+    return JsonResponse({
+        'task_id': task_id,
+        'status': 'Processing started...'
+    }, status=202)
+
+@login_required
+def check_task_status(request, task_id):
+    """
+    Checks status using Django Q2's Task model.
+    """
+    # get_task returns the Task object if finished, or None if still running/queued
+    task = Task.get_task(task_id)
+    
+    if task:
+        # Task is finished (either succeeded or failed)
+        if task.success:
+            return JsonResponse({
+                'state': 'SUCCESS',
+                'task_id': task.id,
+                'result': task.result
+            })
+        else:
+            return JsonResponse({
+                'state': 'FAILURE',
+                'task_id': task.id,
+                'error': str(task.result) # Q2 stores the error traceback in 'result' on failure
+            })
+    else:
+        # Task is not in the database yet, meaning it is still running
+        return JsonResponse({
+            'state': 'PENDING',
+            'task_id': task_id,
+            'step': 'Processing in background...'
+        })
+    
+@login_required
+@require_POST
+def chat_about_report(request, report_id):
+    user_message = request.POST.get("prompt")
+    
+    # Fetch to verify it exists and check permissions
+    report = get_object_or_404(Report, pk=report_id)
+    
+    if request.user.has_perm('api.can_view_any_report') or report.organization == request.user.organization:
+        # Trigger the async task using the wrapper function
+        task_id = async_task(
+            'api.services.chatbot_client.generate_chat_reply_report', # Update 'api' if your app name is different
+            report_id=report_id,
+            user_message=user_message
+        )
+        # Return a 202 Accepted with the task_id
+        return JsonResponse({'task_id': task_id, 'status': 'Processing started...'}, status=202)
+    else:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+    
+@login_required
+@require_POST
+def chat_about_risk(request, risk_id):
+    user_message = request.POST.get("prompt")
+    
+    # Fetch to verify it exists and check permissions
+    risk = get_object_or_404(Risk, pk=risk_id)
+    
+    if request.user.has_perm('api.can_view_any_risk') or risk.organization == request.user.organization:
+        # Trigger the async task
+        task_id = async_task(
+            'api.services.chatbot_client.generate_chat_reply_risk', # Update 'api' if your app name is different
+            risk_id=risk_id,
+            user_message=user_message
+        )
+        # Return a 202 Accepted with the task_id
+        return JsonResponse({'task_id': task_id, 'status': 'Processing started...'}, status=202)
+    else:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+
 import json
-from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.contrib import messages
