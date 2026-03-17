@@ -15,4 +15,8 @@ urlpatterns = [
     path('otp/verify/', views.otp_verify_view, name='otp_verify'),
     path('otp/send/', views.send_otp_view, name='resend_otp'),
     path('public-signup/', views.public_registration, name='public_registration'),
+
+    # Admin approval URLs
+    path('admin/approve/<int:user_id>/', views.approve_registration, name='approve_registration'),
+    path('admin/reject/<int:user_id>/', views.reject_registration, name='reject_registration'),
 ]

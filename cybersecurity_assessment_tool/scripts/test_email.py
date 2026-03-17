@@ -6,7 +6,7 @@ from api.utils.send_otp_mail import generate_otp
 from api.utils.send_mail import send_mail
 
 def run(*args):
-    recipient = "onellamoitra@gmail.com"
+    recipient = "ibinstock1@yahoo.com"
     email_type = args[0] if args else "registration"  # Default to registration
     
     email_templates = {
@@ -21,7 +21,7 @@ def run(*args):
                 "role": "Manager",
                 "invite_link": "http://localhost:8000/invite/abc123xyz/"
             },
-            "to": "onellamoitra@gmail.com"
+            "to": "ibinstock1@yahoo.com"
         },
         "otp": {
             "subject": "Verification Code",  # Fixed subject
@@ -38,7 +38,7 @@ def run(*args):
             "template": "emails/admin_request.html",
             "context": {
                 "requester_name": "John Doe",
-                "requester_email": "onellamoitra@gmail.com",
+                "requester_email": "ibinstock1@yahoo.com",
                 "company": "Cybersecurity Inc.",
                 "role": "Manager"
             }
@@ -66,7 +66,7 @@ def run(*args):
                 "report_type": "Comprehensive Vulnerability Assessment",
                 "login_url": "http://localhost:8000/login/?next=/reports/SEC-2026-0305-001/"
             },
-            "to": "onellamoitra@gmail.com"
+            "to": "ibinstock1@yahoo.com"
         }
     }
     

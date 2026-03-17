@@ -13,17 +13,14 @@ class PublicRegistrationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2', 'first_name', 'last_name', 'company']
+        fields = ['username', 'email', 'first_name', 'last_name', 'company']
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_active = False
-        user.email = self.cleaned_data.get('email', '')
-        user.first_name = self.cleaned_data.get('first_name', '')
-        user.last_name = self.cleaned_data.get('last_name', '')
-
-        # Properly hash password
-        user.password=self.cleaned_data.get('password1')
+        user.email = self.cleaned_data['email']
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
 
         # Get or create organization safely
         org_name = self.cleaned_data.get('company', '')
@@ -33,6 +30,7 @@ class PublicRegistrationForm(UserCreationForm):
 
         if commit:
             user.save()
+            print(f"Saved user with email: {user.email}")  # Debug line
         return user
     
 ROLE_CHOICES = [

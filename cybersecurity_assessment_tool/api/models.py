@@ -26,7 +26,7 @@ How to decrypt the encrypted values:
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, EncryptedJSONField
+from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, EncryptedJSONField, EncryptedEmailField
 from datetime import timedelta
 from django.utils import timezone
 
@@ -117,7 +117,7 @@ class User(AbstractUser):
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
     email = EncryptedEmailField()
-    password = EncryptedCharField(max_length=50)
+    password = EncryptedCharField(max_length=128)
     first_name = EncryptedCharField(max_length=50)
     last_name = EncryptedCharField(max_length=50)
 

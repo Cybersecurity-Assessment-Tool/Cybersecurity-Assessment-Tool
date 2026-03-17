@@ -50,3 +50,5 @@ def send_otp_email(recipient, otp=None):
     
     print(f"✅ OTP email sent to {recipient}")
     return otp  # Return for session storage
+
+# ON THE CHOPPING BLOCK

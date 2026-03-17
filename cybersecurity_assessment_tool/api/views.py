@@ -1,8 +1,9 @@
+from urllib import request
 import uuid
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.conf import settings
-from api.utils.email_factory import send_email_by_type  # ← NEW IMPORT
+from api.utils.email_factory import send_email_by_type
 import time
 from api.forms import PublicRegistrationForm
 from rest_framework import viewsets
@@ -10,62 +11,150 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Invitation, Organization, User, Report, Risk
 from .serializers import OrganizationSerializer, UserSerializer, ReportSerializer, RiskSerializer
 from django.contrib.auth import get_user_model
+from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.http import JsonResponse
+import json
+from django.urls import reverse
 
 User = get_user_model()
 
 
 # Simple session-based OTP storage (use Redis/Cache in production)
-def otp_verify_view(request, token=False):
-    if request.method == 'POST':
-        print("=== DEBUG INFO ===")
-        print(f"POST data: {request.POST}")  # See ALL form data
+@require_POST
+@ensure_csrf_cookie
+def otp_verify_view(request):
+    """Verify OTP code"""
+    print("="*50)
+    print("otp_verify_view called!")
+    
+    try:
+        # Handle both JSON and form data
+        if request.content_type and 'application/json' in request.content_type:
+            data = json.loads(request.body)
+        else:
+            data = request.POST
         
-        # Get OTP from all 6 inputs
-        otp_input = ''.join([
-            request.POST.get(f'otp{i}', '') for i in range(1, 7)
-        ]).strip()
+        print(f"Verify data: {data}")
         
-        #print(f"User entered OTP: '{otp_input}'")  # What user typed
-        #print(f"Stored OTP: '{request.session.get('otp_code')}'")  # What we expect
+        # Handle both formats (otp_input from your form, or otp_code from other implementations)
+        otp_input = data.get('otp_input') or data.get('otp_code')
+        email = data.get('email')
+        purpose = data.get('purpose', 'registration')
+        
+        print(f"Verifying - Email: {email}, OTP: {otp_input}, Purpose: {purpose}")
+        
+        if not all([otp_input, email]):
+            return JsonResponse({'error': 'Missing required fields'}, status=400)
         
         stored_otp = request.session.get('otp_code')
+        stored_email = request.session.get('otp_email')
+        stored_purpose = request.session.get('otp_purpose')
         otp_created = request.session.get('otp_created')
         
-        #print(f"OTP created time: {otp_created}")
-        #print(f"Current time: {time.time()}")
-        #print(f"Time diff: {time.time() - otp_created if otp_created else 'N/A'}")
+        print(f"Stored - Email: {stored_email}, OTP: {stored_otp}, Purpose: {stored_purpose}")
         
         # Check if OTP expired (5 minutes)
-        if not stored_otp or not otp_created or (time.time() - otp_created > 300):
-            messages.error(request, 'OTP expired or not found. Please request a new one.')
-            return render(request, 'otp_verify.html')
+        if not stored_otp or not otp_created:
+            return JsonResponse({'error': 'No OTP found. Please request a new one.'}, status=400)
         
-        if otp_input == stored_otp:
-                # Login user
-                #auth.login(request, user)
-            return redirect('home')
+        if time.time() - otp_created > 300:
+            # Clear expired OTP
+            request.session.pop('otp_code', None)
+            request.session.pop('otp_created', None)
+            return JsonResponse({'error': 'OTP expired. Please request a new one.'}, status=400)
+        
+        if (stored_otp == otp_input and 
+            stored_email == email and 
+            stored_purpose == purpose):
+            
+            # Mark as verified
+            request.session[f'{purpose}_verified_{email}'] = True
+            request.session['verified_email'] = email
+            
+            # Clear OTP from session
+            request.session.pop('otp_code', None)
+            request.session.pop('otp_created', None)
+            
+            print("OTP verified successfully!")
+            print("="*50)
+            
+            return JsonResponse({'success': True, 'message': 'OTP verified successfully'})
         else:
-            messages.error(request, 'Invalid OTP. Please try again.')
-    
-    return render(request, 'otp_verify')
+            print("OTP verification failed - invalid code")
+            print("="*50)
+            return JsonResponse({'error': 'Invalid verification code.'}, status=400)
+            
+    except Exception as e:
+        print(f"ERROR in otp_verify_view: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        print("="*50)
+        return JsonResponse({'error': str(e)}, status=500)
 
-def send_otp_view(request, recipient):
+@require_POST
+@ensure_csrf_cookie
+def send_otp_view(request):
     """Send OTP to user using email_factory"""
-    # Get from form/session in production
-    recipient =  recipient or "onellamoitra@gmail.com"
+    print("="*50)
+    print("send_otp_view called!")
+    print(f"Request method: {request.method}")
+    print(f"Content-Type: {request.content_type}")
+    print(f"Request POST data: {request.POST}")
+    print(f"Request body: {request.body}")
     
-    # Send OTP using your new factory (handles generation + sending)
-    context = send_email_by_type('otp', recipient)
-    otp = context['otp']  # Extract from returned context
-    
-    print(f"Generated OTP: {otp}")  # For debugging, remove in production
-    
-    # Store in session
-    request.session['otp_code'] = otp
-    request.session['otp_created'] = time.time()
-    
-    messages.success(request, 'OTP sent to your email!')
-    return redirect('otp_verify') 
+    try:
+        # Handle both JSON and form data
+        if request.content_type and 'application/json' in request.content_type:
+            # JSON data
+            try:
+                data = json.loads(request.body)
+                print("Parsed JSON data:", data)
+            except json.JSONDecodeError as e:
+                print(f"JSON decode error: {e}")
+                return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        else:
+            # Form data
+            data = request.POST
+            print("Form data:", data)
+        
+        recipient = data.get('email')
+        purpose = data.get('purpose', 'registration')
+        
+        print(f"Recipient: {recipient}, Purpose: {purpose}")
+        
+        if not recipient:
+            return JsonResponse({'error': 'Email is required'}, status=400)
+        
+        # Send OTP using your factory
+        try:
+            context = send_email_by_type('otp', recipient)
+            otp = context['otp']
+            print(f"Generated OTP for {recipient}: {otp}")
+        except Exception as e:
+            print(f"Error in send_email_by_type: {e}")
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({'error': 'Failed to send email'}, status=500)
+        
+        # Store in session
+        request.session['otp_code'] = otp
+        request.session['otp_email'] = recipient
+        request.session['otp_purpose'] = purpose
+        request.session['otp_created'] = time.time()
+        
+        print("OTP stored in session successfully")
+        print("="*50)
+        
+        return JsonResponse({'success': True, 'message': 'OTP sent successfully'})
+        
+    except Exception as e:
+        print(f"ERROR in send_otp_view: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        print("="*50)
+        return JsonResponse({'error': str(e)}, status=500)
 
 def send_invite_mail(request, recipient_email):
     token = str(uuid.uuid4())  # Generate a unique token for the invite link
@@ -113,9 +202,7 @@ def public_registration(request):
     #Automatic invite token generated
     token = str(uuid.uuid4())
     if request.method == 'POST':
-        # Taking from form to handle public registration with company field and automatic invite creation (Found in forms.py))
         form = PublicRegistrationForm(request.POST)
-        form._meta.model = User
         
         # Debug Info
         # print("POST data:", request.POST)           # What was submitted
@@ -123,37 +210,22 @@ def public_registration(request):
         # print("Form is valid:", form.is_valid())    # Should be True
         
         #Checking all requirements for public registration form
-        if form.is_valid(): 
-            # Doesn't save user until we call form.save(), which allows us to set additional fields before saving to DB
-            user = form.save(commit=False)
-            # Keeps user from accessing account until admin approval, also ensures they verify email
-            user.is_active = False
-            #Initialize user with form data, but we will override some fields to ensure data integrity and proper relationships
-            user.first_name = request.POST.get('first_name')
-            user.last_name = request.POST.get('last_name')
-            user.email = request.POST.get('email')
-            user.password = request.POST.get('password1')
+        if form.is_valid():
+            user = form.save()
             
-            # Associate user with organization (get or create based on company name)
-            org_name = form.cleaned_data.get('company')
-            if org_name:
-                org, _ = Organization.objects.get_or_create(org_name=org_name)
-                user.organization = org
+            # Debug Info
+            print(f"=== USER CREATED ===")
+            print(f"Username: {user.username}")
+            print(f"Email: {user.email}")
+            print(f"Active: {user.is_active}")
+            print(f"Organization: {user.organization}")
+            print(f"User ID: {user.id}")
 
-            user.save()
-            
-            '''
-            system_user, _ = User.objects.get_or_create(
-                first_name="System",
-                last_name="Admin",
-                username="Cybersecurity Assessment Tool",
-                defaults={"is_active": False, "email": "cyberassessmenttool@gmail.com", "password": "N/A"}
-            )
-            '''
-            
             # Our information email that receives the registration request and "sends" the invite
-            system_user = User.objects.get(username="Cybersecurity Assessment Tool")
-            system_user.email = "cyberassessmenttool@gmail.com"
+            # system_user = User.objects.get(username="Cybersecurity Assessment Tool")
+            # system_user.email = "cyberassessmenttool@gmail.com"
+            system_user = User.objects.get(username="Frontend Integration Testing")
+            system_user.email = "ibinstock1@yahoo.com"
 
             # Creates invitation for the new user with status "sent" (pending approval) and default role of "Org Admin" 
             Invitation.objects.create(
@@ -172,21 +244,92 @@ def public_registration(request):
                 "username": user.username
             })
             
-            # Sends email to the system admin (or real admin in production) with the details of the new registration and a link to approve/reject
+            # Get the domain for absolute URLs
+            approve_path = reverse('approve_registration', args=[user.id])
+            reject_path = reverse('reject_registration', args=[user.id])
+
+            domain = request.get_host()
+            protocol = 'https' if request.is_secure() else 'http'
+            approve_url = f"{protocol}://{domain}{approve_path}"
+            reject_url = f"{protocol}://{domain}{reject_path}"
+
+            print(f"Generated approve URL: {approve_url}")
+            print(f"Generated reject URL: {reject_url}")
+
+            # Sends email to the system admin
             send_email_by_type('request', system_user.email, {
                 'requester_name': f"{user.first_name} {user.last_name}",
                 "requester_email": user.email,
-                "company": request.POST.get('company', 'N/A'),
+                "company": user.organization.org_name,
                 "role": "Org Admin",
-                "override_context": True,
+                "approve_url": approve_url,
+                "reject_url": reject_url
             })
-        
-            return render(request, 'registration/public_registration.html')
+            
+            messages.success(request, 'Registration successful. Please wait for admin approval.')
+            return redirect('accounts:waiting')
         else:
-            # print("Here")
-            form = PublicRegistrationForm()
+            print(form.errors)
+    else:
+        form = PublicRegistrationForm()
     
-    return render(request, 'registration/public_registration.html')
+    return render(request, 'registration/public_registration.html', {'form': form})
+
+@staff_member_required
+def approve_registration(request, user_id):  # user_id will be an integer
+    """Approve a user's registration request by ID"""
+    print(f"Approval requested for user ID: {user_id}")
+    
+    try:
+        # Use 'id' field (Django's default auto-incrementing primary key)
+        user = User.objects.get(id=user_id, is_active=False)
+        print(f"Found user: {user.username}, email: {user.email}")
+    except User.DoesNotExist:
+        messages.error(request, f"No pending user found with ID {user_id}")
+        return redirect('admin:api_user_changelist')
+    
+    # Activate the user
+    user.is_active = True
+    user.save()
+    
+    # Send approval email
+    try:
+        send_email_by_type('approval', user.email, {
+            "username": user.username
+        })
+    except Exception as e:
+        print(f"Error sending approval email: {e}")
+    
+    messages.success(request, f"User {user.username} has been approved.")
+    return redirect('admin:api_user_changelist')
+
+
+@staff_member_required
+def reject_registration(request, user_id):
+    """Reject a user's registration request by ID"""
+    print(f"Rejection requested for user ID: {user_id}")
+    
+    try:
+        user = User.objects.get(id=user_id, is_active=False)
+        username = user.username
+        user_email = user.email
+        
+        # Send rejection email
+        send_email_by_type('rejection', user_email, {
+            "username": username,
+            "company": user.organization.org_name if user.organization else "Your Company",
+            "role": "Org Admin"
+        })
+        
+        # Delete the user
+        user.delete()
+        
+        messages.success(request, f"User {username} has been rejected and removed.")
+        
+    except User.DoesNotExist:
+        messages.error(request, f"No pending user found with ID {user_id}")
+    
+    return redirect('admin:api_user_changelist')
 
 class OrganizationViewSet(viewsets.ModelViewSet):
     """
@@ -244,8 +387,6 @@ class RiskViewSet(viewsets.ModelViewSet):
 
 # TEST below
 from django.shortcuts import get_object_or_404, redirect
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
 from .services.report_manager import generate_network_ai_report
 from django_q.tasks import async_task
 from django_q.models import Task
@@ -347,7 +488,7 @@ def chat_about_risk(request, risk_id):
     else:
         return JsonResponse({"error": "Unauthorized"}, status=403)
 
-import json
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.contrib import messages

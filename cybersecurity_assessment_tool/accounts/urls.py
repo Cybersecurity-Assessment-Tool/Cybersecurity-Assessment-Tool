@@ -1,16 +1,12 @@
 from django.urls import path
-import api.views as views
+# import api.views as views
+from . import views
 from rest_framework.routers import DefaultRouter
 
 app_name = 'accounts'
 
 urlpatterns = [
     path("signup/", views.SignUpView.as_view(), name="signup"),
-    path('register/', SignUpView.as_view(), name='registration'),
-    path('otp/verify/', views.otp_verify_view, name='otp_verify'),
-    path('otp/send/', views.send_otp_view, name='resend_otp'),
-    path('public-signup/', views.public_registration, name='public_registration'),
-    
     path("user-detail/", views.UserDetailView.as_view(), name="user-detail"), # remove later
     path('settings/', views.settings, name='settings'),
     path('settings/upload-image/', views.upload_profile_image, name='upload_image'),

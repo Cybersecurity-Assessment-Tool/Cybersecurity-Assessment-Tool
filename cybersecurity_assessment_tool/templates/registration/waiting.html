@@ -23,11 +23,6 @@
         text-align: center;
     }
     
-    .waiting-icon {
-        margin-bottom: 1.5rem;
-        color: #fbbf24;
-    }
-    
     .waiting-title {
         font-size: 1.875rem;
         font-weight: 600;
@@ -76,16 +71,6 @@
         border-radius: 20px;
     }
     
-    .waiting-note {
-        background-color: #eff6ff;
-        border: 1px solid #bfdbfe;
-        border-radius: 6px;
-        padding: 1rem;
-        color: #1e40af;
-        font-size: 0.875rem;
-        margin-bottom: 2rem;
-    }
-    
     .waiting-actions {
         display: flex;
         gap: 1rem;
@@ -128,17 +113,10 @@
 {% block content %}
 <div class="waiting-container">
     <div class="waiting-card">
-        <div class="waiting-icon">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="#fbbf24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-            </svg>
-        </div>
-        
         <h1 class="waiting-title">Registration Pending Approval</h1>
         
         <div class="waiting-message">
             <p>Thank you for registering <strong>{{ company_name }}</strong>!</p>
-            <p>Your registration request has been submitted and is now pending approval from our team.</p>
             <p>You will receive an email confirmation once your organization has been approved.</p>
         </div>
         
@@ -161,10 +139,6 @@
             </div>
         </div>
         
-        <div class="waiting-note">
-            <p>Please allow 24-48 hours for review. You can close this window and check your email for updates.</p>
-        </div>
-        
         <div class="waiting-actions">
             <a href="{% url 'home' %}" class="btn btn-secondary">Return to Home</a>
             <button class="btn btn-primary" id="checkStatusBtn">Check Status</button>
@@ -180,7 +154,7 @@
 <script>
 $('#checkStatusBtn').click(function() {
     $.ajax({
-        url: '{% url "check_registration_status" %}',
+        url: '{% url "accounts:check_registration_status" %}',
         method: 'GET',
         success: function(response) {
             if (response.status === 'approved') {

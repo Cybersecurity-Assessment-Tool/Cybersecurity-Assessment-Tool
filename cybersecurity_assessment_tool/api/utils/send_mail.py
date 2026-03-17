@@ -13,3 +13,5 @@ def send_mail(to_email, subject, message, html_message=None):
         email.attach_alternative(html_message, "text/html")
 
     email.send()
+
+# ON THE CHOPPING BLOCK
