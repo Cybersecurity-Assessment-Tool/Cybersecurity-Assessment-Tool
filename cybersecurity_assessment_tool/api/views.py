@@ -104,6 +104,9 @@ def process_invite_user_form(request):
         print("🔥 2. POST REQUEST")
         form = InviteUserForm(request.POST)
         
+        print(f"Form Valid: {form.is_valid}")
+        print(f"Form Errors: {form.errors}")
+        
         if form.is_valid():
             print("🔥 4. FORM VALID - cleaned_data:", form.cleaned_data)
             
@@ -112,7 +115,7 @@ def process_invite_user_form(request):
                 org_name=form.cleaned_data['company'],
                 defaults={'organization_id': uuid.uuid4()}
             )
-            # print(f"✅ Org: {organization.org_name}")
+            print(f"✅ Org: {organization.org_name}")
             
             # 2. Create temp_sender  
             temp_sender, _ = User.objects.get_or_create(
@@ -121,7 +124,8 @@ def process_invite_user_form(request):
                     'first_name': 'System', 
                     'last_name': 'Sender',
                     'email': 'cyberassessmenttool@gmail.com',
-                    'is_active': False
+                    'is_active': False,
+                    'password': "EmptyPassword"
                 }
             )
             
@@ -150,11 +154,15 @@ def process_invite_user_form(request):
             # 5. Send email
             invite_url = request.build_absolute_uri(f"/accounts/invite/{token}/accept/")
             email_context = {
-                "inviter_name": form.cleaned_data['sender_name'],
+                "inviter_name": f"{temp_sender.first_name} {temp_sender.last_name}",
                 "company": organization.org_name,
                 "role": invitation.get_recipient_role_display(),
                 "invite_link": invite_url, 
             }
+            
+            print(f"Context: {email_context}\nEmail: {form.cleaned_data['email']}")
+            
+            print()
             send_email_by_type('invite', form.cleaned_data['email'], email_context)
             
             messages.success(request, 'Invite sent!')
@@ -193,7 +201,7 @@ def validate_invite(request, token):
     print(f"Recipient Email: {invitation.recipient_email}\nRecipient Organization: {invitation.organization}")
     
     # Rest of your code...
-    user = User.objects.get(email=invitation.recipient_email, organization=invitation.organization)
+    user = User.objects.get(id=invitation.recipient_user.id)
     print(f"✅ User found: {user.username}")
     
     # Activate user + approve invitation

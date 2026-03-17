@@ -43,6 +43,7 @@ ROLE_CHOICES = [
 
 class InviteUserForm(forms.Form):
     # Sender info (for testing email context)
+    '''
     sender_name = forms.CharField(
         label="Your Name", 
         initial="Casey Rivera",
@@ -53,6 +54,7 @@ class InviteUserForm(forms.Form):
         initial="cyberassessmenttool@gmail.com",
         help_text="Sender email for testing"
     )
+    '''
     
     # Recipient info
     first_name = forms.CharField(max_length=50, label="Recipient First Name")
@@ -62,8 +64,8 @@ class InviteUserForm(forms.Form):
     email = forms.EmailField(label="Recipient Work Email")
     role = forms.ChoiceField(
         choices=[
-            ('Tester', 'tester'),
-            ('Observer', 'observer'),
+            ('tester', 'Tester'),
+            ('observer', 'Observer'),
         ],
         label="Recipient Role",
         initial='Org Admin',

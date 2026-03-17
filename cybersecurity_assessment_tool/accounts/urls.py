@@ -7,6 +7,7 @@ app_name = 'accounts'
 urlpatterns = [
     path("signup/", views.SignUpView.as_view(), name="signup"),
     path('signup/invite/<str:token>/', views.SignUpView.as_view(), name='invite_signup'),
+    path('public-signup/', api_views.public_registration, name="public-signup"),
     path("user-detail/", views.UserDetailView.as_view(), name="user-detail"),
     path('settings/', views.settings, name='settings'),
     path('settings/upload-image/', views.upload_profile_image, name='upload_image'),

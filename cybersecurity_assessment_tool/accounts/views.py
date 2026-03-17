@@ -83,7 +83,7 @@ class SignUpView(CreateView):
                 first_name=first_name,
                 last_name=last_name,
                 email=email,
-                #organization=organization,
+                organization=organization,
                 password=password,
                 is_active=False,
             )
@@ -100,6 +100,7 @@ class SignUpView(CreateView):
             
             # Update invitation
             invitation.status = "Awaiting Approval"
+            invitation.recipient_user = new_user
             invitation.save()
             print(f"✅ Invitation updated: {invitation.status}")
             

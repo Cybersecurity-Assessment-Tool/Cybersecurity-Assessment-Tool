@@ -95,10 +95,10 @@ class User(AbstractUser):
     profile_img = models.ImageField()
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
-    email = EncryptedEmailField(max_length=100)
-    password = EncryptedCharField(max_length=100)
-    first_name = EncryptedCharField(max_length=100)
-    last_name = EncryptedCharField(max_length=100)
+    email = models.EmailField(max_length=100)
+    password = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
 
     class Meta:
         permissions = [
