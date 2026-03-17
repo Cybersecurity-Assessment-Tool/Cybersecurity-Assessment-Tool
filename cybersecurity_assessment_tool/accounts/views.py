@@ -117,12 +117,15 @@ class SignUpView(CreateView):
             
             try:
                 approve_url = self.request.build_absolute_uri(f"/accounts/admin/approve/{invitation.token}/")
+                reject_url = self.request.build_absolute_uri(f"/accounts/admin/reject/{invitation.token}/")
+                
                 send_email_by_type('request', invitation.sender.email, {
                     "requester_name": f"{new_user.first_name} {new_user.last_name}",
                     "requester_email": new_user.email,
                     "company": new_user.organization.org_name,
                     "role": invitation.recipient_role,
                     "approve_url": approve_url,
+                    "reject_url": reject_url
                 })
                 print("✅ Admin request email sent")
             except Exception as e:

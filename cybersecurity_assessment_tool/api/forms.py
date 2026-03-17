@@ -16,6 +16,12 @@ class PublicRegistrationForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2', 'first_name', 'last_name', 'company']
 
+    def clean_company(self):
+        company = self.cleaned_data.get('company', '').strip()
+        if Organization.objects.filter(org_name__iexact=company).exists():
+            raise forms.ValidationError('This company is already registered. Please contact your organization administrator or use a different company name.')
+        return company
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_active = False

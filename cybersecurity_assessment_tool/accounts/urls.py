@@ -15,6 +15,7 @@ urlpatterns = [
     path('invite/', api_views.process_invite_user_form, name = "invite_user"),
     path('invite/<str:token>/accept/', api_views.invite_accept, name='invite_accept'),
     path('admin/approve/<str:token>/', api_views.validate_invite, name='request_approved'),
+    path('admin/reject/<str:token>/', api_views.reject_request, name="request_rejected"),
 ]
 
 # from .views import SignUpView

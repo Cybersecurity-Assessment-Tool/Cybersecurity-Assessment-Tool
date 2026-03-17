@@ -33,7 +33,8 @@ def public_registration(request):
         #Checking all requirements for public registration form
         if form.is_valid(): 
             # Doesn't save user until we call form.save(), which allows us to set additional fields before saving to DB
-            user = form.save(commit=False)
+            # user = form.save(commit=False)
+            '''
             # Keeps user from accessing account until admin approval, also ensures they verify email
             user.is_active = False
             #Initialize user with form data, but we will override some fields to ensure data integrity and proper relationships
@@ -41,55 +42,71 @@ def public_registration(request):
             user.last_name = request.POST.get('last_name')
             user.email = request.POST.get('email')
             user.password = request.POST.get('password1')
+            '''
             
             # Associate user with organization (get or create based on company name)
             org_name = form.cleaned_data.get('company')
             if org_name:
                 org, _ = Organization.objects.get_or_create(org_name=org_name)
-                user.organization = org
-
-            user.save()
             
-            '''
+            new_user = User.objects.create(
+                username = form.cleaned_data['username'],
+                first_name = form.cleaned_data['first_name'],
+                last_name = form.cleaned_data['last_name'],
+                email = form.cleaned_data['email'],
+                password = form.cleaned_data['password1'],
+                organization = org,
+                is_active = False,
+            )
+            
             system_user, _ = User.objects.get_or_create(
                 first_name="System",
                 last_name="Admin",
                 username="Cybersecurity Assessment Tool",
                 defaults={"is_active": False, "email": "cyberassessmenttool@gmail.com", "password": "N/A"}
             )
-            '''
             
             # Our information email that receives the registration request and "sends" the invite
             system_user = User.objects.get(username="Cybersecurity Assessment Tool")
             system_user.email = "cyberassessmenttool@gmail.com"
 
             # Creates invitation for the new user with status "sent" (pending approval) and default role of "Org Admin" 
-            Invitation.objects.create(
+            invitation = Invitation.objects.create(
                 sender=system_user,
-                recipient_email=user.email,
+                recipient_email=new_user.email,
                 token=str(uuid.uuid4()),
-                recipient_role="Org Admin",
-                status="sent",
-                organization=user.organization
+                recipient_role="org_admin",
+                status = "Awaiting Approval",
+                recipient_user = new_user,
+                organization=new_user.organization
             )
+            invitation.save()
             
-            # print("After Save")
+            print("After Save")
 
             # Sends email to the new user confirming their registration request
-            send_email_by_type('registration', user.email, {
-                "username": user.username
+            send_email_by_type('registration', new_user.email, {
+                "username": new_user.username
             })
+            
+            approve_url = request.build_absolute_uri(f"/accounts/admin/approve/{invitation.token}/")
+            reject_url = request.build_absolute_uri(f"/accounts/admin/reject/{invitation.token}/")
             
             # Sends email to the system admin (or real admin in production) with the details of the new registration and a link to approve/reject
             send_email_by_type('request', system_user.email, {
-                'requester_name': f"{user.first_name} {user.last_name}",
-                "requester_email": user.email,
-                "company": request.POST.get('company', 'N/A'),
+                'requester_name': f"{new_user.first_name} {new_user.last_name}",
+                "requester_email": new_user.email,
+                "company": new_user.organization.org_name,
                 "role": "Org Admin",
+                "approve_url": approve_url,
+                "reject_url": reject_url,
                 "override_context": True,
             })
         
-            return render(request, 'registration/public_registration.html')
+            messages.success(request, "Registration request sent. Admin will approve shortly.")
+            return redirect('home')  # or 'public-registration-confirmation'
+        elif form.clean_company == False:
+            messages.error(request, "Company already exists; please use a different company or contact admin.")
         else:
             # print("Here")
             form = PublicRegistrationForm()
@@ -117,28 +134,33 @@ def process_invite_user_form(request):
             )
             print(f"✅ Org: {organization.org_name}")
             
-            # 2. Create temp_sender  
-            temp_sender, _ = User.objects.get_or_create(
-                username="temp_sender",
-                defaults={
-                    'first_name': 'System', 
-                    'last_name': 'Sender',
-                    'email': 'cyberassessmenttool@gmail.com',
-                    'is_active': False,
-                    'password': "EmptyPassword"
-                }
-            )
-            
-            # 3. Create INVITATION ONLY (no user created)
+            if not request.user.is_authenticated:
+                # 2. Create temp_sender  
+                temp_sender, _ = User.objects.get_or_create(
+                    username="temp_sender",
+                    defaults={
+                        'first_name': 'System', 
+                        'last_name': 'Sender',
+                        'email': 'cyberassessmenttool@gmail.com',
+                        'is_active': False,
+                        'password': "EmptyPassword"
+                    }
+                )
+                sender = temp_sender
+            else:
+                organization = request.user.organization
+                sender = request.user
+                
             token = str(uuid.uuid4())
             invitation = Invitation.objects.create(
-                sender=temp_sender,
-                organization=organization,
+                sender=sender,
                 recipient_email=form.cleaned_data['email'],
-                recipient_role=form.cleaned_data['role'],
                 token=token,
-                status='sent'
+                recipient_role=form.cleaned_data['role'],
+                organization=organization,
+                status='sent',
             )
+            invitation.save()
             
             # 4. 👇 STORE IN SESSION (key part!)
             request.session['invite_data'] = {
@@ -147,15 +169,16 @@ def process_invite_user_form(request):
                 'last_name': form.cleaned_data['last_name'],
                 'full_name': f"{form.cleaned_data['first_name']} {form.cleaned_data['last_name']}",
                 'email': form.cleaned_data['email'],
-                'company': organization.org_name,
+                'company': invitation.organization.org_name,
                 'role': form.cleaned_data['role'],
             }
             
             # 5. Send email
             invite_url = request.build_absolute_uri(f"/accounts/invite/{token}/accept/")
             email_context = {
-                "inviter_name": f"{temp_sender.first_name} {temp_sender.last_name}",
-                "company": organization.org_name,
+                "inviter_name": f"{invitation.sender.first_name} {invitation.sender.last_name}",
+                "inviter_company": invitation.sender.organization.org_name if invitation.sender.organization else "N/A",
+                "company": invitation.organization.org_name,
                 "role": invitation.get_recipient_role_display(),
                 "invite_link": invite_url, 
             }
@@ -198,7 +221,7 @@ def validate_invite(request, token):
         messages.error(request, "Invalid or expired invitation.")
         return redirect('home')
     
-    print(f"Recipient Email: {invitation.recipient_email}\nRecipient Organization: {invitation.organization}")
+    print(f"Recipient Email: {invitation.recipient_email}\nRecipient Organization: {invitation.organization.org_name}")
     
     # Rest of your code...
     user = User.objects.get(id=invitation.recipient_user.id)
@@ -227,6 +250,21 @@ def validate_invite(request, token):
     messages.success(request, f"✅ {user.username} activated! Approval email sent.")
     
     return redirect('home')
+
+def reject_request(request, token):
+    invitation = Invitation.objects.get(token=token)
+    user = User.objects.get(id = invitation.recipient_user.id)
+    
+    send_email_by_type('rejection', user.email, {
+        "username": user.username,
+        "company": user.organization.org_name,
+        "role": invitation.recipient_role,
+        "org_admin_email": "cyberassessmenttool@gmail.com",
+    })
+    
+    invitation.status = "Rejected"
+    invitation.save()
+    return redirect("home")
     
 def send_otp_view(request, recipient):
     """Send OTP to user using email_factory"""
