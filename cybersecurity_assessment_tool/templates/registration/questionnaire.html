@@ -2,89 +2,7 @@
 
 {% block title %}Organization Setup Questionnaire{% endblock %}
 
-{% block content %}
-<div class="questionnaire-container">
-    <div class="questionnaire-card">
-        <div class="questionnaire-header">
-            <h1 class="questionnaire-title">Welcome to Your Organization Setup</h1>
-            <p class="questionnaire-subtitle">
-                Before we get started, we need some basic information about your organization's security posture.
-                This helps us tailor our recommendations to your needs.
-            </p>
-        </div>
-
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-
-        <form method="post" class="questionnaire-form">
-            {% csrf_token %}
-            
-            <div class="form-section">
-                <h2 class="section-title">Network Information</h2>
-                
-                <div class="form-group">
-                    <label for="ip_address">Primary IP Address / Network Range</label>
-                    <input type="text" 
-                           name="ip_address" 
-                           id="ip_address" 
-                           class="form-input" 
-                           placeholder="e.g., 192.168.1.0/24 or 10.0.0.1"
-                           required>
-                    <span class="help-text">The IP address or CIDR range you want to scan</span>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <h2 class="section-title">Security Practices</h2>
-                
-                <div class="checkbox-group">
-                    <input type="checkbox" name="has_security_policy" id="has_security_policy">
-                    <label for="has_security_policy">
-                        Does your organization have a formal security policy?
-                    </label>
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" name="conducts_regular_audits" id="conducts_regular_audits">
-                    <label for="conducts_regular_audits">
-                        Do you conduct regular security audits?
-                    </label>
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" name="has_incident_response" id="has_incident_response">
-                    <label for="has_incident_response">
-                        Do you have an incident response plan?
-                    </label>
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" name="uses_encryption" id="uses_encryption">
-                    <label for="uses_encryption">
-                        Do you use encryption for sensitive data?
-                    </label>
-                </div>
-            </div>
-
-            <!-- TODO: Store questionnaire data in database -->
-            <!-- Implementation plan:
-                 1. Create OrganizationQuestionnaire model if not exists
-                 2. Save IP address and checkbox responses
-                 3. Link to current organization
-                 4. Set organization.questionnaire_completed = True
-            -->
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Complete Setup</button>
-                <p class="form-note">You can update these settings later in your organization profile.</p>
-            </div>
-        </form>
-    </div>
-</div>
-
+{% block extra_css %}
 <style>
     .questionnaire-container {
         min-height: 100vh;
@@ -222,3 +140,95 @@
     }
 </style>
 {% endblock %}
+
+<!-- removed nav bar -->
+{% block auth %} {% endblock %}
+
+{% block content %}
+<div class="questionnaire-container">
+    <div class="questionnaire-card">
+        <div class="questionnaire-header">
+            <h1 class="questionnaire-title">Welcome to Your Organization Setup</h1>
+            <p class="questionnaire-subtitle">
+                Before we get started, we need some basic information about your organization's security posture.
+                This helps us tailor our recommendations to your needs.
+            </p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if "Registration successful" not in message.message %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="questionnaire-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h2 class="section-title">Network Information</h2>
+                
+                <div class="form-group">
+                    <label for="ip_address">Primary IP Address / Network Range</label>
+                    <input type="text" 
+                           name="ip_address" 
+                           id="ip_address" 
+                           class="form-input" 
+                           placeholder="e.g., 192.168.1.0/24 or 10.0.0.1"
+                           required>
+                    <span class="help-text">The IP address or CIDR range you want to scan</span>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Security Practices</h2>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" name="has_security_policy" id="has_security_policy">
+                    <label for="has_security_policy">
+                        Does your organization have a formal security policy?
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" name="conducts_regular_audits" id="conducts_regular_audits">
+                    <label for="conducts_regular_audits">
+                        Do you conduct regular security audits?
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" name="has_incident_response" id="has_incident_response">
+                    <label for="has_incident_response">
+                        Do you have an incident response plan?
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" name="uses_encryption" id="uses_encryption">
+                    <label for="uses_encryption">
+                        Do you use encryption for sensitive data?
+                    </label>
+                </div>
+            </div>
+
+            <!-- TODO: Store questionnaire data in database -->
+            <!-- Implementation plan:
+                 1. Create OrganizationQuestionnaire model if not exists
+                 2. Save IP address and checkbox responses
+                 3. Link to current organization
+                 4. Set organization.questionnaire_completed = True
+            -->
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Complete Setup</button>
+                <p class="form-note">You can update these settings later in your organization profile.</p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+<!-- removed footer -->
+{% block footer %} {% endblock %}

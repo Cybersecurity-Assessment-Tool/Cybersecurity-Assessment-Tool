@@ -104,6 +104,22 @@
     .btn-secondary:hover {
         background-color: #f9fafb;
     }
+
+    .status-approved {
+        color: #28a745;
+        background-color: #d4edda;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+    }
+    .status-rejected {
+        color: #dc3545;
+        background-color: #f8d7da;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+    }
+    #loginAfterApproval {
+        display: none;
+    }
 </style>
 {% endblock %}
 
@@ -114,12 +130,10 @@
 <div class="waiting-container">
     <div class="waiting-card">
         <h1 class="waiting-title">Registration Pending Approval</h1>
-        
         <div class="waiting-message">
             <p>Thank you for registering <strong>{{ company_name }}</strong>!</p>
             <p>You will receive an email confirmation once your organization has been approved.</p>
         </div>
-        
         <div class="waiting-details">
             <div class="detail-item">
                 <span class="detail-label">Organization:</span>
@@ -131,17 +145,28 @@
             </div>
             <div class="detail-item">
                 <span class="detail-label">Status:</span>
-                <span class="detail-value status-pending">Pending Review</span>
+                <span class="detail-value 
+                    {% if registration_status == 'approved' %}status-approved
+                    {% elif registration_status == 'rejected' %}status-rejected
+                    {% else %}status-pending{% endif %}">
+                    {% if registration_status == 'approved' %}
+                        Approved ✓
+                    {% elif registration_status == 'rejected' %}
+                        Rejected ✗
+                    {% else %}
+                        Pending Review
+                    {% endif %}
+                </span>
             </div>
             <div class="detail-item">
                 <span class="detail-label">Submitted:</span>
                 <span class="detail-value">{{ submitted_at|date:"F j, Y H:i" }}</span>
             </div>
         </div>
-        
         <div class="waiting-actions">
             <a href="{% url 'home' %}" class="btn btn-secondary">Return to Home</a>
             <button class="btn btn-primary" id="checkStatusBtn">Check Status</button>
+            <a href="{% url 'login' %}" class="btn btn-success" id="loginAfterApproval">Proceed to Login</a>
         </div>
     </div>
 </div>
@@ -152,20 +177,54 @@
 
 {% block extra_js %}
 <script>
-$('#checkStatusBtn').click(function() {
-    $.ajax({
-        url: '{% url "accounts:check_registration_status" %}',
-        method: 'GET',
-        success: function(response) {
-            if (response.status === 'approved') {
-                window.location.href = '{% url "login" %}';
-            } else if (response.status === 'rejected') {
-                alert('Your registration has been rejected. Please contact support for more information.');
-            } else {
-                alert('Your registration is still pending approval.');
-            }
+$(document).ready(function() {
+    // Function to update status badge and show login button
+    function updateStatus(status) {
+        const statusSpan = $('.detail-item .detail-value').filter(function() {
+            return $(this).prev('.detail-label').text().trim() === 'Status:';
+        });
+        if (status === 'approved') {
+            statusSpan.removeClass('status-pending').addClass('status-approved').text('Approved ✓');
+            $('#checkStatusBtn').hide();
+            $('#loginAfterApproval').show();
+        } else if (status === 'rejected') {
+            statusSpan.removeClass('status-pending').addClass('status-rejected').text('Rejected ✗');
+            $('#checkStatusBtn').prop('disabled', true).text('Rejected');
         }
+    }
+
+    // Check status button click
+    $('#checkStatusBtn').click(function() {
+        $.ajax({
+            url: '{% url "accounts:check_registration_status" %}',
+            method: 'GET',
+            success: function(response) {
+                if (response.status === 'approved') {
+                    updateStatus('approved');
+                } else if (response.status === 'rejected') {
+                    updateStatus('rejected');
+                    alert('Your registration has been rejected. Please contact support.');
+                } else {
+                    alert('Your registration is still pending approval.');
+                }
+            }
+        });
     });
+
+    // Poll every 10 seconds for automatic update
+    setInterval(function() {
+        $.ajax({
+            url: '{% url "accounts:check_registration_status" %}',
+            method: 'GET',
+            success: function(response) {
+                if (response.status === 'approved') {
+                    updateStatus('approved');
+                } else if (response.status === 'rejected') {
+                    updateStatus('rejected');
+                }
+            }
+        });
+    }, 10000);
 });
 </script>
 {% endblock %}

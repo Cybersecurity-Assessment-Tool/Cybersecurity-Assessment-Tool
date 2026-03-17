@@ -192,7 +192,7 @@ INTERNAL_IPS = [
 ]
 
 
-LOGIN_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = 'login_redirect'
 LOGOUT_REDIRECT_URL = "home"
 
 # Email settings

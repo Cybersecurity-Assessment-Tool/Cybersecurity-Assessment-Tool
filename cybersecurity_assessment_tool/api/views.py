@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.conf import settings
 from api.utils.email_factory import send_email_by_type
 import time
+from django.utils import timezone 
 from api.forms import PublicRegistrationForm
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -17,6 +18,9 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse
 import json
 from django.urls import reverse
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
 
 User = get_user_model()
 
@@ -177,57 +181,100 @@ def send_invite_mail(request, recipient_email):
         "invite_link": f"http://{domain}/invite/{token}/",
     })
         
-def register_user_invite(request, invitation):
-    if request.method == 'POST':
-        user = form.save(commit=False)
-        user.is_active = False  # ← Pending OTP verification
-        user.object.create(
-            id = request.session.get('pending_user_id'),
-            username = request.session['registration_data']['username'],
-        )
-            
-        send_email_by_type('registration', invitation.recipient_email, {
-            "username": user.username
-        })
-        send_email_by_type('request', invitation.sender.email, {
-            "requester_name": user.username,
-            "requester_email": user.email,
-            "company": invitation.sender.organization.org_name,
-            "role": invitation.recipient_role
-        })
-
-# Takes care of public registration for Org Admins and company databases         
-def public_registration(request):
+def register_user_invite(request, token):
+    """Handle user registration via invitation link"""
+    # Get the invitation by token
+    invitation = get_object_or_404(Invitation, token=token, status='sent')
     
-    #Automatic invite token generated
-    token = str(uuid.uuid4())
+    # Check if invitation is expired
+    if not invitation.is_valid():
+        messages.error(request, 'This invitation has expired or is no longer valid.')
+        return redirect('public_registration')
+    
+    if request.method == 'POST':
+        form = InvitationSignupForm(request.POST)
+        
+        if form.is_valid():
+            # Create the user
+            user = form.save(commit=False)
+            user.email = invitation.recipient_email  # Use email from invitation
+            user.organization = invitation.organization  # Assign to organization
+            user.is_active = False  # Pending admin approval
+            user.save()
+            
+            # Update invitation
+            invitation.recipient_user = user
+            invitation.status = 'awaiting_approval'
+            invitation.save()
+            
+            # Store in session for waiting page
+            request.session['pending_company'] = invitation.organization.org_name
+            request.session['pending_email'] = user.email
+            request.session['pending_submitted'] = timezone.now().isoformat()
+            
+            # Send confirmation email to user
+            send_email_by_type('registration', user.email, {
+                "username": user.username
+            })
+            
+            # Send notification to organization admin
+            # Get the organization creator (first user) or a designated admin
+            org_admin = User.objects.filter(organization=invitation.organization).order_by('date_joined').first()
+            if org_admin:
+                send_email_by_type('request', org_admin.email, {
+                    "requester_name": f"{user.first_name} {user.last_name}",
+                    "requester_email": user.email,
+                    "company": invitation.organization.org_name,
+                    "role": invitation.recipient_role
+                })
+            
+            messages.success(request, 'Account created successfully! Please wait for admin approval.')
+            return redirect('accounts:waiting')
+        else:
+            # Form errors - display them
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        # GET request - pre-fill form with email from invitation
+        form = InvitationSignupForm(initial={'email': invitation.recipient_email})
+    
+    context = {
+        'form': form,
+        'invitation': invitation,
+        'organization': invitation.organization.org_name,
+    }
+    return render(request, 'registration/invite_signup.html', context)
+
+# Takes care of public registration for Org Admins and company databases
+def public_registration(request):
+    """Handle public registration for Org Admins"""
     if request.method == 'POST':
         form = PublicRegistrationForm(request.POST)
         
-        # Debug Info
-        # print("POST data:", request.POST)           # What was submitted
-        # print("Form errors:", form.errors)          # What failed validation
-        # print("Form is valid:", form.is_valid())    # Should be True
-        
-        #Checking all requirements for public registration form
         if form.is_valid():
             user = form.save()
             
-            # Debug Info
-            print(f"=== USER CREATED ===")
-            print(f"Username: {user.username}")
-            print(f"Email: {user.email}")
-            print(f"Active: {user.is_active}")
-            print(f"Organization: {user.organization}")
-            print(f"User ID: {user.id}")
-
-            # Our information email that receives the registration request and "sends" the invite
-            # system_user = User.objects.get(username="Cybersecurity Assessment Tool")
-            # system_user.email = "cyberassessmenttool@gmail.com"
-            system_user = User.objects.get(username="Frontend Integration Testing")
-            system_user.email = "ibinstock1@yahoo.com"
-
-            # Creates invitation for the new user with status "sent" (pending approval) and default role of "Org Admin" 
+            # Store data in session for the waiting page
+            request.session['pending_company'] = user.organization.org_name if user.organization else "Your Organization"
+            request.session['pending_email'] = user.email
+            request.session['pending_submitted'] = timezone.now().isoformat()
+            
+            # Get system user for admin notifications
+            try:
+                system_user = User.objects.get(username="Frontend Integration Testing")
+            except User.DoesNotExist:
+                # Create system user if it doesn't exist
+                system_user = User.objects.create_user(
+                    username="Frontend Integration Testing",
+                    email="admin@cybersecuritytool.com",
+                    password=User.objects.make_random_password(),
+                    is_active=True,
+                    is_staff=True
+                )
+                print("Created system user")
+            
+            # Create invitation record
             Invitation.objects.create(
                 sender=system_user,
                 recipient_email=user.email,
@@ -237,43 +284,50 @@ def public_registration(request):
                 organization=user.organization
             )
             
-            # print("After Save")
-
-            # Sends email to the new user confirming their registration request
+            # Send confirmation email to user
             send_email_by_type('registration', user.email, {
                 "username": user.username
             })
             
-            # Get the domain for absolute URLs
-            approve_path = reverse('approve_registration', args=[user.id])
-            reject_path = reverse('reject_registration', args=[user.id])
-
+            # Generate approval URLs
             domain = request.get_host()
             protocol = 'https' if request.is_secure() else 'http'
-            approve_url = f"{protocol}://{domain}{approve_path}"
-            reject_url = f"{protocol}://{domain}{reject_path}"
-
+            
+            approve_url = f"{protocol}://{domain}/api/admin/approve/{user.id}/"
+            reject_url = f"{protocol}://{domain}/api/admin/reject/{user.id}/"
+            
             print(f"Generated approve URL: {approve_url}")
             print(f"Generated reject URL: {reject_url}")
-
-            # Sends email to the system admin
+            
+            # Send request email to admin
             send_email_by_type('request', system_user.email, {
                 'requester_name': f"{user.first_name} {user.last_name}",
                 "requester_email": user.email,
-                "company": user.organization.org_name,
+                "company": user.organization.org_name if user.organization else "Unknown",
                 "role": "Org Admin",
                 "approve_url": approve_url,
-                "reject_url": reject_url
+                "reject_url": reject_url,
             })
             
             messages.success(request, 'Registration successful. Please wait for admin approval.')
+            
+            # Redirect to waiting page
             return redirect('accounts:waiting')
+        
         else:
-            print(form.errors)
+            # FORM IS INVALID - add error messages
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+            
+            # Return the template with the invalid form
+            return render(request, 'registration/public_register.html', {'form': form})
+    
     else:
+        # GET request - display empty form
         form = PublicRegistrationForm()
     
-    return render(request, 'registration/public_registration.html', {'form': form})
+    return render(request, 'registration/public_register.html', {'form': form})
 
 @staff_member_required
 def approve_registration(request, user_id):  # user_id will be an integer
@@ -303,7 +357,6 @@ def approve_registration(request, user_id):  # user_id will be an integer
     messages.success(request, f"User {user.username} has been approved.")
     return redirect('admin:api_user_changelist')
 
-
 @staff_member_required
 def reject_registration(request, user_id):
     """Reject a user's registration request by ID"""
@@ -330,6 +383,186 @@ def reject_registration(request, user_id):
         messages.error(request, f"No pending user found with ID {user_id}")
     
     return redirect('admin:api_user_changelist')
+
+def login_view(request):
+    """Custom login view that handles OTP verification"""
+    if request.method == 'POST':
+        # Handle AJAX requests properly
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            try:
+                # Parse JSON data if sent as JSON
+                if request.content_type == 'application/json':
+                    data = json.loads(request.body)
+                    username = data.get('username')
+                    password = data.get('password')
+                else:
+                    # Handle form data
+                    username = request.POST.get('username')
+                    password = request.POST.get('password')
+                
+                # Authenticate user
+                user = authenticate(request, username=username, password=password)
+                
+                if user is not None:
+                    # Store user ID in session for OTP verification
+                    request.session['pending_user_id'] = user.id
+                    
+                    # Generate and send OTP
+                    from api.utils.email_factory import send_email_by_type
+                    context = send_email_by_type('otp', user.email)
+                    otp = context['otp']
+                    
+                    # Store OTP in session
+                    request.session['login_otp'] = otp
+                    request.session['login_otp_created'] = time.time()
+                    request.session['login_email'] = user.email
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'requires_otp': True,
+                        'message': 'OTP sent to your email'
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'errors': {'__all__': ['Invalid username or password']}
+                    }, status=400)
+                    
+            except Exception as e:
+                print(f"Login error: {e}")
+                return JsonResponse({
+                    'success': False,
+                    'errors': {'__all__': ['An error occurred. Please try again.']}
+                }, status=500)
+        else:
+            # Regular form submission (fallback)
+            form = AuthenticationForm(request, data=request.POST)
+            if form.is_valid():
+                username = form.cleaned_data.get('username')
+                password = form.cleaned_data.get('password')
+                user = authenticate(username=username, password=password)
+                if user is not None:
+                    from django.contrib.auth import login
+                    login(request, user)
+                    return redirect('dashboard')
+            return render(request, 'registration/login.html', {'form': form})
+    
+    # GET request - show login form
+    form = AuthenticationForm()
+    return render(request, 'registration/login.html', {'form': form})
+
+@require_POST
+def verify_login_otp(request):
+    """Verify OTP during login"""
+    try:
+        # Parse JSON data
+        data = json.loads(request.body) if request.body else request.POST
+        otp_input = data.get('otp_input')
+        
+        print(f"Verifying login OTP: {otp_input}")
+        
+        # Get stored OTP from session
+        stored_otp = request.session.get('login_otp')
+        stored_email = request.session.get('login_email')
+        otp_created = request.session.get('login_otp_created')
+        user_id = request.session.get('pending_user_id')
+        
+        print(f"Stored OTP: {stored_otp}, Email: {stored_email}, User ID: {user_id}")
+        
+        # Check if OTP expired (5 minutes)
+        if not stored_otp or not otp_created or (time.time() - otp_created > 300):
+            return JsonResponse({
+                'success': False,
+                'error': 'OTP expired. Please log in again.',
+                'expired': True
+            }, status=400)
+        
+        if stored_otp == otp_input:
+            # OTP verified - log the user in
+            try:
+                from django.contrib.auth import login
+                from django.urls import reverse  # Make sure this import is here
+                
+                user = User.objects.get(id=user_id)
+                login(request, user)
+                
+                # Clear OTP session data
+                request.session.pop('login_otp', None)
+                request.session.pop('login_otp_created', None)
+                request.session.pop('login_email', None)
+                request.session.pop('pending_user_id', None)
+                
+                # Check if user needs to complete questionnaire
+                needs_questionnaire = False
+                
+                # Debug info
+                print(f"User {user.username} - Organization exists: {user.organization is not None}")
+                
+                if user.organization:
+                    # Check if questionnaire is completed (this field is NOT encrypted)
+                    print(f"Organization questionnaire_completed: {user.organization.questionnaire_completed}")
+                    
+                    # Check if this is the first user in the organization
+                    # We need to get all users and check in Python due to encryption
+                    all_users = User.objects.filter(organization=user.organization)
+                    
+                    # Find the first user by date_joined (this field is NOT encrypted)
+                    first_user = None
+                    earliest_date = None
+                    
+                    for u in all_users:
+                        if earliest_date is None or u.date_joined < earliest_date:
+                            earliest_date = u.date_joined
+                            first_user = u
+                    
+                    is_first_user = (first_user and first_user.id == user.id)
+                    print(f"Is first user? {is_first_user}")
+                    
+                    # Show questionnaire if:
+                    # 1. This is the first user AND
+                    # 2. Questionnaire not completed
+                    if is_first_user and not user.organization.questionnaire_completed:
+                        needs_questionnaire = True
+                        print("✓ User needs questionnaire")
+                    else:
+                        print("✗ User does not need questionnaire")
+                else:
+                    print("User has no organization")
+                
+                # Generate proper redirect URLs using reverse
+                if needs_questionnaire:
+                    redirect_url = reverse('accounts:questionnaire')
+                else:
+                    redirect_url = reverse('dashboard')
+                
+                return JsonResponse({
+                    'success': True,
+                    'needs_questionnaire': needs_questionnaire,
+                    'redirect_url': redirect_url,
+                })
+                
+            except User.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'User not found'}, status=400)
+        else:
+            return JsonResponse({'success': False, 'error': 'Invalid verification code'}, status=400)
+            
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid request format'}, status=400)
+    except Exception as e:
+        print(f"Error in verify_login_otp: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+def questionnaire_redirect(request):
+    user = request.user
+    if user.organization and not user.organization.questionnaire_completed:
+        all_users = User.objects.filter(organization=user.organization).order_by('date_joined')
+        first_user = all_users.first()
+        if first_user and first_user.id == user.id:
+            return redirect('accounts:questionnaire')
+    return redirect('dashboard')
 
 class OrganizationViewSet(viewsets.ModelViewSet):
     """
@@ -390,7 +623,66 @@ from django.shortcuts import get_object_or_404, redirect
 from .services.report_manager import generate_network_ai_report
 from django_q.tasks import async_task
 from django_q.models import Task
-from django.contrib.auth.decorators import login_required
+
+def check_registration_status(request):
+    """AJAX endpoint to check if registration has been approved"""
+    email = request.session.get('pending_email')
+    
+    if not email:
+        return JsonResponse({'status': 'pending'})
+    
+    # Get all users and decrypt emails in Python
+    users = User.objects.all()
+    found_user = None
+    
+    for user in users:
+        # Decrypt and compare (case-insensitive)
+        if user.email.lower() == email.lower():
+            found_user = user
+            break
+    
+    if found_user:
+        if found_user.is_active:
+            # Clear session data
+            request.session.pop('pending_company', None)
+            request.session.pop('pending_email', None)
+            request.session.pop('pending_submitted', None)
+            return JsonResponse({'status': 'approved'})
+        else:
+            return JsonResponse({'status': 'pending'})
+    else:
+        return JsonResponse({'status': 'rejected'})
+
+def waiting_page(request):
+    """Waiting page shown after registration while awaiting approval"""
+    email = request.session.get('pending_email')
+    status = 'pending'
+    company = request.session.get('pending_company', 'Your Organization')
+    submitted = request.session.get('pending_submitted', timezone.now())
+
+    if email:
+        # Loop through all users to find matching email (due to encryption)
+        users = User.objects.all()
+        found_user = None
+        for user in users:
+            if user.email.lower() == email.lower():
+                found_user = user
+                break
+        if found_user:
+            if found_user.is_active:
+                status = 'approved'
+            else:
+                status = 'pending'
+        else:
+            status = 'rejected'  # User deleted or not found
+
+    context = {
+        'company_name': company,
+        'email': email,
+        'submitted_at': submitted,
+        'registration_status': status,
+    }
+    return render(request, 'registration/waiting.html', context)
 
 def home(request):
     """Display home page"""

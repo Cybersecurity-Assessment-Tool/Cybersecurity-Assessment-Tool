@@ -39,7 +39,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils import timezone
-from api.models import Invitation
+from api.models import Invitation, OrganizationQuestionnaire
 import random
 import string
 
@@ -132,30 +132,48 @@ def verify_otp(request):
 @login_required
 def questionnaire(request):
     """First-time questionnaire for organization setup"""
-    # TODO: Check if user has already completed questionnaire
-    # If yes, redirect to home
+    user = request.user
+    if not user.organization:
+        messages.error(request, "You are not associated with an organization.")
+        return redirect('dashboard')
+    
+    # If questionnaire already completed, redirect to dashboard
+    if user.organization.questionnaire_completed:
+        return redirect('dashboard')
     
     if request.method == 'POST':
-        # TODO: Save questionnaire data to database
+        # Process form data
         ip_address = request.POST.get('ip_address')
         has_security_policy = request.POST.get('has_security_policy') == 'on'
         conducts_regular_audits = request.POST.get('conducts_regular_audits') == 'on'
         has_incident_response = request.POST.get('has_incident_response') == 'on'
         uses_encryption = request.POST.get('uses_encryption') == 'on'
         
-        # Store in session for now (replace with database storage)
-        request.session['questionnaire_completed'] = True
-        request.session['questionnaire_data'] = {
-            'ip_address': ip_address,
-            'has_security_policy': has_security_policy,
-            'conducts_regular_audits': conducts_regular_audits,
-            'has_incident_response': has_incident_response,
-            'uses_encryption': uses_encryption,
-        }
+        # Validate IP address (basic)
+        if not ip_address:
+            messages.error(request, "IP address is required.")
+            return render(request, 'registration/questionnaire.html')
         
-        messages.success(request, 'Questionnaire completed successfully!')
-        return redirect('home')
+        # Save to OrganizationQuestionnaire
+        questionnaire, created = OrganizationQuestionnaire.objects.update_or_create(
+            organization=user.organization,
+            defaults={
+                'ip_address': ip_address,
+                'has_security_policy': has_security_policy,
+                'conducts_regular_audits': conducts_regular_audits,
+                'has_incident_response': has_incident_response,
+                'uses_encryption': uses_encryption,
+            }
+        )
+        
+        # Mark organization questionnaire as completed
+        user.organization.questionnaire_completed = True
+        user.organization.save()
+        
+        messages.success(request, "Thank you for completing the setup questionnaire!")
+        return redirect('dashboard')
     
+    # GET request - show empty form
     return render(request, 'registration/questionnaire.html')
 
 # Team Management API Endpoints

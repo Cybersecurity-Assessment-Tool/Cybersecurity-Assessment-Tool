@@ -1,5 +1,5 @@
 from django.urls import path
-# import api.views as views
+from api import views as api_views
 from . import views
 from rest_framework.routers import DefaultRouter
 
@@ -30,5 +30,5 @@ urlpatterns = [
     path('invite/<uuid:token>/', views.accept_invitation, name='accept_invitation'),
     
     # Registration status
-    path('check-status/', views.check_registration_status, name='check_registration_status'),
+    path('check-status/', api_views.check_registration_status, name='check_registration_status'),
 ]

@@ -259,7 +259,7 @@ class Invitation(models.Model):
 class OrganizationQuestionnaire(models.Model):
     """Store questionnaire responses for organization setup"""
     organization = models.OneToOneField(Organization, on_delete=models.CASCADE, related_name='questionnaire')
-    ip_address = models.GenericIPAddressField()
+    ip_address = models.CharField(max_length=50)
     has_security_policy = models.BooleanField(default=False)
     conducts_regular_audits = models.BooleanField(default=False)
     has_incident_response = models.BooleanField(default=False)

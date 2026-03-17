@@ -870,190 +870,190 @@ $(document).ready(function() {
     }
 });
 
-// function loadTeamMembers() {
-//     $('#teamMembersList').html(`
-//         <div class="text-center text-muted py-3">
-//             <div class="spinner-border spinner-border-sm" role="status"></div>
-//             Loading team members...
-//         </div>
-//     `);
+function loadTeamMembers() {
+    $('#teamMembersList').html(`
+        <div class="text-center text-muted py-3">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            Loading team members...
+        </div>
+    `);
     
-//     $.ajax({
-//         url: '{% url "team_members" %}',
-//         method: 'GET',
-//         success: function(data) {
-//             if (data.members && data.members.length > 0) {
-//                 let html = '';
-//                 data.members.forEach(member => {
-//                     html += `
-//                         <div class="member-item">
-//                             <div class="member-info">
-//                                 <span class="member-name">${member.name || member.username || member.email}</span>
-//                                 <span class="member-email">${member.email}</span>
-//                             </div>
-//                             <span class="member-role-badge">${member.role || 'Member'}</span>
-//                         </div>
-//                     `;
-//                 });
-//                 $('#teamMembersList').html(html);
-//             } else {
-//                 $('#teamMembersList').html(`
-//                     <div class="text-center text-muted py-3">
-//                         No team members yet. Invite someone to get started!
-//                     </div>
-//                 `);
-//             }
-//         },
-//         error: function() {
-//             $('#teamMembersList').html(`
-//                 <div class="alert alert-error" style="margin: 0;">
-//                     Failed to load team members. Please refresh the page.
-//                 </div>
-//             `);
-//         }
-//     });
-// }
+    $.ajax({
+        url: '{% url "accounts:team_members" %}',
+        method: 'GET',
+        success: function(data) {
+            if (data.members && data.members.length > 0) {
+                let html = '';
+                data.members.forEach(member => {
+                    html += `
+                        <div class="member-item">
+                            <div class="member-info">
+                                <span class="member-name">${member.name || member.username || member.email}</span>
+                                <span class="member-email">${member.email}</span>
+                            </div>
+                            <span class="member-role-badge">${member.role || 'Member'}</span>
+                        </div>
+                    `;
+                });
+                $('#teamMembersList').html(html);
+            } else {
+                $('#teamMembersList').html(`
+                    <div class="text-center text-muted py-3">
+                        No team members yet. Invite someone to get started!
+                    </div>
+                `);
+            }
+        },
+        error: function() {
+            $('#teamMembersList').html(`
+                <div class="alert alert-error" style="margin: 0;">
+                    Failed to load team members. Please refresh the page.
+                </div>
+            `);
+        }
+    });
+}
 
-// function loadPendingInvites() {
-//     $('#pendingInvitesList').html(`
-//         <div class="text-center text-muted py-3">
-//             <div class="spinner-border spinner-border-sm" role="status"></div>
-//             Loading pending invitations...
-//         </div>
-//     `);
+function loadPendingInvites() {
+    $('#pendingInvitesList').html(`
+        <div class="text-center text-muted py-3">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            Loading pending invitations...
+        </div>
+    `);
     
-//     $.ajax({
-//         url: '{% url "pending_invites" %}',
-//         method: 'GET',
-//         success: function(data) {
-//             if (data.invites && data.invites.length > 0) {
-//                 let html = '';
-//                 data.invites.forEach(invite => {
-//                     html += `
-//                         <div class="invite-item" data-invite-id="${invite.id}">
-//                             <div class="invite-info">
-//                                 <span class="invite-email">${invite.email}</span>
-//                                 <span class="invite-role">Role: ${invite.role}</span>
-//                             </div>
-//                             <div class="invite-actions">
-//                                 <span class="invite-status">Pending</span>
-//                                 <button class="btn btn-secondary btn-sm" onclick="resendInvite('${invite.id}')">
-//                                     Resend
-//                                 </button>
-//                                 <button class="btn btn-danger btn-sm" onclick="cancelInvite('${invite.id}')">
-//                                     Cancel
-//                                 </button>
-//                             </div>
-//                         </div>
-//                     `;
-//                 });
-//                 $('#pendingInvitesList').html(html);
-//             } else {
-//                 $('#pendingInvitesList').html(`
-//                     <div class="text-center text-muted py-3">
-//                         No pending invitations.
-//                     </div>
-//                 `);
-//             }
-//         },
-//         error: function() {
-//             $('#pendingInvitesList').html(`
-//                 <div class="alert alert-error" style="margin: 0;">
-//                     Failed to load pending invitations.
-//                 </div>
-//             `);
-//         }
-//     });
-// }
+    $.ajax({
+        url: '{% url "accounts:pending_invites" %}',
+        method: 'GET',
+        success: function(data) {
+            if (data.invites && data.invites.length > 0) {
+                let html = '';
+                data.invites.forEach(invite => {
+                    html += `
+                        <div class="invite-item" data-invite-id="${invite.id}">
+                            <div class="invite-info">
+                                <span class="invite-email">${invite.email}</span>
+                                <span class="invite-role">Role: ${invite.role}</span>
+                            </div>
+                            <div class="invite-actions">
+                                <span class="invite-status">Pending</span>
+                                <button class="btn btn-secondary btn-sm" onclick="resendInvite('${invite.id}')">
+                                    Resend
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="cancelInvite('${invite.id}')">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                $('#pendingInvitesList').html(html);
+            } else {
+                $('#pendingInvitesList').html(`
+                    <div class="text-center text-muted py-3">
+                        No pending invitations.
+                    </div>
+                `);
+            }
+        },
+        error: function() {
+            $('#pendingInvitesList').html(`
+                <div class="alert alert-error" style="margin: 0;">
+                    Failed to load pending invitations.
+                </div>
+            `);
+        }
+    });
+}
 
-// $('#inviteForm').submit(function(e) {
-//     e.preventDefault();
+$('#inviteForm').submit(function(e) {
+    e.preventDefault();
     
-//     const email = $('#invite_email').val();
-//     const role = $('#invite_role').val();
+    const email = $('#invite_email').val();
+    const role = $('#invite_role').val();
     
-//     if (!email) {
-//         $('#inviteMessage').html(`
-//             <div class="alert alert-error">Please enter an email address.</div>
-//         `);
-//         return;
-//     }
+    if (!email) {
+        $('#inviteMessage').html(`
+            <div class="alert alert-error">Please enter an email address.</div>
+        `);
+        return;
+    }
     
-//     // Disable button and show spinner
-//     $('#sendInviteBtn').prop('disabled', true);
-//     $('#inviteSpinner').removeClass('d-none');
-//     $('#inviteMessage').empty();
+    // Disable button and show spinner
+    $('#sendInviteBtn').prop('disabled', true);
+    $('#inviteSpinner').removeClass('d-none');
+    $('#inviteMessage').empty();
     
-//     $.ajax({
-//         url: '{% url "send_invitation" %}',
-//         method: 'POST',
-//         data: {
-//             email: email,
-//             role: role,
-//             csrfmiddlewaretoken: '{{ csrf_token }}'
-//         },
-//         success: function(response) {
-//             $('#inviteMessage').html(`
-//                 <div class="alert alert-success">Invitation sent successfully to ${email}!</div>
-//             `);
-//             $('#inviteForm')[0].reset();
-//             loadPendingInvites();
-//         },
-//         error: function(xhr) {
-//             const errorMsg = xhr.responseJSON?.error || 'Failed to send invitation.';
-//             $('#inviteMessage').html(`
-//                 <div class="alert alert-error">${errorMsg}</div>
-//             `);
-//         },
-//         complete: function() {
-//             $('#sendInviteBtn').prop('disabled', false);
-//             $('#inviteSpinner').addClass('d-none');
+    $.ajax({
+        url: '{% url "accounts:send_invitation" %}',
+        method: 'POST',
+        data: {
+            email: email,
+            role: role,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response) {
+            $('#inviteMessage').html(`
+                <div class="alert alert-success">Invitation sent successfully to ${email}!</div>
+            `);
+            $('#inviteForm')[0].reset();
+            loadPendingInvites();
+        },
+        error: function(xhr) {
+            const errorMsg = xhr.responseJSON?.error || 'Failed to send invitation.';
+            $('#inviteMessage').html(`
+                <div class="alert alert-error">${errorMsg}</div>
+            `);
+        },
+        complete: function() {
+            $('#sendInviteBtn').prop('disabled', false);
+            $('#inviteSpinner').addClass('d-none');
             
-//             setTimeout(() => {
-//                 $('#inviteMessage').fadeOut(function() {
-//                     $(this).empty().show();
-//                 });
-//             }, 5000);
-//         }
-//     });
-// });
+            setTimeout(() => {
+                $('#inviteMessage').fadeOut(function() {
+                    $(this).empty().show();
+                });
+            }, 5000);
+        }
+    });
+});
 
-// function resendInvite(inviteId) {
-//     $.ajax({
-//         url: '{% url "resend_invitation" %}',
-//         method: 'POST',
-//         data: {
-//             invite_id: inviteId,
-//             csrfmiddlewaretoken: '{{ csrf_token }}'
-//         },
-//         success: function() {
-//             alert('Invitation resent successfully!');
-//         },
-//         error: function() {
-//             alert('Failed to resend invitation.');
-//         }
-//     });
-// }
+function resendInvite(inviteId) {
+    $.ajax({
+        url: '{% url "accounts:resend_invitation" %}',
+        method: 'POST',
+        data: {
+            invite_id: inviteId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function() {
+            alert('Invitation resent successfully!');
+        },
+        error: function() {
+            alert('Failed to resend invitation.');
+        }
+    });
+}
 
-// function cancelInvite(inviteId) {
-//     if (!confirm('Are you sure you want to cancel this invitation?')) {
-//         return;
-//     }
+function cancelInvite(inviteId) {
+    if (!confirm('Are you sure you want to cancel this invitation?')) {
+        return;
+    }
     
-//     $.ajax({
-//         url: '{% url "cancel_invitation" %}',
-//         method: 'POST',
-//         data: {
-//             invite_id: inviteId,
-//             csrfmiddlewaretoken: '{{ csrf_token }}'
-//         },
-//         success: function() {
-//             loadPendingInvites();
-//         },
-//         error: function() {
-//             alert('Failed to cancel invitation.');
-//         }
-//     });
-// }
+    $.ajax({
+        url: '{% url "accounts:cancel_invitation" %}',
+        method: 'POST',
+        data: {
+            invite_id: inviteId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function() {
+            loadPendingInvites();
+        },
+        error: function() {
+            alert('Failed to cancel invitation.');
+        }
+    });
+}
 </script>
 {% endblock %}
