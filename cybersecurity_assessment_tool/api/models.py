@@ -54,8 +54,6 @@ class Organization(models.Model):
     website_domain = EncryptedCharField(max_length=100, null=True, blank=True)
     external_ip = EncryptedCharField(max_length=100, null=True, blank=True)
     
-    # Questionnaire questions
-    # TODO: edit these to the question bank
     require_mfa_email = models.BooleanField(default=False)
     require_mfa_computer = models.BooleanField(default=False)
     require_mfa_sensitive_data = models.BooleanField(default=False)
@@ -97,10 +95,10 @@ class User(AbstractUser):
     profile_img = models.ImageField()
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
-    email = EncryptedEmailField()
-    password = EncryptedCharField(max_length=50)
-    first_name = EncryptedCharField(max_length=50)
-    last_name = EncryptedCharField(max_length=50)
+    email = EncryptedEmailField(max_length=100)
+    password = EncryptedCharField(max_length=100)
+    first_name = EncryptedCharField(max_length=100)
+    last_name = EncryptedCharField(max_length=100)
 
     class Meta:
         permissions = [

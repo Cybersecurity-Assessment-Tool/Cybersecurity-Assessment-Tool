@@ -1,15 +1,24 @@
-# accounts/urls.py
 from django.urls import path
-import api.views as views
-from rest_framework.routers import DefaultRouter
+from . import views
+import api.views as api_views
 
-from .views import SignUpView
-
+app_name = 'accounts'
 
 urlpatterns = [
-    #path("signup/", SignUpView.as_view(), name="signup"),
-    path('register/', SignUpView.as_view(), name='registration'),
-    path('otp/verify/', views.otp_verify_view, name='otp_verify'),
-    path('otp/send/', views.send_otp_view, name='resend_otp'),
-    path('public-signup/', views.public_registration, name='public_registration'),
+    path("signup/", views.SignUpView.as_view(), name="signup"),
+    path('signup/invite/<str:token>/', views.SignUpView.as_view(), name='invite_signup'),
+    path("user-detail/", views.UserDetailView.as_view(), name="user-detail"),
+    path('settings/', views.settings, name='settings'),
+    path('settings/upload-image/', views.upload_profile_image, name='upload_image'),
+    path('settings/organization/', views.organization, name='organization'),
+    path('invite/', api_views.process_invite_user_form, name = "invite_user"),
+    path('invite/<str:token>/accept/', api_views.invite_accept, name='invite_accept'),
+    path('admin/approve/<str:token>/', api_views.validate_invite, name='request_approved'),
 ]
+
+# from .views import SignUpView
+
+
+# urlpatterns = [
+#     path("signup/", SignUpView.as_view(), name="signup"),
+# ]

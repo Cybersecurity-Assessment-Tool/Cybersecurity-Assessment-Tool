@@ -170,10 +170,42 @@
         </div>
         {% endif %}
 
+        {% if invite %}
+        <div class="card mb-4">
+          <div class="card-header">
+            Complete your account for {{ invite.company }}
+          </div>
+          <div class="card-body">
+            <p><strong>Name:</strong> {{ invite.first_name }} {{ invite.last_name }}</p>
+            <p><strong>Email:</strong> {{ invite.email }}</p>
+            <p><strong>Role:</strong> {{ invite.role }}</p>
+          </div>
+        </div>
+      {% endif %}
+
         <!-- Sign Up Form -->
         <form method="post" class="auth-form">
             {% csrf_token %}
-            
+
+            <!-- 👇 SIMPLE READ-ONLY LIST AT TOP -->
+            <!-- SIMPLE DISPLAY LIST -->
+            {% if user_context %}
+            <div style="
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            ">
+                <h3 style="margin: 0 0 1rem 0; color: #1e293b;">Verify your information</h3>
+                <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.95rem; line-height: 1.6;">
+                    <li><strong>Name:</strong> {{ user_context.first_name }} {{ user_context.last_name }}</li>
+                    <li><strong>Email:</strong> {{ user_context.email }}</li>
+                    <li><strong>Company:</strong> {{ user_context.company }}</li>
+                    <li><strong>Role:</strong> {{ user_context.role }}</li>
+                </ul>
+            </div>
+            {% endif %}
             <!-- Username Field -->
             <div class="form-group">
                 <label for="{{ form.username.id_for_label }}">Username</label>
@@ -183,14 +215,14 @@
                 {% endif %} -->
             </div>
 
-            <!-- Email Field (New!) -->
+            <!-- Email Field (New!)
             <div class="form-group">
                 <label for="{{ form.email.id_for_label }}">Email</label>
                 {{ form.email }}
                 {% if form.email.help_text %}
                 <span class="form-text">{{ form.email.help_text }}</span>
                 {% endif %}
-            </div>
+            </div>-->
 
             <!-- Password Field -->
             <div class="form-group">
