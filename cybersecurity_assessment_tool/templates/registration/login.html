@@ -3,7 +3,6 @@
 
 {% block title %}Login{% endblock %}
 
-<!-- different styling -->
 {% block extra_css %}
 <style>
     .position-relative { position: relative !important; }
@@ -198,21 +197,6 @@
         text-decoration: underline;
     }
 
-    .otp-input-group {
-        display: flex;
-        gap: 0.5rem;
-        justify-content: center;
-        margin: 1.5rem 0;
-    }
-    
-    .otp-input {
-        width: 3rem;
-        height: 3rem;
-        text-align: center;
-        font-size: 1.25rem;
-        font-weight: 600;
-    }
-
     @media (max-width: 640px) {
         .auth-card { padding: 1.5rem; }
         .social-login { grid-template-columns: 1fr; }
@@ -278,43 +262,8 @@
     </div>
 </div>
 
-<!-- OTP Verification Modal -->
-<div class="modal fade" id="otpModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Verify Your Login</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>We've sent a verification code to your email.</p>
-                <p>Please enter the 6-digit code below:</p>
-                
-                <div class="otp-input-group">
-                    {% for i in "123456"|make_list %}
-                    <input type="text" 
-                           class="otp-input form-control" 
-                           maxlength="1" 
-                           pattern="[0-9]" 
-                           inputmode="numeric"
-                           data-index="{{ forloop.counter0 }}">
-                    {% endfor %}
-                </div>
-                
-                <div id="otpError" class="alert alert-danger mt-3" style="display: none;"></div>
-                <div id="otpSuccess" class="alert alert-success mt-3" style="display: none;"></div>
-                
-                <div class="text-center mt-3">
-                    <button type="button" class="btn btn-link" id="resendOtpBtn">Resend Code</button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="verifyOtpBtn">Verify</button>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'components/otp_popup.html' %}
+
 {% endblock %}
 
 <!-- removed footer -->
@@ -341,59 +290,79 @@ function getCookie(name) {
     return cookieValue;
 }
 
-const csrftoken = getCookie('csrftoken');
-
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
         if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
         }
     }
 });
 
 $(document).ready(function() {
-    let otpModalActive = false;
 
-    // Handle login form submission
     $('#loginForm').submit(function(e) {
         e.preventDefault();
-        
+
         const username = $('#username').val();
         const password = $('#password').val();
-        
-        // Reset button state
+
         $('#loginBtn').prop('disabled', true).text('Verifying...');
         $('#loginError').hide();
-        otpModalActive = true;
-        
+
         $.ajax({
             url: '{% url "login" %}',
             method: 'POST',
-            data: {
-                username: username,
-                password: password
-            },
+            data: { username: username, password: password },
             success: function(response) {
                 if (response.requires_otp) {
-                    // Show OTP modal
-                    initOtpModal(function(redirectUrl) {
-                        // On successful OTP verification, redirect using the URL from the response
-                        window.location.href = redirectUrl || '/dashboard/';
+                    openOtpModal({
+                        email: response.email || '',
+
+                        onVerify: function(otpCode, done) {
+                            $.ajax({
+                                url: '{% url "verify_login_otp" %}',
+                                method: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify({ otp_input: otpCode }),
+                                success: function(res) {
+                                    done(); // signal success to the modal
+                                    // store redirect for onSuccess below
+                                    window._otpRedirectUrl = res.redirect_url;
+                                },
+                                error: function(xhr) {
+                                    done(xhr.responseJSON?.error || 'Invalid code. Please try again.');
+                                }
+                            });
+                        },
+
+                        onResend: function(done) {
+                            $.ajax({
+                                url: '{% url "login" %}',
+                                method: 'POST',
+                                data: { username: username, password: password, resend: true },
+                                success: function() { done(); },
+                                error: function() { done('Failed to resend code. Please try again.'); }
+                            });
+                        },
+
+                        onSuccess: function() {
+                            window.location.href = window._otpRedirectUrl || '/dashboard/';
+                        },
+
+                        onCancel: function() {
+                            $('#loginBtn').prop('disabled', false).text('Sign in');
+                        }
                     });
                 } else {
-                    // Direct login (should not happen in our flow)
                     window.location.href = '/dashboard/';
                 }
             },
             error: function(xhr) {
-                // Reset button state
                 $('#loginBtn').prop('disabled', false).text('Sign in');
-                otpModalActive = false;
-                
                 const response = xhr.responseJSON;
                 if (response && response.errors) {
-                    const errorMsg = response.errors.__all__ || 
-                                    response.errors.username || 
+                    const errorMsg = response.errors.__all__ ||
+                                    response.errors.username ||
                                     'Invalid username or password';
                     $('#loginError').text(errorMsg).show();
                 } else {
@@ -403,104 +372,6 @@ $(document).ready(function() {
         });
     });
 
-    // OTP Modal function
-    function initOtpModal(onSuccess) {
-        // Clear previous inputs
-        $('.otp-input').val('');
-        $('#otpError').hide();
-        $('#otpSuccess').hide();
-        
-        // Auto-focus handling
-        $('.otp-input').off('input keydown').on('input', function() {
-            const index = $(this).data('index');
-            if (this.value.length === 1 && index < 5) {
-                $(`.otp-input[data-index="${index + 1}"]`).focus();
-            }
-        }).on('keydown', function(e) {
-            const index = $(this).data('index');
-            if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
-                $(`.otp-input[data-index="${index - 1}"]`).focus();
-            }
-        });
-        
-        // Focus first input
-        setTimeout(() => {
-            $('.otp-input[data-index="0"]').focus();
-        }, 300);
-        
-        // Remove previous event handlers
-        $('#verifyOtpBtn').off('click');
-        $('#resendOtpBtn').off('click');
-        
-        // Verify button
-        $('#verifyOtpBtn').on('click', function() {
-            const otpCode = $('.otp-input').map(function() { return this.value; }).get().join('');
-
-            if (otpCode.length !== 6) {
-                $('#otpError').text('Please enter all 6 digits.').show();
-                return;
-            }
-
-            $('#verifyOtpBtn').prop('disabled', true).text('Verifying...');
-
-            $.ajax({
-                url: '{% url "verify_login_otp" %}',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    otp_input: otpCode
-                }),
-                success: function(response) {
-                    $('#otpSuccess').text('Login verified! Redirecting...').show();
-                    setTimeout(function() {
-                        $('#otpModal').modal('hide');
-                        // Pass the redirect_url to the callback
-                        if (onSuccess) onSuccess(response.redirect_url);
-                    }, 1000);
-                },
-                error: function(xhr) {
-                    // ... error handling ...
-                }
-            });
-        });
-        
-        // Resend button
-        $('#resendOtpBtn').on('click', function() {
-            const username = $('#username').val();
-            const password = $('#password').val();
-            
-            $('#resendOtpBtn').prop('disabled', true).text('Sending...');
-            
-            $.ajax({
-                url: '{% url "login" %}',
-                method: 'POST',
-                data: {
-                    username: username,
-                    password: password,
-                    resend: true
-                },
-                success: function() {
-                    $('#otpSuccess').text('New verification code sent!').show();
-                    setTimeout(function() { $('#otpSuccess').fadeOut(); }, 3000);
-                    $('#resendOtpBtn').prop('disabled', false).text('Resend Code');
-                },
-                error: function() {
-                    $('#otpError').text('Failed to resend code. Please try again.').show();
-                    $('#resendOtpBtn').prop('disabled', false).text('Resend Code');
-                }
-            });
-        });
-        
-        // Handle modal close/cancel
-        $('#otpModal').on('hidden.bs.modal', function () {
-            console.log('Modal closed');
-            // Reset login button state
-            $('#loginBtn').prop('disabled', false).text('Sign in');
-            otpModalActive = false;
-        });
-        
-        $('#otpModal').modal('show');
-    }
 });
 </script>
 {% endblock %}

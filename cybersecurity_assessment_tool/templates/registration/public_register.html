@@ -247,60 +247,7 @@
     </div>
 </div>
 
-<!-- OTP Verification Modal -->
-<div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="otpModalLabel">Verify Your Email</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>We've sent a verification code to <strong id="otpEmailDisplay"></strong>.</p>
-                <p>Please enter the 6-digit code below:</p>
-                
-                <div class="otp-input-group">
-                    {% for i in "123456"|make_list %}
-                    <input type="text" 
-                           class="otp-input form-control" 
-                           maxlength="1" 
-                           pattern="[0-9]" 
-                           inputmode="numeric"
-                           data-index="{{ forloop.counter0 }}">
-                    {% endfor %}
-                </div>
-                
-                <div id="otpError" class="alert alert-danger mt-3" style="display: none;"></div>
-                <div id="otpSuccess" class="alert alert-success mt-3" style="display: none;"></div>
-                
-                <div class="text-center mt-3">
-                    <button type="button" class="btn btn-link" id="resendOtpBtn">Resend Code</button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="verifyOtpBtn">Verify</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    .otp-input-group {
-        display: flex;
-        gap: 0.5rem;
-        justify-content: center;
-        margin: 1.5rem 0;
-    }
-    
-    .otp-input {
-        width: 3rem;
-        height: 3rem;
-        text-align: center;
-        font-size: 1.25rem;
-        font-weight: 600;
-    }
-</style>
+{% include 'components/otp_popup.html' %}
 
 <!-- removed footer -->
 {% block footer %} {% endblock %}
@@ -308,10 +255,6 @@
 
 {% block extra_js %}
 <script>
-console.log('=== EXTRA_JS BLOCK STARTED ===');
-console.log('jQuery available:', typeof $ !== 'undefined');
-console.log('Bootstrap modal available:', typeof $.fn.modal !== 'undefined');
-
 // CSRF token setup for AJAX
 function getCookie(name) {
     let cookieValue = null;
@@ -328,234 +271,79 @@ function getCookie(name) {
     return cookieValue;
 }
 
-const csrftoken = getCookie('csrftoken');
-
-// Setup AJAX to always include CSRF token
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
         if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
         }
     }
 });
 
-// OTP Modal function with multiple fallback methods
-window.initOtpModal = function(email, purpose, onSuccess) {
-    console.log('OTP Modal initializing for:', email);
-    console.log('Modal element exists:', $('#otpModal').length > 0);
-    console.log('Bootstrap modal available:', typeof $.fn.modal !== 'undefined');
-    
-    $('#otpEmailDisplay').text(email);
-    
-    // Clear previous inputs
-    $('.otp-input').val('');
-    $('#otpError').hide();
-    $('#otpSuccess').hide();
-    
-    // Remove existing event handlers and re-attach
-    $('.otp-input').off('input keydown');
-    
-    // Auto-focus handling
-    $('.otp-input').on('input', function() {
-        const index = $(this).data('index');
-        if (this.value.length === 1 && index < 5) {
-            $(`.otp-input[data-index="${index + 1}"]`).focus();
-        }
-    }).on('keydown', function(e) {
-        const index = $(this).data('index');
-        if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
-            $(`.otp-input[data-index="${index - 1}"]`).focus();
-        }
-    });
-    
-    // Focus first input
-    setTimeout(() => {
-        $('.otp-input[data-index="0"]').focus();
-    }, 300);
-    
-    // Remove previous event handlers
-    $('#verifyOtpBtn').off('click');
-    $('#resendOtpBtn').off('click');
-    
-    // Verify button
-    $('#verifyOtpBtn').on('click', function() {
-        const otpCode = $('.otp-input').map(function() { return this.value; }).get().join('');
-        console.log('Verifying OTP:', otpCode);
-        
-        if (otpCode.length !== 6) {
-            $('#otpError').text('Please enter all 6 digits.').show();
-            return;
-        }
-        
-        $('#verifyOtpBtn').prop('disabled', true).text('Verifying...');
-        
-        $.ajax({
-            url: '{% url "otp_verify" %}',
-            method: 'POST',
-            data: {
-                email: email,
-                otp_input: otpCode,
-                purpose: purpose
-            },
-            success: function(response) {
-                console.log('OTP verified successfully');
-                $('#otpSuccess').text('Email verified successfully!').show();
-                $('#otpError').hide();
-                
-                setTimeout(function() {
-                    // Try both Bootstrap and manual hide
-                    try {
-                        $('#otpModal').modal('hide');
-                    } catch (e) {
-                        $('#otpModal').removeClass('show').hide();
-                        $('.modal-backdrop').remove();
-                    }
-                    
-                    $('#verifyOtpBtn').prop('disabled', false).text('Verify');
-                    if (onSuccess && typeof onSuccess === 'function') {
-                        onSuccess();
-                    }
-                }, 1000);
-            },
-            error: function(xhr) {
-                console.error('OTP verification failed', xhr.responseText);
-                $('#otpError').text(xhr.responseJSON?.error || 'Invalid verification code.').show();
-                $('#verifyOtpBtn').prop('disabled', false).text('Verify');
-                
-                // Clear inputs on error
-                $('.otp-input').val('');
-                $('.otp-input[data-index="0"]').focus();
-            }
-        });
-    });
-    
-    // Resend button
-    $('#resendOtpBtn').on('click', function() {
-        console.log('Resending OTP to:', email);
-        
-        $.ajax({
-            url: '{% url "resend_otp" %}',
-            method: 'POST',
-            data: {
-                email: email,
-                purpose: purpose
-            },
-            success: function() {
-                $('#otpSuccess').text('New verification code sent!').show();
-                $('#otpError').hide();
-                setTimeout(function() { $('#otpSuccess').fadeOut(); }, 3000);
-                
-                // Clear inputs for new code
-                $('.otp-input').val('');
-                $('.otp-input[data-index="0"]').focus();
-            },
-            error: function(xhr) {
-                console.error('Failed to resend OTP', xhr.responseText);
-                $('#otpError').text('Failed to send code. Please try again.').show();
-            }
-        });
-    });
-    
-    // SHOW MODAL - Multiple fallback methods
-    console.log('Attempting to show modal...');
-    
-    // Method 1: Bootstrap modal
-    try {
-        if (typeof $.fn.modal === 'function') {
-            $('#otpModal').modal('show');
-            console.log('Bootstrap modal show called');
-        } else {
-            throw new Error('Bootstrap modal not available');
-        }
-    } catch (e) {
-        console.warn('Bootstrap modal failed, using fallback:', e);
-        
-        // Method 2: Manual show
-        $('#otpModal')
-            .removeClass('fade')
-            .addClass('show')
-            .css('display', 'block')
-            .attr('aria-modal', 'true')
-            .attr('role', 'dialog');
-        
-        // Add backdrop
-        if ($('.modal-backdrop').length === 0) {
-            $('<div class="modal-backdrop fade show"></div>').appendTo('body');
-        }
-    }
-    
-    // Method 3: Direct DOM manipulation as last resort
-    setTimeout(() => {
-        const modal = document.getElementById('otpModal');
-        if (modal && modal.style.display !== 'block') {
-            console.log('Using direct DOM manipulation');
-            modal.style.display = 'block';
-            modal.classList.add('show');
-            document.body.classList.add('modal-open');
-        }
-    }, 100);
-};
-
-console.log('Function defined, checking existence:', typeof window.initOtpModal === 'function');
-
 $(document).ready(function() {
-    console.log('=== DOCUMENT READY ===');
-    console.log('initOtpModal available:', typeof window.initOtpModal === 'function');
-    
     let emailVerified = false;
-    let currentEmail = '';
 
-    // Verify Email button click handler
-    $('#verifyEmailBtn').click(function(e) {
+    // Verify Email button — sends OTP then opens the modal
+    $('#verifyEmailBtn').on('click', function(e) {
         e.preventDefault();
-        console.log('Verify button clicked');
-        
-        const email = $('#email').val();
+
+        const email = $('#email').val().trim();
         if (!email) {
             alert('Please enter an email address.');
             return;
         }
-        
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             alert('Please enter a valid email address.');
             return;
         }
-        
-        currentEmail = email;
+
         $('#verifyEmailBtn').prop('disabled', true).text('Sending...');
-        
+
         $.ajax({
             url: '{% url "resend_otp" %}',
             method: 'POST',
-            data: {
-                email: email,
-                purpose: 'registration'
-            },
-            success: function(response) {
-                console.log('OTP sent successfully', response);
+            data: { email: email, purpose: 'registration' },
+            success: function() {
                 $('#verifyEmailBtn').prop('disabled', false).text('Verify');
-                
-                // Small delay to ensure everything is ready
-                setTimeout(function() {
-                    if (typeof window.initOtpModal === 'function') {
-                        console.log('Calling initOtpModal with:', email);
-                        window.initOtpModal(email, 'registration', function() {
-                            console.log('SUCCESS CALLBACK EXECUTED');
-                            emailVerified = true;
-                            $('#emailVerified').show();
-                            $('#submitBtn').prop('disabled', false);
-                            $('#verifyEmailBtn').prop('disabled', true).text('Verified');
+
+                openOtpModal({
+                    email: email,
+
+                    onVerify: function(otpCode, done) {
+                        $.ajax({
+                            url: '{% url "otp_verify" %}',
+                            method: 'POST',
+                            data: { email: email, otp_input: otpCode, purpose: 'registration' },
+                            success: function() { done(); },
+                            error: function(xhr) {
+                                done(xhr.responseJSON?.error || 'Invalid code. Please try again.');
+                            }
                         });
-                    } else {
-                        console.error('initOtpModal function not found');
-                        alert('OTP modal not available. Please refresh the page.');
+                    },
+
+                    onResend: function(done) {
+                        $.ajax({
+                            url: '{% url "resend_otp" %}',
+                            method: 'POST',
+                            data: { email: email, purpose: 'registration' },
+                            success: function() { done(); },
+                            error: function() { done('Failed to send code. Please try again.'); }
+                        });
+                    },
+
+                    onSuccess: function() {
+                        emailVerified = true;
+                        $('#emailVerified').show();
+                        $('#submitBtn').prop('disabled', false);
+                        $('#verifyEmailBtn').prop('disabled', true).text('Verified');
+                    },
+
+                    onCancel: function() {
+                        // Nothing to reset — email field stays editable
                     }
-                }, 100);
+                });
             },
-            error: function(xhr, status, error) {
-                console.error('Error sending OTP:', error);
-                console.error('Response:', xhr.responseText);
+            error: function() {
                 $('#verifyEmailBtn').prop('disabled', false).text('Verify');
                 alert('Failed to send verification code. Please try again.');
             }
@@ -565,8 +353,7 @@ $(document).ready(function() {
     // Password match validation
     $('#password1, #password2').on('input', function() {
         const password = $('#password1').val();
-        const confirm = $('#password2').val();
-        
+        const confirm  = $('#password2').val();
         if (password && confirm && password !== confirm) {
             $('#password2')[0].setCustomValidity('Passwords do not match');
         } else {
@@ -581,16 +368,11 @@ $(document).ready(function() {
             alert('Please verify your email before submitting.');
             return false;
         }
-        
-        const password = $('#password1').val();
-        const confirm = $('#password2').val();
-        
-        if (password !== confirm) {
+        if ($('#password1').val() !== $('#password2').val()) {
             e.preventDefault();
             alert('Passwords do not match.');
             return false;
         }
-        
         return true;
     });
 });

@@ -25,7 +25,8 @@ from django.contrib.auth.decorators import login_required
 User = get_user_model()
 
 
-# Simple session-based OTP storage (use Redis/Cache in production)
+## Simple session-based OTP storage (use Redis/Cache in production)
+# Checks expiration time and verifies otp
 @require_POST
 @ensure_csrf_cookie
 def otp_verify_view(request):
@@ -97,6 +98,7 @@ def otp_verify_view(request):
         print("="*50)
         return JsonResponse({'error': str(e)}, status=500)
 
+# Sends email with the help of email_factory.py
 @require_POST
 @ensure_csrf_cookie
 def send_otp_view(request):
@@ -264,7 +266,8 @@ def public_registration(request):
             try:
                 system_user = User.objects.get(username="Frontend Integration Testing")
             except User.DoesNotExist:
-                # Create system user if it doesn't exist
+                # Create system user if it doesn't exist (if you don't have access to the admin email, you can
+                # replace it with your own and replace the database user to have the emails sent to your email)
                 system_user = User.objects.create_user(
                     username="Frontend Integration Testing",
                     email="admin@cybersecuritytool.com",
@@ -279,9 +282,10 @@ def public_registration(request):
                 sender=system_user,
                 recipient_email=user.email,
                 token=str(uuid.uuid4()),
-                recipient_role="Org Admin",
-                status="sent",
-                organization=user.organization
+                recipient_role="org_admin",
+                status="awaiting_approval",
+                organization=user.organization,
+                recipient_user=user
             )
             
             # Send confirmation email to user
@@ -345,6 +349,12 @@ def approve_registration(request, user_id):  # user_id will be an integer
     # Activate the user
     user.is_active = True
     user.save()
+
+    # Update the invitation status to 'approved'
+    invitation = Invitation.objects.filter(recipient_user=user).first()
+    if invitation:
+        invitation.status = 'approved'
+        invitation.save()
     
     # Send approval email
     try:

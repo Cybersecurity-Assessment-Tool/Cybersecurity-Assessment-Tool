@@ -7,7 +7,6 @@ app_name = 'accounts'
 
 urlpatterns = [
     path("signup/", views.SignUpView.as_view(), name="signup"),
-    path("user-detail/", views.UserDetailView.as_view(), name="user-detail"), # remove later
     path('settings/', views.settings, name='settings'),
     path('settings/upload-image/', views.upload_profile_image, name='upload_image'),
     path('settings/organization/', views.organization, name='organization'),
@@ -23,6 +22,7 @@ urlpatterns = [
     
     # Team management
     path('team/members/', views.team_members, name='team_members'),
+    path('team/remove/', views.remove_member, name='remove_member'),
     path('team/invites/', views.pending_invites, name='pending_invites'),
     path('team/invite/', views.send_invitation, name='send_invitation'),
     path('team/invite/resend/', views.resend_invitation, name='resend_invitation'),

@@ -204,6 +204,12 @@ class Invitation(models.Model):
         ('observer', 'Observer'),
         ('tester', 'Tester'),
     )
+
+    def is_valid(self):
+        """Check if invitation is still valid (not expired)"""
+        from django.utils import timezone
+        from datetime import timedelta
+        return self.status == 'sent' and self.created_at >= timezone.now() - timedelta(days=7)
     
     invitation_id = models.UUIDField(
         primary_key=True,

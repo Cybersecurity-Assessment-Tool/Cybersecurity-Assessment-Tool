@@ -40,10 +40,8 @@ urlpatterns = [
     path('reports/trigger/', views.trigger_report_generation, name='trigger_report'),
     path('tasks/<str:task_id>/', views.check_task_status, name='check_task_status'),
 
-    path('settings/', views.settings, name='settings'),  # /settings/
+    # path('settings/', views.settings, name='settings'),  # /settings/
     path('profile/', views.profile, name='profile'),  # /profile/
-
-    # path('questionnaire/', views.home, name='questionnaire'),  # /questionnaire/ (not implemented yet)
 ]
 
 if not settings.TESTING:
@@ -51,5 +49,5 @@ if not settings.TESTING:
 
     urlpatterns = [
         *urlpatterns,
-        path('api/v1/', include('api.urls')), # to see the backend engine (DEV ONLY)
+        # path('api/v1/', include('api.urls')), # to see the backend engine (DEV ONLY)
     ] + debug_toolbar_urls()
