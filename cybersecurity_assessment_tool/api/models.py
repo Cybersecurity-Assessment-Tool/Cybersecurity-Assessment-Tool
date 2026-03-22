@@ -26,7 +26,10 @@ How to decrypt the encrypted values:
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, EncryptedJSONField
+from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, EncryptedJSONField, EncryptedEmailField
+from datetime import timedelta
+from django.utils import timezone
+
 
 class Color(models.TextChoices):
     DARK = 'd', 'Dark'
@@ -50,15 +53,30 @@ class Organization(models.Model):
         editable=False
     )
     org_name = EncryptedCharField(max_length=300)
-    email_domain = EncryptedCharField(max_length=100)
-    website_domain = EncryptedCharField(max_length=100)
-    external_ip = EncryptedCharField(max_length=100)
+    email_domain = EncryptedCharField(max_length=100, null=True, blank=True)
+    website_domain = EncryptedCharField(max_length=100, null=True, blank=True)
+    external_ip = EncryptedCharField(max_length=100, null=True, blank=True)
+    
+    # Questionnaire questions
+    # TODO: edit these to the question bank
     require_mfa_email = models.BooleanField(default=False)
     require_mfa_computer = models.BooleanField(default=False)
     require_mfa_sensitive_data = models.BooleanField(default=False)
     employee_acceptable_use_policy = models.BooleanField(default=False)
     training_new_employees = models.BooleanField(default=False)
     training_once_per_year = models.BooleanField(default=False)
+    registration_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending Approval'),
+            ('approved', 'Approved'),
+            ('rejected', 'Rejected'),
+        ],
+        default='pending'
+    )
+    questionnaire_completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.org_name
@@ -84,7 +102,7 @@ class User(AbstractUser):
         help_text='Specific permissions for this user (for exceptions).',
         verbose_name='user permissions',
     )
-    organization = organization = models.ForeignKey(
+    organization = models.ForeignKey(
         Organization, 
         on_delete=models.CASCADE,
         null=True,     # allows null value in the database
@@ -98,6 +116,10 @@ class User(AbstractUser):
     )
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
+    email = EncryptedEmailField()
+    password = EncryptedCharField(max_length=128)
+    first_name = EncryptedCharField(max_length=50)
+    last_name = EncryptedCharField(max_length=50)
 
     class Meta:
         permissions = [
@@ -147,7 +169,9 @@ class Risk(models.Model):
         editable=False
     )
     risk_name = models.CharField(max_length=500)
+    # The report that the risk was created from
     report = models.ForeignKey(Report, on_delete=models.CASCADE)
+    # The organization that the risk is tied to
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     overview = EncryptedTextField()
     recommendations = EncryptedJSONField()
@@ -165,3 +189,109 @@ class Risk(models.Model):
 
     def __str__(self):
         return f"{self.severity}: {self.risk_name}"
+
+
+class Invitation(models.Model):
+    STATUS_CHOICES = (
+        ('sent', 'Sent'),
+        ('awaiting_approval', 'Awaiting Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    )
+    
+    RECIPIENT_ROLE_CHOICES = (
+        ('org_admin', 'Org Admin'),
+        ('observer', 'Observer'),
+        ('tester', 'Tester'),
+    )
+
+    def is_valid(self):
+        """Check if invitation is still valid (not expired)"""
+        from django.utils import timezone
+        from datetime import timedelta
+        return self.status == 'sent' and self.created_at >= timezone.now() - timedelta(days=7)
+    
+    invitation_id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    # The user who sent the invite
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='sent_invitations'
+    )
+    # The organization the new user is being invited to join
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name='invitations'
+    )
+    # The email address the invite was sent to
+    recipient_email = EncryptedEmailField()
+    # The new user account (null until they click the link and sign up)
+    recipient_user = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='received_invitations'
+    )
+    # A secure, unique token for the email link
+    token = models.UUIDField(
+        default=uuid.uuid4, 
+        editable=False, 
+        unique=True
+    )
+    status = models.CharField(
+        max_length=20, 
+        choices=STATUS_CHOICES, 
+        default='sent'
+    )
+    recipient_role = models.CharField(
+        max_length=20,
+        choices=RECIPIENT_ROLE_CHOICES,
+        default='tester',
+    )# Default role for new users, can be changed by admin later
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Invite from {self.sender.username} to {self.recipient_email} - {self.status}"
+    
+
+# TEST
+class OrganizationQuestionnaire(models.Model):
+    """Store questionnaire responses for organization setup"""
+    organization = models.OneToOneField(Organization, on_delete=models.CASCADE, related_name='questionnaire')
+    ip_address = models.CharField(max_length=50)
+    has_security_policy = models.BooleanField(default=False)
+    conducts_regular_audits = models.BooleanField(default=False)
+    has_incident_response = models.BooleanField(default=False)
+    uses_encryption = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Questionnaire for {self.organization.org_name}"
+    
+class OTPVerification(models.Model):
+    """Store OTP codes for email verification"""
+    email = models.EmailField()
+    otp_code = models.CharField(max_length=6)
+    purpose = models.CharField(max_length=20, choices=[
+        ('registration', 'Registration'),
+        ('login', 'Login'),
+        ('invitation', 'Invitation'),
+    ])
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(default=timezone.now() + timedelta(minutes=5))
+    is_verified = models.BooleanField(default=False)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['email', 'otp_code', 'purpose']),
+        ]
+    
+    def is_valid(self):
+        return not self.is_verified and self.expires_at > timezone.now()

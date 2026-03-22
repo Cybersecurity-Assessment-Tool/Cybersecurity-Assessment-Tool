@@ -1,10 +1,10 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Sign Up{% endblock %}
+{% block title %}Complete Your Registration{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Barebones but clean styling */
     .auth-container {
         min-height: 100vh;
         display: flex;
@@ -37,18 +37,10 @@
         margin-bottom: 0.5rem;
     }
 
-    .auth-error {
-        background-color: #fee2e2;
-        border: 1px solid #fecaca;
-        border-radius: 6px;
-        padding: 0.75rem 1rem;
+    .auth-subtitle {
+        color: #6b7280;
         margin-bottom: 1.5rem;
-        font-size: 0.875rem;
-        color: #b91c1c;
-    }
-
-    .auth-error p {
-        margin: 0.25rem 0;
+        text-align: center;
     }
 
     .auth-form {
@@ -83,21 +75,11 @@
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    .form-input::placeholder {
-        color: #9ca3af;
-    }
-
-    .password-requirements {
-        font-size: 0.75rem;
+    .form-input:disabled,
+    .form-input[readonly] {
+        background-color: #f3f4f6;
         color: #6b7280;
-        margin-top: 0.25rem;
-        padding-left: 0.5rem;
-        border-left: 2px solid #e5e7eb;
-    }
-
-    .password-requirements ul {
-        margin: 0.25rem 0;
-        padding-left: 1rem;
+        cursor: not-allowed;
     }
 
     .form-text {
@@ -132,14 +114,32 @@
         padding-top: 1.5rem;
     }
 
-    .signup-link {
+    .auth-footer a {
         color: #3b82f6;
         text-decoration: none;
         font-weight: 500;
     }
 
-    .signup-link:hover {
+    .auth-footer a:hover {
         text-decoration: underline;
+    }
+
+    /* Messages */
+    .alert {
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+    .alert-error {
+        background-color: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #b91c1c;
+    }
+    .alert-success {
+        background-color: #d1fae5;
+        border: 1px solid #a7f3d0;
+        color: #065f46;
     }
 </style>
 {% endblock %}
@@ -151,72 +151,55 @@
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
-            <h1 class="auth-title">Sign up</h1>
+            <h1 class="auth-title">Join {{ organization }}</h1>
+            <p class="auth-subtitle">You've been invited to join as a team member</p>
         </div>
 
-        <!-- Error Messages -->
-        {% if form.errors %}
-        <div class="auth-error">
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <p><strong>{{ field.label }}:</strong> {{ error }}</p>
-                {% endfor %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
             {% endfor %}
-            {% for error in form.non_field_errors %}
-                <p>{{ error }}</p>
-            {% endfor %}
-        </div>
         {% endif %}
 
-        <!-- Sign Up Form -->
         <form method="post" class="auth-form">
             {% csrf_token %}
-            
-            <!-- Username Field -->
+
             <div class="form-group">
-                <label for="{{ form.username.id_for_label }}">Username</label>
-                {{ form.username }}
-                <!-- {% if form.username.help_text %}
-                <span class="form-text">{{ form.username.help_text }}</span>
-                {% endif %} -->
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-input" value="{{ email }}" readonly disabled>
+                <span class="form-text">This email is from your invitation and cannot be changed.</span>
             </div>
 
-            <!-- Email Field (New!) -->
             <div class="form-group">
-                <label for="{{ form.email.id_for_label }}">Email</label>
-                {{ form.email }}
-                {% if form.email.help_text %}
-                <span class="form-text">{{ form.email.help_text }}</span>
-                {% endif %}
+                <label for="first_name">First name</label>
+                <input type="text" name="first_name" id="first_name" class="form-input" required>
             </div>
 
-            <!-- Password Field -->
             <div class="form-group">
-                <label for="{{ form.password1.id_for_label }}">Password</label>
-                {{ form.password1 }}
-                <!-- {% if form.password1.help_text %}
-                <div class="password-requirements">
-                    {{ form.password1.help_text|safe }}
-                </div>
-                {% endif %} -->
+                <label for="last_name">Last name</label>
+                <input type="text" name="last_name" id="last_name" class="form-input" required>
             </div>
 
-            <!-- Confirm Password Field -->
             <div class="form-group">
-                <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
-                {{ form.password2 }}
-                <!-- {% if form.password2.help_text %}
-                <span class="form-text">{{ form.password2.help_text }}</span>
-                {% endif %} -->
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" class="form-input" required>
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="auth-button">Sign Up</button>
+            <div class="form-group">
+                <label for="password1">Password</label>
+                <input type="password" name="password1" id="password1" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password2">Confirm Password</label>
+                <input type="password" name="password2" id="password2" class="form-input" required>
+            </div>
+
+            <button type="submit" class="auth-button">Create Account</button>
         </form>
 
-        <!-- Login Link -->
         <div class="auth-footer">
-            <p>Already have an account? <a href="{% url 'login' %}" class="signup-link">Log In</a></p>
+            <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
         </div>
     </div>
 </div>

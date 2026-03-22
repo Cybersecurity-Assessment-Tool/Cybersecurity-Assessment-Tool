@@ -112,3 +112,25 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class InvitationSignupForm(UserCreationForm):
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'password1', 'password2')
+
+    def __init__(self, *args, **kwargs):
+        self.email = kwargs.pop('email', None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.email
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        # is_active will be set to False in the view
+        if commit:
+            user.save()
+        return user
