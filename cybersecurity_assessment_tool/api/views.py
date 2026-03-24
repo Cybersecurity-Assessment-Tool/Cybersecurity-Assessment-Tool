@@ -790,7 +790,6 @@ def chat_about_risk(request, risk_id):
     else:
         return JsonResponse({"error": "Unauthorized"}, status=403)
 
-from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.contrib import messages
@@ -1050,3 +1049,8 @@ def settings(request):
 def profile(request):
     """Display profile page"""
     return render(request, 'profile.html')
+
+@login_required
+def download_scanner_exe(request):
+    # Placeholder until the exe is built
+    return JsonResponse({'message': 'Scanner not yet available.'}, status=503)

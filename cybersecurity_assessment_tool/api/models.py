@@ -295,3 +295,314 @@ class OTPVerification(models.Model):
     
     def is_valid(self):
         return not self.is_verified and self.expires_at > timezone.now()
+
+
+
+
+import json
+from django.conf import settings
+from cryptography.fernet import Fernet, InvalidToken
+
+
+# ---------------------------------------------------------------------------
+# Encryption helpers
+# ---------------------------------------------------------------------------
+
+def _get_fernet():
+    """Returns a Fernet instance using the project encryption key."""
+    key = settings.FIELD_ENCRYPTION_KEY
+    if not key:
+        raise ValueError("FIELD_ENCRYPTION_KEY is not set in settings.")
+    return Fernet(key.encode() if isinstance(key, str) else key)
+
+
+def encrypt_value(value: str) -> str:
+    """Encrypt a string value. Returns a UTF-8 encoded ciphertext string."""
+    if not value:
+        return value
+    f = _get_fernet()
+    return f.encrypt(value.encode()).decode()
+
+
+def decrypt_value(token: str) -> str:
+    """Decrypt a ciphertext string. Returns plaintext or raises InvalidToken."""
+    if not token:
+        return token
+    f = _get_fernet()
+    return f.decrypt(token.encode()).decode()
+
+
+# ---------------------------------------------------------------------------
+# Encrypted field descriptor
+# ---------------------------------------------------------------------------
+
+class FernetEncryptedTextField(models.TextField):
+    """
+    A TextField that transparently encrypts on save and decrypts on load.
+    Sensitive fields (raw JSON results, subnet, findings) use this field type.
+    """
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        return name, path, args, kwargs
+
+    def from_db_value(self, value, expression, connection):
+        if value is None:
+            return value
+        try:
+            return decrypt_value(value)
+        except (InvalidToken, Exception):
+            # If decryption fails (e.g. dev data without encryption), return raw
+            return value
+
+    def get_prep_value(self, value):
+        if value is None:
+            return value
+        # Avoid double-encrypting already encrypted values
+        try:
+            decrypt_value(value)
+            return value  # already encrypted
+        except Exception:
+            return encrypt_value(value)
+
+
+# ---------------------------------------------------------------------------
+# ScanToken model
+# ---------------------------------------------------------------------------
+
+class ScanToken(models.Model):
+    """
+    One-time signed token generated when the user requests a scanner download.
+    Tied to a specific user and organization. Expires after 24 hours.
+    Consumed (marked used) when the exe POSTs results back.
+    """
+
+    token = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='scan_tokens',
+    )
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name='scan_tokens',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    used_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Scan Token'
+        verbose_name_plural = 'Scan Tokens'
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timezone.timedelta(hours=24)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_valid(self):
+        """Returns True if the token is unused and not expired."""
+        return not self.is_used and timezone.now() < self.expires_at
+
+    def consume(self):
+        """Mark the token as used."""
+        self.is_used = True
+        self.used_at = timezone.now()
+        self.save(update_fields=['is_used', 'used_at'])
+
+    def __str__(self):
+        return f"ScanToken({self.token}) - {'used' if self.is_used else 'valid'})"
+
+
+# ---------------------------------------------------------------------------
+# Scan model
+# ---------------------------------------------------------------------------
+
+class Scan(models.Model):
+    """
+    Represents a single network scan initiated by a user.
+
+    Lifecycle:
+        PENDING   → Token generated, exe downloaded, scan not yet started
+        RUNNING   → Exe is actively scanning (future: real-time updates)
+        RECEIVED  → JSON results POSTed by exe, Gemini report task queued
+        GENERATING → Django-Q2 task running Gemini report generation
+        COMPLETE  → Report generated and stored
+        FAILED    → Any stage failed
+    """
+
+    class Status(models.TextChoices):
+        PENDING    = 'PENDING',    'Pending'
+        RUNNING    = 'RUNNING',    'Running'
+        RECEIVED   = 'RECEIVED',   'Results Received'
+        GENERATING = 'GENERATING', 'Generating Report'
+        COMPLETE   = 'COMPLETE',   'Complete'
+        FAILED     = 'FAILED',     'Failed'
+
+    class Severity(models.TextChoices):
+        CRITICAL = 'CRITICAL', 'Critical'
+        HIGH     = 'HIGH',     'High'
+        MEDIUM   = 'MEDIUM',   'Medium'
+        LOW      = 'LOW',      'Low'
+        INFO     = 'INFO',     'Info'
+
+    # ------------------------------------------------------------------
+    # Identity
+    # ------------------------------------------------------------------
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='scans',
+    )
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name='scans',
+    )
+    token = models.OneToOneField(
+        ScanToken,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='scan',
+    )
+
+    # ------------------------------------------------------------------
+    # Status tracking
+    # ------------------------------------------------------------------
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+        db_index=True,
+    )
+    error_message = models.TextField(blank=True, null=True)
+
+    # Django-Q2 task ID for the Gemini report generation task
+    report_task_id = models.CharField(max_length=255, blank=True, null=True)
+
+    # ------------------------------------------------------------------
+    # Timing
+    # ------------------------------------------------------------------
+    created_at = models.DateTimeField(auto_now_add=True)
+    scan_started_at = models.DateTimeField(null=True, blank=True)
+    scan_completed_at = models.DateTimeField(null=True, blank=True)
+    report_completed_at = models.DateTimeField(null=True, blank=True)
+
+    # Reported by the exe itself
+    scan_duration_seconds = models.PositiveIntegerField(null=True, blank=True)
+
+    # ------------------------------------------------------------------
+    # Scan metadata (encrypted - reveals network topology)
+    # ------------------------------------------------------------------
+    target_subnet = FernetEncryptedTextField(
+        blank=True,
+        null=True,
+        help_text="Encrypted. The subnet that was scanned (e.g. 192.168.1.0/24)."
+    )
+    scanner_version = models.CharField(max_length=20, blank=True, null=True)
+    groups_completed = models.PositiveSmallIntegerField(default=0)
+    skipped_tools = models.JSONField(default=list, blank=True)
+
+    # ------------------------------------------------------------------
+    # Results (encrypted - raw vulnerability data)
+    # ------------------------------------------------------------------
+    raw_findings_json = FernetEncryptedTextField(
+        blank=True,
+        null=True,
+        help_text="Encrypted. Full JSON findings from the exe. Deleted after report generation."
+    )
+
+    # Summary stats derived from findings (not encrypted - aggregate only)
+    finding_count_critical = models.PositiveSmallIntegerField(default=0)
+    finding_count_high      = models.PositiveSmallIntegerField(default=0)
+    finding_count_medium    = models.PositiveSmallIntegerField(default=0)
+    finding_count_low       = models.PositiveSmallIntegerField(default=0)
+    finding_count_info      = models.PositiveSmallIntegerField(default=0)
+
+    # ------------------------------------------------------------------
+    # Report (FK to your existing Report model once generated)
+    # ------------------------------------------------------------------
+    report = models.OneToOneField(
+        Report,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='scan',
+    )
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Scan'
+        verbose_name_plural = 'Scans'
+
+    def __str__(self):
+        return f"Scan({self.id}) - {self.user} - {self.status}"
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def get_findings(self) -> list:
+        """Deserialize and return findings list from encrypted JSON."""
+        if not self.raw_findings_json:
+            return []
+        try:
+            return json.loads(self.raw_findings_json)
+        except json.JSONDecodeError:
+            return []
+
+    def set_findings(self, findings: list):
+        """Serialize and store findings list to encrypted JSON field."""
+        self.raw_findings_json = json.dumps(findings)
+
+    def tally_findings(self, findings: list):
+        """Populate severity count fields from a findings list."""
+        counts = {s: 0 for s in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO']}
+        for f in findings:
+            severity = f.get('severity', 'INFO').upper()
+            if severity in counts:
+                counts[severity] += 1
+        self.finding_count_critical = counts['CRITICAL']
+        self.finding_count_high     = counts['HIGH']
+        self.finding_count_medium   = counts['MEDIUM']
+        self.finding_count_low      = counts['LOW']
+        self.finding_count_info     = counts['INFO']
+
+    def purge_raw_findings(self):
+        """
+        Delete raw JSON findings after report generation.
+        The report holds the AI-processed summary; raw data is no longer needed.
+        """
+        self.raw_findings_json = None
+        self.save(update_fields=['raw_findings_json'])
+
+    @property
+    def total_findings(self):
+        return (
+            self.finding_count_critical +
+            self.finding_count_high +
+            self.finding_count_medium +
+            self.finding_count_low +
+            self.finding_count_info
+        )
+
+    @property
+    def is_complete(self):
+        return self.status == self.Status.COMPLETE
+
+    @property
+    def has_failed(self):
+        return self.status == self.Status.FAILED
