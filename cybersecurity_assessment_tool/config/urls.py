@@ -43,11 +43,3 @@ urlpatterns = [
     # path('settings/', views.settings, name='settings'),  # /settings/
     path('profile/', views.profile, name='profile'),  # /profile/
 ]
-
-if not settings.TESTING:
-    from debug_toolbar.toolbar import debug_toolbar_urls
-
-    urlpatterns = [
-        *urlpatterns,
-        # path('api/v1/', include('api.urls')), # to see the backend engine (DEV ONLY)
-    ] + debug_toolbar_urls()

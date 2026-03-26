@@ -107,7 +107,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',    
 ]
-# 'debug_toolbar.middleware.DebugToolbarMiddleware',
 
 ROOT_URLCONF = 'config.urls'
 
@@ -225,16 +224,6 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
-
-if not TESTING and ENVIRONMENT == 'local':
-    INSTALLED_APPS = [
-        *INSTALLED_APPS,
-        'debug_toolbar'
-    ]
-    MIDDLEWARE = [
-        "debug_toolbar.middleware.DebugToolbarMiddleware",
-        *MIDDLEWARE
-    ]
 
 # ---------------------------------------------------------------------------
 # Security settings — enabled for staging & production
