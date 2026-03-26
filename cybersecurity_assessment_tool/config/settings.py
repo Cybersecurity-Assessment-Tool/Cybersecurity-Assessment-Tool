@@ -66,6 +66,11 @@ if not FIELD_ENCRYPTION_KEY and ENVIRONMENT != 'local':
 
 # Comma-separated list of allowed hosts, e.g. "myapp.herokuapp.com,mydomain.com"
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Allow LAN access during local VM testing
+# Remove or replace with env var before pushing to production
+_LAN_IP = os.environ.get('LAN_IP', '')
+if _LAN_IP and _LAN_IP not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_LAN_IP)
 # Always allow Heroku subdomains in non-local environments
 if ENVIRONMENT != 'local' and '.herokuapp.com' not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append('.herokuapp.com')

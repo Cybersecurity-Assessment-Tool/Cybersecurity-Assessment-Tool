@@ -15,7 +15,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.admin.views.decorators import staff_member_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 import json
 from django.urls import reverse
 from django.contrib.auth import authenticate, login
@@ -1052,5 +1052,31 @@ def profile(request):
 
 @login_required
 def download_scanner_exe(request):
-    # Placeholder until the exe is built
-    return JsonResponse({'message': 'Scanner not yet available.'}, status=503)
+    """
+    Serves the NetworkScanner.exe file as a download.
+    Place the built exe at: api/assets/scanner/NetworkScanner.exe
+    """
+    import os
+    from django.http import FileResponse, Http404
+
+    exe_path = os.path.join(
+        settings.BASE_DIR, 'api', 'assets', 'scanner', 'NetworkScanner.exe'
+    )
+
+    if not os.path.exists(exe_path):
+        # Exe not built yet — tell the user clearly rather than a generic error
+        return HttpResponse(
+            "<h2>Scanner not yet available.</h2>"
+            "<p>The scanner executable has not been built yet. "
+            "Please contact your administrator.</p>",
+            status=503,
+            content_type='text/html',
+        )
+
+    response = FileResponse(
+        open(exe_path, 'rb'),
+        as_attachment=True,
+        filename='NetworkScanner.exe',
+        content_type='application/octet-stream',
+    )
+    return response
