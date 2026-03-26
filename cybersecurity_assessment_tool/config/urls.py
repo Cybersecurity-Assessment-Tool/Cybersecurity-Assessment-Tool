@@ -43,3 +43,13 @@ urlpatterns = [
     # path('settings/', views.settings, name='settings'),  # /settings/
     path('profile/', views.profile, name='profile'),  # /profile/
 ]
+
+## cat hate BANAN
+
+# Add debug toolbar only if it's installed
+if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
+    try:
+        from debug_toolbar.toolbar import debug_toolbar_urls
+        urlpatterns += debug_toolbar_urls()
+    except ImportError:
+        pass  # debug_toolbar not installed, ignore

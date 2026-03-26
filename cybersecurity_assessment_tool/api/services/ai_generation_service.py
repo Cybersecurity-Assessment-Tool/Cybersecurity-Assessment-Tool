@@ -335,6 +335,12 @@ def _generate_report_content(context):
     print(f"--- Calling Gemini API with model: {MODEL_NAME} ---")
     
     full_prompt = f"{_create_report_prompt()}\n\nContext:\n{context}\n\n{example}"
+
+    ## DEBUG pt 1
+    # print("="*60)
+    # print("AI GENERATION: Context length", len(context))
+    # print("Context preview (first 500 chars):", context[:500])
+    # print("="*60)
         
     response = model.generate_content(
         contents=full_prompt,
@@ -343,6 +349,12 @@ def _generate_report_content(context):
             response_schema=REPORT_SCHEMA_JSON
         )
     )
+
+    ## DEBUG pt 2
+    # print("="*60)
+    # print("AI REPORT RESPONSE:")
+    # print(response.text[:1000])  # first 1000 chars
+    # print("="*60)
         
     if not response.text:
         raise RuntimeError("Empty response from Gemini for report generation.")
@@ -387,6 +399,12 @@ def _add_risks(report: dict, current_risks: dict):
             response_schema=RISK_SCHEMA_JSON
         )
     )
+
+    ## DEBUG pt 3
+    # print("="*60)
+    # print("AI RISKS RESPONSE:")
+    # print(response.text[:1000])
+    # print("="*60)
     
     if not response.text:
         raise RuntimeError("Empty response from Gemini for risk generation.")
