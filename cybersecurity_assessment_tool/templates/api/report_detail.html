@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Report: {{ report.report_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        margin-bottom: 2rem;
+    }
+
+    .report-title {
+        font-size: 1.875rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.5rem;
+    }
+
+    .report-meta {
+        color: #6b7280;
+        font-size: 0.875rem;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 1rem;
+        color: #3b82f6;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    .severity-section {
+        margin-bottom: 2rem;
+    }
+    .severity-header {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-left: 0.5rem;
+        border-left: 4px solid;
+    }
+    .severity-header.critical { border-left-color: #dc2626; }
+    .severity-header.high    { border-left-color: #f97316; }
+    .severity-header.medium  { border-left-color: #eab308; }
+    .severity-header.low     { border-left-color: #22c55e; }
+    .severity-header.info    { border-left-color: #6b7280; }
+
+    .risk-list {
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .risk-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .risk-item:last-child {
+        border-bottom: none;
+    }
+    .risk-name {
+        font-weight: 500;
+        color: #111827;
+    }
+    .risk-name a {
+        color: #111827;
+        text-decoration: none;
+    }
+    .risk-name a:hover {
+        color: #3b82f6;
+        text-decoration: underline;
+    }
+    .risk-severity-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+    }
+    .risk-severity-badge.Critical { background-color: #fee2e2; color: #b91c1c; }
+    .risk-severity-badge.High    { background-color: #ffedd5; color: #c2410c; }
+    .risk-severity-badge.Medium  { background-color: #fef9c3; color: #854d0e; }
+    .risk-severity-badge.Low     { background-color: #dcfce7; color: #166534; }
+    .risk-severity-badge.Info    { background-color: #e5e7eb; color: #374151; }
+
+    .empty-message {
+        text-align: center;
+        padding: 3rem;
+        color: #6b7280;
+    }
+
+    .download-button {
+        margin-top: 2rem;
+        display: inline-block;
+        background-color: #111827;
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .download-button:hover {
+        background-color: #1f2937;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-detail-container">
+    <a href="{% url 'report_list' %}" class="back-link">← Back to all reports</a>
+
+    <div class="report-header">
+        <h1 class="report-title">{{ report.report_name }}</h1>
+        <div class="report-meta">
+            <span>Generated on {{ report.completed|date:"F j, Y H:i" }}</span>
+            &nbsp;|&nbsp;
+            <span>By {{ report.user_created.username }}</span>
+        </div>
+    </div>
+
+    {% if not has_risks %}
+        <div class="empty-message">
+            <p>No risks were found in this report.</p>
+        </div>
+    {% else %}
+        {% for severity, risks in severity_groups.items %}
+            {% if risks %}
+                <div class="severity-section">
+                    <h2 class="severity-header {{ severity|lower }}">
+                        {{ severity }} Severity
+                        <span class="badge bg-secondary ms-2">{{ risks|length }}</span>
+                    </h2>
+                    <div class="risk-list">
+                        {% for risk in risks %}
+                            <div class="risk-item">
+                                <div class="risk-name">
+                                    <a href="{% url 'risk_detail' risk.risk_id %}">{{ risk.risk_name }}</a>
+                                </div>
+                                <span class="risk-severity-badge {{ risk.severity }}">
+                                    {{ risk.severity }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <div style="text-align: center;">
+        <a href="#" class="download-button" id="downloadReportBtn">
+            ⬇ Download Report (Coming Soon)
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('downloadReportBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Download functionality will be added in a future update.');
+    });
+</script>
+{% endblock %}

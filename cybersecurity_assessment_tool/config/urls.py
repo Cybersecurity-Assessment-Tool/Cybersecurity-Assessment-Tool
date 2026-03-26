@@ -44,10 +44,12 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),  # /profile/
 ]
 
-if not settings.TESTING:
-    from debug_toolbar.toolbar import debug_toolbar_urls
+## cat hate BANAN
 
-    urlpatterns = [
-        *urlpatterns,
-        # path('api/v1/', include('api.urls')), # to see the backend engine (DEV ONLY)
-    ] + debug_toolbar_urls()
+# Add debug toolbar only if it's installed
+if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
+    try:
+        from debug_toolbar.toolbar import debug_toolbar_urls
+        urlpatterns += debug_toolbar_urls()
+    except ImportError:
+        pass  # debug_toolbar not installed, ignore

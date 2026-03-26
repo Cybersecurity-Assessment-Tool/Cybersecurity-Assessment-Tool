@@ -85,6 +85,17 @@ def _build_integrated_context(scan, findings: list) -> str:
         }
     }
 
+    # DEBUG
+    # print("="*60)
+    # print("GENERATE_REPORT_FROM_SCAN: Findings count =", len(findings))
+
+    # Print first few findings
+    for i, f in enumerate(findings[:5]):
+        print(f"  Finding {i}: {f.get('severity')} - {f.get('description', '')[:50]}")
+    # Also print the metadata
+    print("Metadata:", metadata)
+    print("="*60)
+
     context_blocks = [
         "--- NETWORK SCAN METADATA ---",
         json.dumps(metadata, indent=2),

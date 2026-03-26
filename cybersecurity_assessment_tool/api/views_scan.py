@@ -105,6 +105,15 @@ def submit_scan_results(request):
     findings   = body.get('findings', [])
     raw_results = body.get('raw_results', {})
 
+    # -- DEBUG LOGGING --
+    # print("="*60)
+    # print("SUBMIT_SCAN_RESULTS: Received findings count:", len(findings))
+    # if findings:
+    #     # Print first few findings for inspection
+    #     for i, f in enumerate(findings[:5]):
+    #         print(f"Finding {i}: severity={f.get('severity')}, description={f.get('description', '')[:50]}")
+    # print("="*60)
+
     # -- Retrieve the associated Scan record --
     try:
         scan = Scan.objects.get(token=token_obj)
@@ -127,6 +136,11 @@ def submit_scan_results(request):
     }
     scan.set_findings(findings)
     scan.tally_findings(findings)
+
+    # DEBUG pt 2
+    # print("After tally_findings:", 
+    #     f"crit={scan.finding_count_critical}, high={scan.finding_count_high}, "
+    #     f"med={scan.finding_count_medium}, low={scan.finding_count_low}, info={scan.finding_count_info}")
 
     # Temporarily store full raw results for Gemini
     scan.raw_findings_json = json.dumps(all_results)

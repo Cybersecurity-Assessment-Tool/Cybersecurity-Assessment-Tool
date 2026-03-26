@@ -112,6 +112,16 @@ def generate_and_process_report(
     if report_data is None or risks_data is None:
         print("[ERROR] AI Service failed to generate report or risks data.")
         return None, None
+    
+    ## DEBUG pt 1
+    # print("="*60)
+    # print("GEMINI_CLIENT: risks_data keys:", risks_data.keys())
+    # print("New vulnerabilities count:", len(risks_data.get('new vulnerabilities', [])))
+    
+    # Print first few new vulnerabilities
+    for i, r in enumerate(risks_data.get('new vulnerabilities', [])[:5]):
+        print(f"  New risk {i}: {r.get('risk_name')} - {r.get('severity')}")
+    print("="*60)
 
     # 3. Process and Save to Database
     try:
@@ -158,6 +168,9 @@ def generate_and_process_report(
                     affected_elements=", ".join(risk_item.get('affected_elements', [])),
                 )
                 created_risks.append(new_risk)
+
+            ## DEBUG pt 2
+            # print("Created risks count:", len(created_risks))
 
         print(f"--- Successfully saved Report {new_report.pk} and associated risks. ---")
 
