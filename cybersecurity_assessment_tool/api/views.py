@@ -7,7 +7,7 @@ from api.utils.email_factory import send_email_by_type
 import time
 from django.utils import timezone 
 from api.forms import PublicRegistrationForm
-from .forms import InvitationSignupForm
+from accounts.forms import InvitationSignupForm
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Invitation, Organization, User, Report, Risk
