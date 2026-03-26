@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Complete Your Registration{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f9fafb;
+        padding: 1.5rem;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        width: 100%;
+        max-width: 400px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .auth-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+        color: #6b7280;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .auth-form {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        box-sizing: border-box;
+        transition: border-color 0.15s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-input:disabled,
+    .form-input[readonly] {
+        background-color: #f3f4f6;
+        color: #6b7280;
+        cursor: not-allowed;
+    }
+
+    .form-text {
+        display: block;
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    .auth-button {
+        width: 100%;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: white;
+        background-color: #111827;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.15s;
+    }
+
+    .auth-button:hover {
+        background-color: #1f2937;
+    }
+
+    .auth-footer {
+        text-align: center;
+        font-size: 0.875rem;
+        color: #6b7280;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 1.5rem;
+    }
+
+    .auth-footer a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    /* Messages */
+    .alert {
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+    .alert-error {
+        background-color: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #b91c1c;
+    }
+    .alert-success {
+        background-color: #d1fae5;
+        border: 1px solid #a7f3d0;
+        color: #065f46;
+    }
+</style>
+{% endblock %}
+
+<!-- removed nav bar -->
+{% block auth %} {% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Join {{ organization }}</h1>
+            <p class="auth-subtitle">You've been invited to join as a team member</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-input" value="{{ email }}" readonly disabled>
+                <span class="form-text">This email is from your invitation and cannot be changed.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="first_name">First name</label>
+                <input type="text" name="first_name" id="first_name" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label for="last_name">Last name</label>
+                <input type="text" name="last_name" id="last_name" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password1">Password</label>
+                <input type="password" name="password1" id="password1" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password2">Confirm Password</label>
+                <input type="password" name="password2" id="password2" class="form-input" required>
+            </div>
+
+            <button type="submit" class="auth-button">Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- removed footer -->
+{% block footer %} {% endblock %}

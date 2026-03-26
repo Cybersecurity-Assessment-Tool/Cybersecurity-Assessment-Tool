@@ -23,6 +23,8 @@ from api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
+    path('accounts/login/', views.login_view, name='login'),
     path("accounts/", include("accounts.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     
@@ -34,16 +36,10 @@ urlpatterns = [
     path('risks/', views.risks_list, name='risks_list'),  # /risks/
     path('risks/<uuid:risk_id>/', views.risk_detail, name='risk_detail'),  # /risk/1/
     path('scan/', views.scan, name='scan'),  # /scan/
-    path('settings/', views.settings, name='settings'),  # /settings/
+
+    path('reports/trigger/', views.trigger_report_generation, name='trigger_report'),
+    path('tasks/<str:task_id>/', views.check_task_status, name='check_task_status'),
+
+    # path('settings/', views.settings, name='settings'),  # /settings/
     path('profile/', views.profile, name='profile'),  # /profile/
-
-    # path('questionnaire/', views.home, name='questionnaire'),  # /questionnaire/ (not implemented yet)
 ]
-
-if not settings.TESTING:
-    from debug_toolbar.toolbar import debug_toolbar_urls
-
-    urlpatterns = [
-        *urlpatterns,
-        path('api/v1/', include('api.urls')), # to see the backend engine (DEV ONLY)
-    ] + debug_toolbar_urls()

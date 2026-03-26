@@ -48,6 +48,10 @@ FIELD_ENCRYPTION_KEYS = [
     'f164h6a7591d3d540a946c6e0d2344ef9ae1951cddf3241430edc4273954513a', # Example 32-byte hex key
 ]
 
+FIELD_ENCRYPTION_KEY = os.environ.get('FIELD_ENCRYPTION_KEY')
+if not FIELD_ENCRYPTION_KEY and ENVIRONMENT != 'local':
+    raise ValueError('FIELD_ENCRYPTION_KEY environment variable is required in non-local environments.')
+
 # Comma-separated list of allowed hosts, e.g. "myapp.herokuapp.com,mydomain.com"
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 # Always allow Heroku subdomains in non-local environments
@@ -55,6 +59,29 @@ if ENVIRONMENT != 'local' and '.herokuapp.com' not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append('.herokuapp.com')
 
 # Application definition
+
+# ------------------------------------------
+# Django Q2 (Background Worker) Settings
+# ------------------------------------------
+
+Q_CLUSTER = {
+    'name': 'logodiscover_cluster',
+    'orm': 'default',  
+    
+    # WORKER CONFIGURATION
+    'workers': 4,       # Number of concurrent worker processes. 4 is a safe default for a Standard Heroku Dyno.
+    'recycle': 500,     # Restarts a worker after it processes 500 tasks to prevent memory leaks.
+    'timeout': 300,     # Max time (in seconds) a task is allowed to run before being killed. 
+    'retry': 360,       # Set to 5 minutes (300s) here, but adjust if Gemini AI generation takes longer
+    
+    # DATABASE MANAGEMENT
+    'compress': True,   # Compresses task data in the DB to save storage space.
+    'save_limit': 250,  # Only keeps the history of the last 250 successful tasks in the DB to prevent bloat.
+    
+    # QUEUE BEHAVIOR
+    'queue_limit': 500, # Max number of tasks that can be queued in memory at once.
+    'catch_up': False,  # If your worker goes offline, don't execute missed scheduled tasks all at once when it boots back up.
+}
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -64,7 +91,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-	'debug_toolbar',
+    'django_q',
     'accounts',
     'api',
     'rest_framework',
@@ -78,9 +105,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',    
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -182,20 +207,23 @@ INTERNAL_IPS = [
 ]
 
 
-LOGIN_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = 'login_redirect'
 LOGOUT_REDIRECT_URL = "home"
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 
-if not TESTING and ENVIRONMENT == 'local':
-    INSTALLED_APPS = [
-        *INSTALLED_APPS,
-        'debug_toolbar'
-    ]
-    MIDDLEWARE = [
-        "debug_toolbar.middleware.DebugToolbarMiddleware",
-        *MIDDLEWARE
-    ]
+# Email settings
+EMAIL_BACKEND_TYPE = os.environ.get('EMAIL_BACKEND_TYPE', 'console')
+
+if EMAIL_BACKEND_TYPE == 'smtp':
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 
 # ---------------------------------------------------------------------------
 # Security settings — enabled for staging & production

@@ -1,4 +1,4 @@
-from typing import Tuple, List, Optional
+from typing import Any, Tuple, List, Optional
 from django.db import transaction
 from django.utils import timezone
 
@@ -96,7 +96,8 @@ def _inject_overview_and_questionnaire(report_data: dict, org: Organization) -> 
 def generate_and_process_report(
     organization_id: str, 
     user_id: str, 
-    context_data: str
+    context_data: str,
+    scan_obj: Optional[Any] = None ## NEW
 ) -> Tuple[Optional[Report], Optional[List[Risk]]]:
     """
     Acts as the client to gather DB fields, call the AI service, 
@@ -138,6 +139,11 @@ def generate_and_process_report(
                 report_text=report_data, 
                 completed=timezone.now()
             )
+
+            ## NEW: Link the report back to the Scan
+            if scan_obj:
+                scan_obj.report = new_report
+                scan_obj.save(update_fields=['report'])
 
             # Create the Risks
             created_risks = []
