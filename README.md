@@ -58,9 +58,36 @@ SECRET_KEY=...
 python manage.py makemigrations
 python manage.py migrate
 ```
-6. Start the Django development server:
+6. Start the Django development server and Q cluster:
+
+**Option 1 — Run both with a single script (recommended)**
+
+*macOS / Linux / Windows (Git Bash or WSL):*
+```bash
+cd cybersecurity_assessment_tool
+./run_dev.sh          # default port 8000
+./run_dev.sh 8080     # custom port
+```
+Press `Ctrl+C` to stop both processes.
+
+*Windows (Command Prompt):*
+```bat
+cd cybersecurity_assessment_tool
+run_dev.bat           # default port 8000
+run_dev.bat 8080      # custom port
+```
+Press any key in the launcher window to shut down both processes.
+
+**Option 2 — Run in two separate terminals**
+
+*Terminal 1 — Django development server:*
 ```
 python manage.py runserver
+```
+
+*Terminal 2 — Django Q cluster:*
+```
+python manage.py qcluster
 ```
 
 ## Frontend Setup

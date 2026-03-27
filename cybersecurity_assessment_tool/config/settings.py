@@ -217,8 +217,14 @@ LOGOUT_REDIRECT_URL = "home"
 # ---------------------------------------------------------------------------
 # Email Configuration
 # ---------------------------------------------------------------------------
+<<<<<<< HEAD
 EMAIL_BACKEND_TYPE = os.environ.get('EMAIL_BACKEND_TYPE', 'console')
 
+=======
+#EMAIL_BACKEND_TYPE = os.environ.get('EMAIL_BACKEND_TYPE', 'console')
+
+'''
+>>>>>>> b595d06fc97d23711dc6287af1e40d0438b93c77
 if ENVIRONMENT == 'local':
     # Prints emails to the terminal during local development
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
@@ -232,6 +238,20 @@ else:
     # These must be set in your Heroku Config Vars
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')       # e.g., shanelambert@ucf.edu
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD') # Your 16-character Google App Password 
+<<<<<<< HEAD
+=======
+'''
+    
+# Uses Gmail SMTP for integration/staging/production on Heroku
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+    
+# These must be set in your Heroku Config Vars
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')       # e.g., shanelambert@ucf.edu
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD') # Your 16-character Google App Password 
+>>>>>>> b595d06fc97d23711dc6287af1e40d0438b93c77
 
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 
