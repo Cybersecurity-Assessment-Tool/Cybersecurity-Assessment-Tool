@@ -217,21 +217,32 @@ LOGOUT_REDIRECT_URL = "home"
 # ---------------------------------------------------------------------------
 # Email Configuration
 # ---------------------------------------------------------------------------
-EMAIL_BACKEND_TYPE = os.environ.get('EMAIL_BACKEND_TYPE', 'console')
+#EMAIL_BACKEND_TYPE = os.environ.get('EMAIL_BACKEND_TYPE', 'console')
 
-if ENVIRONMENT == 'local':
-    # Prints emails to the terminal during local development
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-else:
-    # Uses Gmail SMTP for integration/staging/production on Heroku
+# Determine if we're on Heroku
+IS_HEROKU = 'DYNO' in os.environ or 'HEROKU' in os.environ
+
+if EMAIL_BACKEND_TYPE == 'sendgrid' or IS_HEROKU:
+    # Use SendGrid on Heroku
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.sendgrid.net'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = 'apikey'  # This is literally the string 'apikey' for SendGrid
+    EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@cybersecuritytool.com')
+elif EMAIL_BACKEND_TYPE == 'smtp':
+    # Use Gmail or other SMTP
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = 'smtp.gmail.com'
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
-    
-    # These must be set in your Heroku Config Vars
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')       # e.g., shanelambert@ucf.edu
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD') # Your 16-character Google App Password 
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+else:
+    # Development - console backend
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 
