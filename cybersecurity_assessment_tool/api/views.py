@@ -3,7 +3,8 @@ import uuid
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.conf import settings
-from api.utils.email_factory import send_email_by_type
+from api.utils.async_email import send_email_async
+from api.utils.send_otp_mail import generate_otp
 import time
 from django.utils import timezone 
 from api.forms import PublicRegistrationForm
@@ -134,13 +135,13 @@ def send_otp_view(request):
         if not recipient:
             return JsonResponse({'error': 'Email is required'}, status=400)
         
-        # Send OTP using your factory
+        # Generate OTP first so it can be stored in the session, then send async
         try:
-            context = send_email_by_type('otp', recipient)
-            otp = context['otp']
+            otp = generate_otp()
             print(f"Generated OTP for {recipient}: {otp}")
+            send_email_async('otp', recipient, {'otp': otp})
         except Exception as e:
-            print(f"Error in send_email_by_type: {e}")
+            print(f"Error in send_email_async: {e}")
             import traceback
             traceback.print_exc()
             return JsonResponse({'error': 'Failed to send email'}, status=500)
@@ -175,7 +176,7 @@ def send_invite_mail(request, recipient_email):
         )
     domain = request.get_host()
         
-    send_email_by_type('invite', recipient_email, {
+    send_email_async('invite', recipient_email, {
         "inviter_name": invitation.sender.username,
         "inviter_role": invitation.sender.group.help_text,
         "inviter_company": invitation.sender.organization.org_name,
@@ -216,7 +217,7 @@ def register_user_invite(request, token):
             request.session['pending_submitted'] = timezone.now().isoformat()
             
             # Send confirmation email to user
-            send_email_by_type('registration', user.email, {
+            send_email_async('registration', user.email, {
                 "username": user.username
             })
             
@@ -224,7 +225,7 @@ def register_user_invite(request, token):
             # Get the organization creator (first user) or a designated admin
             org_admin = User.objects.filter(organization=invitation.organization).order_by('date_joined').first()
             if org_admin:
-                send_email_by_type('request', org_admin.email, {
+                send_email_async('request', org_admin.email, {
                     "requester_name": f"{user.first_name} {user.last_name}",
                     "requester_email": user.email,
                     "company": invitation.organization.org_name,
@@ -290,7 +291,7 @@ def public_registration(request):
             )
             
             # Send confirmation email to user
-            send_email_by_type('registration', user.email, {
+            send_email_async('registration', user.email, {
                 "username": user.username
             })
             
@@ -305,7 +306,7 @@ def public_registration(request):
             print(f"Generated reject URL: {reject_url}")
             
             # Send request email to admin
-            send_email_by_type('request', system_user.email, {
+            send_email_async('request', system_user.email, {
                 'requester_name': f"{user.first_name} {user.last_name}",
                 "requester_email": user.email,
                 "company": user.organization.org_name if user.organization else "Unknown",
@@ -359,11 +360,11 @@ def approve_registration(request, user_id):  # user_id will be an integer
     
     # Send approval email
     try:
-        send_email_by_type('approval', user.email, {
+        send_email_async('approval', user.email, {
             "username": user.username
         })
     except Exception as e:
-        print(f"Error sending approval email: {e}")
+        print(f"Error queuing approval email: {e}")
     
     messages.success(request, f"User {user.username} has been approved.")
     return redirect('admin:api_user_changelist')
@@ -379,7 +380,7 @@ def reject_registration(request, user_id):
         user_email = user.email
         
         # Send rejection email
-        send_email_by_type('rejection', user_email, {
+        send_email_async('rejection', user_email, {
             "username": username,
             "company": user.organization.org_name if user.organization else "Your Company",
             "role": "Org Admin"
@@ -418,10 +419,9 @@ def login_view(request):
                     # Store user ID in session for OTP verification
                     request.session['pending_user_id'] = user.id
                     
-                    # Generate and send OTP
-                    from api.utils.email_factory import send_email_by_type
-                    context = send_email_by_type('otp', user.email)
-                    otp = context['otp']
+                    # Generate OTP first so it can be stored in the session, then send async
+                    otp = generate_otp()
+                    send_email_async('otp', user.email, {'otp': otp})
                     
                     # Store OTP in session
                     request.session['login_otp'] = otp
