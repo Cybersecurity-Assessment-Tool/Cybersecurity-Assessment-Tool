@@ -54,7 +54,7 @@ def create_groups_and_permissions(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0015_alter_otpverification_expires_at'), 
+        ('api', '0001_initial'), 
     ]
 
     operations = [
