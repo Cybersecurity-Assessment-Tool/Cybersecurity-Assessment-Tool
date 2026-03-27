@@ -58,7 +58,7 @@ import random
 import string
 import uuid
 import traceback
-from api.utils.email_factory import send_email_by_type
+from api.utils.async_email import send_email_async
 
 
 # Public Registration View
@@ -319,7 +319,7 @@ def send_invitation(request):
         protocol = 'https' if request.is_secure() else 'http'
         invite_link = f"{protocol}://{domain}/accounts/invite/{token}/"
 
-        send_email_by_type('invite', email, {
+        send_email_async('invite', email, {
             "inviter_name": f"{user.first_name} {user.last_name}",
             "inviter_role": "Organization Admin",
             "inviter_company": user.organization.org_name,
@@ -344,7 +344,7 @@ def resend_invitation(request):
         domain = request.get_host()
         protocol = 'https' if request.is_secure() else 'http'
         invite_link = f"{protocol}://{domain}/accounts/invite/{inv.token}/"
-        send_email_by_type('invite', inv.recipient_email, {
+        send_email_async('invite', inv.recipient_email, {
             "inviter_name": f"{inv.sender.first_name} {inv.sender.last_name}",
             "inviter_role": "Organization Admin",
             "inviter_company": inv.organization.org_name,
@@ -400,7 +400,7 @@ def accept_invitation(request, token):
             request.session['pending_submitted'] = timezone.now().isoformat()
 
             # Send confirmation to user
-            send_email_by_type('registration', user.email, {"username": user.username})
+            send_email_async('registration', user.email, {"username": user.username})
 
             # Generate approval URLs
             domain = request.get_host()
@@ -411,7 +411,7 @@ def accept_invitation(request, token):
             # Notify organization admin
             org_admin = User.objects.filter(organization=invitation.organization).order_by('date_joined').first()
             if org_admin:
-                send_email_by_type('request', org_admin.email, {
+                send_email_async('request', org_admin.email, {
                     'requester_name': f"{user.first_name} {user.last_name}",
                     'requester_email': user.email,
                     'company': invitation.organization.org_name,
