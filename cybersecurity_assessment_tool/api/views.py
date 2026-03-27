@@ -1081,3 +1081,25 @@ def download_scanner_exe(request):
         content_type='application/octet-stream',
     )
     return response
+
+
+## DEBUG
+from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
+@csrf_exempt
+def test_sendgrid(request):
+    if request.method == 'POST':
+        try:
+            send_mail(
+                'Test Email from SendGrid',
+                'This is a test email sent via SendGrid on Heroku.',
+                settings.DEFAULT_FROM_EMAIL,
+                [request.POST.get('email')],
+                fail_silently=False,
+            )
+            return JsonResponse({'success': True, 'message': 'Email sent!'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'error': 'POST only'}, status=405)
