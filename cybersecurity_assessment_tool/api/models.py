@@ -59,12 +59,12 @@ class Organization(models.Model):
     
     # Questionnaire questions
     # TODO: edit these to the question bank
-    require_mfa_email = models.BooleanField(default=False)
-    require_mfa_computer = models.BooleanField(default=False)
-    require_mfa_sensitive_data = models.BooleanField(default=False)
-    employee_acceptable_use_policy = models.BooleanField(default=False)
-    training_new_employees = models.BooleanField(default=False)
-    training_once_per_year = models.BooleanField(default=False)
+    require_mfa_email = models.BooleanField(null=True, blank=True, default=False)
+    require_mfa_computer = models.BooleanField(null=True, blank=True, default=False)
+    require_mfa_sensitive_data = models.BooleanField(null=True, blank=True, default=False)
+    employee_acceptable_use_policy = models.BooleanField(null=True, blank=True, default=False)
+    training_new_employees = models.BooleanField(null=True, blank=True, default=False)
+    training_once_per_year = models.BooleanField(null=True, blank=True, default=False)
     registration_status = models.CharField(
         max_length=20,
         choices=[
