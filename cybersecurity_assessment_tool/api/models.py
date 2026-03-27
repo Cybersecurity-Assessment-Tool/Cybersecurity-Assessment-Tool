@@ -30,6 +30,8 @@ from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, Encr
 from datetime import timedelta
 from django.utils import timezone
 
+def get_otp_expiration():
+    return timezone.now() + timedelta(minutes=5)
 
 class Color(models.TextChoices):
     DARK = 'd', 'Dark'
@@ -59,12 +61,12 @@ class Organization(models.Model):
     
     # Questionnaire questions
     # TODO: edit these to the question bank
-    require_mfa_email = models.BooleanField(default=False)
-    require_mfa_computer = models.BooleanField(default=False)
-    require_mfa_sensitive_data = models.BooleanField(default=False)
-    employee_acceptable_use_policy = models.BooleanField(default=False)
-    training_new_employees = models.BooleanField(default=False)
-    training_once_per_year = models.BooleanField(default=False)
+    require_mfa_email = models.BooleanField(null=True, blank=True, default=False)
+    require_mfa_computer = models.BooleanField(null=True, blank=True, default=False)
+    require_mfa_sensitive_data = models.BooleanField(null=True, blank=True, default=False)
+    employee_acceptable_use_policy = models.BooleanField(null=True, blank=True, default=False)
+    training_new_employees = models.BooleanField(null=True, blank=True, default=False)
+    training_once_per_year = models.BooleanField(null=True, blank=True,default=False)
     registration_status = models.CharField(
         max_length=20,
         choices=[
@@ -285,7 +287,7 @@ class OTPVerification(models.Model):
         ('invitation', 'Invitation'),
     ])
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField(default=timezone.now() + timedelta(minutes=5))
+    expires_at = models.DateTimeField(default=get_otp_expiration)
     is_verified = models.BooleanField(default=False)
     
     class Meta:
