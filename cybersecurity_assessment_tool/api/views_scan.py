@@ -197,8 +197,8 @@ def scan_status(request, scan_id):
 
     # Add report link once complete
     if scan.status == Scan.Status.COMPLETE and scan.report:
-        response['report_id'] = str(scan.report.id)
-        response['report_url'] = f'/reports/{scan.report.id}/'
+        response['report_id'] = str(scan.report_id)
+        response['report_url'] = f'/reports/{scan.report_id}/'
 
     # Surface error message on failure
     if scan.status == Scan.Status.FAILED:
@@ -234,7 +234,7 @@ def list_scans(request):
                 'finding_count_medium':   s.finding_count_medium,
                 'finding_count_low':      s.finding_count_low,
                 'finding_count_info':     s.finding_count_info,
-                'report_id': str(s.report.id) if s.report else None,
+                'report_id': str(s.report_id) if s.report else None,
             }
             for s in scans
         ]

@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Risk: {{ risk.risk_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .risk-detail-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .risk-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .risk-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .risk-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+    }
+
+    .risk-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .severity-Critical { background-color: #fee2e2; color: #b91c1c; }
+    .severity-High    { background-color: #ffedd5; color: #c2410c; }
+    .severity-Medium  { background-color: #fef9c3; color: #854d0e; }
+    .severity-Low     { background-color: #dcfce7; color: #166534; }
+    .severity-Info    { background-color: #e5e7eb; color: #374151; }
+
+    .risk-section {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .risk-section:last-child {
+        border-bottom: none;
+    }
+
+    .risk-section h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #374151;
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+
+    .risk-content {
+        color: #4b5563;
+        line-height: 1.6;
+        background-color: #f9fafb;
+        padding: 1.25rem;
+        border-radius: 6px;
+    }
+
+    .recommendation-box {
+        background-color: #f9fafb;
+        padding: 1rem 1.25rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+    .recommendation-box strong {
+        color: #111827;
+    }
+    .recommendation-box p {
+        margin: 0.5rem 0 0;
+        color: #4b5563;
+    }
+
+    .element-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .element-list li {
+        background-color: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+        color: #374151;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 1rem;
+        color: #3b82f6;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    .action-button {
+        margin-top: 1rem;
+        display: inline-block;
+        background-color: #111827;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+    .action-button:hover {
+        background-color: #1f2937;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="risk-detail-container">
+    <a href="{% url 'risks_list' %}" class="back-link">← Back to all risks</a>
+
+    <div class="risk-card">
+        <div class="risk-header">
+            <h1 class="risk-title">{{ risk.risk_name }}</h1>
+            <span class="risk-badge severity-{{ risk.severity }}">{{ risk.severity }}</span>
+        </div>
+
+        <div class="risk-section">
+            <h3>Overview</h3>
+            <div class="risk-content">
+                {{ risk.overview|linebreaks }}
+            </div>
+        </div>
+
+        <div class="risk-section">
+            <h3>Affected Elements</h3>
+            {% if affected_elements_list %}
+                <ul class="element-list">
+                    {% for elem in affected_elements_list %}
+                        <li>{{ elem }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">No specific elements identified.</p>
+            {% endif %}
+        </div>
+
+        <div class="risk-section">
+            <h3>Recommendations</h3>
+            <div class="recommendation-box">
+                <strong>Quick Fix (Easy)</strong>
+                <p>{{ risk.recommendations.easy_fix|default:"No quick fix provided." }}</p>
+            </div>
+            <div class="recommendation-box">
+                <strong>Long‑term Fix</strong>
+                <p>{{ risk.recommendations.long_term_fix|default:"No long‑term fix provided." }}</p>
+            </div>
+        </div>
+
+        <div class="risk-section">
+            <h3>Report Information</h3>
+            <p><strong>Report:</strong> <a href="{% url 'report_detail' risk.report.report_id %}">{{ risk.report.report_name }}</a></p>
+            <p><strong>Completed:</strong> {{ risk.report.completed|date:"F j, Y H:i" }}</p>
+            <p><strong>Generated by:</strong> {{ risk.report.user_created.username }}</p>
+        </div>
+
+        <div class="risk-section" style="text-align: center;">
+            <a href="{% url 'report_detail' risk.report.report_id %}" class="action-button">View Full Report</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
