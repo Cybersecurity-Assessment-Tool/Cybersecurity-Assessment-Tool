@@ -22,6 +22,7 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
+import secrets
 
 User = get_user_model()
 
@@ -272,9 +273,12 @@ def public_registration(request):
                 system_user = User.objects.create_user(
                     username="Frontend Integration Testing",
                     email="admin@cybersecuritytool.com",
-                    password=User.objects.make_random_password(),
+                    password="K6vMg4oPnrOoTRy57bucqg",
+                    first_name="System",
+                    last_name="Integration",
                     is_active=True,
-                    is_staff=True
+                    is_staff=True,
+                    is_superuser=False
                 )
                 print("Created system user")
             
