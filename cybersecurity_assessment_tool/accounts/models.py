@@ -20,7 +20,7 @@ def generate_email_hash(email: str) -> str:
     normalized_email = email.strip().lower()
     
     # 2. Add a salt (using Django's SECRET_KEY) to prevent rainbow table attacks
-    salted_email = f"{normalized_email}{SECRET_KEY}"
+    salted_email = f"{normalized_email}{settings.SECRET_KEY}"
     
     # 3. Generate and return the SHA-256 hex digest (64 characters)
     return hashlib.sha256(salted_email.encode('utf-8')).hexdigest()
