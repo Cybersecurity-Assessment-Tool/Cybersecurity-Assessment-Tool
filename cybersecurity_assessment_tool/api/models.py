@@ -23,15 +23,36 @@ How to decrypt the encrypted values:
         ex: heroku pg:psql -a your-app-name
             SELECT external_ip FROM api_organization LIMIT 1;
 """
+import os
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, EncryptedJSONField, EncryptedEmailField
 from datetime import timedelta
 from django.utils import timezone
+import hashlib
+
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
 def get_otp_expiration():
     return timezone.now() + timedelta(minutes=5)
+
+def generate_email_hash(email: str) -> str:
+    """
+    Generates a secure, deterministic hash for an email address.
+    Used for enforcing uniqueness on encrypted email fields.
+    """
+    if not email:
+        return None
+        
+    # 1. Normalize the email (lowercase and strip whitespace)
+    normalized_email = email.strip().lower()
+    
+    # 2. Add a salt (using Django's SECRET_KEY) to prevent rainbow table attacks
+    salted_email = f"{normalized_email}{SECRET_KEY}"
+    
+    # 3. Generate and return the SHA-256 hex digest (64 characters)
+    return hashlib.sha256(salted_email.encode('utf-8')).hexdigest()
 
 class Color(models.TextChoices):
     DARK = 'd', 'Dark'
@@ -119,9 +140,16 @@ class User(AbstractUser):
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
     email = EncryptedEmailField()
+    email_hash = models.CharField(max_length=64, unique=True, null=True, blank=True)
     password = EncryptedCharField(max_length=128)
     first_name = EncryptedCharField(max_length=50, null=True, blank=True)
     last_name = EncryptedCharField(max_length=50, null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        # Automatically generate the hash whenever the user is saved/updated
+        if self.email:
+            self.email_hash = generate_email_hash(self.email)
+        super().save(*args, **kwargs)
 
     class Meta:
         permissions = [
@@ -232,6 +260,8 @@ class Invitation(models.Model):
     )
     # The email address the invite was sent to
     recipient_email = EncryptedEmailField()
+    recipient_email_hash = models.CharField(max_length=64, unique=True, null=True, blank=True)
+    
     # The new user account (null until they click the link and sign up)
     recipient_user = models.ForeignKey(
         User, 
@@ -258,6 +288,12 @@ class Invitation(models.Model):
     )# Default role for new users, can be changed by admin later
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        # Automatically generate the hash whenever the invitation is saved
+        if self.recipient_email:
+            self.recipient_email_hash = generate_email_hash(self.recipient_email)
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"Invite from {self.sender.username} to {self.recipient_email} - {self.status}"
