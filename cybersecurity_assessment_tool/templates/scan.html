@@ -8,7 +8,7 @@
 <div class="container py-4">
 
   {# ------------------------------------------------------------------ #}
-  {# ROW 1: Token + Download                                             #}
+  {# ROW 1: Token + Download                                            #}
   {# ------------------------------------------------------------------ #}
   <div class="row mb-4">
     <div class="col-12">
@@ -22,9 +22,19 @@
               Generate a one-time token, then download the scanner and paste the token into its GUI.
               The token expires in <strong>24 hours</strong>.
             </p>
-            <button id="generateTokenBtn" class="btn btn-primary" onclick="generateToken()">
-              Generate Token &amp; Download Scanner
-            </button>
+            
+            {% if request.user.organization and request.user.organization.questionnaire_completed %}
+                <button id="generateTokenBtn" class="btn btn-primary" onclick="generateToken()">
+                  Generate Token &amp; Download Scanner
+                </button>
+            {% else %}
+                <a href="{% url 'accounts:questionnaire' %}" class="btn btn-warning text-dark">
+                  Complete Setup Questionnaire to Scan
+                </a>
+                <p class="text-danger mt-2 mb-0 small">
+                  <strong>Note:</strong> You must complete your organization's security questionnaire before running your first scan.
+                </p>
+            {% endif %}
           </div>
 
           {# Step 2: Show token after generation #}
@@ -51,7 +61,7 @@
   </div>
 
   {# ------------------------------------------------------------------ #}
-  {# ROW 2: Active scan status (shown while scan in progress)            #}
+  {# ROW 2: Active scan status (shown while scan in progress)           #}
   {# ------------------------------------------------------------------ #}
   <div id="activeScanCard" class="row mb-4 d-none">
     <div class="col-12">
@@ -87,7 +97,7 @@
   </div>
 
   {# ------------------------------------------------------------------ #}
-  {# ROW 3: Completed scan notice                                        #}
+  {# ROW 3: Completed scan notice                                       #}
   {# ------------------------------------------------------------------ #}
   <div id="completedCard" class="row mb-4 d-none">
     <div class="col-12">
@@ -101,7 +111,7 @@
   </div>
 
   {# ------------------------------------------------------------------ #}
-  {# ROW 4: Error notice                                                 #}
+  {# ROW 4: Error notice                                                #}
   {# ------------------------------------------------------------------ #}
   <div id="errorCard" class="row mb-4 d-none">
     <div class="col-12">
@@ -113,7 +123,7 @@
   </div>
 
   {# ------------------------------------------------------------------ #}
-  {# ROW 5: Recent scans table                                           #}
+  {# ROW 5: Recent scans table                                          #}
   {# ------------------------------------------------------------------ #}
   <div class="row">
     <div class="col-12">
@@ -128,8 +138,7 @@
     </div>
   </div>
 
-</div><!-- /container -->
-{% endblock %}
+</div>{% endblock %}
 
 
 {% block extra_js %}
@@ -160,6 +169,9 @@ document.addEventListener('DOMContentLoaded', function () {
 // -------------------------------------------------------------------------
 function generateToken() {
   const btn = document.getElementById('generateTokenBtn');
+  // Extra safety check in JS just in case
+  if (!btn) return; 
+  
   btn.disabled = true;
   btn.textContent = 'Generating...';
 
@@ -327,8 +339,10 @@ function resetScanUI() {
   document.getElementById('generatingNotice').classList.add('d-none');
 
   const btn = document.getElementById('generateTokenBtn');
-  btn.disabled = false;
-  btn.textContent = 'Generate Token & Download Scanner';
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = 'Generate Token & Download Scanner';
+  }
 }
 
 // -------------------------------------------------------------------------

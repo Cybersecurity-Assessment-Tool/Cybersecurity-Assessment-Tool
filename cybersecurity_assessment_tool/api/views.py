@@ -639,7 +639,6 @@ class RiskViewSet(viewsets.ModelViewSet):
 
 # TEST below
 from django.shortcuts import get_object_or_404, redirect
-from .services.report_manager import generate_network_ai_report
 from django_q.tasks import async_task
 from django_q.models import Task
 
