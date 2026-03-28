@@ -25,18 +25,71 @@ class UserDetailView(LoginRequiredMixin, TemplateView):
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
     
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.urls import reverse
+
 @login_required
 def settings(request):
     """Display settings page with tabs"""
     user = request.user
     is_admin = False
+    
+    # Check if user is the organization admin
     if user.organization:
         first_user = User.objects.filter(organization=user.organization).order_by('date_joined').first()
         is_admin = (first_user == user)
+        
+    # Handle Form Submissions
+    if request.method == 'POST':
+        active_tab = request.POST.get('active_tab', 'profile')
+        
+        # Handle Security Posture Update (Admin Only)
+        if 'update_posture' in request.POST and is_admin and user.organization:
+            domain_name = request.POST.get('domain_name')
+            ip_address = request.POST.get('ip_address')
+            
+            # Process form checkboxes
+            mfa_email = request.POST.get('mfa_email') == 'on'
+            mfa_computers = request.POST.get('mfa_computers') == 'on'
+            mfa_sensitive_data = request.POST.get('mfa_sensitive_data') == 'on'
+            has_aup = request.POST.get('has_aup') == 'on'
+            training_new = request.POST.get('training_new_employees') == 'on'
+            training_annual = request.POST.get('training_annual') == 'on'
+            
+            # Basic Validation
+            if not ip_address or not domain_name:
+                messages.error(request, "Domain name and IP address are required.")
+            else:
+                # Save to organization
+                org = user.organization
+                org.website_domain = domain_name
+                org.external_ip = ip_address
+                org.require_mfa_email = mfa_email
+                org.require_mfa_computer = mfa_computers
+                org.require_mfa_sensitive_data = mfa_sensitive_data
+                org.employee_acceptable_use_policy = has_aup
+                org.training_new_employees = training_new
+                org.training_once_per_year = training_annual
+                
+                # Ensure it's marked as completed
+                org.questionnaire_completed = True
+                org.save()
+                
+                messages.success(request, "Security posture updated successfully!")
+            
+            # Redirect back to the posture tab
+            # Update 'accounts:settings' to match your actual url name if different
+            return redirect(f"{request.path}?tab=posture")
+
+        # You can add elif blocks here later for profile, email, and 2fa form updates
+        # elif 'update_profile' in request.POST:
+        #     ...
+
     context = {
         'is_admin': is_admin,
         'active_tab': request.GET.get('tab', 'profile'),
-        # You may also need to pass profile forms if you restore them later
     }
     return render(request, 'accounts/settings.html', context)
 

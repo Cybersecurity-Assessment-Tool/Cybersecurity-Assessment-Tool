@@ -53,6 +53,12 @@
             <button class="btn btn-outline-secondary btn-sm" onclick="resetScanUI()">
               Start Over
             </button>
+
+            {# --- FOR TESTING ONLY REMOVE IN ACTUAL --- #}
+            <button class="btn btn-outline-danger btn-sm ms-2" onclick="simulateScannerPost()">
+              🧪 TEST: Fake Scanner POST
+            </button>
+            {# ----------------------------------------- #}
           </div>
 
         </div>
@@ -292,6 +298,66 @@ function handleStatusUpdate(data) {
       document.getElementById('activeScanCard').classList.add('d-none');
       break;
   }
+}
+
+// -------------------------------------------------------------------------
+// TEST: Simulate Scanner Submission
+// -------------------------------------------------------------------------
+function simulateScannerPost() {
+  const token = document.getElementById('tokenDisplay').value;
+  
+  if (!token) {
+    alert('No token available! Please generate a token first.');
+    return;
+  }
+
+  const dummyPayload = {
+    target_subnet: "192.168.1.0/24",
+    scan_version: "1.0.0-test",
+    scan_duration_seconds: 42,
+    groups_completed: 5,
+    findings: [
+      { 
+        severity: "critical", 
+        description: "Host is vulnerable to MS17-010 (EternalBlue). The SMBv1 protocol is enabled and missing critical security patches, which allows unauthenticated remote code execution." 
+      },
+      { 
+        severity: "high", 
+        description: "Anonymous FTP login is enabled. An unauthenticated attacker can connect to the FTP service, potentially exposing sensitive files or allowing unauthorized uploads." 
+      }
+    ],
+    raw_results: {
+      test_string: "HARD_CODED_TEST_STRING_FOR_AI_PROCESSING",
+      note: "The AI should see this inside the raw_results dict."
+    }
+  };
+
+  const submitEndpoint = '/api/scan/submit/'; 
+
+  console.log(`Sending fake scan data to ${submitEndpoint}...`);
+
+  fetch(submitEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      // The backend expects the token in the Authorization header:
+      'Authorization': `ScanToken ${token}`
+    },
+    body: JSON.stringify(dummyPayload),
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Fake scan submitted successfully:', data);
+  })
+  .catch(error => {
+    console.error('Simulation POST failed:', error);
+    alert('Failed to send fake scan. Check the browser console.');
+  });
 }
 
 // -------------------------------------------------------------------------
