@@ -296,21 +296,7 @@ class Invitation(models.Model):
     
     def __str__(self):
         return f"Invite from {self.sender.username} to {self.recipient_email} - {self.status}"
-    
 
-# TEST
-class OrganizationQuestionnaire(models.Model):
-    """Store questionnaire responses for organization setup"""
-    organization = models.OneToOneField(Organization, on_delete=models.CASCADE, related_name='questionnaire')
-    ip_address = models.CharField(max_length=50)
-    has_security_policy = models.BooleanField(default=False)
-    conducts_regular_audits = models.BooleanField(default=False)
-    has_incident_response = models.BooleanField(default=False)
-    uses_encryption = models.BooleanField(default=False)
-    completed_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"Questionnaire for {self.organization.org_name}"
     
 class OTPVerification(models.Model):
     """Store OTP codes for email verification"""
@@ -332,8 +318,6 @@ class OTPVerification(models.Model):
     
     def is_valid(self):
         return not self.is_verified and self.expires_at > timezone.now()
-
-
 
 
 import json

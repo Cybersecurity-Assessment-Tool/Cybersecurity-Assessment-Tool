@@ -639,7 +639,6 @@ class RiskViewSet(viewsets.ModelViewSet):
 
 # TEST below
 from django.shortcuts import get_object_or_404, redirect
-from .services.report_manager import generate_network_ai_report
 from django_q.tasks import async_task
 from django_q.models import Task
 
@@ -711,24 +710,7 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
-@login_required
 @require_POST
-def trigger_report_generation(request):
-    """
-    Triggers the background network scan using Django Q2.
-    """
-    task_id = async_task(
-        generate_network_ai_report,
-        request.user.organization.external_ip,
-        request.user.user_id,
-        request.user.organization_id
-    )
-    
-    return JsonResponse({
-        'task_id': task_id,
-        'status': 'Processing started...'
-    }, status=202)
-
 @login_required
 def check_task_status(request, task_id):
     """

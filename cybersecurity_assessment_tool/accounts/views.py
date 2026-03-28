@@ -53,7 +53,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils import timezone
-from api.models import Invitation, OrganizationQuestionnaire
+from api.models import Invitation
 import random
 import string
 import uuid
@@ -160,33 +160,37 @@ def questionnaire(request):
         return redirect('dashboard')
     
     if request.method == 'POST':
-        # Process form data
+        # Process form text inputs
+        domain_name = request.POST.get('domain_name')
         ip_address = request.POST.get('ip_address')
-        has_security_policy = request.POST.get('has_security_policy') == 'on'
-        conducts_regular_audits = request.POST.get('conducts_regular_audits') == 'on'
-        has_incident_response = request.POST.get('has_incident_response') == 'on'
-        uses_encryption = request.POST.get('uses_encryption') == 'on'
         
-        # Validate IP address (basic)
-        if not ip_address:
-            messages.error(request, "IP address is required.")
+        # Process form checkboxes (HTML checkboxes return 'on' if checked)
+        mfa_email = request.POST.get('mfa_email') == 'on'
+        mfa_computers = request.POST.get('mfa_computers') == 'on'
+        mfa_sensitive_data = request.POST.get('mfa_sensitive_data') == 'on'
+        has_aup = request.POST.get('has_aup') == 'on'
+        training_new = request.POST.get('training_new_employees') == 'on'
+        training_annual = request.POST.get('training_annual') == 'on'
+        
+        # Basic Validation
+        if not ip_address or not domain_name:
+            messages.error(request, "Domain name and IP address are required.")
             return render(request, 'registration/questionnaire.html')
         
-        # Save to OrganizationQuestionnaire
-        questionnaire, created = OrganizationQuestionnaire.objects.update_or_create(
-            organization=user.organization,
-            defaults={
-                'ip_address': ip_address,
-                'has_security_policy': has_security_policy,
-                'conducts_regular_audits': conducts_regular_audits,
-                'has_incident_response': has_incident_response,
-                'uses_encryption': uses_encryption,
-            }
-        )
+        # Save directly to the existing Organization model fields
+        org = user.organization
+        org.website_domain = domain_name
+        org.external_ip = ip_address
+        org.require_mfa_email = mfa_email
+        org.require_mfa_computer = mfa_computers
+        org.require_mfa_sensitive_data = mfa_sensitive_data
+        org.employee_acceptable_use_policy = has_aup
+        org.training_new_employees = training_new
+        org.training_once_per_year = training_annual
         
         # Mark organization questionnaire as completed
-        user.organization.questionnaire_completed = True
-        user.organization.save()
+        org.questionnaire_completed = True
+        org.save()
         
         messages.success(request, "Thank you for completing the setup questionnaire!")
         return redirect('dashboard')
