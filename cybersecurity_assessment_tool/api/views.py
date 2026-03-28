@@ -277,6 +277,16 @@ def public_registration(request):
                     is_staff=True
                 )
                 print("Created system user")
+                
+            invitation = Invitation.objects.get(
+                recipient_email=user.email,
+                organization=user.organization,
+                status="sent",
+            )
+            
+            if invitation:
+                print(f"Found existing invitation for {user.email}")
+                return redirect('accounts:waiting')
             
             # Create invitation record
             Invitation.objects.create(
@@ -360,7 +370,9 @@ def approve_registration(request, user_id):  # user_id will be an integer
     # Send approval email
     try:
         send_email_by_type('approval', user.email, {
-            "username": user.username
+            "username": user.username,
+            "company": user.organization.org_name if user.organization else "Your Company",
+            "login_url": f"http://{request.get_host()}/login/"
         })
     except Exception as e:
         print(f"Error sending approval email: {e}")
