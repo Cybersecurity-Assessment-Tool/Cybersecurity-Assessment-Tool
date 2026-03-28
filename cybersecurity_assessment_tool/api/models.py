@@ -31,8 +31,7 @@ from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, Encr
 from datetime import timedelta
 from django.utils import timezone
 import hashlib
-
-SECRET_KEY = os.environ.get('SECRET_KEY', '')
+from django.conf import settings
 
 def get_otp_expiration():
     return timezone.now() + timedelta(minutes=5)
@@ -49,7 +48,7 @@ def generate_email_hash(email: str) -> str:
     normalized_email = email.strip().lower()
     
     # 2. Add a salt (using Django's SECRET_KEY) to prevent rainbow table attacks
-    salted_email = f"{normalized_email}{SECRET_KEY}"
+    salted_email = f"{normalized_email}{settings.SECRET_KEY}"
     
     # 3. Generate and return the SHA-256 hex digest (64 characters)
     return hashlib.sha256(salted_email.encode('utf-8')).hexdigest()
