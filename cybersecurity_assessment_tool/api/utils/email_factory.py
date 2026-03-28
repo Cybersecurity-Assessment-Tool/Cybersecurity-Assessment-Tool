@@ -115,10 +115,11 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
     html_content = render_to_string(config['template'], config['context'])
     
     # Send using EmailMultiAlternatives (same as test_email.py)
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or settings.EMAIL_HOST_USER
     msg = EmailMultiAlternatives(
         config['subject'],
         text_content,
-        settings.EMAIL_HOST_USER,
+        from_email,
         [recipient]
     )
     msg.attach_alternative(html_content, "text/html")
