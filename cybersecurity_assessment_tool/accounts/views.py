@@ -320,7 +320,7 @@ def send_invitation(request):
 
         # Send invitation email
         domain = request.get_host()
-        protocol = 'https' if request.is_secure() else 'http'
+        protocol = 'https' if (request.is_secure() or 'herokuapp.com' in domain) else 'http'
         invite_link = f"{protocol}://{domain}/accounts/invite/{token}/"
 
         send_email_by_type('invite', email, {
@@ -346,7 +346,7 @@ def resend_invitation(request):
     try:
         inv = Invitation.objects.get(invitation_id=invite_id, organization=request.user.organization, status='sent')
         domain = request.get_host()
-        protocol = 'https' if request.is_secure() else 'http'
+        protocol = 'https' if (request.is_secure() or 'herokuapp.com' in domain) else 'http'
         invite_link = f"{protocol}://{domain}/accounts/invite/{inv.token}/"
         send_email_by_type('invite', inv.recipient_email, {
             "inviter_name": f"{inv.sender.first_name} {inv.sender.last_name}",
