@@ -38,6 +38,18 @@ def get_severity_weight(severity_str: str) -> int:
     # Default to 6 (lowest priority) if the AI generates an unexpected string
     return SEVERITY_WEIGHTS.get(severity_str.capitalize(), 6)
 
+def get_questionnaire_dict(org: Organization) -> dict:
+    return {
+        "Questionnaire Review": {
+            "Do you require MFA to access email?": "Yes" if org.require_mfa_email else "No",
+            "Do you require MFA to log into computers?": "Yes" if org.require_mfa_computer else "No",
+            "Do you require MFA to access sensitive data systems?": "Yes" if org.require_mfa_sensitive_data else "No",
+            "Does your organization have an employee acceptable use policy?": "Yes" if org.employee_acceptable_use_policy else "No",
+            "Does your organization do security awareness training for new employees?": "Yes" if org.training_new_employees else "No",
+            "Does your organization do security awareness training for all employees at least once per year?": "Yes" if org.training_once_per_year else "No"
+        }
+    }
+
 def build_current_risks_dict(organization_id: int) -> dict:
     """
     Fetches existing risks for an organization and formats them 
@@ -103,11 +115,18 @@ def generate_and_process_report(
     Acts as the client to gather DB fields, call the AI service, 
     sort the resulting data, inject database context, and save objects.
     """
+    # Fetch the database records
+    org = Organization.objects.get(organization_id=organization_id)
+    user = User.objects.get(user_id=user_id) if user_id else None
+        
     # 1. Fetch current risks
     current_risks = build_current_risks_dict(organization_id)
+    
+    # 2. Fetch the questionnaire information
+    questionnaire = get_questionnaire_dict(org)
 
-    # 2. Call the AI generation service (pure AI logic, no database IDs needed)
-    report_data, risks_data = ai_generation_service(current_risks, context_data)
+    # 3. Call the AI generation service (pure AI logic, no database IDs needed)
+    report_data, risks_data = ai_generation_service(questionnaire, current_risks, context_data)
 
     if report_data is None or risks_data is None:
         print("[ERROR] AI Service failed to generate report or risks data.")
@@ -123,12 +142,8 @@ def generate_and_process_report(
         print(f"  New risk {i}: {r.get('risk_name')} - {r.get('severity')}")
     print("="*60)
 
-    # 3. Process and Save to Database
+    # 4. Process and Save to Database
     try:
-        # Fetch the database records
-        org = Organization.objects.get(organization_id=organization_id)
-        user = User.objects.get(user_id=user_id) if user_id else None
-
         # Inject context from the database into the AI's output
         report_data = _inject_overview_and_questionnaire(report_data, org)
 
@@ -174,7 +189,7 @@ def generate_and_process_report(
 
         print(f"--- Successfully saved Report {new_report.pk} and associated risks. ---")
 
-        # 4. Sort the Python list of Risk objects for returning to the frontend
+        # 5. Sort the Python list of Risk objects for returning to the frontend
         created_risks.sort(key=lambda r: get_severity_weight(r.severity))
 
         return new_report, created_risks

@@ -319,7 +319,7 @@ def _create_example(example_input, example_output) -> str:
         print(f"[WARNING] Could not load examples: {e}")
         return "Example context missing or invalid."
 
-def _generate_report_content(context):
+def _generate_report_content(questionnaire, context):
     """
     Calls the AI model to generate report content.
     """
@@ -334,7 +334,7 @@ def _generate_report_content(context):
 
     print(f"--- Calling Gemini API with model: {MODEL_NAME} ---")
     
-    full_prompt = f"{_create_report_prompt()}\n\nContext:\n{context}\n\n{example}"
+    full_prompt = f"{_create_report_prompt()}\n\nContext:\n{context}\n\n{example}\n\nQuestionnaire:\n{questionnaire}"
 
     ## DEBUG pt 1
     # print("="*60)
@@ -415,14 +415,14 @@ def _add_risks(report: dict, current_risks: dict):
     print("--- Finished creating and validating risk response successfully! ---")
     return data
 
-def ai_generation_service(current_risks: dict, context: str):
+def ai_generation_service(questionnaire: dict, current_risks: dict, context: str):
     """
     Generates report and risks data using Gemini.
     Returns the raw parsed JSON dictionaries: (report_data, risks_data)
     """
     try:
         # 1. Generate and validate base report data
-        report_data = _generate_report_content(context)
+        report_data = _generate_report_content(questionnaire, context)
         
         # 2. Generate and validate risks data based on the report and existing DB risks
         risks_data = _add_risks(report_data, current_risks)
