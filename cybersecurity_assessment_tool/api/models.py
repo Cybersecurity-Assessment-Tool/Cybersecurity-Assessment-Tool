@@ -120,8 +120,8 @@ class User(AbstractUser):
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
     email = EncryptedEmailField()
     password = EncryptedCharField(max_length=128)
-    first_name = EncryptedCharField(max_length=50)
-    last_name = EncryptedCharField(max_length=50)
+    first_name = EncryptedCharField(max_length=50, null=True, blank=True)
+    last_name = EncryptedCharField(max_length=50, null=True, blank=True)
 
     class Meta:
         permissions = [
