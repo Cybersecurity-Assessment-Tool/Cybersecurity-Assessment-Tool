@@ -175,17 +175,17 @@
             <div class="row">
                 <div class="field">
                     <label for="first_name">First name</label>
-                    <input id="first_name" name="first_name" type="text" class="form-input" required placeholder="Jane">
+                    <input id="first_name" name="first_name" type="text" class="form-input" required placeholder="Jane" value="{{ form.data.first_name|default:'' }}">
                 </div>
                 <div class="field">
                     <label for="last_name">Last name</label>
-                    <input id="last_name" name="last_name" type="text" class="form-input" required placeholder="Doe">
+                    <input id="last_name" name="last_name" type="text" class="form-input" required placeholder="Doe" value="{{ form.data.last_name|default:'' }}">
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="username">Username</label>
-                <input id="username" name="username" type="text" class="form-input" required placeholder="jane.doe">
+                <input id="username" name="username" type="text" class="form-input" required placeholder="jane.doe" value="{{ form.data.username|default:'' }}">
             </div>
 
             <div class="form-group">
@@ -195,6 +195,7 @@
                        id="company_name" 
                        class="form-input" 
                        placeholder="Acme Inc."
+                       value="{{ form.data.company|default:'' }}"
                        required>
             </div>
 
@@ -206,6 +207,7 @@
                            id="email" 
                            class="form-input" 
                            placeholder="jane@company.com"
+                           value="{{ form.data.email|default:'' }}"
                            required>
                     <button type="button" class="btn btn-secondary" id="verifyEmailBtn">
                         Verify
@@ -281,6 +283,37 @@ $.ajaxSetup({
 
 $(document).ready(function() {
     let emailVerified = false;
+    
+    // Grab the previously verified email from the Django session (if it exists)
+    const serverVerifiedEmail = "{{ request.session.verified_email|default:'' }}".trim();
+    const initialEmail = $('#email').val().trim();
+
+    // RESTORE STATE: If the form reloaded and the email in the box matches the verified email
+    if (initialEmail && initialEmail === serverVerifiedEmail) {
+        emailVerified = true;
+        $('#emailVerified').show();
+        $('#submitBtn').prop('disabled', false);
+        $('#verifyEmailBtn').prop('disabled', true).text('Verified');
+    }
+
+    // LISTENER: If the user changes the email AFTER it was verified, reset the verification state
+    $('#email').on('input', function() {
+        const currentEmail = $(this).val().trim();
+        
+        if (emailVerified && currentEmail !== serverVerifiedEmail) {
+            // They changed the email, revoke verification
+            emailVerified = false;
+            $('#emailVerified').hide();
+            $('#submitBtn').prop('disabled', true);
+            $('#verifyEmailBtn').prop('disabled', false).text('Verify');
+        } else if (!emailVerified && currentEmail === serverVerifiedEmail && serverVerifiedEmail !== '') {
+            // They changed it back to the verified email
+            emailVerified = true;
+            $('#emailVerified').show();
+            $('#submitBtn').prop('disabled', false);
+            $('#verifyEmailBtn').prop('disabled', true).text('Verified');
+        }
+    });
 
     // Verify Email button — sends OTP then opens the modal
     $('#verifyEmailBtn').on('click', function(e) {

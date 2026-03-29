@@ -1,10 +1,29 @@
+import hashlib
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.conf import settings
 import os
 
 User = get_user_model()
+
+def generate_email_hash(email: str) -> str:
+    """
+    Generates a secure, deterministic hash for an email address.
+    Used for enforcing uniqueness on encrypted email fields.
+    """
+    if not email:
+        return None
+        
+    # 1. Normalize the email (lowercase and strip whitespace)
+    normalized_email = email.strip().lower()
+    
+    # 2. Add a salt (using Django's SECRET_KEY) to prevent rainbow table attacks
+    salted_email = f"{normalized_email}{settings.SECRET_KEY}"
+    
+    # 3. Generate and return the SHA-256 hex digest (64 characters)
+    return hashlib.sha256(salted_email.encode('utf-8')).hexdigest()
 
 def profile_image_path(instance, filename):
     """Generate file path for new profile image"""

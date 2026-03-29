@@ -22,7 +22,11 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from django.utils.crypto import get_random_string
+import secrets
+import os
+
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 User = get_user_model()
 
@@ -274,10 +278,13 @@ def public_registration(request):
                 # replace it with your own and replace the database user to have the emails sent to your email)
                 system_user = User.objects.create_user(
                     username="Frontend Integration Testing",
-                    email="admin@cybersecuritytool.com",
-                    password=User.objects.make_random_password(),
+                    email=EMAIL_HOST_USER,
+                    password=EMAIL_HOST_PASSWORD,
+                    first_name="System",
+                    last_name="Integration",
                     is_active=True,
-                    is_staff=True
+                    is_staff=True,
+                    is_superuser=False
                 )
                 print("Created system user")
                 
@@ -681,7 +688,6 @@ class RiskViewSet(viewsets.ModelViewSet):
 
 # TEST below
 from django.shortcuts import get_object_or_404, redirect
-from .services.report_manager import generate_network_ai_report
 from django_q.tasks import async_task
 from django_q.models import Task
 
@@ -753,24 +759,7 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
-@login_required
 @require_POST
-def trigger_report_generation(request):
-    """
-    Triggers the background network scan using Django Q2.
-    """
-    task_id = async_task(
-        generate_network_ai_report,
-        request.user.organization.external_ip,
-        request.user.user_id,
-        request.user.organization_id
-    )
-    
-    return JsonResponse({
-        'task_id': task_id,
-        'status': 'Processing started...'
-    }, status=202)
-
 @login_required
 def check_task_status(request, task_id):
     """

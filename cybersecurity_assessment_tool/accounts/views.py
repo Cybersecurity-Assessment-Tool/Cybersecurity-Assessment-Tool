@@ -25,18 +25,71 @@ class UserDetailView(LoginRequiredMixin, TemplateView):
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
     
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.urls import reverse
+
 @login_required
 def settings(request):
     """Display settings page with tabs"""
     user = request.user
     is_admin = False
+    
+    # Check if user is the organization admin
     if user.organization:
         first_user = User.objects.filter(organization=user.organization).order_by('date_joined').first()
         is_admin = (first_user == user)
+        
+    # Handle Form Submissions
+    if request.method == 'POST':
+        active_tab = request.POST.get('active_tab', 'profile')
+        
+        # Handle Security Posture Update (Admin Only)
+        if 'update_posture' in request.POST and is_admin and user.organization:
+            domain_name = request.POST.get('domain_name')
+            ip_address = request.POST.get('ip_address')
+            
+            # Process form checkboxes
+            mfa_email = request.POST.get('mfa_email') == 'on'
+            mfa_computers = request.POST.get('mfa_computers') == 'on'
+            mfa_sensitive_data = request.POST.get('mfa_sensitive_data') == 'on'
+            has_aup = request.POST.get('has_aup') == 'on'
+            training_new = request.POST.get('training_new_employees') == 'on'
+            training_annual = request.POST.get('training_annual') == 'on'
+            
+            # Basic Validation
+            if not ip_address or not domain_name:
+                messages.error(request, "Domain name and IP address are required.")
+            else:
+                # Save to organization
+                org = user.organization
+                org.website_domain = domain_name
+                org.external_ip = ip_address
+                org.require_mfa_email = mfa_email
+                org.require_mfa_computer = mfa_computers
+                org.require_mfa_sensitive_data = mfa_sensitive_data
+                org.employee_acceptable_use_policy = has_aup
+                org.training_new_employees = training_new
+                org.training_once_per_year = training_annual
+                
+                # Ensure it's marked as completed
+                org.questionnaire_completed = True
+                org.save()
+                
+                messages.success(request, "Security posture updated successfully!")
+            
+            # Redirect back to the posture tab
+            # Update 'accounts:settings' to match your actual url name if different
+            return redirect(f"{request.path}?tab=posture")
+
+        # You can add elif blocks here later for profile, email, and 2fa form updates
+        # elif 'update_profile' in request.POST:
+        #     ...
+
     context = {
         'is_admin': is_admin,
         'active_tab': request.GET.get('tab', 'profile'),
-        # You may also need to pass profile forms if you restore them later
     }
     return render(request, 'accounts/settings.html', context)
 
@@ -53,7 +106,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils import timezone
-from api.models import Invitation, OrganizationQuestionnaire
+from api.models import Invitation
 import random
 import string
 import uuid
@@ -160,33 +213,37 @@ def questionnaire(request):
         return redirect('dashboard')
     
     if request.method == 'POST':
-        # Process form data
+        # Process form text inputs
+        domain_name = request.POST.get('domain_name')
         ip_address = request.POST.get('ip_address')
-        has_security_policy = request.POST.get('has_security_policy') == 'on'
-        conducts_regular_audits = request.POST.get('conducts_regular_audits') == 'on'
-        has_incident_response = request.POST.get('has_incident_response') == 'on'
-        uses_encryption = request.POST.get('uses_encryption') == 'on'
         
-        # Validate IP address (basic)
-        if not ip_address:
-            messages.error(request, "IP address is required.")
+        # Process form checkboxes (HTML checkboxes return 'on' if checked)
+        mfa_email = request.POST.get('mfa_email') == 'on'
+        mfa_computers = request.POST.get('mfa_computers') == 'on'
+        mfa_sensitive_data = request.POST.get('mfa_sensitive_data') == 'on'
+        has_aup = request.POST.get('has_aup') == 'on'
+        training_new = request.POST.get('training_new_employees') == 'on'
+        training_annual = request.POST.get('training_annual') == 'on'
+        
+        # Basic Validation
+        if not ip_address or not domain_name:
+            messages.error(request, "Domain name and IP address are required.")
             return render(request, 'registration/questionnaire.html')
         
-        # Save to OrganizationQuestionnaire
-        questionnaire, created = OrganizationQuestionnaire.objects.update_or_create(
-            organization=user.organization,
-            defaults={
-                'ip_address': ip_address,
-                'has_security_policy': has_security_policy,
-                'conducts_regular_audits': conducts_regular_audits,
-                'has_incident_response': has_incident_response,
-                'uses_encryption': uses_encryption,
-            }
-        )
+        # Save directly to the existing Organization model fields
+        org = user.organization
+        org.website_domain = domain_name
+        org.external_ip = ip_address
+        org.require_mfa_email = mfa_email
+        org.require_mfa_computer = mfa_computers
+        org.require_mfa_sensitive_data = mfa_sensitive_data
+        org.employee_acceptable_use_policy = has_aup
+        org.training_new_employees = training_new
+        org.training_once_per_year = training_annual
         
         # Mark organization questionnaire as completed
-        user.organization.questionnaire_completed = True
-        user.organization.save()
+        org.questionnaire_completed = True
+        org.save()
         
         messages.success(request, "Thank you for completing the setup questionnaire!")
         return redirect('dashboard')
@@ -316,7 +373,7 @@ def send_invitation(request):
 
         # Send invitation email
         domain = request.get_host()
-        protocol = 'https' if request.is_secure() else 'http'
+        protocol = 'https' if (request.is_secure() or 'herokuapp.com' in domain) else 'http'
         invite_link = f"{protocol}://{domain}/accounts/invite/{token}/"
 
         send_email_by_type('invite', email, {
@@ -342,7 +399,7 @@ def resend_invitation(request):
     try:
         inv = Invitation.objects.get(invitation_id=invite_id, organization=request.user.organization, status='sent')
         domain = request.get_host()
-        protocol = 'https' if request.is_secure() else 'http'
+        protocol = 'https' if (request.is_secure() or 'herokuapp.com' in domain) else 'http'
         invite_link = f"{protocol}://{domain}/accounts/invite/{inv.token}/"
         send_email_by_type('invite', inv.recipient_email, {
             "inviter_name": f"{inv.sender.first_name} {inv.sender.last_name}",

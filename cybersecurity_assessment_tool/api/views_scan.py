@@ -35,6 +35,12 @@ def generate_scan_token(request):
             {'error': 'No organization associated with your account.'},
             status=400
         )
+        
+    if not user.organization.questionnaire_completed:
+        return JsonResponse(
+            {'error': 'Organization security questionnaire must be completed before scanning.'},
+            status=403 # 403 Forbidden since they lack the prerequisite to use this resource
+        )
 
     # Expire any existing unused tokens for this user
     ScanToken.objects.filter(
