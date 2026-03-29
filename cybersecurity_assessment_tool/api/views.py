@@ -238,11 +238,6 @@ def register_user_invite(request, token):
             
             messages.success(request, 'Account created successfully! Please wait for admin approval.')
             return redirect('accounts:waiting')
-        else:
-            # Form errors - display them
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
     else:
         # GET request - pre-fill form with email from invitation
         form = InvitationSignupForm(initial={'email': invitation.recipient_email})

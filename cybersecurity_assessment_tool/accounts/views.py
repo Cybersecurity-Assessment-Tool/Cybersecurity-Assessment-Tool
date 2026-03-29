@@ -443,46 +443,19 @@ def accept_invitation(request, token):
         if form.is_valid():
             user = form.save(commit=False)
             user.organization = invitation.organization
-            user.is_active = False
+            user.is_active = True  # Automatically activate the user
             user.save()
 
             # Update invitation
             invitation.recipient_user = user
-            invitation.status = 'awaiting_approval'
+            invitation.status = 'accepted'  # Mark as complete
             invitation.save()
-
-            # Store in session
-            request.session['pending_company'] = invitation.organization.org_name
-            request.session['pending_email'] = user.email
-            request.session['pending_submitted'] = timezone.now().isoformat()
 
             # Send confirmation to user
             send_email_by_type('registration', user.email, {"username": user.username})
 
-            # Generate approval URLs
-            domain = request.get_host()
-            protocol = 'https' if request.is_secure() else 'http'
-            approve_url = f"{protocol}://{domain}/api/admin/approve/{user.id}/"
-            reject_url = f"{protocol}://{domain}/api/admin/reject/{user.id}/"
-
-            # Notify organization admin
-            org_admin = User.objects.filter(organization=invitation.organization).order_by('date_joined').first()
-            if org_admin:
-                send_email_by_type('request', org_admin.email, {
-                    'requester_name': f"{user.first_name} {user.last_name}",
-                    'requester_email': user.email,
-                    'company': invitation.organization.org_name,
-                    'role': invitation.recipient_role,
-                    'approve_url': approve_url,
-                    'reject_url': reject_url,
-                })
-
-            messages.success(request, 'Account created successfully! Please wait for admin approval.')
-            return redirect('accounts:waiting')
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
+            messages.success(request, 'Account created successfully! You can now log in.')
+            return redirect('accounts/login')  # Route directly to the login page
     else:
         form = InvitationSignupForm(email=invitation.recipient_email)
 
