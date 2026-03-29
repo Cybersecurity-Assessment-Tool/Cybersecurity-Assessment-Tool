@@ -4,7 +4,6 @@
 
 {% block extra_css %}
 <style>
-    /* Barebones but clean styling */
     .auth-container {
         min-height: 100vh;
         display: flex;
@@ -47,8 +46,14 @@
         color: #b91c1c;
     }
 
+    /* Updated to show only the first error */
     .auth-error p {
+        display: none;
         margin: 0.25rem 0;
+    }
+
+    .auth-error p:first-of-type {
+        display: block;
     }
 
     .auth-form {
@@ -144,7 +149,6 @@
 </style>
 {% endblock %}
 
-<!-- removed nav bar -->
 {% block auth %} {% endblock %}
 
 {% block content %}
@@ -154,7 +158,6 @@
             <h1 class="auth-title">Sign up</h1>
         </div>
 
-        <!-- Error Messages -->
         {% if form.errors %}
         <div class="auth-error">
             {% for field in form %}
@@ -168,20 +171,14 @@
         </div>
         {% endif %}
 
-        <!-- Sign Up Form -->
         <form method="post" class="auth-form">
             {% csrf_token %}
             
-            <!-- Username Field -->
             <div class="form-group">
                 <label for="{{ form.username.id_for_label }}">Username</label>
                 {{ form.username }}
-                <!-- {% if form.username.help_text %}
-                <span class="form-text">{{ form.username.help_text }}</span>
-                {% endif %} -->
             </div>
 
-            <!-- Email Field (New!) -->
             <div class="form-group">
                 <label for="{{ form.email.id_for_label }}">Email</label>
                 {{ form.email }}
@@ -190,31 +187,19 @@
                 {% endif %}
             </div>
 
-            <!-- Password Field -->
             <div class="form-group">
                 <label for="{{ form.password1.id_for_label }}">Password</label>
                 {{ form.password1 }}
-                <!-- {% if form.password1.help_text %}
-                <div class="password-requirements">
-                    {{ form.password1.help_text|safe }}
-                </div>
-                {% endif %} -->
             </div>
 
-            <!-- Confirm Password Field -->
             <div class="form-group">
                 <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
                 {{ form.password2 }}
-                <!-- {% if form.password2.help_text %}
-                <span class="form-text">{{ form.password2.help_text }}</span>
-                {% endif %} -->
             </div>
 
-            <!-- Submit Button -->
             <button type="submit" class="auth-button">Sign Up</button>
         </form>
 
-        <!-- Login Link -->
         <div class="auth-footer">
             <p>Already have an account? <a href="{% url 'login' %}" class="signup-link">Log In</a></p>
         </div>
@@ -222,5 +207,4 @@
 </div>
 {% endblock %}
 
-<!-- removed footer -->
 {% block footer %} {% endblock %}

@@ -43,6 +43,26 @@
         text-align: center;
     }
 
+    /* Updated Error Styling - Shows only the first error */
+    .auth-error {
+        background-color: #fee2e2;
+        border: 1px solid #fecaca;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+        color: #b91c1c;
+    }
+    
+    .auth-error p {
+        display: none; /* Hide all errors by default */
+        margin: 0.25rem 0;
+    }
+    
+    .auth-error p:first-of-type {
+        display: block; /* Reveal only the first error */
+    }
+
     .auth-form {
         margin-bottom: 1.5rem;
     }
@@ -124,7 +144,7 @@
         text-decoration: underline;
     }
 
-    /* Messages */
+    /* Alert Messages */
     .alert {
         padding: 0.75rem 1rem;
         border-radius: 6px;
@@ -144,7 +164,6 @@
 </style>
 {% endblock %}
 
-<!-- removed nav bar -->
 {% block auth %} {% endblock %}
 
 {% block content %}
@@ -154,6 +173,19 @@
             <h1 class="auth-title">Join {{ organization }}</h1>
             <p class="auth-subtitle">You've been invited to join as a team member</p>
         </div>
+
+        {% if form.errors %}
+        <div class="auth-error">
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <p><strong>{{ field.label }}:</strong> {{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         {% if messages %}
             {% for message in messages %}
@@ -172,17 +204,17 @@
 
             <div class="form-group">
                 <label for="first_name">First name</label>
-                <input type="text" name="first_name" id="first_name" class="form-input" required>
+                <input type="text" name="first_name" id="first_name" class="form-input" value="{{ form.first_name.value|default_if_none:'' }}" required>
             </div>
 
             <div class="form-group">
                 <label for="last_name">Last name</label>
-                <input type="text" name="last_name" id="last_name" class="form-input" required>
+                <input type="text" name="last_name" id="last_name" class="form-input" value="{{ form.last_name.value|default_if_none:'' }}" required>
             </div>
 
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" name="username" id="username" class="form-input" required>
+                <input type="text" name="username" id="username" class="form-input" value="{{ form.username.value|default_if_none:'' }}" required>
             </div>
 
             <div class="form-group">
@@ -205,5 +237,4 @@
 </div>
 {% endblock %}
 
-<!-- removed footer -->
 {% block footer %} {% endblock %}
