@@ -433,6 +433,7 @@ def cancel_invitation(request):
 def accept_invitation(request, token):
     """Handle user registration via invitation link"""
     invitation = get_object_or_404(Invitation, token=token, status='sent')
+    
     # Optional expiration check (7 days)
     if invitation.created_at < timezone.now() - timezone.timedelta(days=7):
         messages.error(request, 'This invitation has expired.')
@@ -451,11 +452,13 @@ def accept_invitation(request, token):
             invitation.status = 'accepted'  # Mark as complete
             invitation.save()
 
-            # Send confirmation to user
-            # send_email_by_type('registration', user.email, {"username": user.username})
-
-            messages.success(request, 'Account created successfully! You can now log in.')
-            return redirect('/accounts/login/')  # Route directly to the login page
+            # INSTEAD OF REDIRECTING, RENDER THE TEMPLATE WITH A SUCCESS FLAG
+            context = {
+                'success': True,
+                'email': invitation.recipient_email,
+                'organization': invitation.organization.org_name,
+            }
+            return render(request, 'registration/invite_signup.html', context)
     else:
         form = InvitationSignupForm(email=invitation.recipient_email)
 
