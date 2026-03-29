@@ -452,10 +452,10 @@ def accept_invitation(request, token):
             invitation.save()
 
             # Send confirmation to user
-            send_email_by_type('registration', user.email, {"username": user.username})
+            # send_email_by_type('registration', user.email, {"username": user.username})
 
             messages.success(request, 'Account created successfully! You can now log in.')
-            return redirect('accounts/login')  # Route directly to the login page
+            return redirect('/accounts/login/')  # Route directly to the login page
     else:
         form = InvitationSignupForm(email=invitation.recipient_email)
 
