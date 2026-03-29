@@ -96,7 +96,7 @@ def run(*args):
     msg = EmailMultiAlternatives(
         config['subject'],
         text_content,
-        settings.EMAIL_HOST_USER,
+        settings.DEFAULT_FROM_EMAIL,
         [recipient]
     )
     msg.attach_alternative(html_content, "text/html")

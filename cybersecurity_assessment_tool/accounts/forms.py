@@ -133,12 +133,23 @@ class InvitationSignupForm(UserCreationForm):
         self.email = kwargs.pop('email', None)
         super().__init__(*args, **kwargs)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get("password1")
+        password2 = cleaned_data.get("password2")
+
+        # If passwords don't match, force the error onto the 'password2' line
+        # instead of letting it default to the top of the box.
+        if password1 and password2 and password1 != password2:
+            self.add_error('password2', "The two password fields didn't match.")
+            
+        return cleaned_data
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.email
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        # is_active will be set to False in the view
         if commit:
             user.save()
         return user
