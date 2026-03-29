@@ -1,5 +1,7 @@
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView
+
+from api.forms import PublicRegistrationForm
 from .forms import CustomUserCreationForm, InvitationSignupForm
 from django.contrib.auth import get_user_model
 
@@ -114,26 +116,25 @@ import traceback
 from api.utils.email_factory import send_email_by_type
 
 
-# Public Registration View
 def public_register(request):
     """Public registration page for new organizations"""
     if request.method == 'POST':
-        # TODO: Implement registration logic
-        # - Get form data (company_name, email, password)
-        # - Create organization with status='pending'
-        # - Create user as organization admin with is_active=False
-        # - Send notification email to admins
-        # - Redirect to waiting page
+        form = PublicRegistrationForm(request.POST)
+        if form.is_valid():
+            company_name = form.cleaned_data['company_name']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            
+            # ... Create organization and user here ...
+            
+            messages.success(request, 'Registration submitted successfully!')
+            return redirect('accounts:waiting')
+        # Do NOT use messages.error() here. 
+        # Just let it fall through and render the form with errors.
+    else:
+        form = PublicRegistrationForm()
         
-        company_name = request.POST.get('company_name')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        
-        # Placeholder - replace with actual implementation
-        messages.success(request, 'Registration submitted successfully!')
-        return redirect('accounts:waiting')
-    
-    return render(request, 'registration/public_register.html')
+    return render(request, 'registration/public_register.html', {'form': form})
 
 # Waiting Page
 def waiting_page(request):

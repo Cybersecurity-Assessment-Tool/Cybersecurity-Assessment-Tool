@@ -259,7 +259,8 @@ elif EMAIL_BACKEND_TYPE == 'smtp':
     EMAIL_USE_TLS = True
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+    DEFAULT_FROM_EMAIL_PASSWORD = os.environ.get('DEFAULT_FROM_EMAIL_PASSWORD')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 else:
     # Development - console backend
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
