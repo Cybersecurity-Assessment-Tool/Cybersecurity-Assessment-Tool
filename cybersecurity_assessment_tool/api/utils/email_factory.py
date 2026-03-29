@@ -35,7 +35,7 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
         "approval": {
             "subject": "Account Approved - Welcome Aboard!",
             "template": "emails/approval_accepted.html", 
-            "context": {"username": "Test User"}
+            "context": {"username": "Test User", "login_url": "http://localhost:8000/login/"}
         },
         
         # Email to user after admin rejects their account request
@@ -115,10 +115,11 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
     html_content = render_to_string(config['template'], config['context'])
     
     # Send using EmailMultiAlternatives (same as test_email.py)
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or settings.EMAIL_HOST_USER
     msg = EmailMultiAlternatives(
         config['subject'],
         text_content,
-        settings.EMAIL_HOST_USER,
+        from_email,
         [recipient]
     )
     msg.attach_alternative(html_content, "text/html")

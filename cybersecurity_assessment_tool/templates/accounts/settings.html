@@ -446,7 +446,12 @@
                 onclick="location.href='?tab=security'">
             Security
         </button>
+        
         {% if is_admin %}
+        <button class="tab-button {% if active_tab == 'posture' %}active{% endif %}" 
+                onclick="location.href='?tab=posture'">
+            Security Posture
+        </button>
         <button class="tab-button {% if active_tab == 'organization' %}active{% endif %}" 
                 onclick="location.href='?tab=organization'">
             Organization
@@ -694,6 +699,83 @@
                 -->
                 <p class="text-muted">Session management coming soon...</p>
             </div>
+        </div>
+        {% endif %}
+
+        {% if active_tab == 'posture' and is_admin %}
+        <div class="settings-card">
+            <form method="post" id="postureForm">
+                {% csrf_token %}
+                <input type="hidden" name="active_tab" value="posture">
+                
+                <div class="card-header">
+                    <h2>Organization Security Posture</h2>
+                    <p>Update your organization's network information and security policies.</p>
+                </div>
+                
+                <div class="card-body">
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #374151;">Network & Domain Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="domain_name">Website Domain Name</label>
+                            <input type="text" name="domain_name" id="domain_name" class="form-input" 
+                                   value="{{ request.user.organization.website_domain|default:'' }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ip_address">External IP Address</label>
+                            <input type="text" name="ip_address" id="ip_address" class="form-input" 
+                                   value="{{ request.user.organization.external_ip|default:'' }}" required>
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 1rem; color: #374151;">Access & Authentication</h3>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="mfa_email" id="mfa_email" class="form-checkbox" 
+                               {% if request.user.organization.require_mfa_email %}checked{% endif %}>
+                        <label for="mfa_email">MFA required for all users to access email</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="mfa_computers" id="mfa_computers" class="form-checkbox"
+                               {% if request.user.organization.require_mfa_computer %}checked{% endif %}>
+                        <label for="mfa_computers">MFA required for all users to log into computers</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="mfa_sensitive_data" id="mfa_sensitive_data" class="form-checkbox"
+                               {% if request.user.organization.require_mfa_sensitive_data %}checked{% endif %}>
+                        <label for="mfa_sensitive_data">MFA required for all users to access sensitive data systems</label>
+                    </div>
+
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 1rem; color: #374151;">Policies & Training</h3>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="has_aup" id="has_aup" class="form-checkbox"
+                               {% if request.user.organization.employee_acceptable_use_policy %}checked{% endif %}>
+                        <label for="has_aup">Organization has an employee acceptable use policy</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="training_new_employees" id="training_new_employees" class="form-checkbox"
+                               {% if request.user.organization.training_new_employees %}checked{% endif %}>
+                        <label for="training_new_employees">Security awareness training is required for new employees</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="training_annual" id="training_annual" class="form-checkbox"
+                               {% if request.user.organization.training_once_per_year %}checked{% endif %}>
+                        <label for="training_annual">Security awareness training is required for all employees at least once per year</label>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <span class="save-indicator" id="postureSaveIndicator">All changes saved</span>
+                    <button type="submit" name="update_posture" class="btn btn-primary">Save Security Posture</button>
+                </div>
+            </form>
         </div>
         {% endif %}
 

@@ -1,9 +1,10 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from .models import UserProfile
+from .models import UserProfile, generate_email_hash
 
 User = get_user_model()
+
 
 class UserProfileForm(forms.ModelForm):
     """
@@ -43,9 +44,16 @@ class UserEmailForm(forms.ModelForm):
         }
     
     def clean_email(self):
-        email = self.cleaned_data['email']
-        if User.objects.exclude(pk=self.instance.pk).filter(email=email).exists():
-            raise forms.ValidationError('This email is already in use.')
+        email = self.cleaned_data.get('email')
+        
+        if email:
+            # 1. Generate the hash of the input email
+            email_hash = generate_email_hash(email)
+            
+            # 2. Check if this hash exists, excluding the current user's own hash
+            if User.objects.exclude(pk=self.instance.pk).filter(email_hash=email_hash).exists():
+                raise forms.ValidationError('This email is already in use.')
+                
         return email
 
 class TwoFactorSetupForm(forms.Form):

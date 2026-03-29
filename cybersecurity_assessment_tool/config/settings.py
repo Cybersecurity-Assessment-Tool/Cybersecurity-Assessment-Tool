@@ -202,6 +202,26 @@ STORAGES = {
     },
 }
 
+'''
+# For local development, use plain static file storage without manifest to avoid issues with missing files after collectstatic
+# In production, use WhiteNoise's CompressedManifestStaticFilesStorage for better performance and cache busting.
+# Staticfiles storage:
+# - DEBUG/local development: plain storage (no manifest required)
+# - non-DEBUG environments: hashed manifest storage via WhiteNoise
+if DEBUG:
+    STORAGES = {
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    }
+else:
+    STORAGES = {
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
+'''
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -234,15 +254,17 @@ if EMAIL_BACKEND_TYPE == 'sendgrid' or IS_HEROKU:
 elif EMAIL_BACKEND_TYPE == 'smtp':
     # Use Gmail or other SMTP
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_PORT = 587
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com') # Defaults to Gmail SMTP, but should be updated to sendgrid in the future
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
     EMAIL_USE_TLS = True
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 else:
     # Development - console backend
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+ADMIN_NOTIFICATION_EMAIL = os.environ.get('ADMIN_NOTIFICATION_EMAIL', 'cyberassessmenttool@gmail.com')
 
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 

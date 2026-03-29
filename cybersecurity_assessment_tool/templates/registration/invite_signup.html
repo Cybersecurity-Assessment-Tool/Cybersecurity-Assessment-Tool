@@ -43,6 +43,26 @@
         text-align: center;
     }
 
+    /* Updated Error Styling - Shows only the first error */
+    .auth-error {
+        background-color: #fee2e2;
+        border: 1px solid #fecaca;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+        color: #b91c1c;
+    }
+    
+    .auth-error p {
+        display: none; /* Hide all errors by default */
+        margin: 0.25rem 0;
+    }
+    
+    .auth-error p:first-of-type {
+        display: block; /* Reveal only the first error */
+    }
+
     .auth-form {
         margin-bottom: 1.5rem;
     }
@@ -124,7 +144,7 @@
         text-decoration: underline;
     }
 
-    /* Messages */
+    /* Alert Messages */
     .alert {
         padding: 0.75rem 1rem;
         border-radius: 6px;
@@ -144,66 +164,101 @@
 </style>
 {% endblock %}
 
-<!-- removed nav bar -->
 {% block auth %} {% endblock %}
 
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-        <div class="auth-header">
-            <h1 class="auth-title">Join {{ organization }}</h1>
-            <p class="auth-subtitle">You've been invited to join as a team member</p>
-        </div>
+        
+        {% if success %}
+            <div class="auth-header">
+                <h1 class="auth-title">Account Created!</h1>
+                <p class="auth-subtitle">Redirecting to login in 5 seconds...</p>
+            </div>
+            
+            <div class="alert alert-success" style="text-align: center; margin-bottom: 2rem;">
+                Welcome to the team! Your account for <strong>{{ organization }}</strong> has been successfully created.
+            </div>
+            
+            <div class="auth-footer" style="border-top: none; padding-top: 0;">
+                <p>If you are not redirected automatically, <a href="{% url 'login' %}">click here to log in</a>.</p>
+            </div>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
+            <script>
+                setTimeout(function() {
+                    window.location.href = "{% url 'login' %}";
+                }, 5000); // 5000 milliseconds = 5 seconds
+            </script>
+
+        {% else %}
+            <div class="auth-header">
+                <h1 class="auth-title">Join {{ organization }}</h1>
+                <p class="auth-subtitle">You've been invited to join as a team member</p>
+            </div>
+
+            {% if form.errors %}
+            <div class="auth-error">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <p><strong>{{ field.label }}:</strong> {{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-input" value="{{ email }}" readonly disabled>
+                    <span class="form-text">This email is from your invitation and cannot be changed.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="first_name">First name</label>
+                    <input type="text" name="first_name" id="first_name" class="form-input" value="{{ form.first_name.value|default_if_none:'' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">Last name</label>
+                    <input type="text" name="last_name" id="last_name" class="form-input" value="{{ form.last_name.value|default_if_none:'' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" name="username" id="username" class="form-input" value="{{ form.username.value|default_if_none:'' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password1">Password</label>
+                    <input type="password" name="password1" id="password1" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password2">Confirm Password</label>
+                    <input type="password" name="password2" id="password2" class="form-input" required>
+                </div>
+
+                <button type="submit" class="auth-button">Create Account</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+            </div>
         {% endif %}
-
-        <form method="post" class="auth-form">
-            {% csrf_token %}
-
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" class="form-input" value="{{ email }}" readonly disabled>
-                <span class="form-text">This email is from your invitation and cannot be changed.</span>
-            </div>
-
-            <div class="form-group">
-                <label for="first_name">First name</label>
-                <input type="text" name="first_name" id="first_name" class="form-input" required>
-            </div>
-
-            <div class="form-group">
-                <label for="last_name">Last name</label>
-                <input type="text" name="last_name" id="last_name" class="form-input" required>
-            </div>
-
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" name="username" id="username" class="form-input" required>
-            </div>
-
-            <div class="form-group">
-                <label for="password1">Password</label>
-                <input type="password" name="password1" id="password1" class="form-input" required>
-            </div>
-
-            <div class="form-group">
-                <label for="password2">Confirm Password</label>
-                <input type="password" name="password2" id="password2" class="form-input" required>
-            </div>
-
-            <button type="submit" class="auth-button">Create Account</button>
-        </form>
-
-        <div class="auth-footer">
-            <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
-        </div>
+        
     </div>
 </div>
 {% endblock %}
 
-<!-- removed footer -->
 {% block footer %} {% endblock %}

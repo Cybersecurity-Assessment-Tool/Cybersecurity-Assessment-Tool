@@ -22,6 +22,11 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
+import secrets
+import os
+
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 User = get_user_model()
 
@@ -233,11 +238,6 @@ def register_user_invite(request, token):
             
             messages.success(request, 'Account created successfully! Please wait for admin approval.')
             return redirect('accounts:waiting')
-        else:
-            # Form errors - display them
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
     else:
         # GET request - pre-fill form with email from invitation
         form = InvitationSignupForm(initial={'email': invitation.recipient_email})
@@ -262,8 +262,8 @@ def public_registration(request):
             request.session['pending_company'] = user.organization.org_name if user.organization else "Your Organization"
             request.session['pending_email'] = user.email
             request.session['pending_submitted'] = timezone.now().isoformat()
-            
-            # Get system user for admin notifications
+
+             # Get system user for admin notifications
             try:
                 system_user = User.objects.get(username="Frontend Integration Testing")
             except User.DoesNotExist:
@@ -271,12 +271,59 @@ def public_registration(request):
                 # replace it with your own and replace the database user to have the emails sent to your email)
                 system_user = User.objects.create_user(
                     username="Frontend Integration Testing",
-                    email="admin@cybersecuritytool.com",
-                    password=User.objects.make_random_password(),
+                    email=EMAIL_HOST_USER,
+                    password=EMAIL_HOST_PASSWORD,
+                    first_name="System",
+                    last_name="Integration",
                     is_active=True,
-                    is_staff=True
+                    is_staff=True,
+                    is_superuser=False
                 )
                 print("Created system user")
+                
+            '''
+            # There to resolve local testing issues with no users/admins existing to send the request email to. In production, this will just send to the actual admin email specified in settings.
+            # Get/create system user for admin notifications
+            system_user, created = User.objects.get_or_create(
+                username="Frontend Integration Testing",
+                defaults={
+                    "email": admin_notification_email,
+                    "password": get_random_string(24),
+                    "first_name": "System",
+                    "last_name": "Admin",
+                    "auto_frequency": "n",
+                    "is_active": True,
+                    "is_staff": True,
+                },
+            )
+            if created:
+                print("Created system user")
+
+            updated_fields = []
+            if system_user.email != admin_notification_email:
+                system_user.email = admin_notification_email
+                updated_fields.append("email")
+            if not system_user.first_name:
+                system_user.first_name = "System"
+                updated_fields.append("first_name")
+            if not system_user.last_name:
+                system_user.last_name = "Admin"
+                updated_fields.append("last_name")
+            if not system_user.auto_frequency:
+                system_user.auto_frequency = "n"
+                updated_fields.append("auto_frequency")
+            if updated_fields:
+                system_user.save(update_fields=updated_fields)
+            '''
+                
+            invitation = Invitation.objects.filter(
+                recipient_user=user,
+                status__in=["sent", "awaiting_approval"],
+            ).first()
+
+            if invitation:
+                print(f"Found existing invitation for {user.email}")
+                return redirect('accounts:waiting')
             
             # Create invitation record
             Invitation.objects.create(
@@ -360,7 +407,9 @@ def approve_registration(request, user_id):  # user_id will be an integer
     # Send approval email
     try:
         send_email_by_type('approval', user.email, {
-            "username": user.username
+            "username": user.username,
+            "company": user.organization.org_name if user.organization else "Your Company",
+            "login_url": f"http://{request.get_host()}/login/"
         })
     except Exception as e:
         print(f"Error sending approval email: {e}")
@@ -431,6 +480,7 @@ def login_view(request):
                     return JsonResponse({
                         'success': True,
                         'requires_otp': True,
+                        'email': user.email,
                         'message': 'OTP sent to your email'
                     })
                 else:
@@ -631,7 +681,6 @@ class RiskViewSet(viewsets.ModelViewSet):
 
 # TEST below
 from django.shortcuts import get_object_or_404, redirect
-from .services.report_manager import generate_network_ai_report
 from django_q.tasks import async_task
 from django_q.models import Task
 
@@ -703,24 +752,7 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
-@login_required
 @require_POST
-def trigger_report_generation(request):
-    """
-    Triggers the background network scan using Django Q2.
-    """
-    task_id = async_task(
-        generate_network_ai_report,
-        request.user.organization.external_ip,
-        request.user.user_id,
-        request.user.organization_id
-    )
-    
-    return JsonResponse({
-        'task_id': task_id,
-        'status': 'Processing started...'
-    }, status=202)
-
 @login_required
 def check_task_status(request, task_id):
     """
