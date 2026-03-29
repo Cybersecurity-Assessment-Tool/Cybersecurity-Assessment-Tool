@@ -25,7 +25,7 @@ from django.contrib.auth.decorators import login_required
 import secrets
 import os
 
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL_PASSWORD = os.environ.get('DEFAULT_FROM_EMAIL_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 
 User = get_user_model()
@@ -272,7 +272,7 @@ def public_registration(request):
                 system_user = User.objects.create_user(
                     username="Frontend Integration Testing",
                     email=DEFAULT_FROM_EMAIL,
-                    password=EMAIL_HOST_PASSWORD,
+                    password=DEFAULT_FROM_EMAIL_PASSWORD,
                     first_name="System",
                     last_name="Integration",
                     is_active=True,
