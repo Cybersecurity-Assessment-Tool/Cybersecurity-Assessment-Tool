@@ -43,7 +43,7 @@
         text-align: center;
     }
 
-    /* Updated Error Styling - Shows only the first error */
+    /* Keeps top errors only for non-field errors */
     .auth-error {
         background-color: #fee2e2;
         border: 1px solid #fecaca;
@@ -55,12 +55,16 @@
     }
     
     .auth-error p {
-        display: none; /* Hide all errors by default */
         margin: 0.25rem 0;
     }
-    
-    .auth-error p:first-of-type {
-        display: block; /* Reveal only the first error */
+
+    /* NEW: Django renders field errors as a ul with class 'errorlist' */
+    .errorlist {
+        color: #ef4444; /* Small red text */
+        font-size: 0.75rem;
+        margin: 0.35rem 0 0 0;
+        padding-left: 0;
+        list-style-type: none;
     }
 
     .auth-form {
@@ -87,6 +91,11 @@
         border-radius: 6px;
         box-sizing: border-box;
         transition: border-color 0.15s;
+    }
+
+    /* Add a red border to the input if there's an error */
+    .form-group.has-error .form-input {
+        border-color: #ef4444;
     }
 
     .form-input:focus {
@@ -196,13 +205,8 @@
                 <p class="auth-subtitle">You've been invited to join as a team member</p>
             </div>
 
-            {% if form.errors %}
+            {% if form.non_field_errors %}
             <div class="auth-error">
-                {% for field in form %}
-                    {% for error in field.errors %}
-                        <p><strong>{{ field.label }}:</strong> {{ error }}</p>
-                    {% endfor %}
-                {% endfor %}
                 {% for error in form.non_field_errors %}
                     <p>{{ error }}</p>
                 {% endfor %}
@@ -224,29 +228,34 @@
                     <span class="form-text">This email is from your invitation and cannot be changed.</span>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group {% if form.first_name.errors %}has-error{% endif %}">
                     <label for="first_name">First name</label>
                     <input type="text" name="first_name" id="first_name" class="form-input" value="{{ form.first_name.value|default_if_none:'' }}" required>
+                    {{ form.first_name.errors }}
                 </div>
 
-                <div class="form-group">
+                <div class="form-group {% if form.last_name.errors %}has-error{% endif %}">
                     <label for="last_name">Last name</label>
                     <input type="text" name="last_name" id="last_name" class="form-input" value="{{ form.last_name.value|default_if_none:'' }}" required>
+                    {{ form.last_name.errors }}
                 </div>
 
-                <div class="form-group">
+                <div class="form-group {% if form.username.errors %}has-error{% endif %}">
                     <label for="username">Username</label>
                     <input type="text" name="username" id="username" class="form-input" value="{{ form.username.value|default_if_none:'' }}" required>
+                    {{ form.username.errors }}
                 </div>
 
-                <div class="form-group">
+                <div class="form-group {% if form.password1.errors %}has-error{% endif %}">
                     <label for="password1">Password</label>
                     <input type="password" name="password1" id="password1" class="form-input" required>
+                    {{ form.password1.errors }}
                 </div>
 
-                <div class="form-group">
+                <div class="form-group {% if form.password2.errors %}has-error{% endif %}">
                     <label for="password2">Confirm Password</label>
                     <input type="password" name="password2" id="password2" class="form-input" required>
+                    {{ form.password2.errors }}
                 </div>
 
                 <button type="submit" class="auth-button">Create Account</button>

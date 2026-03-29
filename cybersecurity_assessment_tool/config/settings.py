@@ -249,8 +249,6 @@ if EMAIL_BACKEND_TYPE == 'smtp':
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-ADMIN_NOTIFICATION_EMAIL = os.environ.get('ADMIN_NOTIFICATION_EMAIL', 'cyberassessmenttool@gmail.com')
-
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 
 # ---------------------------------------------------------------------------

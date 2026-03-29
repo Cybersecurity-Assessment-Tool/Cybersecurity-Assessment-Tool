@@ -281,41 +281,6 @@ def public_registration(request):
                 )
                 print("Created system user")
                 
-            '''
-            # There to resolve local testing issues with no users/admins existing to send the request email to. In production, this will just send to the actual admin email specified in settings.
-            # Get/create system user for admin notifications
-            system_user, created = User.objects.get_or_create(
-                username="Frontend Integration Testing",
-                defaults={
-                    "email": admin_notification_email,
-                    "password": get_random_string(24),
-                    "first_name": "System",
-                    "last_name": "Admin",
-                    "auto_frequency": "n",
-                    "is_active": True,
-                    "is_staff": True,
-                },
-            )
-            if created:
-                print("Created system user")
-
-            updated_fields = []
-            if system_user.email != admin_notification_email:
-                system_user.email = admin_notification_email
-                updated_fields.append("email")
-            if not system_user.first_name:
-                system_user.first_name = "System"
-                updated_fields.append("first_name")
-            if not system_user.last_name:
-                system_user.last_name = "Admin"
-                updated_fields.append("last_name")
-            if not system_user.auto_frequency:
-                system_user.auto_frequency = "n"
-                updated_fields.append("auto_frequency")
-            if updated_fields:
-                system_user.save(update_fields=updated_fields)
-            '''
-                
             invitation = Invitation.objects.filter(
                 recipient_user=user,
                 status__in=["sent", "awaiting_approval"],
