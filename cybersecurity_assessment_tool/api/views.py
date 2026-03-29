@@ -22,6 +22,7 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
+from django.utils.crypto import get_random_string
 
 User = get_user_model()
 
@@ -262,8 +263,10 @@ def public_registration(request):
             request.session['pending_company'] = user.organization.org_name if user.organization else "Your Organization"
             request.session['pending_email'] = user.email
             request.session['pending_submitted'] = timezone.now().isoformat()
-            
-            # Get system user for admin notifications
+            # Send notification email to admin for approval, fixes it to actual admin email specified in settings
+            admin_notification_email = getattr(settings, 'ADMIN_NOTIFICATION_EMAIL', 'cyberassessmenttool@gmail.com')
+
+             # Get system user for admin notifications
             try:
                 system_user = User.objects.get(username="Frontend Integration Testing")
             except User.DoesNotExist:
@@ -278,12 +281,46 @@ def public_registration(request):
                 )
                 print("Created system user")
                 
-            invitation = Invitation.objects.get(
-                recipient_email=user.email,
-                organization=user.organization,
-                status="sent",
+            '''
+            # There to resolve local testing issues with no users/admins existing to send the request email to. In production, this will just send to the actual admin email specified in settings.
+            # Get/create system user for admin notifications
+            system_user, created = User.objects.get_or_create(
+                username="Frontend Integration Testing",
+                defaults={
+                    "email": admin_notification_email,
+                    "password": get_random_string(24),
+                    "first_name": "System",
+                    "last_name": "Admin",
+                    "auto_frequency": "n",
+                    "is_active": True,
+                    "is_staff": True,
+                },
             )
-            
+            if created:
+                print("Created system user")
+
+            updated_fields = []
+            if system_user.email != admin_notification_email:
+                system_user.email = admin_notification_email
+                updated_fields.append("email")
+            if not system_user.first_name:
+                system_user.first_name = "System"
+                updated_fields.append("first_name")
+            if not system_user.last_name:
+                system_user.last_name = "Admin"
+                updated_fields.append("last_name")
+            if not system_user.auto_frequency:
+                system_user.auto_frequency = "n"
+                updated_fields.append("auto_frequency")
+            if updated_fields:
+                system_user.save(update_fields=updated_fields)
+            '''
+                
+            invitation = Invitation.objects.filter(
+                recipient_user=user,
+                status__in=["sent", "awaiting_approval"],
+            ).first()
+
             if invitation:
                 print(f"Found existing invitation for {user.email}")
                 return redirect('accounts:waiting')
@@ -443,6 +480,7 @@ def login_view(request):
                     return JsonResponse({
                         'success': True,
                         'requires_otp': True,
+                        'email': user.email,
                         'message': 'OTP sent to your email'
                     })
                 else:
