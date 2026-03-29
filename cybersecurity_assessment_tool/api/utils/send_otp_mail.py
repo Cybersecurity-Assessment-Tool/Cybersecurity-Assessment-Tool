@@ -39,7 +39,7 @@ def send_otp_email(recipient, otp=None):
     html_content = render_to_string(config['template'], config['context'])
     
     # Send using EmailMultiAlternatives (same as test_email.py)
-    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or settings.EMAIL_HOST_USER
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or settings.DEFAULT_FROM_EMAIL
     msg = EmailMultiAlternatives(
         config['subject'],
         text_content,
