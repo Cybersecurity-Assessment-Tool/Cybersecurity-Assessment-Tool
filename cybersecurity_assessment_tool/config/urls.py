@@ -39,8 +39,8 @@ urlpatterns = [
 
     path('tasks/<str:task_id>/', views.check_task_status, name='check_task_status'),
 
-    # path('settings/', views.settings, name='settings'),  # /settings/
-    path('profile/', views.profile, name='profile'),  # /profile/
+    ## DEBUG
+    path('test-email/', views.test_sendgrid, name='test_email'),
 ]
 
 ## cat hate BANAN

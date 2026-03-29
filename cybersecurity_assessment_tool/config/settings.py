@@ -231,14 +231,28 @@ INTERNAL_IPS = [
     '127.0.0.1'
 ]
 
-
 LOGIN_REDIRECT_URL = 'login_redirect'
 LOGOUT_REDIRECT_URL = "home"
 
-# Email settings
+# ---------------------------------------------------------------------------
+# Email Configuration
+# ---------------------------------------------------------------------------
 EMAIL_BACKEND_TYPE = os.environ.get('EMAIL_BACKEND_TYPE', 'console')
 
-if EMAIL_BACKEND_TYPE == 'smtp':
+# Determine if we're on Heroku
+IS_HEROKU = 'DYNO' in os.environ or 'HEROKU' in os.environ
+
+if EMAIL_BACKEND_TYPE == 'sendgrid' or IS_HEROKU:
+    # Use SendGrid on Heroku
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.sendgrid.net'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = 'apikey'  # This is literally the string 'apikey' for SendGrid
+    EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@cybersecuritytool.com')
+elif EMAIL_BACKEND_TYPE == 'smtp':
+    # Use Gmail or other SMTP
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com') # Defaults to Gmail SMTP, but should be updated to sendgrid in the future
     EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
@@ -248,6 +262,7 @@ if EMAIL_BACKEND_TYPE == 'smtp':
     DEFAULT_FROM_EMAIL_PASSWORD = os.environ.get('DEFAULT_FROM_EMAIL_PASSWORD')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 else:
+    # Development - console backend
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
