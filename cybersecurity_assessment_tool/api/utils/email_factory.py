@@ -84,13 +84,14 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
         }
     }
     
-    # DIRECT DICTIONARY LOOKUP - Your suggestion! 👌
     config = email_templates[email_type]
     
     # Override context if provided
     if context_overrides:
         print("Overriding context with:", context_overrides)
         config['context'].update(context_overrides)
+        
+    config['context']['support_email'] = settings.EMAIL_HOST_USER
     
     # Update recipient in context for templates that use it
     # if 'requester_email' in config['context']:
