@@ -202,6 +202,26 @@ STORAGES = {
     },
 }
 
+'''
+# For local development, use plain static file storage without manifest to avoid issues with missing files after collectstatic
+# In production, use WhiteNoise's CompressedManifestStaticFilesStorage for better performance and cache busting.
+# Staticfiles storage:
+# - DEBUG/local development: plain storage (no manifest required)
+# - non-DEBUG environments: hashed manifest storage via WhiteNoise
+if DEBUG:
+    STORAGES = {
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    }
+else:
+    STORAGES = {
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
+'''
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -228,6 +248,8 @@ if EMAIL_BACKEND_TYPE == 'smtp':
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+ADMIN_NOTIFICATION_EMAIL = os.environ.get('ADMIN_NOTIFICATION_EMAIL', 'cyberassessmenttool@gmail.com')
 
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 

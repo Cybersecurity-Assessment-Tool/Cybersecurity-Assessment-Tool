@@ -103,6 +103,24 @@
     var otpValue = '';
     var otpFocused = false;
 
+    function maskEmail(email) {
+        var value = (email || '').toString().trim();
+        if (!value) return '';
+        var atIndex = value.indexOf('@');
+        /*
+        // Uncessary with form validation ensuring valid email format, but there for pure safety in case of unexpected input. If no '@', just show first 3 chars and mask the rest.
+        if (atIndex <= 0) {
+            if (value.length <= 3) return value;
+            return value.slice(0, 3) + '*'.repeat(value.length - 3);
+        }*/
+
+        var local = value.slice(0, atIndex);
+        var domain = value.slice(atIndex);
+
+        if (local.length <= 3) return local + domain;
+        return local.slice(0, 3) + '*'.repeat(local.length - 3) + domain;
+    }
+
     function renderOtpBoxes() {
         document.querySelectorAll('.otp-box').forEach(function(box, i) {
             box.className = 'otp-box';
@@ -168,7 +186,7 @@
         resetOtp();
         clearOtpError();
         document.getElementById('otpSuccess').style.display = 'none';
-        document.getElementById('otpEmailDisplay').textContent = options.email || '';
+        document.getElementById('otpEmailDisplay').textContent = maskEmail(options.email);
 
         // Clone buttons to cleanly detach any previous call's handlers
         var verifyBtn = document.getElementById('verifyOtpBtn');
