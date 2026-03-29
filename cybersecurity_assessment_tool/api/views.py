@@ -267,8 +267,6 @@ def public_registration(request):
             request.session['pending_company'] = user.organization.org_name if user.organization else "Your Organization"
             request.session['pending_email'] = user.email
             request.session['pending_submitted'] = timezone.now().isoformat()
-            # Send notification email to admin for approval, fixes it to actual admin email specified in settings
-            admin_notification_email = getattr(settings, 'ADMIN_NOTIFICATION_EMAIL', 'cyberassessmenttool@gmail.com')
 
              # Get system user for admin notifications
             try:
