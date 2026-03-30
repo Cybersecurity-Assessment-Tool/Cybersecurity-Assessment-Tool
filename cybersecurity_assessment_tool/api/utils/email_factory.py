@@ -91,7 +91,7 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
         print("Overriding context with:", context_overrides)
         config['context'].update(context_overrides)
         
-    config['context']['support_email'] = settings.DEFAULT_FROM_EMAIL
+    config['context']['contact_email'] = settings.DEFAULT_FROM_EMAIL
     
     # Update recipient in context for templates that use it
     # if 'requester_email' in config['context']:

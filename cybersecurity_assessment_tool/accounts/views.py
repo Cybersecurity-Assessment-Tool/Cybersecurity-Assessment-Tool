@@ -431,13 +431,26 @@ def cancel_invitation(request):
 
 def accept_invitation(request, token):
     """Handle user registration via invitation link"""
-    invitation = get_object_or_404(Invitation, token=token, status='sent')
     
-    # Optional expiration check (7 days)
-    if invitation.created_at < timezone.now() - timezone.timedelta(days=7):
-        messages.error(request, 'This invitation has expired.')
-        return redirect('public_register')
+    # 1. Check if the invitation exists and is still 'sent'
+    try:
+        invitation = Invitation.objects.get(token=token, status='sent')
+    except Invitation.DoesNotExist:
+        # RENDER ERROR PAGE: Token is invalid, doesn't exist, or was already accepted
+        return render(request, 'registration/invite_error.html', {
+            'error_title': 'Invalid Invitation',
+            'error_message': 'This invitation link is invalid or has already been used.'
+        }, status=400) # Or 404
 
+    # 2. Check for expiration (7 days)
+    if invitation.created_at < timezone.now() - timezone.timedelta(days=7):
+        # RENDER ERROR PAGE: Token is expired
+        return render(request, 'registration/invite_error.html', {
+            'error_title': 'Invitation Expired',
+            'error_message': 'This invitation has expired. Please request a new one from your organization administrator.'
+        }, status=400)
+
+    # 3. Handle the form submission if everything is valid
     if request.method == 'POST':
         form = InvitationSignupForm(request.POST, email=invitation.recipient_email)
         if form.is_valid():
@@ -451,7 +464,6 @@ def accept_invitation(request, token):
             invitation.status = 'accepted'  # Mark as complete
             invitation.save()
 
-            # INSTEAD OF REDIRECTING, RENDER THE TEMPLATE WITH A SUCCESS FLAG
             context = {
                 'success': True,
                 'email': invitation.recipient_email,
