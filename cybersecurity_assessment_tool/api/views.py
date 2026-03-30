@@ -3,7 +3,7 @@ import uuid
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.conf import settings
-from api.utils.email_factory import send_email_by_type
+from api.utils.email_tasks import queue_email
 import time
 from django.utils import timezone 
 from api.forms import PublicRegistrationForm
@@ -135,18 +135,22 @@ def send_otp_view(request):
         if not recipient:
             return JsonResponse({'error': 'Email is required'}, status=400)
         
-        # Send OTP using your factory
+        # 1. Generate the OTP immediately in the view
+        from api.utils.send_otp_mail import generate_otp
+        otp = generate_otp()
+        
+        # 2. Queue the email in the background, passing the OTP as a context override
         try:
-            context = send_email_by_type('otp', recipient)
-            otp = context['otp']
-            print(f"Generated OTP for {recipient}: {otp}")
+            queue_email('otp', recipient, {'otp': otp})
+            
+            print(f"Queued OTP email for {recipient}: {otp}")
         except Exception as e:
-            print(f"Error in send_email_by_type: {e}")
+            print(f"Error queuing email: {e}")
             import traceback
             traceback.print_exc()
-            return JsonResponse({'error': 'Failed to send email'}, status=500)
+            return JsonResponse({'error': 'Failed to queue email'}, status=500)
         
-        # Store in session
+        # 3. Store the OTP in the session
         request.session['otp_code'] = otp
         request.session['otp_email'] = recipient
         request.session['otp_purpose'] = purpose
@@ -155,8 +159,7 @@ def send_otp_view(request):
         print("OTP stored in session successfully")
         print("="*50)
         
-        return JsonResponse({'success': True, 'message': 'OTP sent successfully'})
-        
+        return JsonResponse({'success': True, 'message': 'OTP sent successfully'})        
     except Exception as e:
         print(f"ERROR in send_otp_view: {str(e)}")
         import traceback
@@ -176,7 +179,7 @@ def send_invite_mail(request, recipient_email):
         )
     domain = request.get_host()
         
-    send_email_by_type('invite', recipient_email, {
+    queue_email('invite', recipient_email, {
         "inviter_name": invitation.sender.username,
         "inviter_role": invitation.sender.group.help_text,
         "inviter_company": invitation.sender.organization.org_name,
@@ -217,7 +220,7 @@ def register_user_invite(request, token):
             request.session['pending_submitted'] = timezone.now().isoformat()
             
             # Send confirmation email to user
-            send_email_by_type('registration', user.email, {
+            queue_email('registration', user.email, {
                 "username": user.username
             })
             
@@ -225,7 +228,7 @@ def register_user_invite(request, token):
             # Get the organization creator (first user) or a designated admin
             org_admin = User.objects.filter(organization=invitation.organization).order_by('date_joined').first()
             if org_admin:
-                send_email_by_type('request', org_admin.email, {
+                queue_email('request', org_admin.email, {
                     "requester_name": f"{user.first_name} {user.last_name}",
                     "requester_email": user.email,
                     "company": invitation.organization.org_name,
@@ -298,7 +301,7 @@ def public_registration(request):
             )
             
             # Send confirmation email to user
-            send_email_by_type('registration', user.email, {
+            queue_email('registration', user.email, {
                 "username": user.username
             })
             
@@ -313,7 +316,7 @@ def public_registration(request):
             print(f"Generated reject URL: {reject_url}")
             
             # Send request email to admin
-            send_email_by_type('request', system_user.email, {
+            queue_email('request', system_user.email, {
                 'requester_name': f"{user.first_name} {user.last_name}",
                 "requester_email": user.email,
                 "company": user.organization.org_name if user.organization else "Unknown",
@@ -367,7 +370,7 @@ def approve_registration(request, user_id):  # user_id will be an integer
     
     # Send approval email
     try:
-        send_email_by_type('approval', user.email, {
+        queue_email('approval', user.email, {
             "username": user.username,
             "company": user.organization.org_name if user.organization else "Your Company",
             "login_url": f"http://{request.get_host()}/login/",
@@ -390,7 +393,7 @@ def reject_registration(request, user_id):
         user_email = user.email
         
         # Send rejection email
-        send_email_by_type('rejection', user_email, {
+        queue_email('rejection', user_email, {
             "username": username,
             "company": user.organization.org_name if user.organization else "Your Company",
             "role": "Org Admin",
@@ -431,8 +434,7 @@ def login_view(request):
                     request.session['pending_user_id'] = user.id
                     
                     # Generate and send OTP
-                    from api.utils.email_factory import send_email_by_type
-                    context = send_email_by_type('otp', user.email)
+                    context = queue_email('otp', user.email)
                     otp = context['otp']
                     
                     # Store OTP in session
