@@ -712,7 +712,7 @@ def waiting_page(request):
 def home(request):
     """Display home page"""
     context = {
-        'page_title': 'LogoSoon',
+        'page_title': 'Reportly',
         'description': 'Cybersecurity assessment tool',
     }
     return render(request, 'home.html', context)
@@ -1037,16 +1037,6 @@ def report_detail(request, report_id):
 def scan(request):
     """Display scan page"""
     return render(request, 'scan.html')
-
-@login_required
-def settings(request):
-    """Display settings page"""
-    return render(request, 'settings.html')
-
-@login_required
-def profile(request):
-    """Display profile page"""
-    return render(request, 'profile.html')
 
 @login_required
 def download_scanner_exe(request):
