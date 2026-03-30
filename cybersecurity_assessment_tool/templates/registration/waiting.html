@@ -165,8 +165,12 @@
         </div>
         <div class="waiting-actions">
             <a href="{% url 'home' %}" class="btn btn-secondary">Return to Home</a>
-            <button class="btn btn-primary" id="checkStatusBtn">Check Status</button>
-            <a href="{% url 'login' %}" class="btn btn-success" id="loginAfterApproval">Proceed to Login</a>
+            
+            {% if registration_status != 'rejected' and registration_status != 'approved' %}
+                <button class="btn btn-primary" id="checkStatusBtn">Check Status</button>
+            {% endif %}
+            
+            <a href="{% url 'login' %}" class="btn btn-success" id="loginAfterApproval" {% if registration_status == 'approved' %}style="display: inline-block;"{% endif %}>Proceed to Login</a>
         </div>
     </div>
 </div>
@@ -189,7 +193,7 @@ $(document).ready(function() {
             $('#loginAfterApproval').show();
         } else if (status === 'rejected') {
             statusSpan.removeClass('status-pending').addClass('status-rejected').text('Rejected ✗');
-            $('#checkStatusBtn').prop('disabled', true).text('Rejected');
+            $('#checkStatusBtn').hide(); // Hides the button completely
         }
     }
 
