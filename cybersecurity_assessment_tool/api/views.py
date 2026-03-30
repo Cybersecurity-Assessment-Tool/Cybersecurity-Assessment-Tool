@@ -433,9 +433,12 @@ def login_view(request):
                     # Store user ID in session for OTP verification
                     request.session['pending_user_id'] = user.id
                     
-                    # Generate and send OTP
-                    context = queue_email('otp', user.email)
-                    otp = context['otp']
+                    # Generate otp
+                    from api.utils.send_otp_mail import generate_otp
+                    otp = generate_otp()
+                    
+                    # Send email
+                    queue_email('otp', user.email, {'otp': otp})
                     
                     # Store OTP in session
                     request.session['login_otp'] = otp
