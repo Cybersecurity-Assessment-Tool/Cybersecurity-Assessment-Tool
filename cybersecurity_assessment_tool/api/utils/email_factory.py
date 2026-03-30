@@ -116,7 +116,7 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
     html_content = render_to_string(config['template'], config['context'])
     
     # Send using EmailMultiAlternatives (same as test_email.py)
-    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or settings.DEFAUKT_FROM_EMAIL
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or settings.DEFAULT_FROM_EMAIL
     msg = EmailMultiAlternatives(
         config['subject'],
         text_content,
