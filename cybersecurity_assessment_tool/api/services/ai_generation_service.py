@@ -1,26 +1,18 @@
 import json
 import os
 import sys
-from dotenv import load_dotenv, find_dotenv
 import google.generativeai as gen
 from django.utils import timezone
 import jsonschema
 from google.genai import types
 from typing import Dict, Any
+from django.conf import settings
 
 # -----------------------------------------------------------------------------
-# MODEL AND API KEY SETUP
+# MODEL SETUP
 # -----------------------------------------------------------------------------
 
-load_dotenv(find_dotenv())
-
-try: 
-    API_KEY = os.environ["GEMINI_API_KEY"]
-    gen.configure(api_key=API_KEY)
-except KeyError:
-    sys.stderr.write("Error: GEMINI_API_KEY not found in environment variables. Please set it.\n")
-    # Using placeholder will allow initalization, but calls will fail until user provides a real key.
-    gen.configure(api_key="placeholder_key")
+gen.configure(api_key=settings.API_KEY)
 
 # Change the model here
 MODEL_NAME = 'gemini-2.5-flash'

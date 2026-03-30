@@ -30,7 +30,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.urls import reverse
 
 @login_required
 def settings(request):
@@ -113,8 +112,7 @@ import random
 import string
 import uuid
 import traceback
-from api.utils.email_factory import send_email_by_type
-
+from api.utils.email_tasks import queue_email
 
 def public_register(request):
     """Public registration page for new organizations"""
@@ -377,7 +375,7 @@ def send_invitation(request):
         protocol = 'https' if (request.is_secure() or 'herokuapp.com' in domain) else 'http'
         invite_link = f"{protocol}://{domain}/accounts/invite/{token}/"
 
-        send_email_by_type('invite', email, {
+        queue_email('invite', email, {
             "inviter_name": f"{user.first_name} {user.last_name}",
             "inviter_role": "Organization Admin",
             "inviter_company": user.organization.org_name,
@@ -402,7 +400,7 @@ def resend_invitation(request):
         domain = request.get_host()
         protocol = 'https' if (request.is_secure() or 'herokuapp.com' in domain) else 'http'
         invite_link = f"{protocol}://{domain}/accounts/invite/{inv.token}/"
-        send_email_by_type('invite', inv.recipient_email, {
+        queue_email('invite', inv.recipient_email, {
             "inviter_name": f"{inv.sender.first_name} {inv.sender.last_name}",
             "inviter_role": "Organization Admin",
             "inviter_company": inv.organization.org_name,

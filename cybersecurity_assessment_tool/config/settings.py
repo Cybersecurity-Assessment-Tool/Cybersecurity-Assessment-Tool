@@ -40,6 +40,8 @@ if not SECRET_KEY:
     else:
         raise ValueError('SECRET_KEY environment variable is required in non-local environments.')
 
+API_KEY = os.environ.get('GEMINI_API_KEY', 'local-gemini-api-key-CHANGE-ME')
+
 SALT_KEY = os.environ.get('SALT_KEY', 'local-dev-salt-key-CHANGE-ME')
 
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
