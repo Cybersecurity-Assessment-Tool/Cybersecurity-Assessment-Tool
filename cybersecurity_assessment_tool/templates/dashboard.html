@@ -129,6 +129,21 @@
 $(document).ready(function() {
     // Parse as JSON string so it doesn't give red squiggly lines in the editor.
     const vulnerabilitiesData = JSON.parse('{{ vulnerabilities_json|safe }}');
+
+    const severityWeights = {
+        'Critical': 1,
+        'High': 2,
+        'Medium': 3,
+        'Low': 4,
+        'Info': 5,
+        'Informational': 5
+    };
+
+    vulnerabilitiesData.sort((a, b) => {
+        const weightA = severityWeights[a.severity] || 6;
+        const weightB = severityWeights[b.severity] || 6;
+        return weightA - weightB; // Sorts ascending (1 to 6)
+    });
     
     initializeDashboard(vulnerabilitiesData);
 });
