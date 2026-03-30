@@ -125,24 +125,37 @@
 <!-- Load Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
 
+{{ vulnerabilities_json|json_script:"vuln-data" }}
 <script>
 $(document).ready(function() {
-    // Parse as JSON string so it doesn't give red squiggly lines in the editor.
-    const vulnerabilitiesData = JSON.parse('{{ vulnerabilities_json|safe }}');
+    // 1. Safely parse the JSON using the modern Django approach
+    const vulnerabilitiesData = JSON.parse(document.getElementById('vuln-data').textContent);
 
+    // 2. Make keys strictly lowercase to prevent case-matching errors
     const severityWeights = {
-        'Critical': 1,
-        'High': 2,
-        'Medium': 3,
-        'Low': 4,
-        'Info': 5,
-        'Informational': 5
+        'critical': 1,
+        'high': 2,
+        'medium': 3,
+        'low': 4,
+        'info': 5,
+        'informational': 5
     };
 
     vulnerabilitiesData.sort((a, b) => {
-        const weightA = severityWeights[a.severity] || 6;
-        const weightB = severityWeights[b.severity] || 6;
-        return weightA - weightB; // Sorts ascending (1 to 6)
+        // 3. Safely extract, lowercase, and trim the strings before matching
+        const sevA = (a.severity || '').toLowerCase().trim();
+        const sevB = (b.severity || '').toLowerCase().trim();
+        
+        const weightA = severityWeights[sevA] || 6;
+        const weightB = severityWeights[sevB] || 6;
+        
+        // 4. Primary Sort: By Severity
+        if (weightA !== weightB) {
+            return weightA - weightB; 
+        }
+        
+        // 5. Secondary Sort: Alphabetically by name (if severities match)
+        return (a.risk_name || '').localeCompare(b.risk_name || '');
     });
     
     initializeDashboard(vulnerabilitiesData);
