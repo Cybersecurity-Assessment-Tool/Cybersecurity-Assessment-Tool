@@ -24,6 +24,14 @@ load_dotenv(find_dotenv())
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# URL prefix for static files
+STATIC_URL = 'static/'
+
+# Tell Django where to find global static files
+STATICFILES_DIRS = [
+    BASE_DIR / "static", 
+]
+
 # ---------------------------------------------------------------------------
 # Environment Detection
 # Set DJANGO_ENVIRONMENT to: local | integration | staging | production
