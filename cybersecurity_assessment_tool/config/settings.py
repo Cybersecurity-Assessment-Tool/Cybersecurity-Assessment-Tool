@@ -250,7 +250,7 @@ if EMAIL_BACKEND_TYPE == 'sendgrid' or IS_HEROKU:
     EMAIL_USE_TLS = True
     EMAIL_HOST_USER = 'apikey'  # This is literally the string 'apikey' for SendGrid
     EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
-    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@cybersecuritytool.com')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 elif EMAIL_BACKEND_TYPE == 'smtp':
     # Use Gmail or other SMTP
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -259,7 +259,6 @@ elif EMAIL_BACKEND_TYPE == 'smtp':
     EMAIL_USE_TLS = True
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-    DEFAULT_FROM_EMAIL_PASSWORD = os.environ.get('DEFAULT_FROM_EMAIL_PASSWORD')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 else:
     # Development - console backend
