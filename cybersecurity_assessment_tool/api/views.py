@@ -23,13 +23,9 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 import secrets
-import os
-
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
+from django.conf import settings
 
 User = get_user_model()
-
 
 ## Simple session-based OTP storage (use Redis/Cache in production)
 # Checks expiration time and verifies otp
@@ -271,8 +267,8 @@ def public_registration(request):
                 # replace it with your own and replace the database user to have the emails sent to your email)
                 system_user = User.objects.create_user(
                     username="Frontend Integration Testing",
-                    email=DEFAULT_FROM_EMAIL,
-                    password=EMAIL_HOST_PASSWORD,
+                    email=settings.DEFAULT_FROM_EMAIL,
+                    password=settings.EMAIL_HOST_PASSWORD,
                     first_name="System",
                     last_name="Integration",
                     is_active=True,
@@ -374,7 +370,8 @@ def approve_registration(request, user_id):  # user_id will be an integer
         send_email_by_type('approval', user.email, {
             "username": user.username,
             "company": user.organization.org_name if user.organization else "Your Company",
-            "login_url": f"http://{request.get_host()}/login/"
+            "login_url": f"http://{request.get_host()}/login/",
+            "contact_email": settings.DEFAULT_FROM_EMAIL,
         })
     except Exception as e:
         print(f"Error sending approval email: {e}")
@@ -396,7 +393,8 @@ def reject_registration(request, user_id):
         send_email_by_type('rejection', user_email, {
             "username": username,
             "company": user.organization.org_name if user.organization else "Your Company",
-            "role": "Org Admin"
+            "role": "Org Admin",
+            "contact_email": settings.DEFAULT_FROM_EMAIL,
         })
         
         # Delete the user
