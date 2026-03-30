@@ -830,6 +830,7 @@ def dashboard(request):
     }
     return render(request, 'dashboard.html', context)
 
+from django.db.models import Case, When, Value, IntegerField
 @login_required
 def risks_list(request):
     """Display all risks/vulnerabilities with filtering"""
@@ -871,9 +872,20 @@ def risks_list(request):
         'Info': base_risks.filter(severity='Info').count(),
     }
     
-    # Pagination - order by report completion date
+    # Pagination - order by Severity first, then by report completion date
     if risks.exists():
-        risks = risks.order_by('-report__completed')
+        risks = risks.annotate(
+            severity_weight=Case(
+                When(severity__iexact='Critical', then=Value(1)),
+                When(severity__iexact='High', then=Value(2)),
+                When(severity__iexact='Medium', then=Value(3)),
+                When(severity__iexact='Low', then=Value(4)),
+                When(severity__iexact='Info', then=Value(5)),
+                When(severity__iexact='Informational', then=Value(5)),
+                default=Value(6),
+                output_field=IntegerField(),
+            )
+        ).order_by('severity_weight', '-report__completed')
     
     paginator = Paginator(risks, 20)
     page_number = request.GET.get('page', 1)
