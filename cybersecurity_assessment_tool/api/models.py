@@ -140,6 +140,7 @@ class User(AbstractUser):
     profile_image = models.ImageField(upload_to=profile_image_path, blank=True, null=True)
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
+    email_inbox = EncryptedEmailField(null=True, blank=True)
     email = EncryptedEmailField()
     email_hash = models.CharField(max_length=64, unique=True, null=True, blank=True)
     password = EncryptedCharField(max_length=128)
