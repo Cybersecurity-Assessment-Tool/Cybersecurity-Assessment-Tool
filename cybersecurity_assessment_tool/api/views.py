@@ -270,8 +270,8 @@ def public_registration(request):
                 # replace it with your own and replace the database user to have the emails sent to your email)
                 system_user = User.objects.create_user(
                     username="Frontend Integration Testing",
-                    email_inbox=settings.ADMIN_EMAIL_INBOX, # Need to update heroku database
-					email=settings.DEFAULT_FROM_EMAIL,
+                    email_inbox=settings.ADMIN_EMAIL_INBOX,
+                    email=settings.DEFAULT_FROM_EMAIL,
                     password=settings.EMAIL_HOST_PASSWORD,
                     first_name="System",
                     last_name="Integration",
@@ -317,7 +317,7 @@ def public_registration(request):
             print(f"Generated reject URL: {reject_url}")
             
             # Send request email to admin
-            queue_email('request', settings.ADMIN_EMAIL_INBOX, { # This needs to not be hardcoded to this but needs to wait for a database reset
+            queue_email('request', system_user.email, {
                 'requester_name': f"{user.first_name} {user.last_name}",
                 "requester_email": user.email,
                 "company": user.organization.org_name if user.organization else "Unknown",
@@ -332,7 +332,7 @@ def public_registration(request):
             return redirect('accounts:waiting')
         
         else:
-            # FORM IS INVALID - add error messages
+            # THIS IS THE DEFAULT ERROR HANDLING, NEEDS TO BE CUSTOMIZED
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
@@ -370,11 +370,12 @@ def approve_registration(request, user_id):  # user_id will be an integer
         invitation.save()
     
     # Send approval email
+    domain = request.get_host()
     try:
         queue_email('approval', user.email, {
             "username": user.username,
             "company": user.organization.org_name if user.organization else "Your Company",
-            "login_url": f"http://{request.get_host()}/login/",
+            "login_url": f"http://{domain}/accounts/login/",
             "contact_email": settings.DEFAULT_FROM_EMAIL,
         })
     except Exception as e:
@@ -802,34 +803,28 @@ def dashboard(request):
     user = request.user
     organization = user.organization
     
-    # Initialize empty data
+    # Initialize empty data in case no reports exist
     vulnerabilities = []
     latest_report = None
     report_date = None
     
     if organization:
+        # Get the most recent report for this organization
         latest_report = Report.objects.filter(
             organization=organization
         ).order_by('-completed').first()
         
         if latest_report:
-            # Iterate over the objects to force Decryption
-            risks = Risk.objects.filter(report=latest_report)
-            
-            for risk in risks:
-                vulnerabilities.append({
-                    'severity': risk.severity,
-                    'risk_name': risk.risk_name,
-                    'overview': risk.overview, 
-                })
-            
-            # Use completed date if it exists, otherwise fallback to the started date
-            report_date = latest_report.completed if latest_report.completed else latest_report.started
+            # Get all risks associated with this report
+            vulnerabilities = list(
+                Risk.objects.filter(
+                    report_id=latest_report.report_id
+                ).values('severity', 'risk_name', 'overview')
+            )
+            report_date = latest_report.completed
     
     context = {
-        # Pass the RAW Python list. Do not use json.dumps() here because 
-        # the Django template tag |json_script handles the serialization for you safely.
-        'vulnerabilities_json': vulnerabilities,
+        'vulnerabilities_json': json.dumps(vulnerabilities),
         'has_data': len(vulnerabilities) > 0,
         'latest_report': latest_report,
         'report_date': report_date,
