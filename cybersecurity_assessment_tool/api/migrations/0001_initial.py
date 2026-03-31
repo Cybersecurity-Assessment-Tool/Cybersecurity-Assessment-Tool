@@ -51,7 +51,6 @@ class Migration(migrations.Migration):
                 ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
                 ('user_id', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
-                ('organization_role', models.CharField(choices=[('admin', 'Administrator'), ('org admin', 'Organization Administrator'), ('observer', 'Observer'), ('tester', 'Tester')], default='observer', help_text="User's role in the organization", max_length=20)),
                 ('auto_frequency', models.CharField(choices=[('n', 'None'), ('m', 'Monthly'), ('q', 'Quarterly'), ('y', 'Yearly')], max_length=1)),
                 ('profile_image', models.ImageField(blank=True, null=True, upload_to=api.models.User.profile_image_path)),
                 ('color', models.CharField(choices=[('d', 'Dark'), ('l', 'Light')], default='d', max_length=1)),
