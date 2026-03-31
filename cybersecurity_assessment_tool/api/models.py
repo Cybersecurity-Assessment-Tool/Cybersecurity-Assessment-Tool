@@ -170,11 +170,11 @@ class User(AbstractUser):
         ]
     
     def __str__(self):
-        return f"Profile for {self.user.username}"
+        return self.username
     
     def get_username(self):
         """Return username"""
-        return self.user.username
+        return self.username
 
 class Report(models.Model):
     report_id = models.UUIDField(
