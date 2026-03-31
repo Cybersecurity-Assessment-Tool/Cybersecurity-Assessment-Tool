@@ -56,27 +56,27 @@ class UserEmailForm(forms.ModelForm):
                 
         return email
 
-class TwoFactorSetupForm(forms.Form):
-    """
-    Placeholder form for 2FA setup.
-    TO DO: Implement actual 2FA using django-otp or similar
-    """
-    verification_code = forms.CharField(
-        max_length=6,
-        min_length=6,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-input',
-            'placeholder': 'Enter 6-digit code',
-            'pattern': '[0-9]{6}'
-        })
-    )
+# class TwoFactorSetupForm(forms.Form):
+#     """
+#     Placeholder form for 2FA setup.
+#     TO DO: Implement actual 2FA using django-otp or similar
+#     """
+#     verification_code = forms.CharField(
+#         max_length=6,
+#         min_length=6,
+#         required=False,
+#         widget=forms.TextInput(attrs={
+#             'class': 'form-input',
+#             'placeholder': 'Enter 6-digit code',
+#             'pattern': '[0-9]{6}'
+#         })
+#     )
     
-    def clean_verification_code(self):
-        code = self.cleaned_data.get('verification_code')
-        if code and not code.isdigit():
-            raise forms.ValidationError('Code must contain only numbers')
-        return code
+#     def clean_verification_code(self):
+#         code = self.cleaned_data.get('verification_code')
+#         if code and not code.isdigit():
+#             raise forms.ValidationError('Code must contain only numbers')
+#         return code
     
 class CustomUserCreationForm(UserCreationForm):
     """

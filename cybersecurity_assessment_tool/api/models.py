@@ -528,7 +528,7 @@ class Scan(models.Model):
     # ------------------------------------------------------------------
     # Scan metadata (encrypted - reveals network topology)
     # ------------------------------------------------------------------
-    target_subnet = FernetEncryptedTextField(
+    target_subnet = EncryptedTextField(
         blank=True,
         null=True,
         help_text="Encrypted. The subnet that was scanned (e.g. 192.168.1.0/24)."
@@ -540,7 +540,7 @@ class Scan(models.Model):
     # ------------------------------------------------------------------
     # Results (encrypted - raw vulnerability data)
     # ------------------------------------------------------------------
-    raw_findings_json = FernetEncryptedTextField(
+    raw_findings_json = EncryptedJSONField(
         blank=True,
         null=True,
         help_text="Encrypted. Full JSON findings from the exe. Deleted after report generation."
