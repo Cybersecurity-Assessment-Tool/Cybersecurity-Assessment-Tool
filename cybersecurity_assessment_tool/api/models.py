@@ -634,3 +634,16 @@ class Scan(models.Model):
     @property
     def has_failed(self):
         return self.status == self.Status.FAILED
+    
+
+# ---------------------------------------------------------------------------
+# Way of deleting invitations when a user is deleted
+# ---------------------------------------------------------------------------
+
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+
+@receiver(post_delete, sender=User)
+def delete_associated_invitation(sender, instance, **kwargs):
+    """Delete invitation linked to a user when the user is deleted."""
+    Invitation.objects.filter(recipient_user=instance).delete()
