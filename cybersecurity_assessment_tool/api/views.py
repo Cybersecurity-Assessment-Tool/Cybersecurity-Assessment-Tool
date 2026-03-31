@@ -802,28 +802,34 @@ def dashboard(request):
     user = request.user
     organization = user.organization
     
-    # Initialize empty data in case no reports exist
+    # Initialize empty data
     vulnerabilities = []
     latest_report = None
     report_date = None
     
     if organization:
-        # Get the most recent report for this organization
         latest_report = Report.objects.filter(
             organization=organization
         ).order_by('-completed').first()
         
         if latest_report:
-            # Get all risks associated with this report
-            vulnerabilities = list(
-                Risk.objects.filter(
-                    report_id=latest_report.report_id
-                ).values('severity', 'risk_name', 'overview')
-            )
-            report_date = latest_report.completed
+            # Iterate over the objects to force Decryption
+            risks = Risk.objects.filter(report=latest_report)
+            
+            for risk in risks:
+                vulnerabilities.append({
+                    'severity': risk.severity,
+                    'risk_name': risk.risk_name,
+                    'overview': risk.overview, 
+                })
+            
+            # Use completed date if it exists, otherwise fallback to the started date
+            report_date = latest_report.completed if latest_report.completed else latest_report.started
     
     context = {
-        'vulnerabilities_json': json.dumps(vulnerabilities),
+        # Pass the RAW Python list. Do not use json.dumps() here because 
+        # the Django template tag |json_script handles the serialization for you safely.
+        'vulnerabilities_json': vulnerabilities,
         'has_data': len(vulnerabilities) > 0,
         'latest_report': latest_report,
         'report_date': report_date,
