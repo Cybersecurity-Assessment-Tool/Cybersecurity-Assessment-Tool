@@ -255,6 +255,7 @@ EMAIL_BACKEND_TYPE = os.environ.get('EMAIL_BACKEND_TYPE', 'console')
 
 # Determine if we're on Heroku
 IS_HEROKU = 'DYNO' in os.environ or 'HEROKU' in os.environ
+ADMIN_EMAIL_INBOX = os.environ.get('ADMIN_EMAIL_INBOX', 'cyberassessmenttool@gmail.com')
 
 if EMAIL_BACKEND_TYPE == 'sendgrid' or IS_HEROKU:
     # Use SendGrid on Heroku

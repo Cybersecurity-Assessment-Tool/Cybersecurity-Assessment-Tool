@@ -105,6 +105,12 @@ class Organization(models.Model):
 
 # AbstractUser already provides username, password, and email
 class User(AbstractUser):
+    def profile_image_path(instance, filename):
+        """Generate file path for new profile image"""
+        ext = filename.split('.')[-1]
+        filename = f"profile_{instance.user.username}_{instance.user.id}.{ext}"
+        return os.path.join('uploads/profile_images/', filename)
+
     user_id = models.UUIDField(
         default=uuid.uuid4,
         unique=True,
@@ -131,19 +137,16 @@ class User(AbstractUser):
         blank=True     # allows the field to be optional in forms/admin
     )
     auto_frequency = models.CharField(max_length=1, choices=Frequency.choices)
-    profile_img = models.ImageField(
-        upload_to='profile_images/',
-        blank=True,
-        null=True  # Modified profile_img to not be a required field since we haven't implemented a way to store images yet.
-    )
+    profile_image = models.ImageField(upload_to=profile_image_path, blank=True, null=True)
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
+    email_inbox = EncryptedEmailField(null=True, blank=True)
     email = EncryptedEmailField()
     email_hash = models.CharField(max_length=64, unique=True, null=True, blank=True)
     password = EncryptedCharField(max_length=128)
     first_name = EncryptedCharField(max_length=50, null=True, blank=True)
     last_name = EncryptedCharField(max_length=50, null=True, blank=True)
-    
+        
     def save(self, *args, **kwargs):
         # Automatically generate the hash whenever the user is saved/updated
         if self.email:
@@ -157,6 +160,10 @@ class User(AbstractUser):
         ]
     
     def __str__(self):
+        return self.username
+    
+    def get_username(self):
+        """Return username"""
         return self.username
 
 class Report(models.Model):

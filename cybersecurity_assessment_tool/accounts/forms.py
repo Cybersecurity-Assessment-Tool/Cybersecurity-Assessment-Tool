@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from .models import UserProfile, generate_email_hash
+from api.models import User, generate_email_hash
 
 User = get_user_model()
 
@@ -12,10 +12,10 @@ class UserProfileForm(forms.ModelForm):
     Includes save indicators and validation.
     """
     class Meta:
-        model = UserProfile
-        fields = ['display_name', 'profile_image']
+        model = User
+        fields = ['username', 'profile_image']
         widgets = {
-            'display_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter your display name'}),
+            'username': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter your display name'}),
             'profile_image': forms.FileInput(attrs={'class': 'form-file', 'accept': 'image/*'}),
         }
         # 'display_name', 'profile_image', 'job_title', 'phone_number', 'timezone', 'email_notifications', 'email_on_critical', 'email_on_scan_complete', 'email_digest', 'items_per_page', 'default_view'
