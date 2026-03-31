@@ -270,7 +270,7 @@ def public_registration(request):
                 # replace it with your own and replace the database user to have the emails sent to your email)
                 system_user = User.objects.create_user(
                     username="Frontend Integration Testing",
-                    email_inbox=settings.ADMIN_EMAIL_INBOX,
+                    email_inbox=settings.ADMIN_EMAIL_INBOX, # Need to update heroku database
 					email=settings.DEFAULT_FROM_EMAIL,
                     password=settings.EMAIL_HOST_PASSWORD,
                     first_name="System",
@@ -317,7 +317,7 @@ def public_registration(request):
             print(f"Generated reject URL: {reject_url}")
             
             # Send request email to admin
-            queue_email('request', system_user.email_inbox, {
+            queue_email('request', settings.ADMIN_EMAIL_INBOX, { # This needs to not be hardcoded to this but needs to wait for a database reset
                 'requester_name': f"{user.first_name} {user.last_name}",
                 "requester_email": user.email,
                 "company": user.organization.org_name if user.organization else "Unknown",
