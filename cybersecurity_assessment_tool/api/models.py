@@ -123,17 +123,6 @@ class User(AbstractUser):
         help_text='The groups this user belongs to (e.g., Executive, Manager, Technician, etc.)',
         verbose_name='groups',
     )
-    organization_role = models.CharField(
-        max_length=20,
-        choices=[
-            ('admin', 'Administrator'),
-            ('org admin', 'Organization Administrator'),
-            ('observer', 'Observer'),
-            ('tester', 'Tester'),
-        ],
-        default='observer',
-        help_text="User's role in the organization"
-    )
     user_permissions = models.ManyToManyField(
         'auth.Permission',
         related_name='api_user_permissions',
