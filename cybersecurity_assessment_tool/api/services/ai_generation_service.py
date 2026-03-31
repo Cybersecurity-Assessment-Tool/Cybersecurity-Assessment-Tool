@@ -1,26 +1,18 @@
 import json
 import os
 import sys
-from dotenv import load_dotenv, find_dotenv
 import google.generativeai as gen
 from django.utils import timezone
 import jsonschema
 from google.genai import types
 from typing import Dict, Any
+from django.conf import settings
 
 # -----------------------------------------------------------------------------
-# MODEL AND API KEY SETUP
+# MODEL SETUP
 # -----------------------------------------------------------------------------
 
-load_dotenv(find_dotenv())
-
-try: 
-    API_KEY = os.environ["GEMINI_API_KEY"]
-    gen.configure(api_key=API_KEY)
-except KeyError:
-    sys.stderr.write("Error: GEMINI_API_KEY not found in environment variables. Please set it.\n")
-    # Using placeholder will allow initalization, but calls will fail until user provides a real key.
-    gen.configure(api_key="placeholder_key")
+gen.configure(api_key=settings.API_KEY)
 
 # Change the model here
 MODEL_NAME = 'gemini-2.5-flash'
@@ -319,7 +311,7 @@ def _create_example(example_input, example_output) -> str:
         print(f"[WARNING] Could not load examples: {e}")
         return "Example context missing or invalid."
 
-def _generate_report_content(context):
+def _generate_report_content(questionnaire, context):
     """
     Calls the AI model to generate report content.
     """
@@ -334,7 +326,13 @@ def _generate_report_content(context):
 
     print(f"--- Calling Gemini API with model: {MODEL_NAME} ---")
     
-    full_prompt = f"{_create_report_prompt()}\n\nContext:\n{context}\n\n{example}"
+    full_prompt = f"{_create_report_prompt()}\n\nContext:\n{context}\n\n{example}\n\nQuestionnaire:\n{questionnaire}"
+
+    ## DEBUG pt 1
+    # print("="*60)
+    # print("AI GENERATION: Context length", len(context))
+    # print("Context preview (first 500 chars):", context[:500])
+    # print("="*60)
         
     response = model.generate_content(
         contents=full_prompt,
@@ -343,6 +341,12 @@ def _generate_report_content(context):
             response_schema=REPORT_SCHEMA_JSON
         )
     )
+
+    ## DEBUG pt 2
+    # print("="*60)
+    # print("AI REPORT RESPONSE:")
+    # print(response.text[:1000])  # first 1000 chars
+    # print("="*60)
         
     if not response.text:
         raise RuntimeError("Empty response from Gemini for report generation.")
@@ -387,6 +391,12 @@ def _add_risks(report: dict, current_risks: dict):
             response_schema=RISK_SCHEMA_JSON
         )
     )
+
+    ## DEBUG pt 3
+    # print("="*60)
+    # print("AI RISKS RESPONSE:")
+    # print(response.text[:1000])
+    # print("="*60)
     
     if not response.text:
         raise RuntimeError("Empty response from Gemini for risk generation.")
@@ -397,14 +407,14 @@ def _add_risks(report: dict, current_risks: dict):
     print("--- Finished creating and validating risk response successfully! ---")
     return data
 
-def ai_generation_service(current_risks: dict, context: str):
+def ai_generation_service(questionnaire: dict, current_risks: dict, context: str):
     """
     Generates report and risks data using Gemini.
     Returns the raw parsed JSON dictionaries: (report_data, risks_data)
     """
     try:
         # 1. Generate and validate base report data
-        report_data = _generate_report_content(context)
+        report_data = _generate_report_content(questionnaire, context)
         
         # 2. Generate and validate risks data based on the report and existing DB risks
         risks_data = _add_risks(report_data, current_risks)

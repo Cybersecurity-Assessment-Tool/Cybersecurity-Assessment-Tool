@@ -3,13 +3,492 @@
 {% block title %}Scan - {{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="text-center py-2">
-    <div class="col-lg py-3">
-        <div class="card bg-light" style="height: 500px;">
-            <div class="card-body d-flex justify-content-center flex-column align-items-center">
-                <p class="lead text-muted">Scan Area</p>
+{% csrf_token %}
+
+<div class="container py-4">
+
+  {# ------------------------------------------------------------------ #}
+  {# ROW 1: Token + Download                                            #}
+  {# ------------------------------------------------------------------ #}
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card bg-light">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Start a New Scan</h5>
+
+          {# Step 1: Generate token #}
+          <div id="step-generate">
+            <p class="text-muted mb-3">
+              Generate a one-time token, then download the scanner and paste the token into its GUI.
+              The token expires in <strong>24 hours</strong>.
+            </p>
+            
+            {% if request.user.organization and request.user.organization.questionnaire_completed %}
+                <button id="generateTokenBtn" class="btn btn-primary" onclick="generateToken()">
+                  Generate Token &amp; Download Scanner
+                </button>
+            {% else %}
+                <a href="{% url 'accounts:questionnaire' %}" class="btn btn-warning text-dark">
+                  Complete Setup Questionnaire to Scan
+                </a>
+                <p class="text-danger mt-2 mb-0 small">
+                  <strong>Note:</strong> You must complete your organization's security questionnaire before running your first scan.
+                </p>
+            {% endif %}
+          </div>
+
+          {# Step 2: Show token after generation #}
+          <div id="step-token" class="d-none">
+            <p class="text-muted mb-2">Copy this token and paste it into the scanner GUI:</p>
+            <div class="input-group mb-3" style="max-width: 520px;">
+              <input type="text" id="tokenDisplay" class="form-control font-monospace" readonly>
+              <button class="btn btn-outline-secondary" onclick="copyToken()">Copy</button>
             </div>
+            <p class="text-muted small mb-3">
+              Once the scanner finishes, this page will update automatically.
+            </p>
+            <a id="downloadLink" href="#" class="btn btn-success me-2" download>
+              ⬇ Download Scanner (.exe)
+            </a>
+            <button class="btn btn-outline-secondary btn-sm" onclick="resetScanUI()">
+              Start Over
+            </button>
+
+            {# --- FOR TESTING ONLY REMOVE IN ACTUAL --- #}
+            <button class="btn btn-outline-danger btn-sm ms-2" onclick="simulateScannerPost()">
+              🧪 TEST: Fake Scanner POST
+            </button>
+            {# ----------------------------------------- #}
+          </div>
+
         </div>
+      </div>
     </div>
-</div>
+  </div>
+
+  {# ------------------------------------------------------------------ #}
+  {# ROW 2: Active scan status (shown while scan in progress)           #}
+  {# ------------------------------------------------------------------ #}
+  <div id="activeScanCard" class="row mb-4 d-none">
+    <div class="col-12">
+      <div class="card border-primary">
+        <div class="card-body">
+
+          <div class="d-flex align-items-center mb-3">
+            <div class="spinner-border spinner-border-sm text-primary me-2" role="status" id="scanSpinner"></div>
+            <h5 class="mb-0" id="scanStatusHeading">Waiting for scanner...</h5>
+          </div>
+
+          {# Status label #}
+          <p id="scanStatusLabel" class="text-muted mb-3">The scanner is running on your machine.</p>
+
+          {# Findings summary badges - shown once results arrive #}
+          <div id="findingsBadges" class="mb-3 d-none">
+            <span class="badge bg-danger me-1">Critical: <span id="badgeCritical">0</span></span>
+            <span class="badge bg-warning text-dark me-1">High: <span id="badgeHigh">0</span></span>
+            <span class="badge bg-info text-dark me-1">Medium: <span id="badgeMedium">0</span></span>
+            <span class="badge bg-secondary me-1">Low: <span id="badgeLow">0</span></span>
+            <span class="badge bg-light text-dark border me-1">Info: <span id="badgeInfo">0</span></span>
+          </div>
+
+          {# Report generation notice #}
+          <div id="generatingNotice" class="alert alert-info py-2 d-none">
+            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+            Scan complete. AI report is being generated — this may take a moment.
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ------------------------------------------------------------------ #}
+  {# ROW 3: Completed scan notice                                       #}
+  {# ------------------------------------------------------------------ #}
+  <div id="completedCard" class="row mb-4 d-none">
+    <div class="col-12">
+      <div class="alert alert-success d-flex align-items-center justify-content-between">
+        <div>
+          ✅ <strong>Report generated.</strong> Your security report is ready.
+        </div>
+        <a id="reportLink" href="#" class="btn btn-success btn-sm">View Report</a>
+      </div>
+    </div>
+  </div>
+
+  {# ------------------------------------------------------------------ #}
+  {# ROW 4: Error notice                                                #}
+  {# ------------------------------------------------------------------ #}
+  <div id="errorCard" class="row mb-4 d-none">
+    <div class="col-12">
+      <div class="alert alert-danger">
+        ❌ <strong>Scan failed.</strong> <span id="errorMessage"></span>
+        <button class="btn btn-outline-danger btn-sm ms-3" onclick="resetScanUI()">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  {# ------------------------------------------------------------------ #}
+  {# ROW 5: Recent scans table                                          #}
+  {# ------------------------------------------------------------------ #}
+  <div class="row">
+    <div class="col-12">
+      <div class="card bg-light">
+        <div class="card-body">
+          <h5 class="card-title">Recent Scans</h5>
+          <div id="recentScansContainer">
+            <p class="text-muted">Loading...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>{% endblock %}
+
+
+{% block extra_js %}
+<script>
+// -------------------------------------------------------------------------
+// State
+// -------------------------------------------------------------------------
+let activeScanId   = null;
+let pollInterval   = null;
+const POLL_MS      = 3000;  // poll every 3 seconds
+
+// -------------------------------------------------------------------------
+// On load: restore any active scan from sessionStorage
+// -------------------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', function () {
+  loadRecentScans();
+
+  const savedScanId = sessionStorage.getItem('activeScanId');
+  if (savedScanId) {
+    activeScanId = savedScanId;
+    showActiveScanCard('Resuming scan progress check...');
+    startPolling(savedScanId);
+  }
+});
+
+// -------------------------------------------------------------------------
+// Step 1: Generate token
+// -------------------------------------------------------------------------
+function generateToken() {
+  const btn = document.getElementById('generateTokenBtn');
+  // Extra safety check in JS just in case
+  if (!btn) return; 
+  
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+
+  fetch("{% url 'scan_token' %}", {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCsrf(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({}),
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) {
+      alert('Error: ' + data.error);
+      btn.disabled = false;
+      btn.textContent = 'Generate Token & Download Scanner';
+      return;
+    }
+
+    // Show token UI
+    document.getElementById('step-generate').classList.add('d-none');
+    document.getElementById('step-token').classList.remove('d-none');
+    document.getElementById('tokenDisplay').value = data.token;
+
+    // Set download link (Django serves the exe - update URL as needed)
+    document.getElementById('downloadLink').href = "{% url 'scan_download_exe' %}";
+
+    // Save scan_id and start polling
+    activeScanId = data.scan_id;
+    sessionStorage.setItem('activeScanId', data.scan_id);
+
+    showActiveScanCard('Waiting for scanner to connect...');
+    startPolling(data.scan_id);
+  })
+  .catch(() => {
+    alert('Network error. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Generate Token & Download Scanner';
+  });
+}
+
+// -------------------------------------------------------------------------
+// Copy token to clipboard
+// -------------------------------------------------------------------------
+function copyToken() {
+  const input = document.getElementById('tokenDisplay');
+  input.select();
+  document.execCommand('copy');
+  alert('Token copied to clipboard.');
+}
+
+// -------------------------------------------------------------------------
+// Polling
+// -------------------------------------------------------------------------
+function startPolling(scanId) {
+  if (pollInterval) clearInterval(pollInterval);
+  pollInterval = setInterval(() => pollScanStatus(scanId), POLL_MS);
+}
+
+function stopPolling() {
+  if (pollInterval) {
+    clearInterval(pollInterval);
+    pollInterval = null;
+  }
+}
+
+function pollScanStatus(scanId) {
+  fetch(`/api/scan/status/${scanId}/`)
+    .then(r => r.json())
+    .then(data => handleStatusUpdate(data))
+    .catch(() => {/* silently retry next interval */});
+}
+
+function handleStatusUpdate(data) {
+  const status = data.status;
+  const heading  = document.getElementById('scanStatusHeading');
+  const label    = document.getElementById('scanStatusLabel');
+
+  switch (status) {
+
+    case 'PENDING':
+      heading.textContent = 'Waiting for scanner...';
+      label.textContent   = 'Run the downloaded scanner on your machine.';
+      break;
+
+    case 'RUNNING':
+      heading.textContent = 'Scan in progress...';
+      label.textContent   = 'The scanner is actively running on your network.';
+      break;
+
+    case 'RECEIVED':
+      heading.textContent = 'Results received.';
+      label.textContent   = 'Scan data uploaded. Preparing AI report...';
+      updateFindingsBadges(data.findings_summary);
+      document.getElementById('generatingNotice').classList.remove('d-none');
+      break;
+
+    case 'GENERATING':
+      heading.textContent = 'Generating report...';
+      label.textContent   = 'AI is analyzing your scan results.';
+      updateFindingsBadges(data.findings_summary);
+      document.getElementById('generatingNotice').classList.remove('d-none');
+      break;
+
+    case 'COMPLETE':
+      stopPolling();
+      sessionStorage.removeItem('activeScanId');
+      showCompletedCard(data.report_url);
+      document.getElementById('activeScanCard').classList.add('d-none');
+      loadRecentScans();
+      break;
+
+    case 'FAILED':
+      stopPolling();
+      sessionStorage.removeItem('activeScanId');
+      showErrorCard(data.error || 'An unknown error occurred.');
+      document.getElementById('activeScanCard').classList.add('d-none');
+      break;
+  }
+}
+
+// -------------------------------------------------------------------------
+// TEST: Simulate Scanner Submission
+// -------------------------------------------------------------------------
+function simulateScannerPost() {
+  const token = document.getElementById('tokenDisplay').value;
+  
+  if (!token) {
+    alert('No token available! Please generate a token first.');
+    return;
+  }
+
+  const dummyPayload = {
+    target_subnet: "192.168.1.0/24",
+    scan_version: "1.0.0-test",
+    scan_duration_seconds: 42,
+    groups_completed: 5,
+    findings: [
+      { 
+        severity: "critical", 
+        description: "Host is vulnerable to MS17-010 (EternalBlue). The SMBv1 protocol is enabled and missing critical security patches, which allows unauthenticated remote code execution." 
+      },
+      { 
+        severity: "high", 
+        description: "Anonymous FTP login is enabled. An unauthenticated attacker can connect to the FTP service, potentially exposing sensitive files or allowing unauthorized uploads." 
+      }
+    ],
+    raw_results: {
+      test_string: "HARD_CODED_TEST_STRING_FOR_AI_PROCESSING",
+      note: "The AI should see this inside the raw_results dict."
+    }
+  };
+
+  const submitEndpoint = '/api/scan/submit/'; 
+
+  console.log(`Sending fake scan data to ${submitEndpoint}...`);
+
+  fetch(submitEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      // The backend expects the token in the Authorization header:
+      'Authorization': `ScanToken ${token}`
+    },
+    body: JSON.stringify(dummyPayload),
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Fake scan submitted successfully:', data);
+  })
+  .catch(error => {
+    console.error('Simulation POST failed:', error);
+    alert('Failed to send fake scan. Check the browser console.');
+  });
+}
+
+// -------------------------------------------------------------------------
+// UI helpers
+// -------------------------------------------------------------------------
+function showActiveScanCard(message) {
+  document.getElementById('activeScanCard').classList.remove('d-none');
+  document.getElementById('scanStatusHeading').textContent = message;
+}
+
+function showCompletedCard(reportUrl) {
+  const card = document.getElementById('completedCard');
+  card.classList.remove('d-none');
+  if (reportUrl) {
+    document.getElementById('reportLink').href = reportUrl;
+  }
+}
+
+function showErrorCard(message) {
+  document.getElementById('errorCard').classList.remove('d-none');
+  document.getElementById('errorMessage').textContent = message;
+}
+
+function updateFindingsBadges(summary) {
+  if (!summary) return;
+  document.getElementById('findingsBadges').classList.remove('d-none');
+  document.getElementById('badgeCritical').textContent = summary.critical || 0;
+  document.getElementById('badgeHigh').textContent     = summary.high     || 0;
+  document.getElementById('badgeMedium').textContent   = summary.medium   || 0;
+  document.getElementById('badgeLow').textContent      = summary.low      || 0;
+  document.getElementById('badgeInfo').textContent     = summary.info     || 0;
+}
+
+function resetScanUI() {
+  stopPolling();
+  sessionStorage.removeItem('activeScanId');
+  activeScanId = null;
+
+  document.getElementById('step-generate').classList.remove('d-none');
+  document.getElementById('step-token').classList.add('d-none');
+  document.getElementById('activeScanCard').classList.add('d-none');
+  document.getElementById('completedCard').classList.add('d-none');
+  document.getElementById('errorCard').classList.add('d-none');
+  document.getElementById('findingsBadges').classList.add('d-none');
+  document.getElementById('generatingNotice').classList.add('d-none');
+
+  const btn = document.getElementById('generateTokenBtn');
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = 'Generate Token & Download Scanner';
+  }
+}
+
+// -------------------------------------------------------------------------
+// Recent scans table
+// -------------------------------------------------------------------------
+function loadRecentScans() {
+  fetch('/api/scan/list/')
+    .then(r => r.json())
+    .then(data => renderRecentScans(data.scans))
+    .catch(() => {
+      document.getElementById('recentScansContainer').innerHTML =
+        '<p class="text-muted">Could not load recent scans.</p>';
+    });
+}
+
+function renderRecentScans(scans) {
+  const container = document.getElementById('recentScansContainer');
+
+  if (!scans || scans.length === 0) {
+    container.innerHTML = '<p class="text-muted">No scans yet.</p>';
+    return;
+  }
+
+  const rows = scans.map(s => {
+    const date    = new Date(s.created_at).toLocaleString();
+    const status  = statusBadge(s.status);
+    const report  = s.report_id
+      ? `<a href="/reports/${s.report_id}/" class="btn btn-sm btn-outline-primary">View Report</a>`
+      : '—';
+    const findings = s.status === 'COMPLETE'
+      ? `<span class="badge bg-danger me-1">${s.finding_count_critical}</span>
+         <span class="badge bg-warning text-dark me-1">${s.finding_count_high}</span>
+         <span class="badge bg-info text-dark me-1">${s.finding_count_medium}</span>
+         <span class="badge bg-secondary me-1">${s.finding_count_low}</span>
+         <span class="badge bg-light text-dark border">${s.finding_count_info}</span>`
+      : '—';
+
+    return `
+      <tr>
+        <td>${date}</td>
+        <td>${status}</td>
+        <td>${findings}</td>
+        <td>${report}</td>
+      </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="table-responsive">
+      <table class="table table-sm table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Findings <small class="text-muted">(C / H / M / L / I)</small></th>
+            <th>Report</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function statusBadge(status) {
+  const map = {
+    'PENDING':    'bg-secondary',
+    'RUNNING':    'bg-primary',
+    'RECEIVED':   'bg-info text-dark',
+    'GENERATING': 'bg-warning text-dark',
+    'COMPLETE':   'bg-success',
+    'FAILED':     'bg-danger',
+  };
+  const cls = map[status] || 'bg-secondary';
+  return `<span class="badge ${cls}">${status}</span>`;
+}
+
+// -------------------------------------------------------------------------
+// CSRF helper
+// -------------------------------------------------------------------------
+function getCsrf() {
+  return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+</script>
 {% endblock %}

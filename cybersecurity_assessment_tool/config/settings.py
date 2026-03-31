@@ -24,6 +24,14 @@ load_dotenv(find_dotenv())
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# URL prefix for static files
+STATIC_URL = 'static/'
+
+# Tell Django where to find global static files
+STATICFILES_DIRS = [
+    BASE_DIR / "static", 
+]
+
 # ---------------------------------------------------------------------------
 # Environment Detection
 # Set DJANGO_ENVIRONMENT to: local | integration | staging | production
@@ -40,6 +48,8 @@ if not SECRET_KEY:
     else:
         raise ValueError('SECRET_KEY environment variable is required in non-local environments.')
 
+API_KEY = os.environ.get('GEMINI_API_KEY', 'local-gemini-api-key-CHANGE-ME')
+
 SALT_KEY = os.environ.get('SALT_KEY', 'local-dev-salt-key-CHANGE-ME')
 
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
@@ -48,13 +58,45 @@ FIELD_ENCRYPTION_KEYS = [
     'f164h6a7591d3d540a946c6e0d2344ef9ae1951cddf3241430edc4273954513a', # Example 32-byte hex key
 ]
 
+FIELD_ENCRYPTION_KEY = os.environ.get('FIELD_ENCRYPTION_KEY')
+if not FIELD_ENCRYPTION_KEY and ENVIRONMENT != 'local':
+    raise ValueError('FIELD_ENCRYPTION_KEY environment variable is required in non-local environments.')
+
 # Comma-separated list of allowed hosts, e.g. "myapp.herokuapp.com,mydomain.com"
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Allow LAN access during local VM testing
+# Remove or replace with env var before pushing to production
+_LAN_IP = os.environ.get('LAN_IP', '')
+if _LAN_IP and _LAN_IP not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_LAN_IP)
 # Always allow Heroku subdomains in non-local environments
 if ENVIRONMENT != 'local' and '.herokuapp.com' not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append('.herokuapp.com')
 
 # Application definition
+
+# ------------------------------------------
+# Django Q2 (Background Worker) Settings
+# ------------------------------------------
+
+Q_CLUSTER = {
+    'name': 'logodiscover_cluster',
+    'orm': 'default',  
+    
+    # WORKER CONFIGURATION
+    'workers': 4,       # Number of concurrent worker processes. 4 is a safe default for a Standard Heroku Dyno.
+    'recycle': 500,     # Restarts a worker after it processes 500 tasks to prevent memory leaks.
+    'timeout': 300,     # Max time (in seconds) a task is allowed to run before being killed. 
+    'retry': 360,       # Set to 5 minutes (300s) here, but adjust if Gemini AI generation takes longer
+    
+    # DATABASE MANAGEMENT
+    'compress': True,   # Compresses task data in the DB to save storage space.
+    'save_limit': 250,  # Only keeps the history of the last 250 successful tasks in the DB to prevent bloat.
+    
+    # QUEUE BEHAVIOR
+    'queue_limit': 500, # Max number of tasks that can be queued in memory at once.
+    'catch_up': False,  # If your worker goes offline, don't execute missed scheduled tasks all at once when it boots back up.
+}
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -64,7 +106,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-	'debug_toolbar',
+    'django_q',
     'accounts',
     'api',
     'rest_framework',
@@ -78,9 +120,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',    
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -165,12 +205,36 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # MEDIA_URL = '/media/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
 # Whitenoise compressed & hashed static files
 STORAGES = {
     'staticfiles': {
         'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
     },
 }
+
+'''
+# For local development, use plain static file storage without manifest to avoid issues with missing files after collectstatic
+# In production, use WhiteNoise's CompressedManifestStaticFilesStorage for better performance and cache busting.
+# Staticfiles storage:
+# - DEBUG/local development: plain storage (no manifest required)
+# - non-DEBUG environments: hashed manifest storage via WhiteNoise
+if DEBUG:
+    STORAGES = {
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    }
+else:
+    STORAGES = {
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
+'''
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -181,21 +245,41 @@ INTERNAL_IPS = [
     '127.0.0.1'
 ]
 
-
-LOGIN_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = 'login_redirect'
 LOGOUT_REDIRECT_URL = "home"
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 
-if not TESTING and ENVIRONMENT == 'local':
-    INSTALLED_APPS = [
-        *INSTALLED_APPS,
-        'debug_toolbar'
-    ]
-    MIDDLEWARE = [
-        "debug_toolbar.middleware.DebugToolbarMiddleware",
-        *MIDDLEWARE
-    ]
+# ---------------------------------------------------------------------------
+# Email Configuration
+# ---------------------------------------------------------------------------
+EMAIL_BACKEND_TYPE = os.environ.get('EMAIL_BACKEND_TYPE', 'console')
+
+# Determine if we're on Heroku
+IS_HEROKU = 'DYNO' in os.environ or 'HEROKU' in os.environ
+ADMIN_EMAIL_INBOX = os.environ.get('ADMIN_EMAIL_INBOX', 'cyberassessmenttool@gmail.com')
+
+if EMAIL_BACKEND_TYPE == 'sendgrid' or IS_HEROKU:
+    # Use SendGrid on Heroku
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.sendgrid.net')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
+elif EMAIL_BACKEND_TYPE == 'smtp':
+    # Use Gmail or other SMTP
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com') # Defaults to Gmail SMTP, but should be updated to sendgrid in the future
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+else:
+    # Development - console backend
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 
 # ---------------------------------------------------------------------------
 # Security settings — enabled for staging & production

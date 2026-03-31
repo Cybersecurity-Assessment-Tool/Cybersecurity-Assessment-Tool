@@ -12,6 +12,9 @@ class DatabaseEncryptionTests(TestCase):
         )
         
         self.user = User.objects.create_user(
+            first_name="Bruce",
+            last_name="Wayne",
+            email="bwayne@wayne.com",
             username="bwayne",
             password="securepassword123",
             organization=self.org

@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+
+{% block title %}Organization Setup Questionnaire{% endblock %}
+
+{% block extra_css %}
+<style>
+    .questionnaire-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f9fafb;
+        padding: 2rem;
+    }
+    
+    .questionnaire-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        padding: 3rem;
+        width: 100%;
+        max-width: 600px;
+    }
+    
+    .questionnaire-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .questionnaire-title {
+        font-size: 1.875rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 1rem;
+    }
+    
+    .questionnaire-subtitle {
+        color: #6b7280;
+        line-height: 1.6;
+    }
+    
+    .form-section {
+        margin-bottom: 2.5rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+    
+    .help-text {
+        display: block;
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        background-color: #f9fafb;
+        border-radius: 6px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+        cursor: pointer;
+    }
+    
+    .checkbox-group label {
+        cursor: pointer;
+        font-size: 0.9375rem;
+        color: #374151;
+    }
+    
+    .form-actions {
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .btn-primary {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        color: white;
+        background-color: #111827;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.15s;
+    }
+    
+    .btn-primary:hover {
+        background-color: #1f2937;
+    }
+    
+    .form-note {
+        margin-top: 1rem;
+        font-size: 0.75rem;
+        color: #9ca3af;
+    }
+</style>
+{% endblock %}
+
+{% block auth %} {% endblock %}
+
+{% block content %}
+<div class="questionnaire-container">
+    <div class="questionnaire-card">
+        <div class="questionnaire-header">
+            <h1 class="questionnaire-title">Welcome to Your Organization Setup</h1>
+            <p class="questionnaire-subtitle">
+                Before we get started, we need some basic information about your organization's security posture.
+                This helps us tailor our recommendations to your needs.
+            </p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if "Registration successful" not in message.message %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="questionnaire-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h2 class="section-title">Network & Domain Information</h2>
+                
+                <div class="form-group">
+                    <label for="domain_name">What is your organization’s website domain name?</label>
+                    <input type="text" 
+                           name="domain_name" 
+                           id="domain_name" 
+                           class="form-input" 
+                           placeholder="e.g., example.com"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ip_address">What is your organization’s external IP address?</label>
+                    <input type="text" 
+                           name="ip_address" 
+                           id="ip_address" 
+                           class="form-input" 
+                           placeholder="e.g., 198.51.100.1 or 203.0.113.0/24"
+                           required>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Access & Authentication</h2>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" name="mfa_email" id="mfa_email">
+                    <label for="mfa_email">
+                        Your organization requires MFA for all users to access email.
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" name="mfa_computers" id="mfa_computers">
+                    <label for="mfa_computers">
+                        Your organization requires MFA for all users to log into computers.
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" name="mfa_sensitive_data" id="mfa_sensitive_data">
+                    <label for="mfa_sensitive_data">
+                        Your organization requires MFA for all users to access sensitive data systems.
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Policies & Training</h2>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" name="has_aup" id="has_aup">
+                    <label for="has_aup">
+                        Your organization has an employee acceptable use policy.
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" name="training_new_employees" id="training_new_employees">
+                    <label for="training_new_employees">
+                        Your organization does security awareness training for new employees.
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" name="training_annual" id="training_annual">
+                    <label for="training_annual">
+                        Your organization does security awareness training for all employees at least once per year.
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Complete Setup</button>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 1rem; font-weight: 500; border-radius: 6px; text-decoration: none; color: #374151; background-color: white; border: 1px solid #d1d5db; transition: background-color 0.15s;">Skip for now</a>
+                <p class="form-note">You can update these settings later in your organization profile.</p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %} {% endblock %}

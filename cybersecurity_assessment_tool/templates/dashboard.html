@@ -4,7 +4,6 @@
 
 {% block content %}
 <div class="container-fluid py-3">
-    <!-- Add this after the container-fluid py-3 div starts -->
     <div class="row mb-3">
         <div class="col-12">
             <div class="alert alert-info d-flex justify-content-between align-items-center">
@@ -26,7 +25,6 @@
     </div>
 
     <div class="row align-items-stretch">
-        <!-- Pie Chart Card -->
         <div class="col-lg-5 mb-3">
             <div class="card bg-light h-100">
                 <div class="card-header">
@@ -35,15 +33,17 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div style="height: 250px; position: relative;">
-                        <!-- Here is where the pie chart is rendered -->
-                        <canvas id="severityPieChart"></canvas>
+                    <div id="pieChartContainer" style="height: 250px; position: relative;" class="d-flex justify-content-center align-items-center">
+                        {% if not latest_report %}
+                            <span class="text-muted">No Scan Data</span>
+                        {% else %}
+                            <canvas id="severityPieChart"></canvas>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Summary Card -->
         <div class="col-lg-7 mb-3">
             <div class="card bg-light h-100">
                 <div class="card-header">
@@ -51,19 +51,17 @@
                         Severity Summary
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div id="severitySummary">
-                        <!-- Here is where the data summary is rendered (not sold on this section tbh) -->
-                        <div class="text-center text-muted">
-                            PUT LOADING LOOP HERE
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <div id="severitySummary" class="text-center text-muted">
+                        {% if not latest_report %}
+                            No Scan Data
+                        {% endif %}
                         </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Table Card -->
     <div class="row">
         <div class="col-12">
             <div class="card bg-light">
@@ -83,11 +81,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Here is where the table of vulnerability data is rendered -->
                                 <tr>
-                                    <td colspan="3" class="text-center text-muted">
-                                        PUT LOADING LOOP HERE
-                                    </td>
+                                    <td colspan="3" class="text-center text-muted py-4">
+                                        {% if not latest_report %}
+                                            No Scan Data
+                                        {% endif %}
+                                        </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -120,21 +119,62 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Load jQuery first -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Load Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
 
+{{ vulnerabilities_json|json_script:"vuln-data" }}
 <script>
 $(document).ready(function() {
-    // Parse as JSON string so it doesn't give red squiggly lines in the editor.
-    const vulnerabilitiesData = JSON.parse('{{ vulnerabilities_json|safe }}');
+    // 1. Safely parse the JSON using the modern Django approach
+    const vulnerabilitiesData = JSON.parse(document.getElementById('vuln-data').textContent);
     
-    initializeDashboard(vulnerabilitiesData);
+    // Check if we actually have a scan utilizing Django template logic
+    const hasScanData = {% if latest_report %}true{% else %}false{% endif %};
+
+    // If there is no scan data, halt here (HTML already says "No Scan Data")
+    if (!hasScanData) {
+        return; 
+    }
+
+    // 2. Instantly process data (no timeout delay)
+    if (vulnerabilitiesData.length === 0) {
+        // No risks found in the scan
+        $('#severitySummary').html('<div class="fw-bold text-success">No Risks Found</div>');
+        $('#severitySummary').removeClass('text-center text-muted');
+        $('#vulnerabilityTable tbody').html('<tr><td colspan="3" class="text-center fw-bold text-success py-4">No Risks Found</td></tr>');
+        
+        // Clean up the pie chart container since there's no data to draw
+        $('#pieChartContainer').html('<span class="fw-bold text-success">No Risks Found</span>');
+    } else {
+        // Risks found! Sort and render them immediately
+        const severityWeights = {
+            'critical': 1,
+            'high': 2,
+            'medium': 3,
+            'low': 4,
+            'info': 5,
+            'informational': 5
+        };
+
+        vulnerabilitiesData.sort((a, b) => {
+            const sevA = (a.severity || '').toLowerCase().trim();
+            const sevB = (b.severity || '').toLowerCase().trim();
+            
+            const weightA = severityWeights[sevA] || 6;
+            const weightB = severityWeights[sevB] || 6;
+            
+            if (weightA !== weightB) {
+                return weightA - weightB; 
+            }
+            
+            return (a.risk_name || '').localeCompare(b.risk_name || '');
+        });
+        
+        initializeDashboard(vulnerabilitiesData);
+    }
 });
 
 function initializeDashboard(vulnerabilities) {
-    // Count vulnerabilities by severity
     const severityCounts = {
         'Critical': 0,
         'High': 0,
@@ -142,37 +182,35 @@ function initializeDashboard(vulnerabilities) {
         'Low': 0
     };
     
-    // Also track Info severity if it exists
     let hasInfo = false;
     
-    // Loop through data and count
     vulnerabilities.forEach(vuln => {
         if (severityCounts.hasOwnProperty(vuln.severity)) {
             severityCounts[vuln.severity]++;
         } else if (vuln.severity === 'Info' || vuln.severity === 'Informational') {
             hasInfo = true;
-            // We'll handle Info separately if needed
         }
     });
     
-    // Create visualizations
     createPieChart(severityCounts);
     createSummary(vulnerabilities, severityCounts);
     createTable(vulnerabilities);
 }
 
 function createPieChart(severityCounts) {
-    const ctx = document.getElementById('severityPieChart').getContext('2d');
+    // Check if the canvas exists before trying to draw (prevents errors if it was replaced by text)
+    const canvas = document.getElementById('severityPieChart');
+    if (!canvas) return; 
+
+    const ctx = canvas.getContext('2d');
     
-    // Define colors for each severity
     const severityColors = {
-        'Critical': '#dc3545', // Red
-        'High': '#fd7e14',     // Orange
-        'Medium': '#ffc107',    // Yellow
-        'Low': '#28a745'        // Green
+        'Critical': '#dc3545',
+        'High': '#fd7e14',
+        'Medium': '#ffc107',
+        'Low': '#28a745'
     };
     
-    // Prepare data (only include severities with counts > 0)
     const labels = [];
     const data = [];
     const colors = [];
@@ -185,7 +223,6 @@ function createPieChart(severityCounts) {
         }
     }
     
-    // Create the chart
     new Chart(ctx, {
         type: 'pie',
         data: {
@@ -228,7 +265,6 @@ function createSummary(vulnerabilities, severityCounts) {
     const totalVulns = vulnerabilities.length;
     let summaryHtml = '';
     
-    // Define severity order for display
     const severityOrder = ['Critical', 'High', 'Medium', 'Low', 'Info'];
     
     for (const severity of severityOrder) {
@@ -237,7 +273,6 @@ function createSummary(vulnerabilities, severityCounts) {
             const percentage = Math.round((count / totalVulns) * 100);
             const colorClass = `severity-${severity.toLowerCase()}`;
             
-            // Determine badge color
             let badgeClass = 'bg-secondary';
             if (severity === 'Critical') badgeClass = 'bg-danger';
             else if (severity === 'High') badgeClass = 'bg-warning text-dark';
@@ -246,7 +281,7 @@ function createSummary(vulnerabilities, severityCounts) {
             else if (severity === 'Info') badgeClass = 'bg-info text-dark';
             
             summaryHtml += `
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 w-100">
                     <div>
                         <span class="fw-bold ${colorClass}">${severity}</span>
                     </div>
@@ -260,42 +295,32 @@ function createSummary(vulnerabilities, severityCounts) {
     }
     
     summaryHtml += `
-        <hr>
-        <div class="d-flex justify-content-between align-items-center">
+        <hr class="w-100">
+        <div class="d-flex justify-content-between align-items-center w-100">
             <span class="fw-bold">Total Vulnerabilities</span>
             <span class="badge bg-primary fs-6">${totalVulns}</span>
         </div>
     `;
     
     $('#severitySummary').html(summaryHtml);
+    // Remove the center alignment classes so the list lines up nicely
+    $('#severitySummary').removeClass('text-center text-muted');
 }
 
 function createTable(vulnerabilities) {
     let tableRows = '';
     
     vulnerabilities.forEach(vuln => {
-        // Determine badge color based on severity
         let badgeClass = 'bg-secondary';
         switch(vuln.severity) {
-            case 'Critical':
-                badgeClass = 'bg-danger';
-                break;
-            case 'High':
-                badgeClass = 'bg-warning text-dark';
-                break;
-            case 'Medium':
-                badgeClass = 'bg-warning';
-                break;
-            case 'Low':
-                badgeClass = 'bg-success';
-                break;
+            case 'Critical': badgeClass = 'bg-danger'; break;
+            case 'High': badgeClass = 'bg-warning text-dark'; break;
+            case 'Medium': badgeClass = 'bg-warning'; break;
+            case 'Low': badgeClass = 'bg-success'; break;
             case 'Info':
-            case 'Informational':
-                badgeClass = 'bg-info text-dark';
-                break;
+            case 'Informational': badgeClass = 'bg-info text-dark'; break;
         }
         
-        // Truncate overview if too long
         const overview = vuln.overview || 'No overview available';
         const shortDesc = overview.length > 100 ? overview.substring(0, 100) + '...' : overview;
         
@@ -307,16 +332,6 @@ function createTable(vulnerabilities) {
             </tr>
         `;
     });
-    
-    if (tableRows === '') {
-        tableRows = `
-            <tr>
-                <td colspan="3" class="text-center text-muted">
-                    No vulnerabilities found
-                </td>
-            </tr>
-        `;
-    }
     
     $('#vulnerabilityTable tbody').html(tableRows);
 }

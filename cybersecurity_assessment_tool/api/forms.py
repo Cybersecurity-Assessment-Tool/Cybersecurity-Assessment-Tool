@@ -1,0 +1,74 @@
+from django import forms
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
+from api.models import User, Organization, generate_email_hash
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+
+#User = get_user_model()
+
+class PublicRegistrationForm(UserCreationForm):
+    first_name = forms.CharField(max_length=100, required=True)
+    last_name = forms.CharField(max_length=100, required=True)
+    company = forms.CharField(max_length=100, required=True)
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'company']
+        
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        
+        if email:
+            email_hash = generate_email_hash(email)
+            
+            # Check if ANY user already has this email hash
+            if User.objects.filter(email_hash=email_hash).exists():
+                raise forms.ValidationError('An account with this email already exists.')
+                
+        return email
+    
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        # This checks Django's built-in password rules (like "password too short")
+        # and correctly binds the error to this specific field.
+        try:
+            validate_password(password)
+        except ValidationError as e:
+            raise forms.ValidationError(e.messages)
+        return password
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_active = False
+        user.email = self.cleaned_data['email']
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+
+        # Get or create organization safely
+        org_name = self.cleaned_data.get('company', '')
+        if org_name:
+            organization, _ = Organization.objects.get_or_create(org_name=org_name)
+            user.organization = organization
+
+        if commit:
+            user.save()
+            print(f"Saved user with email: {user.email}")  # Debug line
+        return user
+    
+ROLE_CHOICES = [
+    ('observer', 'Observer'),
+    ('tester', 'Tester'),
+]
+
+class SendInviteForm(forms.Form):
+    sender_first_name = forms.CharField(max_length=50)
+    sender_last_name = forms.CharField(max_length=50)
+    sender_email = forms.EmailField()
+    sender_company = forms.CharField(max_length=100)
+    sender_role = forms.CharField(max_length=50)
+
+    recipient_email = forms.EmailField()
+    recipient_role = forms.ChoiceField(choices=ROLE_CHOICES)
+
