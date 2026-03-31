@@ -35,7 +35,7 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
         "approval": {
             "subject": "Account Approved - Welcome Aboard!",
             "template": "emails/approval_accepted.html", 
-            "context": {"username": "Test User", "login_url": "http://localhost:8000/login/"}
+            "context": {"username": "Test User", "login_url": "http://localhost:8000/accounts/login/"}
         },
         
         # Email to user after admin rejects their account request
