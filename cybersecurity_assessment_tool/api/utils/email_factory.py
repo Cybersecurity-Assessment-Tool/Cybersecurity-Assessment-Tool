@@ -42,7 +42,7 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
         "rejection": {
             "subject": "Account Request Rejected",
             "template": "emails/approval_rejected.html",
-            "context": {"username": "Test User", "company": "Cybersecurity Inc.", "role": "Manager"}
+            "context": {"username": "Test User", "company": "RePortly", "role": "Manager"}
         },
         
         # Request email sent to admin when new user registers
@@ -52,7 +52,7 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
             "context": {
                 "requester_name": "Test User",
                 "requester_email": "",
-                "company": "Cybersecurity Inc.",
+                "company": "RePortly",
                 "role": "Org Admin"
             }
         },
@@ -64,8 +64,8 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
             "context": {
                 "inviter_name": "Jane Executive",
                 "inviter_role": "Executive",
-                "inviter_company": "Cybersecurity Inc.",
-                "company": "Cybersecurity Inc.",
+                "inviter_company": "RePortly.",
+                "company": "RePortly",
                 "role": "Manager",
                 "invite_link": "http://localhost:8000/invite/abc123xyz/"
             }
@@ -91,7 +91,7 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
         print("Overriding context with:", context_overrides)
         config['context'].update(context_overrides)
         
-    config['context']['contact_email'] = settings.DEFAULT_FROM_EMAIL
+    config['context']['contact_email'] = settings.ADMIN_EMAIL_INBOX
     
     # Update recipient in context for templates that use it
     # if 'requester_email' in config['context']:
@@ -106,7 +106,7 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
     This email was sent using Django email factory.
 
     Regards,
-    Cybersecurity Team
+    RePortly Team
     """
     
     print("FINAL CONTEXT before render:", config['context'])  # Add this line
