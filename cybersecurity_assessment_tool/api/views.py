@@ -818,16 +818,20 @@ def dashboard(request):
         ).order_by('-completed').first()
         
         if latest_report:
-            # Get all risks associated with this report
-            vulnerabilities = list(
-                Risk.objects.filter(
-                    report_id=latest_report.report_id
-                ).values('severity', 'risk_name', 'overview')
-            )
-            report_date = latest_report.completed
+            # Iterate over the objects to force decryption
+            risks = Risk.objects.filter(report=latest_report)
+            
+            for risk in risks:
+                vulnerabilities.append({
+                    'severity': risk.severity,
+                    'risk_name': risk.risk_name,
+                    'overview': risk.overview,
+                })
+            
+            report_date = latest_report.completed if latest_report.completed else latest_report.started
     
     context = {
-        'vulnerabilities_json': json.dumps(vulnerabilities),
+        'vulnerabilities_json': vulnerabilities,
         'has_data': len(vulnerabilities) > 0,
         'latest_report': latest_report,
         'report_date': report_date,
