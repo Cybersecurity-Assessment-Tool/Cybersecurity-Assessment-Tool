@@ -376,7 +376,7 @@ def approve_registration(request, user_id):  # user_id will be an integer
             "username": user.username,
             "company": user.organization.org_name if user.organization else "Your Company",
             "login_url": f"http://{domain}/accounts/login/",
-            "contact_email": settings.DEFAULT_FROM_EMAIL,
+            "contact_email": settings.ADMIN_EMAIL_INBOX,
         })
     except Exception as e:
         print(f"Error sending approval email: {e}")
@@ -399,7 +399,7 @@ def reject_registration(request, user_id):
             "username": username,
             "company": user.organization.org_name if user.organization else "Your Company",
             "role": "Org Admin",
-            "contact_email": settings.DEFAULT_FROM_EMAIL,
+            "contact_email": settings.ADMIN_EMAIL_INBOX,
         })
 
         # Delete the associated invitation first
@@ -720,8 +720,8 @@ def waiting_page(request):
 def home(request):
     """Display home page"""
     context = {
-        'page_title': 'Reportly',
-        'description': 'Cybersecurity assessment tool',
+        'page_title': 'RePortly',
+        'description': 'Cybersecurity Assessment Tool',
     }
     return render(request, 'home.html', context)
 

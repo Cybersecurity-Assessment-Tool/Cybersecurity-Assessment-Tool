@@ -32,7 +32,7 @@ def send_otp_email(recipient, otp=None):
     It expires in 5 minutes.
 
     Regards,
-    Cybersecurity Team
+    RePortly Team
     """
     
     # Render HTML template (same as test_email.py)

@@ -290,7 +290,7 @@ class Invitation(models.Model):
     recipient_role = models.CharField(
         max_length=20,
         choices=RECIPIENT_ROLE_CHOICES,
-        default='tester',
+        default='observer',
     )# Default role for new users, can be changed by admin later
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -410,7 +410,7 @@ class ScanToken(models.Model):
         editable=False,
     )
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
         related_name='scan_tokens',
     )
@@ -490,7 +490,7 @@ class Scan(models.Model):
         editable=False,
     )
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
         related_name='scans',
     )
