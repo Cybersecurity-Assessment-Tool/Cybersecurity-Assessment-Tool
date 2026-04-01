@@ -10,7 +10,7 @@ from api.forms import PublicRegistrationForm
 from accounts.forms import InvitationSignupForm
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Invitation, Organization, User, Report, Risk
+from .models import Invitation, Organization, User, Report, Risk, generate_email_hash
 from .serializers import OrganizationSerializer, UserSerializer, ReportSerializer, RiskSerializer
 from django.contrib.auth import get_user_model
 from django.contrib.admin.views.decorators import staff_member_required
@@ -401,6 +401,9 @@ def reject_registration(request, user_id):
             "role": "Org Admin",
             "contact_email": settings.DEFAULT_FROM_EMAIL,
         })
+
+        # Delete the associated invitation first
+        Invitation.objects.filter(recipient_user=user).delete()
         
         # Delete the user
         user.delete()

@@ -311,6 +311,11 @@ def remove_member(request):
             return JsonResponse({'error': 'Cannot remove the last admin. Please assign another admin first.'}, status=400)
         
         username = member.username
+
+        # Delete the invitation linked to this user
+        Invitation.objects.filter(recipient_user=member).delete()
+
+        # Delete user
         member.delete()
         return JsonResponse({'success': True, 'message': f'Member {username} has been removed.'})
             
