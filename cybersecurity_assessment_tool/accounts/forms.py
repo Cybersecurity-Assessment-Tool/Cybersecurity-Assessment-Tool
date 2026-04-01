@@ -1,9 +1,10 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from .models import UserProfile
+from api.models import User, generate_email_hash
 
 User = get_user_model()
+
 
 class UserProfileForm(forms.ModelForm):
     """
@@ -11,10 +12,10 @@ class UserProfileForm(forms.ModelForm):
     Includes save indicators and validation.
     """
     class Meta:
-        model = UserProfile
-        fields = ['display_name', 'profile_image']
+        model = User
+        fields = ['username', 'profile_image']
         widgets = {
-            'display_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter your display name'}),
+            'username': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter your display name'}),
             'profile_image': forms.FileInput(attrs={'class': 'form-file', 'accept': 'image/*'}),
         }
         # 'display_name', 'profile_image', 'job_title', 'phone_number', 'timezone', 'email_notifications', 'email_on_critical', 'email_on_scan_complete', 'email_digest', 'items_per_page', 'default_view'
@@ -43,32 +44,39 @@ class UserEmailForm(forms.ModelForm):
         }
     
     def clean_email(self):
-        email = self.cleaned_data['email']
-        if User.objects.exclude(pk=self.instance.pk).filter(email=email).exists():
-            raise forms.ValidationError('This email is already in use.')
+        email = self.cleaned_data.get('email')
+        
+        if email:
+            # 1. Generate the hash of the input email
+            email_hash = generate_email_hash(email)
+            
+            # 2. Check if this hash exists, excluding the current user's own hash
+            if User.objects.exclude(pk=self.instance.pk).filter(email_hash=email_hash).exists():
+                raise forms.ValidationError('This email is already in use.')
+                
         return email
 
-class TwoFactorSetupForm(forms.Form):
-    """
-    Placeholder form for 2FA setup.
-    TO DO: Implement actual 2FA using django-otp or similar
-    """
-    verification_code = forms.CharField(
-        max_length=6,
-        min_length=6,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-input',
-            'placeholder': 'Enter 6-digit code',
-            'pattern': '[0-9]{6}'
-        })
-    )
+# class TwoFactorSetupForm(forms.Form):
+#     """
+#     Placeholder form for 2FA setup.
+#     TO DO: Implement actual 2FA using django-otp or similar
+#     """
+#     verification_code = forms.CharField(
+#         max_length=6,
+#         min_length=6,
+#         required=False,
+#         widget=forms.TextInput(attrs={
+#             'class': 'form-input',
+#             'placeholder': 'Enter 6-digit code',
+#             'pattern': '[0-9]{6}'
+#         })
+#     )
     
-    def clean_verification_code(self):
-        code = self.cleaned_data.get('verification_code')
-        if code and not code.isdigit():
-            raise forms.ValidationError('Code must contain only numbers')
-        return code
+#     def clean_verification_code(self):
+#         code = self.cleaned_data.get('verification_code')
+#         if code and not code.isdigit():
+#             raise forms.ValidationError('Code must contain only numbers')
+#         return code
     
 class CustomUserCreationForm(UserCreationForm):
     """
@@ -125,12 +133,23 @@ class InvitationSignupForm(UserCreationForm):
         self.email = kwargs.pop('email', None)
         super().__init__(*args, **kwargs)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get("password1")
+        password2 = cleaned_data.get("password2")
+
+        # If passwords don't match, force the error onto the 'password2' line
+        # instead of letting it default to the top of the box.
+        if password1 and password2 and password1 != password2:
+            self.add_error('password2', "The two password fields didn't match.")
+            
+        return cleaned_data
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.email
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        # is_active will be set to False in the view
         if commit:
             user.save()
         return user

@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from api.models import User, Organization
+from api.models import User, Organization, generate_email_hash
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 #User = get_user_model()
 
@@ -14,6 +16,28 @@ class PublicRegistrationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'company']
+        
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        
+        if email:
+            email_hash = generate_email_hash(email)
+            
+            # Check if ANY user already has this email hash
+            if User.objects.filter(email_hash=email_hash).exists():
+                raise forms.ValidationError('An account with this email already exists.')
+                
+        return email
+    
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        # This checks Django's built-in password rules (like "password too short")
+        # and correctly binds the error to this specific field.
+        try:
+            validate_password(password)
+        except ValidationError as e:
+            raise forms.ValidationError(e.messages)
+        return password
 
     def save(self, commit=True):
         user = super().save(commit=False)

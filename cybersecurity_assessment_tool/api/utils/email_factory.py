@@ -12,7 +12,7 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
         recipient (str): Email recipient (defaults to hardcoded)
         context_overrides (dict): Override default context values
     """
-    recipient = recipient or "onellamoitra@gmail.com"
+    recipient = recipient
     
     # EXACT SAME templates as your test_email.py
     # Serves as an outline for which fields to pass for each email type. You can expand ot update the context as needed.
@@ -35,7 +35,7 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
         "approval": {
             "subject": "Account Approved - Welcome Aboard!",
             "template": "emails/approval_accepted.html", 
-            "context": {"username": "Test User"}
+            "context": {"username": "Test User", "login_url": "http://localhost:8000/accounts/login/"}
         },
         
         # Email to user after admin rejects their account request
@@ -84,13 +84,14 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
         }
     }
     
-    # DIRECT DICTIONARY LOOKUP - Your suggestion! 👌
     config = email_templates[email_type]
     
     # Override context if provided
     if context_overrides:
         print("Overriding context with:", context_overrides)
         config['context'].update(context_overrides)
+        
+    config['context']['contact_email'] = settings.DEFAULT_FROM_EMAIL
     
     # Update recipient in context for templates that use it
     # if 'requester_email' in config['context']:
@@ -115,10 +116,11 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
     html_content = render_to_string(config['template'], config['context'])
     
     # Send using EmailMultiAlternatives (same as test_email.py)
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL') or settings.DEFAULT_FROM_EMAIL
     msg = EmailMultiAlternatives(
         config['subject'],
         text_content,
-        settings.EMAIL_HOST_USER,
+        from_email,
         [recipient]
     )
     msg.attach_alternative(html_content, "text/html")

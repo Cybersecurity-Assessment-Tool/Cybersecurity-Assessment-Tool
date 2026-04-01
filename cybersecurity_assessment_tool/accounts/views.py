@@ -1,5 +1,7 @@
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView
+
+from api.forms import PublicRegistrationForm
 from .forms import CustomUserCreationForm, InvitationSignupForm
 from django.contrib.auth import get_user_model
 
@@ -25,18 +27,70 @@ class UserDetailView(LoginRequiredMixin, TemplateView):
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
     
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
 @login_required
 def settings(request):
     """Display settings page with tabs"""
     user = request.user
     is_admin = False
+    
+    # Check if user is the organization admin
     if user.organization:
         first_user = User.objects.filter(organization=user.organization).order_by('date_joined').first()
         is_admin = (first_user == user)
+        
+    # Handle Form Submissions
+    if request.method == 'POST':
+        active_tab = request.POST.get('active_tab', 'profile')
+        
+        # Handle Security Posture Update (Admin Only)
+        if 'update_posture' in request.POST and is_admin and user.organization:
+            domain_name = request.POST.get('domain_name')
+            ip_address = request.POST.get('ip_address')
+            
+            # Process form checkboxes
+            mfa_email = request.POST.get('mfa_email') == 'on'
+            mfa_computers = request.POST.get('mfa_computers') == 'on'
+            mfa_sensitive_data = request.POST.get('mfa_sensitive_data') == 'on'
+            has_aup = request.POST.get('has_aup') == 'on'
+            training_new = request.POST.get('training_new_employees') == 'on'
+            training_annual = request.POST.get('training_annual') == 'on'
+            
+            # Basic Validation
+            if not ip_address or not domain_name:
+                messages.error(request, "Domain name and IP address are required.")
+            else:
+                # Save to organization
+                org = user.organization
+                org.website_domain = domain_name
+                org.external_ip = ip_address
+                org.require_mfa_email = mfa_email
+                org.require_mfa_computer = mfa_computers
+                org.require_mfa_sensitive_data = mfa_sensitive_data
+                org.employee_acceptable_use_policy = has_aup
+                org.training_new_employees = training_new
+                org.training_once_per_year = training_annual
+                
+                # Ensure it's marked as completed
+                org.questionnaire_completed = True
+                org.save()
+                
+                messages.success(request, "Security posture updated successfully!")
+            
+            # Redirect back to the posture tab
+            # Update 'accounts:settings' to match your actual url name if different
+            return redirect(f"{request.path}?tab=posture")
+
+        # You can add elif blocks here later for profile, email, and 2fa form updates
+        # elif 'update_profile' in request.POST:
+        #     ...
+
     context = {
         'is_admin': is_admin,
         'active_tab': request.GET.get('tab', 'profile'),
-        # You may also need to pass profile forms if you restore them later
     }
     return render(request, 'accounts/settings.html', context)
 
@@ -53,34 +107,32 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils import timezone
-from api.models import Invitation, OrganizationQuestionnaire
+from api.models import Invitation
 import random
 import string
 import uuid
 import traceback
-from api.utils.async_email import send_email_async
+from api.utils.email_tasks import queue_email
 
-
-# Public Registration View
 def public_register(request):
     """Public registration page for new organizations"""
     if request.method == 'POST':
-        # TODO: Implement registration logic
-        # - Get form data (company_name, email, password)
-        # - Create organization with status='pending'
-        # - Create user as organization admin with is_active=False
-        # - Send notification email to admins
-        # - Redirect to waiting page
+        form = PublicRegistrationForm(request.POST)
+        if form.is_valid():
+            company_name = form.cleaned_data['company_name']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            
+            # ... Create organization and user here ...
+            
+            messages.success(request, 'Registration submitted successfully!')
+            return redirect('accounts:waiting')
+        # Do NOT use messages.error() here. 
+        # Just let it fall through and render the form with errors.
+    else:
+        form = PublicRegistrationForm()
         
-        company_name = request.POST.get('company_name')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        
-        # Placeholder - replace with actual implementation
-        messages.success(request, 'Registration submitted successfully!')
-        return redirect('accounts:waiting')
-    
-    return render(request, 'registration/public_register.html')
+    return render(request, 'registration/public_register.html', {'form': form})
 
 # Waiting Page
 def waiting_page(request):
@@ -160,33 +212,37 @@ def questionnaire(request):
         return redirect('dashboard')
     
     if request.method == 'POST':
-        # Process form data
+        # Process form text inputs
+        domain_name = request.POST.get('domain_name')
         ip_address = request.POST.get('ip_address')
-        has_security_policy = request.POST.get('has_security_policy') == 'on'
-        conducts_regular_audits = request.POST.get('conducts_regular_audits') == 'on'
-        has_incident_response = request.POST.get('has_incident_response') == 'on'
-        uses_encryption = request.POST.get('uses_encryption') == 'on'
         
-        # Validate IP address (basic)
-        if not ip_address:
-            messages.error(request, "IP address is required.")
+        # Process form checkboxes (HTML checkboxes return 'on' if checked)
+        mfa_email = request.POST.get('mfa_email') == 'on'
+        mfa_computers = request.POST.get('mfa_computers') == 'on'
+        mfa_sensitive_data = request.POST.get('mfa_sensitive_data') == 'on'
+        has_aup = request.POST.get('has_aup') == 'on'
+        training_new = request.POST.get('training_new_employees') == 'on'
+        training_annual = request.POST.get('training_annual') == 'on'
+        
+        # Basic Validation
+        if not ip_address or not domain_name:
+            messages.error(request, "Domain name and IP address are required.")
             return render(request, 'registration/questionnaire.html')
         
-        # Save to OrganizationQuestionnaire
-        questionnaire, created = OrganizationQuestionnaire.objects.update_or_create(
-            organization=user.organization,
-            defaults={
-                'ip_address': ip_address,
-                'has_security_policy': has_security_policy,
-                'conducts_regular_audits': conducts_regular_audits,
-                'has_incident_response': has_incident_response,
-                'uses_encryption': uses_encryption,
-            }
-        )
+        # Save directly to the existing Organization model fields
+        org = user.organization
+        org.website_domain = domain_name
+        org.external_ip = ip_address
+        org.require_mfa_email = mfa_email
+        org.require_mfa_computer = mfa_computers
+        org.require_mfa_sensitive_data = mfa_sensitive_data
+        org.employee_acceptable_use_policy = has_aup
+        org.training_new_employees = training_new
+        org.training_once_per_year = training_annual
         
         # Mark organization questionnaire as completed
-        user.organization.questionnaire_completed = True
-        user.organization.save()
+        org.questionnaire_completed = True
+        org.save()
         
         messages.success(request, "Thank you for completing the setup questionnaire!")
         return redirect('dashboard')
@@ -255,6 +311,11 @@ def remove_member(request):
             return JsonResponse({'error': 'Cannot remove the last admin. Please assign another admin first.'}, status=400)
         
         username = member.username
+
+        # Delete the invitation linked to this user
+        Invitation.objects.filter(recipient_user=member).delete()
+
+        # Delete user
         member.delete()
         return JsonResponse({'success': True, 'message': f'Member {username} has been removed.'})
             
@@ -316,10 +377,10 @@ def send_invitation(request):
 
         # Send invitation email
         domain = request.get_host()
-        protocol = 'https' if request.is_secure() else 'http'
+        protocol = 'https' if (request.is_secure() or 'herokuapp.com' in domain) else 'http'
         invite_link = f"{protocol}://{domain}/accounts/invite/{token}/"
 
-        send_email_async('invite', email, {
+        queue_email('invite', email, {
             "inviter_name": f"{user.first_name} {user.last_name}",
             "inviter_role": "Organization Admin",
             "inviter_company": user.organization.org_name,
@@ -342,9 +403,9 @@ def resend_invitation(request):
     try:
         inv = Invitation.objects.get(invitation_id=invite_id, organization=request.user.organization, status='sent')
         domain = request.get_host()
-        protocol = 'https' if request.is_secure() else 'http'
+        protocol = 'https' if (request.is_secure() or 'herokuapp.com' in domain) else 'http'
         invite_link = f"{protocol}://{domain}/accounts/invite/{inv.token}/"
-        send_email_async('invite', inv.recipient_email, {
+        queue_email('invite', inv.recipient_email, {
             "inviter_name": f"{inv.sender.first_name} {inv.sender.last_name}",
             "inviter_role": "Organization Admin",
             "inviter_company": inv.organization.org_name,
@@ -375,57 +436,45 @@ def cancel_invitation(request):
 
 def accept_invitation(request, token):
     """Handle user registration via invitation link"""
-    invitation = get_object_or_404(Invitation, token=token, status='sent')
-    # Optional expiration check (7 days)
-    if invitation.created_at < timezone.now() - timezone.timedelta(days=7):
-        messages.error(request, 'This invitation has expired.')
-        return redirect('public_register')
+    
+    # 1. Check if the invitation exists and is still 'sent'
+    try:
+        invitation = Invitation.objects.get(token=token, status='sent')
+    except Invitation.DoesNotExist:
+        # RENDER ERROR PAGE: Token is invalid, doesn't exist, or was already accepted
+        return render(request, 'registration/invite_error.html', {
+            'error_title': 'Invalid Invitation',
+            'error_message': 'This invitation link is invalid or has already been used.'
+        }, status=400) # Or 404
 
+    # 2. Check for expiration (7 days)
+    if invitation.created_at < timezone.now() - timezone.timedelta(days=7):
+        # RENDER ERROR PAGE: Token is expired
+        return render(request, 'registration/invite_error.html', {
+            'error_title': 'Invitation Expired',
+            'error_message': 'This invitation has expired. Please request a new one from your organization administrator.'
+        }, status=400)
+
+    # 3. Handle the form submission if everything is valid
     if request.method == 'POST':
         form = InvitationSignupForm(request.POST, email=invitation.recipient_email)
         if form.is_valid():
             user = form.save(commit=False)
             user.organization = invitation.organization
-            user.is_active = False
+            user.is_active = True  # Automatically activate the user
             user.save()
 
             # Update invitation
             invitation.recipient_user = user
-            invitation.status = 'awaiting_approval'
+            invitation.status = 'accepted'  # Mark as complete
             invitation.save()
 
-            # Store in session
-            request.session['pending_company'] = invitation.organization.org_name
-            request.session['pending_email'] = user.email
-            request.session['pending_submitted'] = timezone.now().isoformat()
-
-            # Send confirmation to user
-            send_email_async('registration', user.email, {"username": user.username})
-
-            # Generate approval URLs
-            domain = request.get_host()
-            protocol = 'https' if request.is_secure() else 'http'
-            approve_url = f"{protocol}://{domain}/api/admin/approve/{user.id}/"
-            reject_url = f"{protocol}://{domain}/api/admin/reject/{user.id}/"
-
-            # Notify organization admin
-            org_admin = User.objects.filter(organization=invitation.organization).order_by('date_joined').first()
-            if org_admin:
-                send_email_async('request', org_admin.email, {
-                    'requester_name': f"{user.first_name} {user.last_name}",
-                    'requester_email': user.email,
-                    'company': invitation.organization.org_name,
-                    'role': invitation.recipient_role,
-                    'approve_url': approve_url,
-                    'reject_url': reject_url,
-                })
-
-            messages.success(request, 'Account created successfully! Please wait for admin approval.')
-            return redirect('accounts:waiting')
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
+            context = {
+                'success': True,
+                'email': invitation.recipient_email,
+                'organization': invitation.organization.org_name,
+            }
+            return render(request, 'registration/invite_signup.html', context)
     else:
         form = InvitationSignupForm(email=invitation.recipient_email)
 

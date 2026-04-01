@@ -23,15 +23,35 @@ How to decrypt the encrypted values:
         ex: heroku pg:psql -a your-app-name
             SELECT external_ip FROM api_organization LIMIT 1;
 """
+import os
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from encrypted_fields.fields import EncryptedCharField, EncryptedTextField, EncryptedJSONField, EncryptedEmailField
 from datetime import timedelta
 from django.utils import timezone
+import hashlib
+from django.conf import settings
 
 def get_otp_expiration():
     return timezone.now() + timedelta(minutes=5)
+
+def generate_email_hash(email: str) -> str:
+    """
+    Generates a secure, deterministic hash for an email address.
+    Used for enforcing uniqueness on encrypted email fields.
+    """
+    if not email:
+        return None
+        
+    # 1. Normalize the email (lowercase and strip whitespace)
+    normalized_email = email.strip().lower()
+    
+    # 2. Add a salt (using Django's SECRET_KEY) to prevent rainbow table attacks
+    salted_email = f"{normalized_email}{settings.SECRET_KEY}"
+    
+    # 3. Generate and return the SHA-256 hex digest (64 characters)
+    return hashlib.sha256(salted_email.encode('utf-8')).hexdigest()
 
 class Color(models.TextChoices):
     DARK = 'd', 'Dark'
@@ -85,6 +105,12 @@ class Organization(models.Model):
 
 # AbstractUser already provides username, password, and email
 class User(AbstractUser):
+    def profile_image_path(instance, filename):
+        """Generate file path for new profile image"""
+        ext = filename.split('.')[-1]
+        filename = f"profile_{instance.user.username}_{instance.user.id}.{ext}"
+        return os.path.join('uploads/profile_images/', filename)
+
     user_id = models.UUIDField(
         default=uuid.uuid4,
         unique=True,
@@ -111,17 +137,21 @@ class User(AbstractUser):
         blank=True     # allows the field to be optional in forms/admin
     )
     auto_frequency = models.CharField(max_length=1, choices=Frequency.choices)
-    profile_img = models.ImageField(
-        upload_to='profile_images/',
-        blank=True,
-        null=True  # Modified profile_img to not be a required field since we haven't implemented a way to store images yet.
-    )
+    profile_image = models.ImageField(upload_to=profile_image_path, blank=True, null=True)
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
+    email_inbox = EncryptedEmailField(null=True, blank=True)
     email = EncryptedEmailField()
+    email_hash = models.CharField(max_length=64, unique=True, null=True, blank=True)
     password = EncryptedCharField(max_length=128)
     first_name = EncryptedCharField(max_length=50, null=True, blank=True)
     last_name = EncryptedCharField(max_length=50, null=True, blank=True)
+        
+    def save(self, *args, **kwargs):
+        # Automatically generate the hash whenever the user is saved/updated
+        if self.email:
+            self.email_hash = generate_email_hash(self.email)
+        super().save(*args, **kwargs)
 
     class Meta:
         permissions = [
@@ -130,6 +160,10 @@ class User(AbstractUser):
         ]
     
     def __str__(self):
+        return self.username
+    
+    def get_username(self):
+        """Return username"""
         return self.username
 
 class Report(models.Model):
@@ -232,6 +266,8 @@ class Invitation(models.Model):
     )
     # The email address the invite was sent to
     recipient_email = EncryptedEmailField()
+    recipient_email_hash = models.CharField(max_length=64, unique=True, null=True, blank=True)
+    
     # The new user account (null until they click the link and sign up)
     recipient_user = models.ForeignKey(
         User, 
@@ -259,23 +295,15 @@ class Invitation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    def save(self, *args, **kwargs):
+        # Automatically generate the hash whenever the invitation is saved
+        if self.recipient_email:
+            self.recipient_email_hash = generate_email_hash(self.recipient_email)
+        super().save(*args, **kwargs)
+    
     def __str__(self):
         return f"Invite from {self.sender.username} to {self.recipient_email} - {self.status}"
-    
 
-# TEST
-class OrganizationQuestionnaire(models.Model):
-    """Store questionnaire responses for organization setup"""
-    organization = models.OneToOneField(Organization, on_delete=models.CASCADE, related_name='questionnaire')
-    ip_address = models.CharField(max_length=50)
-    has_security_policy = models.BooleanField(default=False)
-    conducts_regular_audits = models.BooleanField(default=False)
-    has_incident_response = models.BooleanField(default=False)
-    uses_encryption = models.BooleanField(default=False)
-    completed_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"Questionnaire for {self.organization.org_name}"
     
 class OTPVerification(models.Model):
     """Store OTP codes for email verification"""
@@ -297,8 +325,6 @@ class OTPVerification(models.Model):
     
     def is_valid(self):
         return not self.is_verified and self.expires_at > timezone.now()
-
-
 
 
 import json
@@ -509,7 +535,7 @@ class Scan(models.Model):
     # ------------------------------------------------------------------
     # Scan metadata (encrypted - reveals network topology)
     # ------------------------------------------------------------------
-    target_subnet = FernetEncryptedTextField(
+    target_subnet = EncryptedTextField(
         blank=True,
         null=True,
         help_text="Encrypted. The subnet that was scanned (e.g. 192.168.1.0/24)."
@@ -521,7 +547,7 @@ class Scan(models.Model):
     # ------------------------------------------------------------------
     # Results (encrypted - raw vulnerability data)
     # ------------------------------------------------------------------
-    raw_findings_json = FernetEncryptedTextField(
+    raw_findings_json = EncryptedJSONField(
         blank=True,
         null=True,
         help_text="Encrypted. Full JSON findings from the exe. Deleted after report generation."
@@ -608,3 +634,16 @@ class Scan(models.Model):
     @property
     def has_failed(self):
         return self.status == self.Status.FAILED
+    
+
+# ---------------------------------------------------------------------------
+# Way of deleting invitations when a user is deleted
+# ---------------------------------------------------------------------------
+
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+
+@receiver(post_delete, sender=User)
+def delete_associated_invitation(sender, instance, **kwargs):
+    """Delete invitation linked to a user when the user is deleted."""
+    Invitation.objects.filter(recipient_user=instance).delete()

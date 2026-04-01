@@ -37,11 +37,10 @@ urlpatterns = [
     path('risks/<uuid:risk_id>/', views.risk_detail, name='risk_detail'),  # /risk/1/
     path('scan/', views.scan, name='scan'),  # /scan/
 
-    path('reports/trigger/', views.trigger_report_generation, name='trigger_report'),
     path('tasks/<str:task_id>/', views.check_task_status, name='check_task_status'),
 
-    # path('settings/', views.settings, name='settings'),  # /settings/
-    path('profile/', views.profile, name='profile'),  # /profile/
+    ## DEBUG
+    path('test-email/', views.test_sendgrid, name='test_email'),
 ]
 
 ## cat hate BANAN

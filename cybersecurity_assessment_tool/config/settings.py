@@ -24,6 +24,14 @@ load_dotenv(find_dotenv())
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# URL prefix for static files
+STATIC_URL = 'static/'
+
+# Tell Django where to find global static files
+STATICFILES_DIRS = [
+    BASE_DIR / "static", 
+]
+
 # ---------------------------------------------------------------------------
 # Environment Detection
 # Set DJANGO_ENVIRONMENT to: local | integration | staging | production
@@ -39,6 +47,8 @@ if not SECRET_KEY:
         SECRET_KEY = 'django-insecure-local-dev-key-CHANGE-ME-in-production'
     else:
         raise ValueError('SECRET_KEY environment variable is required in non-local environments.')
+
+API_KEY = os.environ.get('GEMINI_API_KEY', 'local-gemini-api-key-CHANGE-ME')
 
 SALT_KEY = os.environ.get('SALT_KEY', 'local-dev-salt-key-CHANGE-ME')
 
@@ -195,12 +205,36 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # MEDIA_URL = '/media/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
 # Whitenoise compressed & hashed static files
 STORAGES = {
     'staticfiles': {
         'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
     },
 }
+
+'''
+# For local development, use plain static file storage without manifest to avoid issues with missing files after collectstatic
+# In production, use WhiteNoise's CompressedManifestStaticFilesStorage for better performance and cache busting.
+# Staticfiles storage:
+# - DEBUG/local development: plain storage (no manifest required)
+# - non-DEBUG environments: hashed manifest storage via WhiteNoise
+if DEBUG:
+    STORAGES = {
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    }
+else:
+    STORAGES = {
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
+'''
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -219,19 +253,31 @@ LOGOUT_REDIRECT_URL = "home"
 # ---------------------------------------------------------------------------
 EMAIL_BACKEND_TYPE = os.environ.get('EMAIL_BACKEND_TYPE', 'console')
 
-if ENVIRONMENT == 'local':
-    # Prints emails to the terminal during local development
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-else:
-    # Uses Gmail SMTP for integration/staging/production on Heroku
+# Determine if we're on Heroku
+IS_HEROKU = 'DYNO' in os.environ or 'HEROKU' in os.environ
+ADMIN_EMAIL_INBOX = os.environ.get('ADMIN_EMAIL_INBOX', 'cyberassessmenttool@gmail.com')
+
+if EMAIL_BACKEND_TYPE == 'sendgrid' or IS_HEROKU:
+    # Use SendGrid on Heroku
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_PORT = 587
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.sendgrid.net')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
     EMAIL_USE_TLS = True
-    
-    # These must be set in your Heroku Config Vars
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')       # e.g., shanelambert@ucf.edu
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD') # Your 16-character Google App Password 
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
+elif EMAIL_BACKEND_TYPE == 'smtp':
+    # Use Gmail or other SMTP
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com') # Defaults to Gmail SMTP, but should be updated to sendgrid in the future
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+else:
+    # Development - console backend
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 TESTING = 'test' in sys.argv or 'PYTEST_VERSION' in os.environ
 

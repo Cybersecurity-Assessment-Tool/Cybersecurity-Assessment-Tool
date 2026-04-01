@@ -3,15 +3,14 @@ import uuid
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.conf import settings
-from api.utils.async_email import send_email_async
-from api.utils.send_otp_mail import generate_otp
+from api.utils.email_tasks import queue_email
 import time
 from django.utils import timezone 
 from api.forms import PublicRegistrationForm
 from accounts.forms import InvitationSignupForm
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Invitation, Organization, User, Report, Risk
+from .models import Invitation, Organization, User, Report, Risk, generate_email_hash
 from .serializers import OrganizationSerializer, UserSerializer, ReportSerializer, RiskSerializer
 from django.contrib.auth import get_user_model
 from django.contrib.admin.views.decorators import staff_member_required
@@ -24,13 +23,9 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 import secrets
-import os
-
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+from django.conf import settings
 
 User = get_user_model()
-
 
 ## Simple session-based OTP storage (use Redis/Cache in production)
 # Checks expiration time and verifies otp
@@ -140,18 +135,22 @@ def send_otp_view(request):
         if not recipient:
             return JsonResponse({'error': 'Email is required'}, status=400)
         
-        # Generate OTP first so it can be stored in the session, then send async
+        # 1. Generate the OTP immediately in the view
+        from api.utils.send_otp_mail import generate_otp
+        otp = generate_otp()
+        
+        # 2. Queue the email in the background, passing the OTP as a context override
         try:
-            otp = generate_otp()
-            print(f"Generated OTP for {recipient}: {otp}")
-            send_email_async('otp', recipient, {'otp': otp})
+            queue_email('otp', recipient, {'otp': otp})
+            
+            print(f"Queued OTP email for {recipient}: {otp}")
         except Exception as e:
-            print(f"Error in send_email_async: {e}")
+            print(f"Error queuing email: {e}")
             import traceback
             traceback.print_exc()
-            return JsonResponse({'error': 'Failed to send email'}, status=500)
+            return JsonResponse({'error': 'Failed to queue email'}, status=500)
         
-        # Store in session
+        # 3. Store the OTP in the session
         request.session['otp_code'] = otp
         request.session['otp_email'] = recipient
         request.session['otp_purpose'] = purpose
@@ -160,8 +159,7 @@ def send_otp_view(request):
         print("OTP stored in session successfully")
         print("="*50)
         
-        return JsonResponse({'success': True, 'message': 'OTP sent successfully'})
-        
+        return JsonResponse({'success': True, 'message': 'OTP sent successfully'})        
     except Exception as e:
         print(f"ERROR in send_otp_view: {str(e)}")
         import traceback
@@ -181,7 +179,7 @@ def send_invite_mail(request, recipient_email):
         )
     domain = request.get_host()
         
-    send_email_async('invite', recipient_email, {
+    queue_email('invite', recipient_email, {
         "inviter_name": invitation.sender.username,
         "inviter_role": invitation.sender.group.help_text,
         "inviter_company": invitation.sender.organization.org_name,
@@ -222,7 +220,7 @@ def register_user_invite(request, token):
             request.session['pending_submitted'] = timezone.now().isoformat()
             
             # Send confirmation email to user
-            send_email_async('registration', user.email, {
+            queue_email('registration', user.email, {
                 "username": user.username
             })
             
@@ -230,7 +228,7 @@ def register_user_invite(request, token):
             # Get the organization creator (first user) or a designated admin
             org_admin = User.objects.filter(organization=invitation.organization).order_by('date_joined').first()
             if org_admin:
-                send_email_async('request', org_admin.email, {
+                queue_email('request', org_admin.email, {
                     "requester_name": f"{user.first_name} {user.last_name}",
                     "requester_email": user.email,
                     "company": invitation.organization.org_name,
@@ -239,11 +237,6 @@ def register_user_invite(request, token):
             
             messages.success(request, 'Account created successfully! Please wait for admin approval.')
             return redirect('accounts:waiting')
-        else:
-            # Form errors - display them
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
     else:
         # GET request - pre-fill form with email from invitation
         form = InvitationSignupForm(initial={'email': invitation.recipient_email})
@@ -268,8 +261,8 @@ def public_registration(request):
             request.session['pending_company'] = user.organization.org_name if user.organization else "Your Organization"
             request.session['pending_email'] = user.email
             request.session['pending_submitted'] = timezone.now().isoformat()
-            
-            # Get system user for admin notifications
+
+             # Get system user for admin notifications
             try:
                 system_user = User.objects.get(username="Frontend Integration Testing")
             except User.DoesNotExist:
@@ -277,8 +270,9 @@ def public_registration(request):
                 # replace it with your own and replace the database user to have the emails sent to your email)
                 system_user = User.objects.create_user(
                     username="Frontend Integration Testing",
-                    email=EMAIL_HOST_USER,
-                    password=EMAIL_HOST_PASSWORD,
+                    email_inbox=settings.ADMIN_EMAIL_INBOX,
+                    email=settings.DEFAULT_FROM_EMAIL,
+                    password=settings.EMAIL_HOST_PASSWORD,
                     first_name="System",
                     last_name="Integration",
                     is_active=True,
@@ -286,6 +280,15 @@ def public_registration(request):
                     is_superuser=False
                 )
                 print("Created system user")
+                
+            invitation = Invitation.objects.filter(
+                recipient_user=user,
+                status__in=["sent", "awaiting_approval"],
+            ).first()
+
+            if invitation:
+                print(f"Found existing invitation for {user.email}")
+                return redirect('accounts:waiting')
             
             # Create invitation record
             Invitation.objects.create(
@@ -299,7 +302,7 @@ def public_registration(request):
             )
             
             # Send confirmation email to user
-            send_email_async('registration', user.email, {
+            queue_email('registration', user.email, {
                 "username": user.username
             })
             
@@ -314,7 +317,7 @@ def public_registration(request):
             print(f"Generated reject URL: {reject_url}")
             
             # Send request email to admin
-            send_email_async('request', system_user.email, {
+            queue_email('request', system_user.email, {
                 'requester_name': f"{user.first_name} {user.last_name}",
                 "requester_email": user.email,
                 "company": user.organization.org_name if user.organization else "Unknown",
@@ -329,7 +332,7 @@ def public_registration(request):
             return redirect('accounts:waiting')
         
         else:
-            # FORM IS INVALID - add error messages
+            # THIS IS THE DEFAULT ERROR HANDLING, NEEDS TO BE CUSTOMIZED
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
@@ -367,9 +370,13 @@ def approve_registration(request, user_id):  # user_id will be an integer
         invitation.save()
     
     # Send approval email
+    domain = request.get_host()
     try:
-        send_email_async('approval', user.email, {
-            "username": user.username
+        queue_email('approval', user.email, {
+            "username": user.username,
+            "company": user.organization.org_name if user.organization else "Your Company",
+            "login_url": f"http://{domain}/accounts/login/",
+            "contact_email": settings.DEFAULT_FROM_EMAIL,
         })
     except Exception as e:
         print(f"Error queuing approval email: {e}")
@@ -388,11 +395,15 @@ def reject_registration(request, user_id):
         user_email = user.email
         
         # Send rejection email
-        send_email_async('rejection', user_email, {
+        queue_email('rejection', user_email, {
             "username": username,
             "company": user.organization.org_name if user.organization else "Your Company",
-            "role": "Org Admin"
+            "role": "Org Admin",
+            "contact_email": settings.DEFAULT_FROM_EMAIL,
         })
+
+        # Delete the associated invitation first
+        Invitation.objects.filter(recipient_user=user).delete()
         
         # Delete the user
         user.delete()
@@ -427,9 +438,12 @@ def login_view(request):
                     # Store user ID in session for OTP verification
                     request.session['pending_user_id'] = user.id
                     
-                    # Generate OTP first so it can be stored in the session, then send async
+                    # Generate otp
+                    from api.utils.send_otp_mail import generate_otp
                     otp = generate_otp()
-                    send_email_async('otp', user.email, {'otp': otp})
+                    
+                    # Send email
+                    queue_email('otp', user.email, {'otp': otp})
                     
                     # Store OTP in session
                     request.session['login_otp'] = otp
@@ -439,6 +453,7 @@ def login_view(request):
                     return JsonResponse({
                         'success': True,
                         'requires_otp': True,
+                        'email': user.email,
                         'message': 'OTP sent to your email'
                     })
                 else:
@@ -639,7 +654,6 @@ class RiskViewSet(viewsets.ModelViewSet):
 
 # TEST below
 from django.shortcuts import get_object_or_404, redirect
-from .services.report_manager import generate_network_ai_report
 from django_q.tasks import async_task
 from django_q.models import Task
 
@@ -706,29 +720,12 @@ def waiting_page(request):
 def home(request):
     """Display home page"""
     context = {
-        'page_title': 'LogoSoon',
+        'page_title': 'Reportly',
         'description': 'Cybersecurity assessment tool',
     }
     return render(request, 'home.html', context)
 
-@login_required
 @require_POST
-def trigger_report_generation(request):
-    """
-    Triggers the background network scan using Django Q2.
-    """
-    task_id = async_task(
-        generate_network_ai_report,
-        request.user.organization.external_ip,
-        request.user.user_id,
-        request.user.organization_id
-    )
-    
-    return JsonResponse({
-        'task_id': task_id,
-        'status': 'Processing started...'
-    }, status=202)
-
 @login_required
 def check_task_status(request, task_id):
     """
@@ -838,6 +835,7 @@ def dashboard(request):
     }
     return render(request, 'dashboard.html', context)
 
+from django.db.models import Case, When, Value, IntegerField
 @login_required
 def risks_list(request):
     """Display all risks/vulnerabilities with filtering"""
@@ -879,9 +877,20 @@ def risks_list(request):
         'Info': base_risks.filter(severity='Info').count(),
     }
     
-    # Pagination - order by report completion date
+    # Pagination - order by Severity first, then by report completion date
     if risks.exists():
-        risks = risks.order_by('-report__completed')
+        risks = risks.annotate(
+            severity_weight=Case(
+                When(severity__iexact='Critical', then=Value(1)),
+                When(severity__iexact='High', then=Value(2)),
+                When(severity__iexact='Medium', then=Value(3)),
+                When(severity__iexact='Low', then=Value(4)),
+                When(severity__iexact='Info', then=Value(5)),
+                When(severity__iexact='Informational', then=Value(5)),
+                default=Value(6),
+                output_field=IntegerField(),
+            )
+        ).order_by('severity_weight', '-report__completed')
     
     paginator = Paginator(risks, 20)
     page_number = request.GET.get('page', 1)
@@ -1050,16 +1059,6 @@ def scan(request):
     return render(request, 'scan.html')
 
 @login_required
-def settings(request):
-    """Display settings page"""
-    return render(request, 'settings.html')
-
-@login_required
-def profile(request):
-    """Display profile page"""
-    return render(request, 'profile.html')
-
-@login_required
 def download_scanner_exe(request):
     """
     Serves the NetworkScanner.exe file as a download.
@@ -1089,3 +1088,25 @@ def download_scanner_exe(request):
         content_type='application/octet-stream',
     )
     return response
+
+
+## DEBUG
+from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
+@csrf_exempt
+def test_sendgrid(request):
+    if request.method == 'POST':
+        try:
+            send_mail(
+                'Test Email from SendGrid',
+                'This is a test email sent via SendGrid on Heroku.',
+                settings.DEFAULT_FROM_EMAIL,
+                [request.POST.get('email')],
+                fail_silently=False,
+            )
+            return JsonResponse({'success': True, 'message': 'Email sent!'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'error': 'POST only'}, status=405)
