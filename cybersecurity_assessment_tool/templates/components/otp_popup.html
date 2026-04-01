@@ -1,9 +1,10 @@
 <!-- OTP Verification Modal -->
-<!-- Usage: call openOtpModal({ email, onVerify, onResend, onSuccess, onCancel })
+<!-- Usage: call openOtpModal({ email, login, onVerify, onResend, onSuccess, onCancel })
      
      Options:
        email      — string shown in the modal header (optional)
-       onVerify   — function(otpCode, done) — make your AJAX call, then call:
+    login      — boolean; when true, mask the displayed email address
+    onVerify   — function(otpCode, done) — make your AJAX call, then call:
                       done()              on success
                       done('error msg')   on failure
        onResend   — function(done) — make your AJAX call, then call:
@@ -118,7 +119,7 @@
         var domain = value.slice(atIndex);
 
         if (local.length <= 3) return local + domain;
-        return local.slice(0, 3) + '*'.repeat(local.length - 3) + domain;
+        return local.slice(0, 3) + '*'.repeat(local.length - 3) + domain.slice(0, 5) + '*'.repeat(domain.length - 3);
     }
 
     function renderOtpBoxes() {
@@ -178,7 +179,7 @@
     });
 
     // ── Public API ───────────────────────────────────────────────────────────
-    // openOtpModal({ email, onVerify, onResend, onSuccess, onCancel })
+    // openOtpModal({ email, login, onVerify, onResend, onSuccess, onCancel })
     window.openOtpModal = function(options) {
         options = options || {};
 
@@ -186,7 +187,7 @@
         resetOtp();
         clearOtpError();
         document.getElementById('otpSuccess').style.display = 'none';
-        document.getElementById('otpEmailDisplay').textContent = maskEmail(options.email);
+        document.getElementById('otpEmailDisplay').textContent = options.login ? maskEmail(options.email) : (options.email || '');
 
         // Clone buttons to cleanly detach any previous call's handlers
         var verifyBtn = document.getElementById('verifyOtpBtn');
