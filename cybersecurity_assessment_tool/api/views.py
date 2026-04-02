@@ -24,6 +24,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 import secrets
 from django.conf import settings
+from django.template.loader import render_to_string
 
 User = get_user_model()
 
@@ -379,7 +380,7 @@ def approve_registration(request, user_id):  # user_id will be an integer
             "contact_email": settings.ADMIN_EMAIL_INBOX,
         })
     except Exception as e:
-        print(f"Error sending approval email: {e}")
+        print(f"Error queuing approval email: {e}")
     
     messages.success(request, f"User {user.username} has been approved.")
     return redirect('admin:api_user_changelist')
@@ -1020,42 +1021,149 @@ def report_list(request):
 
 @login_required
 def report_detail(request, report_id):
-    """Display a specific report with its risks"""
+    """
+    Renders the full AI-generated report from the encrypted JSON field.
+
+    Encryption note: report.report_text is an EncryptedJSONField. Django's
+    ORM calls from_db_value() automatically on load, so report.report_text
+    arrives here as a plain Python dict — no manual decryption needed.
+
+    We build a risk_map {risk_name: risk_id} from the database so that each
+    vulnerability card in the template can link to its risk detail page.
+    """
     try:
         report = Report.objects.get(report_id=report_id)
     except Report.DoesNotExist:
         messages.error(request, "Report not found.")
         return redirect('report_list')
-    
-    # Permission check
+
+    # ── Permission check ──────────────────────────────────────────────────────
     try:
         user_org = request.user.organization
         if not user_org or report.organization != user_org:
             messages.error(request, "You don't have permission to view this report.")
             return redirect('report_list')
-    except:
+    except Exception:
         messages.error(request, "Unable to verify permissions.")
         return redirect('report_list')
-    
-    # Get all risks for this report
-    risks = Risk.objects.filter(report_id=report.report_id)
-    
-    # Group by severity for display
-    severity_groups = {
-        'Critical': risks.filter(severity='Critical') if risks.exists() else [],
-        'High': risks.filter(severity='High') if risks.exists() else [],
-        'Medium': risks.filter(severity='Medium') if risks.exists() else [],
-        'Low': risks.filter(severity='Low') if risks.exists() else [],
-        'Info': risks.filter(severity='Info') if risks.exists() else [],
+
+    # ── Parse the (already-decrypted) JSON ───────────────────────────────────
+    raw = report.report_text or {}
+    if isinstance(raw, str):
+        import json as _json
+        try:
+            raw = _json.loads(raw)
+        except Exception:
+            raw = {}
+
+    report_items = raw.get('report', [])
+    report_item  = report_items[0] if report_items else {}
+
+    # ── Extract sections in the display order we want ─────────────────────────
+    overview      = report_item.get('Overview', {})
+    observations  = report_item.get('Observations', [])
+    questionnaire = report_item.get('Questionnaire Review', {})
+    risks_section = report_item.get('Risks & Recommendations', {})
+    conclusion    = report_item.get('Conclusion', '')
+
+    summary   = risks_section.get('Summary', '')
+    raw_vulns = risks_section.get('Vulnerabilities Found', [])
+
+    # ── Build a name → risk_id map from the database ──────────────────────────
+    # This lets each vulnerability card link to its detail page.
+    risk_map = {
+        risk.risk_name: str(risk.risk_id)
+        for risk in Risk.objects.filter(report=report)
     }
-    
+
+    # ── Flatten vulnerability dicts and attach the DB risk_id if found ────────
+    SEVERITY_ORDER = {'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4, 'Info': 5}
+
+    vulnerabilities = sorted(
+        [
+            {
+                'risk':              v.get('Risk', ''),
+                'overview':          v.get('Overview', ''),
+                'severity':          v.get('Severity', 'Info'),
+                'affected_elements': v.get('Affected Elements', []),
+                'easy_fix':          v.get('Recommendation', {}).get('easy_fix', ''),
+                'long_term_fix':     v.get('Recommendation', {}).get('long_term_fix', ''),
+                # Look up the DB risk_id so the template can build the URL
+                'risk_id':           risk_map.get(v.get('Risk', ''), None),
+            }
+            for v in raw_vulns
+        ],
+        key=lambda x: SEVERITY_ORDER.get(x['severity'], 6),
+    )
+
+    obs_list = [
+        {
+            'name':              o.get('Observation', ''),
+            'overview':          o.get('Overview', ''),
+            'affected_elements': o.get('Affected Elements', []),
+        }
+        for o in observations
+    ]
+
+    # only for showing json in report_detail.html, feel free to delete when done
+    # raw_json = json.dumps(report.report_text, indent=2, default=str)
+
     context = {
-        'report': report,
-        'severity_groups': severity_groups,
-        'total_risks': risks.count(),
-        'has_risks': risks.exists(),
+        'report':          report,
+        'overview':        overview,
+        'observations':    obs_list,
+        'questionnaire':   questionnaire,
+        'summary':         summary,
+        'vulnerabilities': vulnerabilities,
+        'conclusion':      conclusion,
+        'total_vulns':     len(vulnerabilities),
+        # 'raw_json': raw_json, # for viewing json, can remove later
     }
     return render(request, 'api/report_detail.html', context)
+
+@login_required
+def download_report_pdf(request, report_id):
+    """Return report data as JSON for pdfmake generation on the client side."""
+    try:
+        report = Report.objects.get(report_id=report_id)
+    except Report.DoesNotExist:
+        messages.error(request, "Report not found.")
+        return redirect('report_list')
+
+    # Permission check
+    try:
+        user_org = request.user.organization
+        if not user_org or report.organization != user_org:
+            messages.error(request, "You don't have permission to download this report.")
+            return redirect('report_list')
+    except Exception:
+        messages.error(request, "Unable to verify permissions.")
+        return redirect('report_list')
+
+    # Extract report data from encrypted JSON field
+    report_data = report.report_text
+    if isinstance(report_data, str):
+        import json
+        report_data = json.loads(report_data)
+
+    report_items = report_data.get('report', [])
+    report_item = report_items[0] if report_items else {}
+
+    # Prepare data for frontend PDF generation
+    pdf_data = {
+        'report_name': report.report_name,
+        'report_id': str(report.report_id),
+        'report_date': report.completed.strftime('%B %d, %Y'),
+        'user_created': report.user_created.username,
+        'overview': report_item.get('Overview', {}),
+        'observations': report_item.get('Observations', []),
+        'questionnaire': report_item.get('Questionnaire Review', {}),
+        'summary': report_item.get('Risks & Recommendations', {}).get('Summary', ''),
+        'vulnerabilities': report_item.get('Risks & Recommendations', {}).get('Vulnerabilities Found', []),
+        'conclusion': report_item.get('Conclusion', ''),
+    }
+
+    return JsonResponse(pdf_data)
 
 @login_required
 def scan(request):
@@ -1097,7 +1205,6 @@ def download_scanner_exe(request):
 ## DEBUG
 from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
 
 @csrf_exempt
 def test_sendgrid(request):
