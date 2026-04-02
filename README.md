@@ -46,7 +46,7 @@ Ensure you have the following installed on your local machine:
 - [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
 - [A Gemini API Key](https://ai.google.dev/gemini-api/docs/api-key)
 
-## Local Backend Setup
+## Local Setup
 1. Clone the repository
     ```
     git clone [https://github.com/Cybersecurity-Assessment-Tool/Cybersecurity-Assessment-Tool.git](https://github.com/Cybersecurity-Assessment-Tool/Cybersecurity-Assessment-Tool.git)
@@ -62,7 +62,7 @@ Ensure you have the following installed on your local machine:
     pip install -r requirements.txt
     ```
 4. Configure environment variables
-- Create a `.env` file in the `cybersecurity-assessment-tool` directory. (Note: This file is for local development only and is ignored by Git)
+- Create a `.env` file in the `cybersecurity-assessment-tool` directory. *(Note: This file is for local development only and is ignored by Git)*
 - Add your database credentials, Gemini API key, etc:
     ```
     DATABASE_URL=postgres://[user]:[password]@[host]:[port]/[database_name]
@@ -81,46 +81,32 @@ Ensure you have the following installed on your local machine:
     ```
 6. Start the Django development server and Q cluster:
 You will need both processes running to test the web interface and background tasks locally.
-**Option 1 — Run both with a single script (recommended)**
+- **Option 1 — Run both with a single script (recommended)**
+    - *macOS / Linux / Windows (Git Bash or WSL):*
+        ```bash
+        cd cybersecurity_assessment_tool
+        ./run_dev.sh          # default port 8000
+        ./run_dev.sh 8080     # custom port
+        ```
+        Press `Ctrl+C` to stop both processes.
 
-*macOS / Linux / Windows (Git Bash or WSL):*
-```bash
-cd cybersecurity_assessment_tool
-./run_dev.sh          # default port 8000
-./run_dev.sh 8080     # custom port
-```
-Press `Ctrl+C` to stop both processes.
+    - *Windows (Command Prompt):*
+        ```bat
+        cd cybersecurity_assessment_tool
+        run_dev.bat           # default port 8000
+        run_dev.bat 8080      # custom port
+        ```
+        Press any key in the launcher window to shut down both processes.
 
-*Windows (Command Prompt):*
-```bat
-cd cybersecurity_assessment_tool
-run_dev.bat           # default port 8000
-run_dev.bat 8080      # custom port
-```
-Press any key in the launcher window to shut down both processes.
-
-**Option 2 — Run in two separate terminals**
-
-*Terminal 1 — Django development server:*
-```
-python manage.py runserver
-```
-
-*Terminal 2 — Django Q cluster:*
-```
-python manage.py qcluster
-```
-
-## Frontend Setup
-1. Navigate to the directory containing your `package.json` file.
-2. Install frontend dependencies:
-    ```
-    npm install
-    ```
-3. Compile/watch frontend assets (if applicable based on your project configuration):
-    ```
-    npm run build
-    ```
+- **Option 2 — Run in two separate terminals**
+    - *Terminal 1 — Django development server:*
+        ```
+        python manage.py runserver
+        ```
+    - *Terminal 2 — Django Q cluster:*
+        ```
+        python manage.py qcluster
+        ```
 
 # Heroku Deployment
 This project is configured for deployment on Heroku. The platform handles environment variables, static file collection, and process management differently than a local setup.
@@ -146,7 +132,7 @@ If you have been granted access to the Heroku app, you can deploy updates.
     ```
     heroku addons:create heroku-postgresql:<plan>
     ```
-5. First-time setup only: Set your production variables. You can also do this in the Heroku dashboard. Note: Heroku automatically sets the `DATABASE_URL` when you provision the Postgres addon.
+5. First-time setup only: Set your production variables. You can also do this in the Heroku dashboard. *(Note: Heroku automatically sets the `DATABASE_URL` when you provision the Postgres addon.)*
     ```
     heroku config:set <name-of-env-variable>=<env-variable>
     heroku config:set GEMINI_API_KEY=your_production_api_key
