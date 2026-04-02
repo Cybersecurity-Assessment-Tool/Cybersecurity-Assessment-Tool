@@ -65,13 +65,14 @@ Ensure you have the following installed on your local machine:
 - Create a `.env` file in the `cybersecurity-assessment-tool` directory. *(Note: This file is for local development only and is ignored by Git)*
 - Add your database credentials, Gemini API key, etc:
     ```
-    DATABASE_URL=postgres://[user]:[password]@[host]:[port]/[database_name]
-    DATABASE_PASSWORD=[Your_PostgreSQL_Database_Password]
-    GEMINI_API_KEY=[Your_Gemini_API_Key]
-    SECRET_KEY=[Your_Django_Secret_Key]
-    SALT_KEY=[Your_Salt_Key]
-    DJANGO_ENVIRONMENT=local
-    DEBUG=True
+    SECRET_KEY: test-secret-key-not-for-production
+    DEBUG: "False"
+    SALT_KEY: test-salt-key-not-for-production
+    DJANGO_ENVIRONMENT: local
+    ALLOWED_HOSTS: localhost,127.0.0.1
+    DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+    FIELD_ENCRYPTION_KEY: test-encryption-key-not-for-production
+    GEMINI_API_KEY: your-gemini-api-key-not-for-production
     ```
 5. Run database migrations
     ```
