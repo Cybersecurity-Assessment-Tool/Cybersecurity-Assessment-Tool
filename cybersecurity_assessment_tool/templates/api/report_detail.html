@@ -1,179 +1,658 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Report: {{ report.report_name }}{% endblock %}
+{% block title %}{{ report.report_name }}{% endblock %}
 
 {% block extra_css %}
 <style>
-    .report-detail-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
+    /* ── Design: editorial minimalism, newspaper-like monochromatic grid ──── */
+    :root {
+        --ink:        #0a0a0a;
+        --ink-mid:    #3d3d3d;
+        --ink-light:  #717171;
+        --rule:       #c8c8c8;
+        --rule-light: #e8e8e8;
+        --surface:    #fafafa;
+        --paper:      #ffffff;
+        --accent:     #0a0a0a;
+        --link:       #0066cc;
+
+        --font-body:    'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --font-mono:    'Consolas', 'Courier New', monospace;
+        --weight-heavy: 700;
     }
 
-    .report-header {
-        margin-bottom: 2rem;
+    /* ── Layout ────────────────────────────────────────────────────────────── */
+    .rp-wrap {
+        position: relative;
+        max-width: 900px;
+        margin: 2.5rem auto;
+        padding: 0 1.5rem 4rem;
+        font-family: var(--font-body);
+        color: var(--ink);
     }
 
-    .report-title {
-        font-size: 1.875rem;
+    /* ── Masthead ──────────────────────────────────────────────────────── */
+    .rp-masthead {
+        border-bottom: 1px solid var(--ink);
+        padding: 1.5rem 0 1.25rem;
+        margin-bottom: 2.5rem;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: end;
+        gap: 1rem;
+    }
+    .rp-masthead-eyebrow {
+        font-size: 0.6875rem;
         font-weight: 600;
-        color: #111827;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        margin-bottom: 0.4rem;
+    }
+    .rp-masthead h1 {
+        font-size: 1.625rem;
+        font-weight: var(--weight-heavy);
+        line-height: 1.25;
+        color: var(--ink);
+        margin: 0;
+    }
+    .rp-masthead-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-end;
+        flex-shrink: 0;
+    }
+
+    /* ── Buttons ───────────────────────────────────────────────────────────── */
+    .rp-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 1rem;
+        font-family: var(--font-body);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-decoration: none;
+        border: 1.5px solid var(--ink);
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        white-space: nowrap;
+    }
+    .rp-btn-primary {
+        background: var(--ink);
+        color: var(--paper);
+    }
+    .rp-btn-primary:hover {
+        background: var(--ink-mid);
+        border-color: var(--ink-mid);
+        color: var(--paper);
+    }
+
+    /* ── Section ───────────────────────────────────────────────────────────── */
+    .rp-section {
+        margin-bottom: 3rem;
+    }
+    .rp-section-heading {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        border-bottom: 1px solid var(--rule);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .rp-kv-table td:last-child {
+        text-align: center;
+    }
+
+    /* ── Tables ────────────────────────────────────────────────────────────── */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.2rem 0;
+        font-size: 0.9rem;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 0.6rem 0.8rem;
+        text-align: left;
+        vertical-align: top;
+    }
+    th {
+        background-color: #f5f7f9;
+        font-weight: 600;
+    }
+
+    /* ── Summary block ─────────────────────────────────────────────────────── */
+    .rp-summary {
+        font-size: 0.9rem;
+        line-height: 1.8;
+        color: var(--ink-mid);
+        margin-bottom: 1.5rem;
+    }
+
+    /* ── Vulnerability card ────────────────────────────────────────────────── */
+    .rp-vuln-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+    .rp-vuln-card {
+        border: 1px solid var(--rule);
+        border-top: none;
+    }
+    .rp-vuln-card:first-child {
+        border-top: 1px solid var(--rule);
+    }
+
+    .rp-vuln-header {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 1.25rem;
+        background: var(--rule-light);
+        border-bottom: 1px solid var(--rule-light);
+        cursor: pointer;
+        user-select: none;
+    }
+    .rp-vuln-header:hover {
+        background: #f0f0f0;
+    }
+    .rp-vuln-name {
+        font-size: 0.9375rem;
+        font-weight: 700;
+        color: var(--ink);
+    }
+    .rp-sev {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-mid);
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .rp-toggle-icon {
+        font-size: 0.8rem;
+        color: var(--ink-light);
+        transition: transform 0.2s;
+    }
+    .rp-vuln-card.open .rp-toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    .rp-vuln-body {
+        display: none;
+        padding: 1.25rem 2.5rem 1.5rem;
+    }
+    .rp-vuln-card.open .rp-vuln-body {
+        display: block;
+    }
+
+    .rp-vuln-overview {
+        font-size: 0.875rem;
+        line-height: 1.7;
+        color: var(--ink-mid);
+        margin-bottom: 1.1rem;
+    }
+
+    .rp-sub-label {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        margin-bottom: 0.4rem;
+    }
+
+    .rp-pill-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-bottom: 1rem;
+    }
+    .rp-pill {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: var(--ink-mid);
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        padding: 0.15rem 0.55rem;
+    }
+
+    .rp-rec-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    .rp-rec-box {
+        background: var(--surface);
+        border: 1px solid var(--rule-light);
+        border-radius: 3px;
+        padding: 0.85rem 1rem;
+    }
+    .rp-rec-box-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .rp-rec-box p {
+        font-size: 0.8125rem;
+        color: var(--ink-mid);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .rp-risk-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--link);
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        padding-bottom: 1px;
+        margin-top: 0.75rem;
+        letter-spacing: 0.02em;
+    }
+    .rp-risk-link:hover {
+        border-bottom-color: var(--link);
+    }
+
+    /* ── Observation card ──────────────────────────────────────────────────── */
+    .rp-obs-card {
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--rule-light);
+    }
+    .rp-obs-card:last-child {
+        border-bottom: none;
+    }
+    .rp-obs-name {
+        font-size: 0.9375rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .rp-obs-name::before {
+        content: '✓';
+        font-size: 0.85rem;
+        color: var(--ink-light);
+    }
+    .rp-obs-card p {
+        font-size: 0.875rem;
+        line-height: 1.65;
+        color: var(--ink-mid);
         margin-bottom: 0.5rem;
     }
 
-    .report-meta {
-        color: #6b7280;
+    /* ── Placeholder card ──────────────────────────────────────────────────── */
+    .rp-placeholder {
+        border: 1px dashed var(--rule);
+        border-radius: 3px;
+        padding: 1.75rem;
+        text-align: center;
+        color: var(--ink-light);
+    }
+    .rp-placeholder p {
         font-size: 0.875rem;
-        border-bottom: 1px solid #e5e7eb;
-        padding-bottom: 1rem;
-        margin-bottom: 1rem;
+        margin: 0;
+        font-style: italic;
     }
 
-    .back-link {
-        display: inline-block;
-        margin-bottom: 1rem;
-        color: #3b82f6;
-        text-decoration: none;
-        font-size: 0.875rem;
-    }
-    .back-link:hover {
-        text-decoration: underline;
+    /* ── Conclusion ────────────────────────────────────────────────────────── */
+    .rp-conclusion {
+        font-size: 0.9rem;
+        line-height: 1.8;
+        color: var(--ink-mid);
     }
 
-    .severity-section {
-        margin-bottom: 2rem;
+    /* ── Footer ────────────────────────────────────────────────────────────── */
+    .rp-footer-rule {
+        border: none;
+        border-top: 1px solid var(--rule);
+        margin-top: 3.5rem;
     }
-    .severity-header {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        padding-left: 0.5rem;
-        border-left: 4px solid;
-    }
-    .severity-header.critical { border-left-color: #dc2626; }
-    .severity-header.high    { border-left-color: #f97316; }
-    .severity-header.medium  { border-left-color: #eab308; }
-    .severity-header.low     { border-left-color: #22c55e; }
-    .severity-header.info    { border-left-color: #6b7280; }
-
-    .risk-list {
-        background-color: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .risk-item {
+    .rp-footer-text {
+        font-size: 0.75rem;
+        color: var(--ink-light);
+        margin-top: 0.75rem;
         display: flex;
         justify-content: space-between;
+    }
+
+    @media (max-width: 640px) {
+        .rp-masthead {
+            grid-template-columns: 1fr;
+        }
+        .rp-masthead-actions {
+            flex-direction: row;
+            align-items: flex-start;
+        }
+        .rp-rec-grid {
+            grid-template-columns: 1fr;
+        }
+        .rp-vuln-header {
+            grid-template-columns: 1fr auto;
+        }
+        .rp-toggle-icon {
+            display: none;
+        }
+    }
+
+    /* ── Sticky button (bottom left corner) ──────────────────────────────────── */
+    .sticky-bottom-btn {
+        position: fixed;
+        bottom: 2rem;
+        left: 2rem;
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
         align-items: center;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid #e5e7eb;
-    }
-    .risk-item:last-child {
-        border-bottom: none;
-    }
-    .risk-name {
-        font-weight: 500;
-        color: #111827;
-    }
-    .risk-name a {
-        color: #111827;
+        justify-content: center;
+        background: var(--paper);
+        border: 1.5px solid var(--ink);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: var(--ink);
         text-decoration: none;
-    }
-    .risk-name a:hover {
-        color: #3b82f6;
-        text-decoration: underline;
-    }
-    .risk-severity-badge {
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-    }
-    .risk-severity-badge.Critical { background-color: #fee2e2; color: #b91c1c; }
-    .risk-severity-badge.High    { background-color: #ffedd5; color: #c2410c; }
-    .risk-severity-badge.Medium  { background-color: #fef9c3; color: #854d0e; }
-    .risk-severity-badge.Low     { background-color: #dcfce7; color: #166534; }
-    .risk-severity-badge.Info    { background-color: #e5e7eb; color: #374151; }
-
-    .empty-message {
-        text-align: center;
-        padding: 3rem;
-        color: #6b7280;
+        z-index: 1000;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .download-button {
-        margin-top: 2rem;
-        display: inline-block;
-        background-color: #111827;
-        color: white;
-        padding: 0.5rem 1.5rem;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 500;
+    .sticky-bottom-btn:hover {
+        background: var(--ink);
+        color: var(--paper);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
-    .download-button:hover {
-        background-color: #1f2937;
+
+    .sticky-bottom-btn svg {
+        width: 20px;
+        height: 20px;
+        stroke: currentColor;
+        stroke-width: 2;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+        .sticky-bottom-btn {
+            bottom: 1rem;
+            left: 1rem;
+            width: 40px;
+            height: 40px;
+        }
+        .sticky-bottom-btn svg {
+            width: 18px;
+            height: 18px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="report-detail-container">
-    <a href="{% url 'report_list' %}" class="back-link">← Back to all reports</a>
+<button id="backToReportsBtn" class="sticky-bottom-btn" aria-label="Back to Reports">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+</button>
+<div class="rp-wrap">
 
-    <div class="report-header">
-        <h1 class="report-title">{{ report.report_name }}</h1>
-        <div class="report-meta">
-            <span>Generated on {{ report.completed|date:"F j, Y H:i" }}</span>
-            &nbsp;|&nbsp;
-            <span>By {{ report.user_created.username }}</span>
+    <!-- Masthead -->
+    <div class="rp-masthead">
+        <div>
+            <div class="rp-masthead-eyebrow">Cybersecurity Assessment Report</div>
+            <h1>{{ report.report_name }}</h1>
+        </div>
+        <div class="rp-masthead-actions">
+            <button id="pdfDownloadBtn" class="rp-btn rp-btn-primary"
+                    data-report-id="{{ report.report_id }}"
+                    data-report-name="{{ report.report_name }}">
+                Download PDF
+            </button>
         </div>
     </div>
 
-    {% if not has_risks %}
-        <div class="empty-message">
-            <p>No risks were found in this report.</p>
-        </div>
-    {% else %}
-        {% for severity, risks in severity_groups.items %}
-            {% if risks %}
-                <div class="severity-section">
-                    <h2 class="severity-header {{ severity|lower }}">
-                        {{ severity }} Severity
-                        <span class="badge bg-secondary ms-2">{{ risks|length }}</span>
-                    </h2>
-                    <div class="risk-list">
-                        {% for risk in risks %}
-                            <div class="risk-item">
-                                <div class="risk-name">
-                                    <a href="{% url 'risk_detail' risk.risk_id %}">{{ risk.risk_name }}</a>
-                                </div>
-                                <span class="risk-severity-badge {{ risk.severity }}">
-                                    {{ risk.severity }}
-                                </span>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-        {% endfor %}
+    <!-- 1. Overview -->
+    {% if overview %}
+    <div class="rp-section">
+        <div class="rp-section-heading">01 — Overview</div>
+        <table>
+            <tbody>
+                {% for key, value in overview.items %}
+                <tr>
+                    <th style="width: 35%">{{ key }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% endif %}
 
-    <div style="text-align: center;">
-        <a href="#" class="download-button" id="downloadReportBtn">
-            ⬇ Download Report (Coming Soon)
-        </a>
+    <!-- 2. Observations -->
+    {% if observations %}
+    <div class="rp-section">
+        <div class="rp-section-heading">
+            02 — Positive Observations
+        </div>
+        {% for o in observations %}
+        <div class="rp-obs-card">
+            <div class="rp-obs-name">{{ o.name }}</div>
+            <p>{{ o.overview }}</p>
+            {% if o.affected_elements %}
+            <div class="rp-pill-list">
+                {% for elem in o.affected_elements %}
+                <span class="rp-pill">{{ elem }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
     </div>
+    {% endif %}
+
+    <!-- 3. Questionnaire Review -->
+    {% if questionnaire %}
+    <div class="rp-section">
+        <div class="rp-section-heading">03 — Security Questionnaire Review</div>
+        <table class="rp-kv-table">
+            <thead>
+                <tr>
+                    <th>Control Question</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, value in questionnaire.items %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td>
+                        {% if value == 'Yes' %}Y{% elif value == 'No' %}N{% else %}{{ value }}{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- 4. Risks & Recommendations -->
+    <div class="rp-section">
+        <div class="rp-section-heading">
+            04 — Risks &amp; Recommendations
+        </div>
+
+        {% if summary %}
+        <div class="rp-summary">{{ summary }}</div>
+        {% endif %}
+
+        {% if vulnerabilities %}
+        <div class="rp-vuln-list" id="vulnList">
+            {% for v in vulnerabilities %}
+            <div class="rp-vuln-card" id="vuln-{{ forloop.counter }}">
+                <div class="rp-vuln-header" onclick="toggleVuln('vuln-{{ forloop.counter }}')">
+                    <span class="rp-vuln-name">{{ v.risk }}</span>
+                    <span class="rp-sev" data-sev="{{ v.severity }}">{{ v.severity }}</span>
+                    <span class="rp-toggle-icon">▾</span>
+                </div>
+                <div class="rp-vuln-body">
+                    <p class="rp-vuln-overview">{{ v.overview }}</p>
+
+                    {% if v.affected_elements %}
+                    <div class="rp-sub-label">Affected Elements</div>
+                    <div class="rp-pill-list" style="margin-bottom:1.1rem;">
+                        {% for elem in v.affected_elements %}
+                        <span class="rp-pill">{{ elem }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if v.easy_fix or v.long_term_fix %}
+                    <div class="rp-sub-label">Recommendations</div>
+                    <div class="rp-rec-grid">
+                        {% if v.easy_fix %}
+                        <div class="rp-rec-box">
+                            <div class="rp-rec-box-title">Quick Fix</div>
+                            <p>{{ v.easy_fix }}</p>
+                        </div>
+                        {% endif %}
+                        {% if v.long_term_fix %}
+                        <div class="rp-rec-box">
+                            <div class="rp-rec-box-title">Long-term Fix</div>
+                            <p>{{ v.long_term_fix }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if v.risk_id %}
+                    <a href="{% url 'risk_detail' v.risk_id %}" class="rp-risk-link">
+                        View Full Risk Record →
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="rp-placeholder">
+            <p>No vulnerabilities were identified in this report.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 5. Technical Scan Results -->
+    <!-- <div class="rp-section">
+        <div class="rp-section-heading">05 — Technical Scan Results</div>
+        <div class="rp-placeholder">
+            <p>Detailed scan results will be shown here in a future update.</p>
+        </div>
+    </div> -->
+
+    <!-- 6. Conclusion -->
+    {% if conclusion %}
+    <div class="rp-section">
+        <div class="rp-section-heading">05 — Conclusion</div>
+        <div class="rp-conclusion">{{ conclusion }}</div>
+    </div>
+    {% endif %}
+
+    <hr class="rp-footer-rule">
+    <div class="rp-footer-text">
+        <span>Vuleevu Inc — RePortly</span>
+        <!-- <span>Report ID: {{ report.report_id }}</span> -->
+    </div>
+
+
+    <!-- Toggleable JSON view -->
+    <!-- <div style="text-align: center; margin: 1rem 0;">
+        <button id="toggleJsonBtn" class="btn btn-secondary">Show Raw JSON</button>
+    </div>
+
+    <div id="rawJsonContainer" style="display: none; margin: 1rem 0;">
+        <pre style="background: #f8f9fa; padding: 1rem; border-radius: 6px; overflow-x: auto; max-height: 400px; font-size: 0.8rem;">
+            <code id="rawJsonContent">{{ raw_json }}</code>
+        </pre>
+    </div> -->
 </div>
 {% endblock %}
 
 {% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/vfs_fonts.js"></script>
+<script src="{% static 'js/report_utils.js' %}"></script>
+
 <script>
-    document.getElementById('downloadReportBtn').addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Download functionality will be added in a future update.');
+    // ---------------------------------------------------------------------
+    // Toggleable JSON view (feel free to delete if it is no longer needed)
+    // ---------------------------------------------------------------------
+    // document.getElementById('toggleJsonBtn').addEventListener('click', function() {
+    //     const container = document.getElementById('rawJsonContainer');
+    //     if (container.style.display === 'none') {
+    //         container.style.display = 'block';
+    //         this.textContent = 'Hide Raw JSON';
+    //     } else {
+    //         container.style.display = 'none';
+    //         this.textContent = 'Show Raw JSON';
+    //     }
+    // });
+
+
+    // ---------------------------------------------------------------------
+    // Download PDF functionality (call to report_utils.js)
+    // ---------------------------------------------------------------------
+    document.getElementById('pdfDownloadBtn').addEventListener('click', function() {
+        downloadReportAsPdf(this.dataset.reportId, this.dataset.reportName);
+    });
+
+    // ---------------------------------------------------------------------
+    // Collapsible risk cards
+    // ---------------------------------------------------------------------
+    function toggleVuln(id) {
+        const card = document.getElementById(id);
+        if (!card) return;
+        card.classList.toggle('open');
+    }
+
+    // ---------------------------------------------------------------------
+    // Sticky back button functionality
+    // ---------------------------------------------------------------------
+    const stickyBackBtn = document.getElementById('backToReportsBtn');
+    if (stickyBackBtn) {
+        stickyBackBtn.addEventListener('click', function() {
+            window.location.href = '{% url "report_list" %}';
+        });
+    }
+
+    // ---------------------------------------------------------------------
+    // Initialisation (open first risk card)
+    // ---------------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', function () {
+        const first = document.querySelector('.rp-vuln-card');
+        if (first) first.classList.add('open');
     });
 </script>
 {% endblock %}

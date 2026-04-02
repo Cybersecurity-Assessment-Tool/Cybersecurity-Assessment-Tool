@@ -5,9 +5,8 @@ from django.contrib import messages
 from django.conf import settings
 from api.utils.email_tasks import queue_email
 import time
-from django.utils import timezone 
-from api.forms import PublicRegistrationForm
-from accounts.forms import InvitationSignupForm
+from django.utils import timezone
+from accounts.forms import InvitationSignupForm, PublicRegistrationForm
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Invitation, Organization, User, Report, Risk, generate_email_hash
@@ -24,6 +23,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 import secrets
 from django.conf import settings
+from django.template.loader import render_to_string
 
 User = get_user_model()
 
@@ -196,7 +196,7 @@ def register_user_invite(request, token):
     # Check if invitation is expired
     if not invitation.is_valid():
         messages.error(request, 'This invitation has expired or is no longer valid.')
-        return redirect('public_registration')
+        return redirect('public_register')
     
     if request.method == 'POST':
         form = InvitationSignupForm(request.POST)
@@ -248,104 +248,6 @@ def register_user_invite(request, token):
     }
     return render(request, 'registration/invite_signup.html', context)
 
-# Takes care of public registration for Org Admins and company databases
-def public_registration(request):
-    """Handle public registration for Org Admins"""
-    if request.method == 'POST':
-        form = PublicRegistrationForm(request.POST)
-        
-        if form.is_valid():
-            user = form.save()
-            
-            # Store data in session for the waiting page
-            request.session['pending_company'] = user.organization.org_name if user.organization else "Your Organization"
-            request.session['pending_email'] = user.email
-            request.session['pending_submitted'] = timezone.now().isoformat()
-
-             # Get system user for admin notifications
-            try:
-                system_user = User.objects.get(username="Frontend Integration Testing")
-            except User.DoesNotExist:
-                # Create system user if it doesn't exist (if you don't have access to the admin email, you can
-                # replace it with your own and replace the database user to have the emails sent to your email)
-                system_user = User.objects.create_user(
-                    username="Frontend Integration Testing",
-                    email_inbox=settings.ADMIN_EMAIL_INBOX,
-                    email=settings.DEFAULT_FROM_EMAIL,
-                    password=settings.EMAIL_HOST_PASSWORD,
-                    first_name="System",
-                    last_name="Integration",
-                    is_active=True,
-                    is_staff=True,
-                    is_superuser=False
-                )
-                print("Created system user")
-                
-            invitation = Invitation.objects.filter(
-                recipient_user=user,
-                status__in=["sent", "awaiting_approval"],
-            ).first()
-
-            if invitation:
-                print(f"Found existing invitation for {user.email}")
-                return redirect('accounts:waiting')
-            
-            # Create invitation record
-            Invitation.objects.create(
-                sender=system_user,
-                recipient_email=user.email,
-                token=str(uuid.uuid4()),
-                recipient_role="org_admin",
-                status="awaiting_approval",
-                organization=user.organization,
-                recipient_user=user
-            )
-            
-            # Send confirmation email to user
-            queue_email('registration', user.email, {
-                "username": user.username
-            })
-            
-            # Generate approval URLs
-            domain = request.get_host()
-            protocol = 'https' if request.is_secure() else 'http'
-            
-            approve_url = f"{protocol}://{domain}/api/admin/approve/{user.id}/"
-            reject_url = f"{protocol}://{domain}/api/admin/reject/{user.id}/"
-            
-            print(f"Generated approve URL: {approve_url}")
-            print(f"Generated reject URL: {reject_url}")
-            
-            # Send request email to admin
-            queue_email('request', system_user.email, {
-                'requester_name': f"{user.first_name} {user.last_name}",
-                "requester_email": user.email,
-                "company": user.organization.org_name if user.organization else "Unknown",
-                "role": "Org Admin",
-                "approve_url": approve_url,
-                "reject_url": reject_url,
-            })
-            
-            messages.success(request, 'Registration successful. Please wait for admin approval.')
-            
-            # Redirect to waiting page
-            return redirect('accounts:waiting')
-        
-        else:
-            # THIS IS THE DEFAULT ERROR HANDLING, NEEDS TO BE CUSTOMIZED
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
-            
-            # Return the template with the invalid form
-            return render(request, 'registration/public_register.html', {'form': form})
-    
-    else:
-        # GET request - display empty form
-        form = PublicRegistrationForm()
-    
-    return render(request, 'registration/public_register.html', {'form': form})
-
 @staff_member_required
 def approve_registration(request, user_id):  # user_id will be an integer
     """Approve a user's registration request by ID"""
@@ -376,10 +278,10 @@ def approve_registration(request, user_id):  # user_id will be an integer
             "username": user.username,
             "company": user.organization.org_name if user.organization else "Your Company",
             "login_url": f"http://{domain}/accounts/login/",
-            "contact_email": settings.DEFAULT_FROM_EMAIL,
+            "contact_email": settings.ADMIN_EMAIL_INBOX,
         })
     except Exception as e:
-        print(f"Error sending approval email: {e}")
+        print(f"Error queuing approval email: {e}")
     
     messages.success(request, f"User {user.username} has been approved.")
     return redirect('admin:api_user_changelist')
@@ -399,7 +301,7 @@ def reject_registration(request, user_id):
             "username": username,
             "company": user.organization.org_name if user.organization else "Your Company",
             "role": "Org Admin",
-            "contact_email": settings.DEFAULT_FROM_EMAIL,
+            "contact_email": settings.ADMIN_EMAIL_INBOX,
         })
 
         # Delete the associated invitation first
@@ -720,8 +622,8 @@ def waiting_page(request):
 def home(request):
     """Display home page"""
     context = {
-        'page_title': 'Reportly',
-        'description': 'Cybersecurity assessment tool',
+        'page_title': 'RePortly',
+        'description': 'Cybersecurity Assessment Tool',
     }
     return render(request, 'home.html', context)
 
@@ -818,16 +720,20 @@ def dashboard(request):
         ).order_by('-completed').first()
         
         if latest_report:
-            # Get all risks associated with this report
-            vulnerabilities = list(
-                Risk.objects.filter(
-                    report_id=latest_report.report_id
-                ).values('severity', 'risk_name', 'overview')
-            )
-            report_date = latest_report.completed
+            # Iterate over the objects to force decryption
+            risks = Risk.objects.filter(report=latest_report)
+            
+            for risk in risks:
+                vulnerabilities.append({
+                    'severity': risk.severity,
+                    'risk_name': risk.risk_name,
+                    'overview': risk.overview,
+                })
+            
+            report_date = latest_report.completed if latest_report.completed else latest_report.started
     
     context = {
-        'vulnerabilities_json': json.dumps(vulnerabilities),
+        'vulnerabilities_json': vulnerabilities,
         'has_data': len(vulnerabilities) > 0,
         'latest_report': latest_report,
         'report_date': report_date,
@@ -1016,42 +922,149 @@ def report_list(request):
 
 @login_required
 def report_detail(request, report_id):
-    """Display a specific report with its risks"""
+    """
+    Renders the full AI-generated report from the encrypted JSON field.
+
+    Encryption note: report.report_text is an EncryptedJSONField. Django's
+    ORM calls from_db_value() automatically on load, so report.report_text
+    arrives here as a plain Python dict — no manual decryption needed.
+
+    We build a risk_map {risk_name: risk_id} from the database so that each
+    vulnerability card in the template can link to its risk detail page.
+    """
     try:
         report = Report.objects.get(report_id=report_id)
     except Report.DoesNotExist:
         messages.error(request, "Report not found.")
         return redirect('report_list')
-    
-    # Permission check
+
+    # ── Permission check ──────────────────────────────────────────────────────
     try:
         user_org = request.user.organization
         if not user_org or report.organization != user_org:
             messages.error(request, "You don't have permission to view this report.")
             return redirect('report_list')
-    except:
+    except Exception:
         messages.error(request, "Unable to verify permissions.")
         return redirect('report_list')
-    
-    # Get all risks for this report
-    risks = Risk.objects.filter(report_id=report.report_id)
-    
-    # Group by severity for display
-    severity_groups = {
-        'Critical': risks.filter(severity='Critical') if risks.exists() else [],
-        'High': risks.filter(severity='High') if risks.exists() else [],
-        'Medium': risks.filter(severity='Medium') if risks.exists() else [],
-        'Low': risks.filter(severity='Low') if risks.exists() else [],
-        'Info': risks.filter(severity='Info') if risks.exists() else [],
+
+    # ── Parse the (already-decrypted) JSON ───────────────────────────────────
+    raw = report.report_text or {}
+    if isinstance(raw, str):
+        import json as _json
+        try:
+            raw = _json.loads(raw)
+        except Exception:
+            raw = {}
+
+    report_items = raw.get('report', [])
+    report_item  = report_items[0] if report_items else {}
+
+    # ── Extract sections in the display order we want ─────────────────────────
+    overview      = report_item.get('Overview', {})
+    observations  = report_item.get('Observations', [])
+    questionnaire = report_item.get('Questionnaire Review', {})
+    risks_section = report_item.get('Risks & Recommendations', {})
+    conclusion    = report_item.get('Conclusion', '')
+
+    summary   = risks_section.get('Summary', '')
+    raw_vulns = risks_section.get('Vulnerabilities Found', [])
+
+    # ── Build a name → risk_id map from the database ──────────────────────────
+    # This lets each vulnerability card link to its detail page.
+    risk_map = {
+        risk.risk_name: str(risk.risk_id)
+        for risk in Risk.objects.filter(report=report)
     }
-    
+
+    # ── Flatten vulnerability dicts and attach the DB risk_id if found ────────
+    SEVERITY_ORDER = {'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4, 'Info': 5}
+
+    vulnerabilities = sorted(
+        [
+            {
+                'risk':              v.get('Risk', ''),
+                'overview':          v.get('Overview', ''),
+                'severity':          v.get('Severity', 'Info'),
+                'affected_elements': v.get('Affected Elements', []),
+                'easy_fix':          v.get('Recommendation', {}).get('easy_fix', ''),
+                'long_term_fix':     v.get('Recommendation', {}).get('long_term_fix', ''),
+                # Look up the DB risk_id so the template can build the URL
+                'risk_id':           risk_map.get(v.get('Risk', ''), None),
+            }
+            for v in raw_vulns
+        ],
+        key=lambda x: SEVERITY_ORDER.get(x['severity'], 6),
+    )
+
+    obs_list = [
+        {
+            'name':              o.get('Observation', ''),
+            'overview':          o.get('Overview', ''),
+            'affected_elements': o.get('Affected Elements', []),
+        }
+        for o in observations
+    ]
+
+    # only for showing json in report_detail.html, feel free to delete when done
+    # raw_json = json.dumps(report.report_text, indent=2, default=str)
+
     context = {
-        'report': report,
-        'severity_groups': severity_groups,
-        'total_risks': risks.count(),
-        'has_risks': risks.exists(),
+        'report':          report,
+        'overview':        overview,
+        'observations':    obs_list,
+        'questionnaire':   questionnaire,
+        'summary':         summary,
+        'vulnerabilities': vulnerabilities,
+        'conclusion':      conclusion,
+        'total_vulns':     len(vulnerabilities),
+        # 'raw_json': raw_json, # for viewing json, can remove later
     }
     return render(request, 'api/report_detail.html', context)
+
+@login_required
+def download_report_pdf(request, report_id):
+    """Return report data as JSON for pdfmake generation on the client side."""
+    try:
+        report = Report.objects.get(report_id=report_id)
+    except Report.DoesNotExist:
+        messages.error(request, "Report not found.")
+        return redirect('report_list')
+
+    # Permission check
+    try:
+        user_org = request.user.organization
+        if not user_org or report.organization != user_org:
+            messages.error(request, "You don't have permission to download this report.")
+            return redirect('report_list')
+    except Exception:
+        messages.error(request, "Unable to verify permissions.")
+        return redirect('report_list')
+
+    # Extract report data from encrypted JSON field
+    report_data = report.report_text
+    if isinstance(report_data, str):
+        import json
+        report_data = json.loads(report_data)
+
+    report_items = report_data.get('report', [])
+    report_item = report_items[0] if report_items else {}
+
+    # Prepare data for frontend PDF generation
+    pdf_data = {
+        'report_name': report.report_name,
+        'report_id': str(report.report_id),
+        'report_date': report.completed.strftime('%B %d, %Y'),
+        'user_created': report.user_created.username,
+        'overview': report_item.get('Overview', {}),
+        'observations': report_item.get('Observations', []),
+        'questionnaire': report_item.get('Questionnaire Review', {}),
+        'summary': report_item.get('Risks & Recommendations', {}).get('Summary', ''),
+        'vulnerabilities': report_item.get('Risks & Recommendations', {}).get('Vulnerabilities Found', []),
+        'conclusion': report_item.get('Conclusion', ''),
+    }
+
+    return JsonResponse(pdf_data)
 
 @login_required
 def scan(request):
@@ -1093,7 +1106,6 @@ def download_scanner_exe(request):
 ## DEBUG
 from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
 
 @csrf_exempt
 def test_sendgrid(request):
