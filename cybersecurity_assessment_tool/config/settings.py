@@ -251,7 +251,7 @@ LOGOUT_REDIRECT_URL = "home"
 # ---------------------------------------------------------------------------
 # Email Configuration
 # ---------------------------------------------------------------------------
-#EMAIL_BACKEND_TYPE = os.environ.get('EMAIL_BACKEND_TYPE', 'console')
+EMAIL_BACKEND_TYPE = os.environ.get('EMAIL_BACKEND_TYPE', 'console')
 
 # Determine if we're on Heroku
 IS_HEROKU = 'DYNO' in os.environ or 'HEROKU' in os.environ
