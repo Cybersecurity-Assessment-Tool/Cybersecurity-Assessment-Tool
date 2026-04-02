@@ -82,9 +82,21 @@ def settings(request):
             # Update 'accounts:settings' to match your actual url name if different
             return redirect(f"{request.path}?tab=posture")
 
-        # You can add elif blocks here later for profile, email, and 2fa form updates
-        # elif 'update_profile' in request.POST:
-        #     ...
+        # Handle Profile Update
+        elif 'update_profile' in request.POST:
+            # Grab the fields from the HTML form names
+            user.first_name = request.POST.get('first_name', user.first_name)
+            user.last_name = request.POST.get('last_name', user.last_name)
+            user.username = request.POST.get('username', user.username)
+            user.email = request.POST.get('email', user.email)
+            
+            # If you implement avatar uploading, handle the file here:
+            if 'profile_image' in request.FILES:
+                user.profile_image = request.FILES['profile_image']
+
+            user.save()
+            messages.success(request, "Profile updated successfully!")
+            return redirect(f"{request.path}?tab=profile")
 
     context = {
         'is_admin': is_admin,
