@@ -139,10 +139,10 @@ REPORT_SCHEMA_JSON: Dict[str, Any] = {
                         }
                     },
                     "Observations": {
-                        "type": "array", # FIXED: Made an array
+                        "type": "array",
                         "description": "A list of what the organization did well.",
                         "items": {
-                            "type": "object", # FIXED: Made items objects
+                            "type": "object",
                             "properties": {
                                 "Observation": {"type": "string", "description": "A short name of what the observation is."},
                                 "Overview": {"type": "string", "description": "A text description of the observation, explaining what it is, its impact, and how it was identified."},
@@ -279,10 +279,10 @@ def _create_risk_prompt() -> str:
     Do not end the analysis until the entire report vulnerabilities list has been checked. 
     The current risk list tells you which risks are already known. 
     Each entry corresponds to a vulnerability already tracked by the organization. 
-    Pass all new vulnerabilities that are NOT in the known risk list into the "new vulnerabilities" section. 
-    Assign accurate severities and provide an 'easy_fix' and 'long_term_fix'. 
-    Process the lists carefully to ensure no duplicates are created. 
+    Pass all new vulnerabilities that are NOT in the known risk list into the "new vulnerabilities" section.
+    Assign accurate severities and provide an 'easy_fix' and 'long_term_fix'.
     Do not include any conversational text or markdown. Do not include the example in your response.
+    Do not include any issues with the network scan in your response.
     If all vulnerabilities have been processed, end the analysis.
     """
 

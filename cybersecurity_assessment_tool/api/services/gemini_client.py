@@ -77,7 +77,8 @@ def _inject_overview_and_questionnaire(report_data: dict, org: Organization) -> 
     new_section_data = {
         "Overview": {
             "Organization Name": org.org_name,
-            "Primary Domain": org.email_domain,
+            "Email Domain": org.email_domain,
+            "Website Domain": org.website_domain,
             "External IP Address": org.external_ip,
             "Report Date": timezone.now().strftime('%Y-%m-%d')
         },
@@ -114,6 +115,8 @@ def generate_and_process_report(
     """
     Acts as the client to gather DB fields, call the AI service, 
     sort the resulting data, inject database context, and save objects.
+    Please have the context_data (network scan) be a JSON string, as the AI takes strings only. 
+    Do not load it as a dictionary.
     """
     # Fetch the database records
     org = Organization.objects.get(organization_id=organization_id)
