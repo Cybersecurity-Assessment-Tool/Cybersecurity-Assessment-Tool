@@ -379,7 +379,7 @@ def approve_registration(request, user_id):  # user_id will be an integer
             "contact_email": settings.ADMIN_EMAIL_INBOX,
         })
     except Exception as e:
-        print(f"Error sending approval email: {e}")
+        print(f"Error queuing approval email: {e}")
     
     messages.success(request, f"User {user.username} has been approved.")
     return redirect('admin:api_user_changelist')
