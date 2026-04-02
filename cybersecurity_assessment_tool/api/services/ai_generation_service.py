@@ -254,17 +254,15 @@ def _create_report_prompt() -> str:
     """
     Creates the report prompt to use for each report generation.
     """
-    return f"""You need to always respond in a JSON format. You are an
-    expert cybersecurity analyst who generates comprehensive security reports. You are evaluating raw 
-    technical data and a questionnaire for an organization. If you do not have enough data to draw a conclusion, simply state you do not know.
-    Only output valid JSON. You need to make sure you correlate the Organization Name, Email Domain, 
-    and External IP with the technical records (A, NS, MX, TXT, DMARC) and port scans. Every response you generate
-    should be in the following JSON format: {{"thought": "you should always
-    think about what you need to do"}}.
-    Do not end the analysis until the entire dataset has been checked and all conclusions are drawn.
+    return f"""You need to always respond in a JSON format. Only output valid JSON. 
+    You are an expert cybersecurity analyst who generates comprehensive security reports. 
+    You are evaluating raw technical data and a questionnaire for an organization. 
+    If you do not have enough data to draw a conclusion, simply state you do not know.
+    Every response you generate should follow the following: {{"thought" : "you should always think about what you need to do"}}. 
+    Do not end the analysis until the entire context has been checked and all conclusions are drawn. 
     Pass the formatted vulnerabilities and summaries into the "report" section. 
-    Draw conclusions (e.g., p=reject is strong, no open ports is secure) 
-    rather than just listing data. Do not include any conversational text or markdown. 
+    Draw conclusions (e.g., p=reject is strong, no open ports are secure) rather than just listing data. 
+    Do not include conversational text or markdown. Do not include the example in your response. 
     If the full report has been compiled, end the analysis.
     """
 
@@ -272,21 +270,20 @@ def _create_risk_prompt() -> str:
     """
     Creates the risk prompt to use for each risk list generation.
     """
-    return f"""You need to always respond in a JSON format. You are an
-    expert cybersecurity analyst who extracts vulnerabilities. You are evaluating a 
-    security report for an organization. If you do not have enough data to assess a risk, simply state you do not know.
-    Only output valid JSON. You need to make sure you cross-reference every vulnerability
-    against the list of existing risks during your analysis. Every response you generate
-    should be in the following JSON format: {{"thought": "you should always
-    think about what you need to do"}}.
-    Do not end the analysis until the entire report vulnerabilities list has been checked.
-    The current risk list tells you which risks are already known.
+    return f"""You need to always respond in a JSON format. Only output valid JSON. 
+    You are an expert cybersecurity analyst who extracts vulnerabilities. 
+    You are evaluating a security report for an organization. 
+    If you do not have enough data to assess a risk, simply state you do not know. 
+    You need to make sure you cross-reference every vulnerability against the list of existing risks during your analysis.
+    Every response you generate should follow the following: {{"thought" : "you should always think about what you need to do"}}. 
+    Do not end the analysis until the entire report vulnerabilities list has been checked. 
+    The current risk list tells you which risks are already known. 
     Each entry corresponds to a vulnerability already tracked by the organization. 
-    Pass all new vulnerabilities that are NOT in the known risks list into the "new vulnerabilities" section. 
-    Assign accurate severities and provide an 'easy_fix' and 'long_term_fix'.
-    Process the lists carefully to ensure no duplicates are created.
-    Do not include any conversational text or markdown. If all vulnerabilities have been processed, end the
-    analysis.
+    Pass all new vulnerabilities that are NOT in the known risk list into the "new vulnerabilities" section. 
+    Assign accurate severities and provide an 'easy_fix' and 'long_term_fix'. 
+    Process the lists carefully to ensure no duplicates are created. 
+    Do not include any conversational text or markdown. Do not include the example in your response.
+    If all vulnerabilities have been processed, end the analysis.
     """
 
 def _create_example(example_input, example_output) -> str:
@@ -316,17 +313,17 @@ def _generate_report_content(questionnaire, context):
     Calls the AI model to generate report content.
     """
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    context_path = os.path.join(current_dir, "..", "assets", "report_template", "context.json")
-    test_report_path = os.path.join(current_dir, "..", "assets", "report_template", "test_report.json")
+    input_path = os.path.join(current_dir, "..", "assets", "report_template", "input.json")
+    output_path = os.path.join(current_dir, "..", "assets", "report_template", "output.json")
 
-    context_path = os.path.normpath(context_path)
-    test_report_path = os.path.normpath(test_report_path)
+    input_path = os.path.normpath(input_path)
+    output_path = os.path.normpath(output_path)
 
-    example = _create_example(context_path, test_report_path)
+    example = _create_example(input_path, output_path)
 
     print(f"--- Calling Gemini API with model: {MODEL_NAME} ---")
     
-    full_prompt = f"{_create_report_prompt()}\n\nContext:\n{context}\n\n{example}\n\nQuestionnaire:\n{questionnaire}"
+    full_prompt = f"{_create_report_prompt()}\n\nContext Input:\n{context}\n{questionnaire}\n\nExample:\n{example}"
 
     ## DEBUG pt 1
     # print("="*60)
@@ -363,16 +360,22 @@ def _add_risks(report: dict, current_risks: dict):
     """
     current_dir = os.path.dirname(os.path.abspath(__file__))
     current_risk_path = os.path.join(current_dir, "..", "assets", "risk_template", "current_risk.json")
-    test_risk_path = os.path.join(current_dir, "..", "assets", "risk_template", "test_risk_list.json")
-
+    output_path = os.path.join(current_dir, "..", "assets", "risk_template", "output.json")
+    input_path = os.path.join(current_dir, "..", "assets", "risk_template", "input.json")
+    
     current_risk_path = os.path.normpath(current_risk_path)
-    test_risk_path = os.path.normpath(test_risk_path)
+    output_path = os.path.normpath(output_path)
+    input_path = os.path.normpath(input_path)
 
-    example = _create_example(current_risk_path, test_risk_path)
+    # Read the current_risk.json file
+    with open(current_risk_path, 'r', encoding='utf-8') as f:
+        example_current_risk = json.load(f)
+    
+    example = _create_example(input_path, output_path)
     
     extracted_vulnerabilities = []
     if "report" in report and isinstance(report["report"], list) and len(report["report"]) > 0:
-        readiness_section = report["report"][0].get("Risks & Recommendations", {})
+        readiness_section = report["report"][0].setdefault("Risks & Recommendations", {})
         extracted_vulnerabilities = readiness_section.get("Vulnerabilities Found", [])
 
     context = (
@@ -382,7 +385,7 @@ def _add_risks(report: dict, current_risks: dict):
 
     print(f"--- Calling Gemini API with model: {MODEL_NAME} ---")
     
-    full_prompt = f"{_create_risk_prompt()}\n\n{context}\n\n{example}"
+    full_prompt = f"{_create_risk_prompt()}\n\nContext Input:\n{context}\n\nExample:\n{example}\n\nExample Current Risks:\n{example_current_risk}"
         
     response = model.generate_content(
         contents=full_prompt,
