@@ -434,6 +434,22 @@ def send_invitation(request):
     if role not in ['observer', 'tester']:
         return JsonResponse({'error': 'Invalid role.'}, status=400)
 
+    # --- USER-FRIENDLY CHECKS ---
+    # 1. Check if a user already exists with this email
+    from api.models import generate_email_hash
+    email_hash = generate_email_hash(email)
+    if User.objects.filter(email_hash=email_hash).exists():
+        return JsonResponse({'error': 'A user with this email already exists.'}, status=400)
+
+    # 2. Check if there's already a pending invitation for this email
+    existing_invite = Invitation.objects.filter(recipient_email_hash=email_hash, status='sent').first()
+    if existing_invite:
+        return JsonResponse({'error': f'An invitation has already been sent to {email}. Please wait for them to respond or cancel the existing invitation.'}, status=400)
+
+    # 3. Delete any stale invitation (leftover from expired/rejected)
+    Invitation.objects.filter(recipient_email_hash=email_hash).delete()
+    # --- END OF CHECKS ---
+
     try:
         token = uuid.uuid4()
         invitation = Invitation.objects.create(
