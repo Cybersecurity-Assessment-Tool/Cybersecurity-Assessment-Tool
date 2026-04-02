@@ -195,9 +195,9 @@ def public_register(request):
             print(f"Generated reject URL: {reject_url}")
             
             # Send request email to admin
-            queue_email('request', system_user.email, {
+            queue_email('request', system_user.email_inbox, {
                 'requester_name': f"{user.first_name} {user.last_name}",
-                "requester_email": user.email,
+                "requester_email": user.email_inbox,
                 "company": user.organization.org_name if user.organization else "Unknown",
                 "role": "Org Admin",
                 "approve_url": approve_url,
