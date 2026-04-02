@@ -46,7 +46,8 @@ def settings(request):
         
         # Handle Security Posture Update (Admin Only)
         if 'update_posture' in request.POST and is_admin and user.organization:
-            domain_name = request.POST.get('domain_name')
+            email_domain_name = request.POST.get('email_domain_name')
+            website_domain_name = request.POST.get('website_domain_name')
             ip_address = request.POST.get('ip_address')
             
             # Process form checkboxes
@@ -58,12 +59,13 @@ def settings(request):
             training_annual = request.POST.get('training_annual') == 'on'
             
             # Basic Validation
-            if not ip_address or not domain_name:
+            if not ip_address or not website_domain_name or not email_domain_name:
                 messages.error(request, "Domain name and IP address are required.")
             else:
                 # Save to organization
                 org = user.organization
-                org.website_domain = domain_name
+                org.email_domain = email_domain_name
+                org.website_domain = website_domain_name
                 org.external_ip = ip_address
                 org.require_mfa_email = mfa_email
                 org.require_mfa_computer = mfa_computers
