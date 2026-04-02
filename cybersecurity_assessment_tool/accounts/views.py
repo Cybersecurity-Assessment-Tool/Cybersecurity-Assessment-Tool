@@ -1,8 +1,6 @@
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView
-
-from api.forms import PublicRegistrationForm
-from .forms import CustomUserCreationForm, InvitationSignupForm
+from .forms import CustomUserCreationForm, InvitationSignupForm, PublicRegistrationForm
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -114,24 +112,96 @@ import uuid
 import traceback
 from api.utils.email_tasks import queue_email
 
+# Takes care of public registration for Org Admins and company databases
 def public_register(request):
-    """Public registration page for new organizations"""
+    """Handle public registration for Org Admins"""
     if request.method == 'POST':
         form = PublicRegistrationForm(request.POST)
+        
         if form.is_valid():
-            company_name = form.cleaned_data['company_name']
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
+            user = form.save()
             
-            # ... Create organization and user here ...
+            # Store data in session for the waiting page
+            request.session['pending_company'] = user.organization.org_name if user.organization else "Your Organization"
+            request.session['pending_email'] = user.email
+            request.session['pending_submitted'] = timezone.now().isoformat()
+
+             # Get system user for admin notifications
+            try:
+                system_user = User.objects.get(username="Frontend Integration Testing")
+            except User.DoesNotExist:
+                # Create system user if it doesn't exist (if you don't have access to the admin email, you can
+                # replace it with your own and replace the database user to have the emails sent to your email)
+                system_user = User.objects.create_user(
+                    username="Frontend Integration Testing",
+                    email_inbox=settings.ADMIN_EMAIL_INBOX,
+                    email=settings.DEFAULT_FROM_EMAIL,
+                    password=settings.EMAIL_HOST_PASSWORD,
+                    first_name="System",
+                    last_name="Integration",
+                    is_active=True,
+                    is_staff=True,
+                    is_superuser=False
+                )
+                print("Created system user")
+                
+            invitation = Invitation.objects.filter(
+                recipient_user=user,
+                status__in=["sent", "awaiting_approval"],
+            ).first()
+
+            if invitation:
+                print(f"Found existing invitation for {user.email}")
+                return redirect('accounts:waiting')
             
-            messages.success(request, 'Registration submitted successfully!')
+            # Create invitation record
+            Invitation.objects.create(
+                sender=system_user,
+                recipient_email=user.email,
+                token=str(uuid.uuid4()),
+                recipient_role="org_admin",
+                status="awaiting_approval",
+                organization=user.organization,
+                recipient_user=user
+            )
+            
+            # Send confirmation email to user
+            queue_email('registration', user.email, {
+                "username": user.username
+            })
+            
+            # Generate approval URLs
+            domain = request.get_host()
+            protocol = 'https' if request.is_secure() else 'http'
+            
+            approve_url = f"{protocol}://{domain}/api/admin/approve/{user.id}/"
+            reject_url = f"{protocol}://{domain}/api/admin/reject/{user.id}/"
+            
+            print(f"Generated approve URL: {approve_url}")
+            print(f"Generated reject URL: {reject_url}")
+            
+            # Send request email to admin
+            queue_email('request', system_user.email, {
+                'requester_name': f"{user.first_name} {user.last_name}",
+                "requester_email": user.email,
+                "company": user.organization.org_name if user.organization else "Unknown",
+                "role": "Org Admin",
+                "approve_url": approve_url,
+                "reject_url": reject_url,
+            })
+            
+            messages.success(request, 'Registration successful. Please wait for admin approval.')
+            
+            # Redirect to waiting page
             return redirect('accounts:waiting')
+        
         # Do NOT use messages.error() here. 
         # Just let it fall through and render the form with errors.
+    
     else:
+        # GET request - display empty form
         form = PublicRegistrationForm()
-        
+    
     return render(request, 'registration/public_register.html', {'form': form})
 
 # Waiting Page

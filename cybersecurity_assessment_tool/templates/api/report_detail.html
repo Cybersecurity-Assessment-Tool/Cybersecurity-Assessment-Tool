@@ -1,179 +1,1171 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Report: {{ report.report_name }}{% endblock %}
+{% block title %}{{ report.report_name }}{% endblock %}
 
 {% block extra_css %}
 <style>
-    .report-detail-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
+    /* ── Design: editorial minimalism, newspaper-like monochromatic grid ──── */
+    :root {
+        --ink:        #0a0a0a;
+        --ink-mid:    #3d3d3d;
+        --ink-light:  #717171;
+        --rule:       #c8c8c8;
+        --rule-light: #e8e8e8;
+        --surface:    #fafafa;
+        --paper:      #ffffff;
+        --accent:     #0a0a0a;
+        --link:       #0066cc;
+
+        --font-body:    'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --font-mono:    'Consolas', 'Courier New', monospace;
+        --weight-heavy: 700;
     }
 
-    .report-header {
-        margin-bottom: 2rem;
+    /* ── Layout ────────────────────────────────────────────────────────────── */
+    .rp-wrap {
+        position: relative;
+        max-width: 900px;
+        margin: 2.5rem auto;
+        padding: 0 1.5rem 4rem;
+        font-family: var(--font-body);
+        color: var(--ink);
     }
 
-    .report-title {
-        font-size: 1.875rem;
+    /* ── Masthead ──────────────────────────────────────────────────────── */
+    .rp-masthead {
+        border-bottom: 1px solid var(--ink);
+        padding: 1.5rem 0 1.25rem;
+        margin-bottom: 2.5rem;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: end;
+        gap: 1rem;
+    }
+    .rp-masthead-eyebrow {
+        font-size: 0.6875rem;
         font-weight: 600;
-        color: #111827;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        margin-bottom: 0.4rem;
+    }
+    .rp-masthead h1 {
+        font-size: 1.625rem;
+        font-weight: var(--weight-heavy);
+        line-height: 1.25;
+        color: var(--ink);
+        margin: 0;
+    }
+    .rp-masthead-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-end;
+        flex-shrink: 0;
+    }
+
+    /* ── Buttons ───────────────────────────────────────────────────────────── */
+    .rp-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 1rem;
+        font-family: var(--font-body);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-decoration: none;
+        border: 1.5px solid var(--ink);
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        white-space: nowrap;
+    }
+    .rp-btn-primary {
+        background: var(--ink);
+        color: var(--paper);
+    }
+    .rp-btn-primary:hover {
+        background: var(--ink-mid);
+        border-color: var(--ink-mid);
+        color: var(--paper);
+    }
+
+    /* ── Section ───────────────────────────────────────────────────────────── */
+    .rp-section {
+        margin-bottom: 3rem;
+    }
+    .rp-section-heading {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        border-bottom: 1px solid var(--rule);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .rp-kv-table td:last-child {
+        text-align: center;
+    }
+
+    /* ── Tables ────────────────────────────────────────────────────────────── */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.2rem 0;
+        font-size: 0.9rem;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 0.6rem 0.8rem;
+        text-align: left;
+        vertical-align: top;
+    }
+    th {
+        background-color: #f5f7f9;
+        font-weight: 600;
+    }
+
+    /* ── Summary block ─────────────────────────────────────────────────────── */
+    .rp-summary {
+        font-size: 0.9rem;
+        line-height: 1.8;
+        color: var(--ink-mid);
+        margin-bottom: 1.5rem;
+    }
+
+    /* ── Vulnerability card ────────────────────────────────────────────────── */
+    .rp-vuln-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+    .rp-vuln-card {
+        border: 1px solid var(--rule);
+        border-top: none;
+    }
+    .rp-vuln-card:first-child {
+        border-top: 1px solid var(--rule);
+    }
+
+    .rp-vuln-header {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 1.25rem;
+        background: var(--rule-light);
+        border-bottom: 1px solid var(--rule-light);
+        cursor: pointer;
+        user-select: none;
+    }
+    .rp-vuln-header:hover {
+        background: #f0f0f0;
+    }
+    .rp-vuln-name {
+        font-size: 0.9375rem;
+        font-weight: 700;
+        color: var(--ink);
+    }
+    .rp-sev {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-mid);
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .rp-toggle-icon {
+        font-size: 0.8rem;
+        color: var(--ink-light);
+        transition: transform 0.2s;
+    }
+    .rp-vuln-card.open .rp-toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    .rp-vuln-body {
+        display: none;
+        padding: 1.25rem 2.5rem 1.5rem;
+    }
+    .rp-vuln-card.open .rp-vuln-body {
+        display: block;
+    }
+
+    .rp-vuln-overview {
+        font-size: 0.875rem;
+        line-height: 1.7;
+        color: var(--ink-mid);
+        margin-bottom: 1.1rem;
+    }
+
+    .rp-sub-label {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        margin-bottom: 0.4rem;
+    }
+
+    .rp-pill-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-bottom: 1rem;
+    }
+    .rp-pill {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: var(--ink-mid);
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        padding: 0.15rem 0.55rem;
+    }
+
+    .rp-rec-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    .rp-rec-box {
+        background: var(--surface);
+        border: 1px solid var(--rule-light);
+        border-radius: 3px;
+        padding: 0.85rem 1rem;
+    }
+    .rp-rec-box-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .rp-rec-box p {
+        font-size: 0.8125rem;
+        color: var(--ink-mid);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .rp-risk-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--link);
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        padding-bottom: 1px;
+        margin-top: 0.75rem;
+        letter-spacing: 0.02em;
+    }
+    .rp-risk-link:hover {
+        border-bottom-color: var(--link);
+    }
+
+    /* ── Observation card ──────────────────────────────────────────────────── */
+    .rp-obs-card {
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--rule-light);
+    }
+    .rp-obs-card:last-child {
+        border-bottom: none;
+    }
+    .rp-obs-name {
+        font-size: 0.9375rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .rp-obs-name::before {
+        content: '✓';
+        font-size: 0.85rem;
+        color: var(--ink-light);
+    }
+    .rp-obs-card p {
+        font-size: 0.875rem;
+        line-height: 1.65;
+        color: var(--ink-mid);
         margin-bottom: 0.5rem;
     }
 
-    .report-meta {
-        color: #6b7280;
+    /* ── Placeholder card ──────────────────────────────────────────────────── */
+    .rp-placeholder {
+        border: 1px dashed var(--rule);
+        border-radius: 3px;
+        padding: 1.75rem;
+        text-align: center;
+        color: var(--ink-light);
+    }
+    .rp-placeholder p {
         font-size: 0.875rem;
-        border-bottom: 1px solid #e5e7eb;
-        padding-bottom: 1rem;
-        margin-bottom: 1rem;
+        margin: 0;
+        font-style: italic;
     }
 
-    .back-link {
-        display: inline-block;
-        margin-bottom: 1rem;
-        color: #3b82f6;
-        text-decoration: none;
-        font-size: 0.875rem;
-    }
-    .back-link:hover {
-        text-decoration: underline;
+    /* ── Conclusion ────────────────────────────────────────────────────────── */
+    .rp-conclusion {
+        font-size: 0.9rem;
+        line-height: 1.8;
+        color: var(--ink-mid);
     }
 
-    .severity-section {
-        margin-bottom: 2rem;
+    /* ── Footer ────────────────────────────────────────────────────────────── */
+    .rp-footer-rule {
+        border: none;
+        border-top: 1px solid var(--rule);
+        margin-top: 3.5rem;
     }
-    .severity-header {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        padding-left: 0.5rem;
-        border-left: 4px solid;
-    }
-    .severity-header.critical { border-left-color: #dc2626; }
-    .severity-header.high    { border-left-color: #f97316; }
-    .severity-header.medium  { border-left-color: #eab308; }
-    .severity-header.low     { border-left-color: #22c55e; }
-    .severity-header.info    { border-left-color: #6b7280; }
-
-    .risk-list {
-        background-color: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .risk-item {
+    .rp-footer-text {
+        font-size: 0.75rem;
+        color: var(--ink-light);
+        margin-top: 0.75rem;
         display: flex;
         justify-content: space-between;
+    }
+
+    @media (max-width: 640px) {
+        .rp-masthead {
+            grid-template-columns: 1fr;
+        }
+        .rp-masthead-actions {
+            flex-direction: row;
+            align-items: flex-start;
+        }
+        .rp-rec-grid {
+            grid-template-columns: 1fr;
+        }
+        .rp-vuln-header {
+            grid-template-columns: 1fr auto;
+        }
+        .rp-toggle-icon {
+            display: none;
+        }
+    }
+
+    /* ── Sticky button (bottom left corner) ──────────────────────────────────── */
+    .sticky-bottom-btn {
+        position: fixed;
+        bottom: 2rem;
+        left: 2rem;
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
         align-items: center;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid #e5e7eb;
-    }
-    .risk-item:last-child {
-        border-bottom: none;
-    }
-    .risk-name {
-        font-weight: 500;
-        color: #111827;
-    }
-    .risk-name a {
-        color: #111827;
+        justify-content: center;
+        background: var(--paper);
+        border: 1.5px solid var(--ink);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: var(--ink);
         text-decoration: none;
-    }
-    .risk-name a:hover {
-        color: #3b82f6;
-        text-decoration: underline;
-    }
-    .risk-severity-badge {
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-    }
-    .risk-severity-badge.Critical { background-color: #fee2e2; color: #b91c1c; }
-    .risk-severity-badge.High    { background-color: #ffedd5; color: #c2410c; }
-    .risk-severity-badge.Medium  { background-color: #fef9c3; color: #854d0e; }
-    .risk-severity-badge.Low     { background-color: #dcfce7; color: #166534; }
-    .risk-severity-badge.Info    { background-color: #e5e7eb; color: #374151; }
-
-    .empty-message {
-        text-align: center;
-        padding: 3rem;
-        color: #6b7280;
+        z-index: 1000;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .download-button {
-        margin-top: 2rem;
-        display: inline-block;
-        background-color: #111827;
-        color: white;
-        padding: 0.5rem 1.5rem;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 500;
+    .sticky-bottom-btn:hover {
+        background: var(--ink);
+        color: var(--paper);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
-    .download-button:hover {
-        background-color: #1f2937;
+
+    .sticky-bottom-btn svg {
+        width: 20px;
+        height: 20px;
+        stroke: currentColor;
+        stroke-width: 2;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+        .sticky-bottom-btn {
+            bottom: 1rem;
+            left: 1rem;
+            width: 40px;
+            height: 40px;
+        }
+        .sticky-bottom-btn svg {
+            width: 18px;
+            height: 18px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="report-detail-container">
-    <a href="{% url 'report_list' %}" class="back-link">← Back to all reports</a>
+<button id="backToReportsBtn" class="sticky-bottom-btn" aria-label="Back to Reports">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+</button>
+<div class="rp-wrap">
 
-    <div class="report-header">
-        <h1 class="report-title">{{ report.report_name }}</h1>
-        <div class="report-meta">
-            <span>Generated on {{ report.completed|date:"F j, Y H:i" }}</span>
-            &nbsp;|&nbsp;
-            <span>By {{ report.user_created.username }}</span>
+    <!-- Masthead -->
+    <div class="rp-masthead">
+        <div>
+            <div class="rp-masthead-eyebrow">Cybersecurity Assessment Report</div>
+            <h1>{{ report.report_name }}</h1>
+        </div>
+        <div class="rp-masthead-actions">
+            <button id="downloadPdfBtn" class="rp-btn rp-btn-primary">
+                ⬇ Download PDF
+            </button>
         </div>
     </div>
 
-    {% if not has_risks %}
-        <div class="empty-message">
-            <p>No risks were found in this report.</p>
-        </div>
-    {% else %}
-        {% for severity, risks in severity_groups.items %}
-            {% if risks %}
-                <div class="severity-section">
-                    <h2 class="severity-header {{ severity|lower }}">
-                        {{ severity }} Severity
-                        <span class="badge bg-secondary ms-2">{{ risks|length }}</span>
-                    </h2>
-                    <div class="risk-list">
-                        {% for risk in risks %}
-                            <div class="risk-item">
-                                <div class="risk-name">
-                                    <a href="{% url 'risk_detail' risk.risk_id %}">{{ risk.risk_name }}</a>
-                                </div>
-                                <span class="risk-severity-badge {{ risk.severity }}">
-                                    {{ risk.severity }}
-                                </span>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-        {% endfor %}
+    <!-- 1. Overview -->
+    {% if overview %}
+    <div class="rp-section">
+        <div class="rp-section-heading">01 — Overview</div>
+        <table>
+            <tbody>
+                {% for key, value in overview.items %}
+                <tr>
+                    <th style="width: 35%">{{ key }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% endif %}
 
-    <div style="text-align: center;">
-        <a href="#" class="download-button" id="downloadReportBtn">
-            ⬇ Download Report (Coming Soon)
-        </a>
+    <!-- 2. Observations -->
+    {% if observations %}
+    <div class="rp-section">
+        <div class="rp-section-heading">
+            02 — Positive Observations
+        </div>
+        {% for o in observations %}
+        <div class="rp-obs-card">
+            <div class="rp-obs-name">{{ o.name }}</div>
+            <p>{{ o.overview }}</p>
+            {% if o.affected_elements %}
+            <div class="rp-pill-list">
+                {% for elem in o.affected_elements %}
+                <span class="rp-pill">{{ elem }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
     </div>
+    {% endif %}
+
+    <!-- 3. Questionnaire Review -->
+    {% if questionnaire %}
+    <div class="rp-section">
+        <div class="rp-section-heading">03 — Security Questionnaire Review</div>
+        <table class="rp-kv-table">
+            <thead>
+                <tr>
+                    <th>Control Question</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, value in questionnaire.items %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td>
+                        {% if value == 'Yes' %}Y{% elif value == 'No' %}N{% else %}{{ value }}{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- 4. Risks & Recommendations -->
+    <div class="rp-section">
+        <div class="rp-section-heading">
+            04 — Risks &amp; Recommendations
+        </div>
+
+        {% if summary %}
+        <div class="rp-summary">{{ summary }}</div>
+        {% endif %}
+
+        {% if vulnerabilities %}
+        <div class="rp-vuln-list" id="vulnList">
+            {% for v in vulnerabilities %}
+            <div class="rp-vuln-card" id="vuln-{{ forloop.counter }}">
+                <div class="rp-vuln-header" onclick="toggleVuln('vuln-{{ forloop.counter }}')">
+                    <span class="rp-vuln-name">{{ v.risk }}</span>
+                    <span class="rp-sev" data-sev="{{ v.severity }}">{{ v.severity }}</span>
+                    <span class="rp-toggle-icon">▾</span>
+                </div>
+                <div class="rp-vuln-body">
+                    <p class="rp-vuln-overview">{{ v.overview }}</p>
+
+                    {% if v.affected_elements %}
+                    <div class="rp-sub-label">Affected Elements</div>
+                    <div class="rp-pill-list" style="margin-bottom:1.1rem;">
+                        {% for elem in v.affected_elements %}
+                        <span class="rp-pill">{{ elem }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if v.easy_fix or v.long_term_fix %}
+                    <div class="rp-sub-label">Recommendations</div>
+                    <div class="rp-rec-grid">
+                        {% if v.easy_fix %}
+                        <div class="rp-rec-box">
+                            <div class="rp-rec-box-title">Quick Fix</div>
+                            <p>{{ v.easy_fix }}</p>
+                        </div>
+                        {% endif %}
+                        {% if v.long_term_fix %}
+                        <div class="rp-rec-box">
+                            <div class="rp-rec-box-title">Long-term Fix</div>
+                            <p>{{ v.long_term_fix }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if v.risk_id %}
+                    <a href="{% url 'risk_detail' v.risk_id %}" class="rp-risk-link">
+                        View Full Risk Record →
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="rp-placeholder">
+            <p>No vulnerabilities were identified in this report.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 5. Technical Scan Results -->
+    <div class="rp-section">
+        <div class="rp-section-heading">05 — Technical Scan Results</div>
+        <div class="rp-placeholder">
+            <p>Detailed scan results will be shown here in a future update.</p>
+        </div>
+    </div>
+
+    <!-- 6. Conclusion -->
+    {% if conclusion %}
+    <div class="rp-section">
+        <div class="rp-section-heading">06 — Conclusion</div>
+        <div class="rp-conclusion">{{ conclusion }}</div>
+    </div>
+    {% endif %}
+
+    <hr class="rp-footer-rule">
+    <div class="rp-footer-text">
+        <span>Vuleevu Inc — Cybersecurity Assessment Tool</span>
+        <span>Report ID: {{ report.report_id }}</span>
+    </div>
+
+
+    <!-- Toggleable JSON view -->
+    <!-- <div style="text-align: center; margin: 1rem 0;">
+        <button id="toggleJsonBtn" class="btn btn-secondary">Show Raw JSON</button>
+    </div>
+
+    <div id="rawJsonContainer" style="display: none; margin: 1rem 0;">
+        <pre style="background: #f8f9fa; padding: 1rem; border-radius: 6px; overflow-x: auto; max-height: 400px; font-size: 0.8rem;">
+            <code id="rawJsonContent">{{ raw_json }}</code>
+        </pre>
+    </div> -->
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/vfs_fonts.js"></script>
+
 <script>
-    document.getElementById('downloadReportBtn').addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Download functionality will be added in a future update.');
+    // ---------------------------------------------------------------------
+    // Toggleable JSON view (feel free to delete if it is no longer needed)
+    // ---------------------------------------------------------------------
+    // document.getElementById('toggleJsonBtn').addEventListener('click', function() {
+    //     const container = document.getElementById('rawJsonContainer');
+    //     if (container.style.display === 'none') {
+    //         container.style.display = 'block';
+    //         this.textContent = 'Hide Raw JSON';
+    //     } else {
+    //         container.style.display = 'none';
+    //         this.textContent = 'Show Raw JSON';
+    //     }
+    // });
+
+    // ---------------------------------------------------------------------
+    // Collapsible risk cards
+    // ---------------------------------------------------------------------
+    function toggleVuln(id) {
+        const card = document.getElementById(id);
+        if (!card) return;
+        card.classList.toggle('open');
+    }
+
+    // ---------------------------------------------------------------------
+    // Sticky back button functionality
+    // ---------------------------------------------------------------------
+    const stickyBackBtn = document.getElementById('backToReportsBtn');
+    if (stickyBackBtn) {
+        stickyBackBtn.addEventListener('click', function() {
+            window.location.href = '{% url "report_list" %}';
+        });
+    }
+
+    // =============================================================================
+    // Javascript recreation of HTML styling for PDF generation using pdfMake
+    // =============================================================================
+    function createPdfDefinition(data) {
+    
+        // ── Palette — mirrors the CSS variables exactly ───────────────────────────
+        const C = {
+            ink:       '#0a0a0a',
+            mid:       '#3d3d3d',
+            light:     '#717171',
+            rule:      '#c8c8c8',
+            ruleLight: '#e8e8e8',
+            surface:   '#fafafa',
+            white:     '#ffffff',
+            tableHead: '#f5f7f9',
+        };
+    
+        // A4 page minus 40 + 40 margins = 515 pt usable width
+        const W = 515;
+    
+        const doc = {
+            pageSize:     'A4',
+            pageMargins:  [40, 55, 40, 55],
+            defaultStyle: { font: 'Roboto', fontSize: 9, color: C.ink, lineHeight: 1.5 },
+            content:      [],
+        };
+    
+        // ── Helper: full-width horizontal canvas rule ─────────────────────────────
+        // mg = [left, top, right, bottom]
+        function hRule(color, weight, mg) {
+            return {
+                canvas: [{ type: 'line', x1: 0, y1: 0, x2: W, y2: 0, lineWidth: weight, lineColor: color }],
+                margin: mg || [0, 0, 0, 0],
+            };
+        }
+    
+        // ── Helper: section heading — replicates .rp-section-heading ─────────────
+        // Returns an ARRAY of two items (text node + rule) so callers can spread it.
+        function sectionHead(label) {
+            return [
+                {
+                    text:             label.toUpperCase(),
+                    fontSize:         7,
+                    bold:             true,
+                    color:            C.light,
+                    characterSpacing: 2,
+                    margin:           [0, 22, 0, 6],
+                },
+                hRule(C.rule, 0.5, [0, 0, 0, 12]),
+            ];
+        }
+    
+        // ── Helper: sub-label — replicates .rp-sub-label ─────────────────────────
+        function subLabel(text) {
+            return {
+                text:             text.toUpperCase(),
+                fontSize:         6.5,
+                bold:             true,
+                color:            C.ink,
+                characterSpacing: 1.5,
+                margin:           [0, 0, 0, 3],
+            };
+        }
+    
+        // ── Helper: pill row — replicates .rp-pill-list / .rp-pill ───────────────
+        // pdfMake cannot wrap a table row onto multiple lines, so for long element
+        // lists (> 5) we fall back to Roboto dot-separated inline text.
+        function pillRow(items) {
+            if (!items || !items.length) return null;
+        
+            if (items.length > 5) {
+                return {
+                    text:   items.join('  ·  '),
+                    fontSize: 7.5,
+                    font:   'Roboto',
+                    color:  C.mid,
+                    margin: [0, 0, 0, 10],
+                };
+            }
+        
+            return {
+                table: {
+                    widths: items.map(() => 'auto'),
+                    body: [
+                        items.map(item => ({
+                            text:     String(item),
+                            fontSize: 7.5,
+                            font:     'Roboto',
+                            color:    C.mid,
+                        })),
+                    ],
+                },
+                layout: {
+                    hLineWidth: () => 0.5,
+                    vLineWidth: () => 0.5,
+                    hLineColor: () => C.rule,
+                    vLineColor: () => C.rule,
+                    fillColor:  () => C.surface,
+                    paddingLeft:   () => 6,
+                    paddingRight:  () => 6,
+                    paddingTop:    () => 3,
+                    paddingBottom: () => 0,
+                },
+                margin: [0, 0, 0, 10],
+            };
+        }
+    
+        // ── Helper: recommendation boxes — replicates .rp-rec-grid / .rp-rec-box ─
+        // Must be a table (not a stack) because only table cells support fillColor
+        // and border styling in pdfMake.
+        function recBoxes(easyFix, longFix) {
+            const cells  = [];
+            const widths = [];
+        
+            const makeCell = (title, body) => ({
+                stack: [
+                    {
+                        text:             title,
+                        fontSize:         6.5,
+                        bold:             true,
+                        color:            C.ink,
+                        characterSpacing: 1,
+                        margin:           [0, 0, 0, 4],
+                    },
+                    {
+                        text:       body,
+                        fontSize:   8,
+                        color:      C.mid,
+                        lineHeight: 1.5,
+                    },
+                ],
+            });
+        
+            if (easyFix) { cells.push(makeCell('QUICK FIX',     easyFix)); widths.push('*'); }
+            if (longFix)  { cells.push(makeCell('LONG-TERM FIX', longFix)); widths.push('*'); }
+            if (!cells.length) return null;
+        
+            return {
+                table: { widths, body: [cells] },
+                layout: {
+                    hLineWidth: () => 0.5,
+                    vLineWidth: () => 0.5,
+                    hLineColor: () => C.ruleLight,
+                    vLineColor: () => C.ruleLight,
+                    fillColor:  () => C.surface,
+                    paddingLeft:   () => 10,
+                    paddingRight:  () => 10,
+                    paddingTop:    () => 8,
+                    paddingBottom: () => 8,
+                },
+                margin: [0, 0, 0, 0],
+            };
+        }
+    
+        // ── Helper: build the body-row stack for one vuln card ───────────────────
+        function buildVulnBody(risk) {
+            const stack    = [];
+            const overview = risk.Overview    || risk.overview    || '';
+            const elements = risk['Affected Elements'] || risk.affected_elements || [];
+            const rec      = risk.Recommendation      || {};
+            const easyFix  = rec.easy_fix        || risk.easy_fix        || '';
+            const longFix  = rec.long_term_fix   || risk.long_term_fix   || '';
+        
+            if (overview) {
+                stack.push({
+                    text:       overview,
+                    fontSize:   8.5,
+                    color:      C.mid,
+                    lineHeight: 1.6,
+                    margin:     [0, 0, 0, 10],
+                });
+            }
+        
+            if (elements.length) {
+                stack.push(subLabel('Affected  Elements'));
+                const pills = pillRow(elements);
+                if (pills) stack.push(pills);
+            }
+        
+            if (easyFix || longFix) {
+                stack.push(subLabel('Recommendations'));
+                const recs = recBoxes(easyFix, longFix);
+                if (recs) stack.push(recs);
+            }
+        
+            return stack;
+        }
+    
+    
+        // ═══════════════════════════════════════════════════════════
+        // 0. Masthead — replicates .rp-masthead
+        // ═══════════════════════════════════════════════════════════
+    
+        const overview  = data.overview || {};
+        const orgName   = overview['Organization Name'] || '';
+        const reportTitle = data.report_name || `Security Assessment — ${orgName}`;
+    
+        doc.content.push(
+            // Eyebrow — .rp-masthead-eyebrow
+            {
+                text:             'CYBERSECURITY  ASSESSMENT  REPORT',
+                fontSize:         6.5,
+                bold:             true,
+                color:            C.light,
+                characterSpacing: 2,
+                margin:           [0, 0, 0, 5],
+            },
+            // Title — .rp-masthead h1
+            {
+                text:     reportTitle,
+                fontSize: 16,
+                bold:     true,
+                color:    C.ink,
+                margin:   [0, 0, 0, 5],
+            },
+            // Bottom rule (border-bottom: 1px solid in the HTML)
+            hRule(C.ink, 0.5, [0, 0, 0, 5]),
+        );
+        
+        
+        // ═══════════════════════════════════════════════════════════
+        // 1. Overview
+        // ═══════════════════════════════════════════════════════════
+        
+        if (Object.keys(overview).length > 0) {
+            doc.content.push(...sectionHead('01 — Overview'));
+        
+            // Table that mimics the HTML th/td rows:
+            // left col = bold key (#3d3d3d), no vertical lines, alternating fill.
+            const rows = Object.entries(overview).map(([k, v]) => [
+                { text: k, fontSize: 8.5, bold: true, color: C.mid },
+                { text: (v && v !== 'None') ? String(v) : '—', fontSize: 8.5, color: C.ink },
+            ]);
+        
+            doc.content.push({
+                table:  { widths: ['35%', '*'], body: rows },
+                layout: {
+                    hLineWidth: () => 0.5,
+                    vLineWidth: () => 0,          // no vertical dividers (like HTML th/td)
+                    hLineColor: () => C.ruleLight,
+                    fillColor:  (ri) => ri % 2 === 0 ? C.surface : C.white,
+                    paddingLeft:   (ci) => ci === 0 ? 9 : 12, // value col has left gap
+                    paddingRight:  () => 0,
+                    paddingTop:    () => 10,
+                    paddingBottom: () => 5,
+                },
+                margin: [0, 0, 0, 0],
+            });
+        }
+    
+    
+        // ═══════════════════════════════════════════════════════════
+        // 2. Observations
+        // ═══════════════════════════════════════════════════════════
+    
+        if (data.observations && data.observations.length > 0) {
+            doc.content.push(...sectionHead('02 — Positive  Observations'));
+        
+            data.observations.forEach((obs, idx) => {
+                const name     = obs.Observation || obs.name     || '';
+                const obsText  = obs.Overview    || obs.overview  || '';
+                const elements = obs['Affected Elements'] || obs.affected_elements || [];
+            
+                // # Name — replicates .rp-obs-name::before { content: '✓' }
+                doc.content.push({
+                    text:   `${String(idx + 1)}.  ${name}`,
+                    fontSize: 9.5,
+                    bold:   true,
+                    color:  C.ink,
+                    margin: [0, 0, 0, 4],
+                });
+            
+                if (obsText) {
+                    doc.content.push({
+                        text:       obsText,
+                        fontSize:   8.5,
+                        color:      C.mid,
+                        lineHeight: 1.6,
+                        margin:     [0, 0, 0, 6],
+                    });
+                }
+            
+                const pills = pillRow(elements);
+                if (pills) doc.content.push(pills);
+            
+                // Border-bottom divider between observations (except last)
+                if (idx < data.observations.length - 1) {
+                    doc.content.push(hRule(C.ruleLight, 0.5, [0, 4, 0, 10]));
+                }
+            });
+        }
+    
+    
+        // ═══════════════════════════════════════════════════════════
+        // 3. Questionnaire Review
+        // ═══════════════════════════════════════════════════════════
+    
+        if (data.questionnaire && Object.keys(data.questionnaire).length > 0) {
+            doc.content.push(...sectionHead('03 — Security  Questionnaire  Review'));
+        
+            const headerRow = [
+                { text: 'Control Question', fontSize: 8.5, bold: true, color: C.ink },
+                { text: 'Status',           fontSize: 8.5, bold: true, color: C.ink, alignment: 'center' },
+            ];
+            const qRows = [
+                headerRow,
+                ...Object.entries(data.questionnaire).map(([q, a]) => [
+                    { text: q, fontSize: 8.5, color: C.mid },
+                    {
+                        text:      a === 'Yes' ? 'Y' : a === 'No' ? 'N' : String(a),
+                        fontSize:  8.5,
+                        color:     C.ink,
+                        alignment: 'center',
+                        bold:      a === 'Yes',
+                    },
+                ]),
+            ];
+                
+            doc.content.push({
+                table:  { widths: ['*', '12%'], body: qRows },
+                layout: {
+                    hLineWidth: () => 0.5,
+                    vLineWidth: () => 0.5,
+                    hLineColor: () => C.rule,
+                    vLineColor: () => C.rule,
+                    fillColor:  (ri) => ri === 0 ? C.tableHead : ri % 2 === 0 ? C.surface : C.white,
+                    paddingLeft:   () => 8,
+                    paddingRight:  () => 8,
+                    paddingTop:    () => 6,
+                    paddingBottom: () => 6,
+                },
+                margin: [0, 0, 0, 0],
+            });
+        }
+    
+    
+        // ═══════════════════════════════════════════════════════════
+        // 4. Risks & Recommendations
+        // ═══════════════════════════════════════════════════════════
+    
+        doc.content.push(...sectionHead('04 — Risks  &  Recommendations'));
+    
+        // Summary paragraph — replicates .rp-summary (border-top style)
+        if (data.summary) {
+            doc.content.push({
+                    text:       data.summary,
+                    fontSize:   8.5,
+                    color:      C.mid,
+                    lineHeight: 1.7,
+                    margin:     [0, 0, 0, 14],
+                },
+            );
+        }
+    
+        if (data.vulnerabilities && data.vulnerabilities.length > 0) {
+        
+            // ── Core technique: one table for ALL cards, 2 rows per card ─────────
+            //
+            // The table body looks like:
+            //   [ [headerRow0], [bodyRow0], [headerRow1], [bodyRow1], ... ]
+            //
+            // hLineWidth rules:
+            //   i === 0                          → top outer border (0.5)
+            //   i === table.body.length          → bottom outer border (0.5)
+            //   i % 2 === 1 (odd)               → between header and body of SAME card → 0 (hidden)
+            //   i % 2 === 0 (even, inner)       → between body of card N and header of card N+1 → 0.5
+            //
+            // fillColor: even row index → #e8e8e8 (header), odd → white (body)
+            // ─────────────────────────────────────────────────────────────────────
+        
+            const vulnRows = [];
+        
+            data.vulnerabilities.forEach(risk => {
+                const severity = (risk.Severity || risk.severity || 'Info').toUpperCase();
+                const riskName = risk.Risk || risk.risk || '';
+            
+                // ── Header row (even index in vulnRows) ──────────────────────────
+                vulnRows.push([{
+                    columns: [
+                        {
+                            text:     riskName,
+                            bold:     true,
+                            fontSize: 9.5,
+                            color:    C.ink,
+                            width:    '*',
+                        },
+                        {
+                            text:             severity,
+                            fontSize:         7,
+                            color:            C.light,
+                            bold:             true,
+                            characterSpacing: 1,
+                            width:            'auto',
+                            alignment:        'right',
+                        },
+                    ],
+                }]);
+            
+                // ── Body row (odd index in vulnRows) ─────────────────────────────
+                // margin: [8, 0, 0, 0] adds the body's extra left indent
+                // (replicates padding: 1.25rem 2.5rem 1.5rem on .rp-vuln-body)
+                const bodyStack = buildVulnBody(risk);
+                vulnRows.push([{
+                    stack:  bodyStack.length ? bodyStack : [{ text: '' }],
+                    margin: [8, 0, 0, 0],
+                }]);
+            });
+        
+            doc.content.push({
+                table:  { widths: ['*'], body: vulnRows },
+                layout: {
+                    hLineWidth: (i, node) => {
+                        if (i === 0 || i === node.table.body.length) return 0.5; // outer edges
+                        if (i % 2 === 1) return 0;                               // header → body (hidden)
+                        return 0.5;                                               // card → card
+                    },
+                    vLineWidth: () => 0.5,
+                    hLineColor: () => C.rule,
+                    vLineColor: () => C.rule,
+                    // Even rows = card headers (#e8e8e8), odd rows = card bodies (white)
+                    fillColor:     (ri) => ri % 2 === 0 ? C.ruleLight : C.white,
+                    paddingLeft:   () => 12,
+                    paddingRight:  () => 12,
+                    // Different top/bottom padding for header vs body rows
+                    paddingTop:    (ri) => ri % 2 === 0 ? 9  : 14,
+                    paddingBottom: (ri) => ri % 2 === 0 ? 9  : 14,
+                },
+                margin: [0, 0, 0, 15],
+            });
+        
+        } else {
+            doc.content.push({
+                text:    'No vulnerabilities were identified in this report.',
+                fontSize: 8.5,
+                color:   C.light,
+                italics: true,
+                margin:  [0, 0, 0, 15],
+            });
+        }
+    
+    
+        // ═══════════════════════════════════════════════════════════
+        // 5. Technical Scan Results (placeholder)
+        // ═══════════════════════════════════════════════════════════
+    
+        doc.content.push(...sectionHead('05 — Technical  Scan  Results'));
+        doc.content.push({
+            text:    'Detailed scan results will be shown here in a future update.',
+            fontSize: 8.5,
+            color:   C.light,
+            italics: true,
+            margin:  [0, 0, 0, 15],
+        });
+    
+    
+        // ═══════════════════════════════════════════════════════════
+        // 6. Conclusion — replicates .rp-conclusion (border-top style)
+        // ═══════════════════════════════════════════════════════════
+    
+        if (data.conclusion) {
+            doc.content.push(...sectionHead('06 — Conclusion'));
+            doc.content.push({
+                    text:       data.conclusion,
+                    fontSize:   8.5,
+                    color:      C.mid,
+                    lineHeight: 1.7,
+                },
+            );
+        }
+    
+    
+        // ═══════════════════════════════════════════════════════════
+        // Footer — replicates .rp-footer-text
+        // ═══════════════════════════════════════════════════════════
+    
+        doc.footer = (currentPage, pageCount) => ({
+            columns: [
+                {
+                    text:      'Vuleevu Inc — Cybersecurity Assessment Tool',
+                    fontSize:  7,
+                    color:     C.light,
+                    alignment: 'left',
+                },
+                {
+                    text:      `Page ${currentPage} / ${pageCount}   ·   Report ID: ${data.report_id || ''}`,
+                    fontSize:  7,
+                    color:     C.light,
+                    alignment: 'right',
+                },
+            ],
+            margin: [40, 10, 40, 0],
+        });
+    
+        return doc;
+    }
+
+    // ---------------------------------------------------------------------
+    // Initialisation
+    // ---------------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', function () {
+        // Open first risk card
+        const first = document.querySelector('.rp-vuln-card');
+        if (first) first.classList.add('open');
+
+        // PDF download button
+        const pdfBtn = document.getElementById('downloadPdfBtn');
+        if (pdfBtn) {
+            pdfBtn.addEventListener('click', function () {
+                const reportId = '{{ report.report_id }}';
+                pdfBtn.disabled = true;
+                pdfBtn.textContent = 'Generating PDF...';
+
+                fetch(`/reports/${reportId}/pdf/`)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        const docDefinition = createPdfDefinition(data);
+                        pdfMake.createPdf(docDefinition).download(`report_${reportId}.pdf`);
+                    })
+                    .catch(error => {
+                        console.error('PDF generation failed:', error);
+                        alert('Failed to generate PDF. Please try again.');
+                    })
+                    .finally(() => {
+                        pdfBtn.disabled = false;
+                        pdfBtn.textContent = '⬇ Download PDF';
+                    });
+            });
+        }
     });
 </script>
 {% endblock %}

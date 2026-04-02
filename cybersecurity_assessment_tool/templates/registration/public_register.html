@@ -152,6 +152,31 @@
     .row .field {
         flex: 1;
     }
+
+    /* Add a red border to the input if there's an error */
+    .form-group.has-error .form-input {
+        border-color: #ef4444;
+    }
+
+    /* Keeps top errors only for non-field errors */
+    .auth-error {
+        background-color: #fee2e2;
+        border: 1px solid #fecaca;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+        color: #b91c1c;
+    }
+
+    /* NEW: Django renders field errors as a ul with class 'errorlist' */
+    .errorlist {
+        color: #ef4444; /* Small red text */
+        font-size: 0.75rem;
+        margin: 0.35rem 0 0 0;
+        padding-left: 0;
+        list-style-type: none;
+    }
 </style>
 {% endblock %}
 
@@ -163,84 +188,85 @@
             <p class="auth-subtitle">Tell us a bit about you and your company.</p>
         </div>
 
+        {% if form.non_field_errors %}
+        <div class="auth-error">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}">{{ message }}</div>
             {% endfor %}
         {% endif %}
 
-        <form method="post" action="{% url 'public_registration' %}" id="registrationForm">
+        <form method="post" action="{% url 'accounts:public_register' %}" id="registrationForm">
             {% csrf_token %}
-            
+        
             <div class="row">
-                <div class="field">
+                <div class="field {% if form.first_name.errors %}has-error{% endif %}">
                     <label for="first_name">First name</label>
                     <input id="first_name" name="first_name" type="text" class="form-input" required placeholder="Jane" value="{{ form.data.first_name|default:'' }}">
+                    {% if form.first_name.errors %}
+                        <div class="error-feedback">{{ form.first_name.errors }}</div>
+                    {% endif %}
                 </div>
-                <div class="field">
+                <div class="field {% if form.last_name.errors %}has-error{% endif %}">
                     <label for="last_name">Last name</label>
                     <input id="last_name" name="last_name" type="text" class="form-input" required placeholder="Doe" value="{{ form.data.last_name|default:'' }}">
+                    {% if form.last_name.errors %}
+                        <div class="error-feedback">{{ form.last_name.errors }}</div>
+                    {% endif %}
                 </div>
             </div>
-
-            <div class="form-group">
+        
+            <div class="form-group {% if form.username.errors %}has-error{% endif %}">
                 <label for="username">Username</label>
                 <input id="username" name="username" type="text" class="form-input" required placeholder="jane.doe" value="{{ form.data.username|default:'' }}">
+                {% if form.username.errors %}
+                    <div class="error-feedback">{{ form.username.errors }}</div>
+                {% endif %}
             </div>
-
-            <div class="form-group">
+        
+            <div class="form-group {% if form.company.errors %}has-error{% endif %}">
                 <label for="company_name">Company Name</label>
-                <input type="text" 
-                       name="company" 
-                       id="company_name" 
-                       class="form-input" 
-                       placeholder="Acme Inc."
-                       value="{{ form.data.company|default:'' }}"
-                       required>
+                <input type="text" name="company" id="company_name" class="form-input" placeholder="Acme Inc." value="{{ form.data.company|default:'' }}" required>
+                {% if form.company.errors %}
+                    <div class="error-feedback">{{ form.company.errors }}</div>
+                {% endif %}
             </div>
-
-            <div class="form-group">
+        
+            <div class="form-group {% if form.email.errors %}has-error{% endif %}">
                 <label for="email">Work Email</label>
                 <div class="email-verify-group">
-                    <input type="email" 
-                           name="email" 
-                           id="email" 
-                           class="form-input" 
-                           placeholder="jane@company.com"
-                           value="{{ form.data.email|default:'' }}"
-                           required>
-                    <button type="button" class="btn btn-secondary" id="verifyEmailBtn">
-                        Verify
-                    </button>
+                    <input type="email" name="email" id="email" class="form-input" placeholder="jane@company.com" value="{{ form.data.email|default:'' }}" required>
+                    <button type="button" class="btn btn-secondary" id="verifyEmailBtn">Verify</button>
                 </div>
-                <div id="emailVerified" class="verified-badge" style="display: none;">
-                    ✓ Email verified
-                </div>
+                {% if form.email.errors %}
+                    <div class="error-feedback">{{ form.email.errors }}</div>
+                {% endif %}
+                <div id="emailVerified" class="verified-badge" style="display: none;">✓ Email verified</div>
             </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" 
-                       name="password1" 
-                       id="password1" 
-                       class="form-input" 
-                       placeholder="Choose a strong password"
-                       required>
+        
+            <div class="form-group {% if form.password1.errors %}has-error{% endif %}">
+                <label for="password1">Password</label>
+                <input type="password" name="password1" id="password1" class="form-input" placeholder="Choose a strong password" required>
+                {% if form.password1.errors %}
+                    <div class="error-feedback">{{ form.password1.errors }}</div>
+                {% endif %}
             </div>
-
-            <div class="form-group">
-                <label for="confirm_password">Confirm Password</label>
-                <input type="password" 
-                       name="password2" 
-                       id="password2" 
-                       class="form-input" 
-                       placeholder="Re-enter your password"
-                       required>
+        
+            <div class="form-group {% if form.password2.errors %}has-error{% endif %}">
+                <label for="password2">Confirm Password</label>
+                <input type="password" name="password2" id="password2" class="form-input" placeholder="Re-enter your password" required>
+                {% if form.password2.errors %}
+                    <div class="error-feedback">{{ form.password2.errors }}</div>
+                {% endif %}
             </div>
-
-            <button type="submit" class="auth-button" id="submitBtn" disabled>
-                Sign up
-            </button>
+        
+            <button type="submit" class="auth-button" id="submitBtn" disabled>Sign up</button>
         </form>
 
         <div class="auth-footer">
