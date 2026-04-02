@@ -481,14 +481,14 @@ function createPdfDefinition(data) {
     // 5. Technical Scan Results (placeholder)
     // ═══════════════════════════════════════════════════════════
 
-    doc.content.push(...sectionHead('05 — Technical  Scan  Results'));
-    doc.content.push({
-        text:    'Detailed scan results will be shown here in a future update.',
-        fontSize: 8.5,
-        color:   C.light,
-        italics: true,
-        margin:  [0, 0, 0, 15],
-    });
+    // doc.content.push(...sectionHead('05 — Technical  Scan  Results'));
+    // doc.content.push({
+    //     text:    'Detailed scan results will be shown here in a future update.',
+    //     fontSize: 8.5,
+    //     color:   C.light,
+    //     italics: true,
+    //     margin:  [0, 0, 0, 15],
+    // });
 
 
     // ═══════════════════════════════════════════════════════════
@@ -496,7 +496,7 @@ function createPdfDefinition(data) {
     // ═══════════════════════════════════════════════════════════
 
     if (data.conclusion) {
-        doc.content.push(...sectionHead('06 — Conclusion'));
+        doc.content.push(...sectionHead('05 — Conclusion'));
         doc.content.push({
                 text:       data.conclusion,
                 fontSize:   8.5,
@@ -514,13 +514,13 @@ function createPdfDefinition(data) {
     doc.footer = (currentPage, pageCount) => ({
         columns: [
             {
-                text:      'Vuleevu Inc — Cybersecurity Assessment Tool',
+                text:      'Vuleevu Inc — RePortly',
                 fontSize:  7,
                 color:     C.light,
                 alignment: 'left',
             },
             {
-                text:      `Page ${currentPage} / ${pageCount}   ·   Report ID: ${data.report_id || ''}`,
+                text:      `Page ${currentPage} / ${pageCount}`,
                 fontSize:  7,
                 color:     C.light,
                 alignment: 'right',
