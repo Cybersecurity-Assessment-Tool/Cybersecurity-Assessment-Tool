@@ -5,9 +5,8 @@ from django.contrib import messages
 from django.conf import settings
 from api.utils.email_tasks import queue_email
 import time
-from django.utils import timezone 
-from api.forms import PublicRegistrationForm
-from accounts.forms import InvitationSignupForm
+from django.utils import timezone
+from accounts.forms import InvitationSignupForm, PublicRegistrationForm
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Invitation, Organization, User, Report, Risk, generate_email_hash
@@ -197,7 +196,7 @@ def register_user_invite(request, token):
     # Check if invitation is expired
     if not invitation.is_valid():
         messages.error(request, 'This invitation has expired or is no longer valid.')
-        return redirect('public_registration')
+        return redirect('public_register')
     
     if request.method == 'POST':
         form = InvitationSignupForm(request.POST)
@@ -333,11 +332,6 @@ def public_registration(request):
             return redirect('accounts:waiting')
         
         else:
-            # THIS IS THE DEFAULT ERROR HANDLING, NEEDS TO BE CUSTOMIZED
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
-            
             # Return the template with the invalid form
             return render(request, 'registration/public_register.html', {'form': form})
     
