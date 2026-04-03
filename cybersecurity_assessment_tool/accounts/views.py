@@ -125,6 +125,10 @@ import string
 import uuid
 import traceback
 from api.utils.email_tasks import queue_email
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.conf import settings
+from api.models import User, Invitation, generate_email_hash 
 
 # Takes care of public registration for Org Admins and company databases
 def public_register(request):
@@ -132,20 +136,71 @@ def public_register(request):
     if request.method == 'POST':
         form = PublicRegistrationForm(request.POST)
         
-        if form.is_valid():
-            user = form.save()
+        # 1. Run standard form validation
+        is_valid = form.is_valid()
+        
+        # --- STRICT BACKEND CHECKS ---
+        password = request.POST.get('password1')
+        password_confirm = request.POST.get('password2')
+        submitted_email = request.POST.get('email')
+        username = request.POST.get('username')
+        
+        # 2. Enforce Uniqueness (Username & Email)
+        if username and User.objects.filter(username__iexact=username).exists():
+            form.add_error('username', 'This username is already taken. Please choose another.')
+            is_valid = False
+            
+        if submitted_email:
+            # We must check the deterministic hash because the email field is encrypted!
+            email_hash = generate_email_hash(submitted_email)
+            if User.objects.filter(email_hash=email_hash).exists():
+                form.add_error('email', 'An account with this email address already exists.')
+                is_valid = False
+
+        # 3. Enforce Password Matching
+        if password != password_confirm:
+            form.add_error('password2', 'Passwords do not match.')
+            is_valid = False
+            
+        # 4. Enforce Django's built-in Password Strength/Length rules
+        if password:
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                # Add each password validation error directly to the form
+                for error in e.messages:
+                    form.add_error('password1', error)
+                is_valid = False
+
+        # 5. Enforce Strict OTP Verification
+        verified_email = request.session.get('verified_email')
+        email_verified = request.session.get(f'registration_verified_{submitted_email}')
+
+        if not email_verified or submitted_email != verified_email:
+            form.add_error('email', 'You must verify your email address via the "Verify" button before registering.')
+            is_valid = False
+        
+        # --- EXECUTION BLOCK ---
+        # 6. ONLY create user and send emails if EVERYTHING above passed
+        if is_valid:
+            # Clear session verification so it can't be reused later
+            request.session.pop('verified_email', None)
+            request.session.pop(f'registration_verified_{submitted_email}', None)
+            
+            # Securely save the user and hash their validated password
+            user = form.save(commit=False)
+            user.set_password(password)
+            user.save()
             
             # Store data in session for the waiting page
             request.session['pending_company'] = user.organization.org_name if user.organization else "Your Organization"
             request.session['pending_email'] = user.email
             request.session['pending_submitted'] = timezone.now().isoformat()
 
-             # Get system user for admin notifications
+            # Get system user for admin notifications
             try:
                 system_user = User.objects.get(username="Frontend Integration Testing")
             except User.DoesNotExist:
-                # Create system user if it doesn't exist (if you don't have access to the admin email, you can
-                # replace it with your own and replace the database user to have the emails sent to your email)
                 system_user = User.objects.create_user(
                     username="Frontend Integration Testing",
                     email_inbox=settings.ADMIN_EMAIL_INBOX,
@@ -208,10 +263,11 @@ def public_register(request):
             
             # Redirect to waiting page
             return redirect('accounts:waiting')
-        
-        # Do NOT use messages.error() here. 
-        # Just let it fall through and render the form with errors.
-    
+            
+        # NOTE: If is_valid became False at any point during our strict checks, 
+        # it completely skips the execution block above and falls directly down 
+        # to render the form with the errors displayed!
+
     else:
         # GET request - display empty form
         form = PublicRegistrationForm()
