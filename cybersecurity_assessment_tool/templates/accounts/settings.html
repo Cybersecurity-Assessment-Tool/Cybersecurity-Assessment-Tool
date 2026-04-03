@@ -719,21 +719,42 @@
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="domain_name">Email Domain Name</label>
-                            <input type="text" name="email_domain_name" id="email_domain_name" class="form-input" 
-                                   value="{{ request.user.organization.email_domain|default:'' }}" required>
+                            <label for="email_domain_name">Email Domain Name</label>
+                            <input type="text" 
+                                   name="email_domain_name" 
+                                   id="email_domain_name" 
+                                   class="form-input" 
+                                   value="{{ request.user.organization.email_domain|default:'' }}" 
+                                   placeholder="e.g., example.com"
+                                   pattern="^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$"
+                                   title="Please enter a valid domain name (e.g., company.com)"
+                                   required>
                         </div>
 
                         <div class="form-group">
-                            <label for="domain_name">Website Domain Name</label>
-                            <input type="text" name="website_domain_name" id="website_domain_name" class="form-input" 
-                                   value="{{ request.user.organization.website_domain|default:'' }}" required>
+                            <label for="website_domain_name">Website Domain Name</label>
+                            <input type="text" 
+                                   name="website_domain_name" 
+                                   id="website_domain_name" 
+                                   class="form-input" 
+                                   value="{{ request.user.organization.website_domain|default:'' }}" 
+                                   placeholder="e.g., example.com"
+                                   pattern="^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$"
+                                   title="Please enter a valid domain name (e.g., company.com)"
+                                   required>
                         </div>
 
                         <div class="form-group">
                             <label for="ip_address">External IP Address</label>
-                            <input type="text" name="ip_address" id="ip_address" class="form-input" 
-                                   value="{{ request.user.organization.external_ip|default:'' }}" required>
+                            <input type="text" 
+                                   name="ip_address" 
+                                   id="ip_address" 
+                                   class="form-input" 
+                                   value="{{ request.user.organization.external_ip|default:'' }}" 
+                                   placeholder="e.g., 198.51.100.1 or 203.0.113.0/24"
+                                   pattern="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:[0-9]|[1-2][0-9]|3[0-2]))?$"
+                                   title="Please enter a valid IPv4 address or CIDR notation (e.g., 192.168.1.1 or 10.0.0.0/24)"
+                                   required>
                         </div>
                     </div>
 
@@ -921,7 +942,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Profile image preview
+    // Profile image preview <- not currently working
     const imageInput = document.getElementById('{{ profile_form.profile_image.id_for_label }}');
     if (imageInput) {
         imageInput.addEventListener('change', function(e) {
@@ -948,6 +969,42 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+    // Security Posture Form Validation
+    const postureForm = document.getElementById('postureForm');
+    if (postureForm) {
+        const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+        const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:[0-9]|[1-2][0-9]|3[0-2]))?$/;
+
+        postureForm.addEventListener('submit', function(e) {
+            const emailDomain = document.getElementById('email_domain_name').value.trim();
+            const websiteDomain = document.getElementById('website_domain_name').value.trim();
+            const ipAddress = document.getElementById('ip_address').value.trim();
+
+            let isValid = true;
+            let errorMessage = "";
+
+            if (!domainRegex.test(emailDomain)) {
+                isValid = false;
+                errorMessage += "Please enter a valid Email Domain (e.g., example.com).\n";
+            }
+            
+            if (!domainRegex.test(websiteDomain)) {
+                isValid = false;
+                errorMessage += "Please enter a valid Website Domain (e.g., example.com).\n";
+            }
+
+            if (!ipRegex.test(ipAddress)) {
+                isValid = false;
+                errorMessage += "Please enter a valid IPv4 address or CIDR (e.g., 192.168.1.1 or 10.0.0.0/24).\n";
+            }
+
+            if (!isValid) {
+                e.preventDefault(); // Stop submission
+                alert(errorMessage);
+            }
+        });
+    }
 
 // Team Management JavaScript
 $(document).ready(function() {
