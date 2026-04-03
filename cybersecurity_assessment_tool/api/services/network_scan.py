@@ -674,9 +674,9 @@ def run_server_scan(scan_id: str):
         port_target   = org.external_ip
         infra_target  = org.website_domain or org.email_domain
         # email_domain may be comma-separated — scan each one
-        email_targets = [d.strip() for d in (org.email_domain or '').split(',') if d.strip()]
+        email_domain = org.email_domain
 
-        if not port_target or not email_targets:
+        if not port_target or not email_domain:
             raise ValueError(
                 "Organization is missing external_ip or email_domain. "
                 "Complete the questionnaire in Settings → Security Posture."
@@ -692,7 +692,7 @@ def run_server_scan(scan_id: str):
 
         udp_port_results = run_udp_port_scan(port_target)
 
-        email_results_list = [run_email_scan(domain) for domain in email_targets]
+        email_results_list = run_email_scan(email_domain)
 
         # infra_results = run_infra_scan(infra_target) if infra_target else {}
 
@@ -706,11 +706,11 @@ def run_server_scan(scan_id: str):
         scan.target_subnet = f"{port_target} / {infra_target}"
         scan.raw_findings_json = json.dumps({
             'findings': all_findings,
-            'raw_results': {
-                'port_scan':   tcp_port_results,
-                'email_scans': {d: r for d, r in zip(email_targets, email_results_list)},
-                'infra_scan':  {},  # infra_results,
-            },
+            # 'raw_results': {
+            #     'port_scan':   tcp_port_results,
+            #     'email_scans': {d: r for d, r in zip(email_targets, email_results_list)},
+            #     'infra_scan':  {},  # infra_results,
+            # },
         })
         logger.info(f"Network scan results: {scan.raw_findings_json}")
         scan.tally_findings(all_findings)
