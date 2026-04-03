@@ -460,7 +460,7 @@ def run_tcp_port_scan(target_ip: str) -> dict:
         sock.settimeout(2)
         try:
             if sock.connect_ex((target_ip, port)) != 0:
-                pass
+                continue  # Port is closed/filtered — skip to next port
             scripts = _grab_banner(sock, port)
             result = {
                 'severity': 'INFO',
