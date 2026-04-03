@@ -190,60 +190,56 @@ def send_invite_mail(request, recipient_email):
         
 def register_user_invite(request, token):
     """Handle user registration via invitation link"""
-    # Get the invitation by token
-    invitation = get_object_or_404(Invitation, token=token, status='sent')
     
-    # Check if invitation is expired
-    if not invitation.is_valid():
-        messages.error(request, 'This invitation has expired or is no longer valid.')
-        return redirect('public_register')
-    
+    # 1. Safely check if the token exists at all (prevents hard crashes)
+    try:
+        invitation = Invitation.objects.get(token=token)
+    except Invitation.DoesNotExist:
+        messages.error(request, 'This invitation link is invalid.')
+        return redirect('login')
+
+    # 2. Check if it's already been used (friendly error instead of an invalid page)
+    if invitation.status != 'sent':
+        messages.error(request, 'This invitation has already been used or is no longer valid.')
+        return redirect('login')
+
+    # 3. Handle the form submission
     if request.method == 'POST':
-        form = InvitationSignupForm(request.POST)
+        # Because the HTML email input is 'disabled', it doesn't send in the POST data.
+        # We must manually copy the POST data and safely inject the email from the database.
+        post_data = request.POST.copy()
+        post_data['email'] = invitation.recipient_email
+        
+        form = InvitationSignupForm(post_data)
         
         if form.is_valid():
-            # Create the user
+            # Create the user and activate immediately
             user = form.save(commit=False)
-            user.email = invitation.recipient_email  # Use email from invitation
-            user.organization = invitation.organization  # Assign to organization
-            user.is_active = False  # Pending admin approval
+            user.email = invitation.recipient_email
+            user.organization = invitation.organization
+            user.is_active = True  # Automatically activate the user
             user.save()
             
-            # Update invitation
+            # Update invitation status
             invitation.recipient_user = user
-            invitation.status = 'awaiting_approval'
+            invitation.status = 'accepted'
             invitation.save()
             
-            # Store in session for waiting page
-            request.session['pending_company'] = invitation.organization.org_name
-            request.session['pending_email'] = user.email
-            request.session['pending_submitted'] = timezone.now().isoformat()
-            
-            # Send confirmation email to user
-            queue_email('registration', user.email, {
-                "username": user.username
-            })
-            
-            # Send notification to organization admin
-            # Get the organization creator (first user) or a designated admin
-            org_admin = User.objects.filter(organization=invitation.organization).order_by('date_joined').first()
-            if org_admin:
-                queue_email('request', org_admin.email, {
-                    "requester_name": f"{user.first_name} {user.last_name}",
-                    "requester_email": user.email,
-                    "company": invitation.organization.org_name,
-                    "role": invitation.recipient_role
-                })
-            
-            messages.success(request, 'Account created successfully! Please wait for admin approval.')
-            return redirect('accounts:waiting')
+            # Return the success context to trigger your 5-second redirect UI!
+            context = {
+                'success': True,
+                'email': invitation.recipient_email,
+                'organization': invitation.organization.org_name,
+            }
+            return render(request, 'registration/invite_signup.html', context)
     else:
-        # GET request - pre-fill form with email from invitation
+        # GET request - initialize the form
         form = InvitationSignupForm(initial={'email': invitation.recipient_email})
     
+    # Pass 'email' into the context so the {{ email }} template variable renders correctly
     context = {
         'form': form,
-        'invitation': invitation,
+        'email': invitation.recipient_email, 
         'organization': invitation.organization.org_name,
     }
     return render(request, 'registration/invite_signup.html', context)
@@ -624,6 +620,7 @@ def home(request):
     context = {
         'page_title': 'RePortly',
         'description': 'Cybersecurity Assessment Tool',
+        'contact_email': settings.ADMIN_EMAIL_INBOX
     }
     return render(request, 'home.html', context)
 

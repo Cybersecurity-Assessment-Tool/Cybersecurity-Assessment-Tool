@@ -809,17 +809,28 @@
                     <input type="hidden" name="active_tab" value="organization">
 
                     <div class="form-row">
-                        <div class="form-group" style="flex: 2;">
+                        <div class="form-group">
                             <label for="invite_email">Email Address</label>
                             <input type="email" 
-                                   id="invite_email" 
-                                   name="email" 
-                                   class="form-input" 
-                                   placeholder="colleague@company.com"
-                                   required>
+                                id="invite_email" 
+                                name="email" 
+                                class="form-input" 
+                                placeholder="colleague@company.com"
+                                required>
                         </div>
 
-                        <div class="form-group" style="flex: 1;">
+                        <div class="form-group">
+                            <label for="invite_email_confirm">Confirm Email</label>
+                            <input type="email" 
+                                id="invite_email_confirm" 
+                                class="form-input" 
+                                placeholder="colleague@company.com"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
                             <label for="invite_role">Role</label>
                             <select id="invite_role" name="role" class="form-select">
                                 <option value="observer">Observer</option>
@@ -835,8 +846,7 @@
                         </button>
                     </div>
                     <div id="inviteMessage" class="mt-2"></div>
-                </form>
-            
+                </form>            
                 <!-- Pending Invitations List -->
                 <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Pending Invitations</h3>
                 <div id="pendingInvitesList">
@@ -1104,11 +1114,21 @@ $('#inviteForm').submit(function(e) {
     e.preventDefault();
     
     const email = $('#invite_email').val();
+    const confirmEmail = $('#invite_email_confirm').val();
     const role = $('#invite_role').val();
     
+    // Check if the first email field is empty
     if (!email) {
         $('#inviteMessage').html(`
             <div class="alert alert-error">Please enter an email address.</div>
+        `);
+        return;
+    }
+
+    // Check if both email fields match exactly
+    if (email !== confirmEmail) {
+        $('#inviteMessage').html(`
+            <div class="alert alert-error">Email addresses do not match. Please ensure both fields are identical.</div>
         `);
         return;
     }
