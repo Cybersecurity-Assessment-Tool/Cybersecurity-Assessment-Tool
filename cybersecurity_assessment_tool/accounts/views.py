@@ -220,12 +220,38 @@ def public_register(request):
 
 # Waiting Page
 def waiting_page(request):
-    """Page shown after registration while awaiting approval"""
-    # TODO: Get organization status from database
+    """Waiting page shown after registration while awaiting approval"""
+    email = request.session.get('pending_email')
+    status = 'pending'
+    company = request.session.get('pending_company', 'Your Organization')
+    submitted = request.session.get('pending_submitted', timezone.now())
+
+    if email:
+        # Loop through all users to find matching email (due to encryption)
+        users = User.objects.all()
+        found_user = None
+        for user in users:
+            if user.email.lower() == email.lower():
+                found_user = user
+                break
+                
+        if found_user:
+            # Update the company name from the database if they have an org assigned
+            if found_user.organization:
+                company = found_user.organization.org_name
+                
+            if found_user.is_active:
+                status = 'approved'
+            else:
+                status = 'pending'
+        else:
+            status = 'rejected'  # User deleted or not found
+
     context = {
-        'company_name': request.session.get('company_name', 'Your Organization'),
-        'email': request.session.get('email', ''),
-        'submitted_at': timezone.now(),
+        'company_name': company,
+        'email': email,
+        'submitted_at': submitted,
+        'registration_status': status,
     }
     return render(request, 'registration/waiting.html', context)
 
