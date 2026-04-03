@@ -297,7 +297,8 @@ def questionnaire(request):
     
     if request.method == 'POST':
         # Process form text inputs
-        domain_name = request.POST.get('domain_name')
+        email_domain_name = request.POST.get('email_domain_name')
+        website_domain_name = request.POST.get('website_domain_name')
         ip_address = request.POST.get('ip_address')
         
         # Process form checkboxes (HTML checkboxes return 'on' if checked)
@@ -309,13 +310,14 @@ def questionnaire(request):
         training_annual = request.POST.get('training_annual') == 'on'
         
         # Basic Validation
-        if not ip_address or not domain_name:
+        if not ip_address or not website_domain_name or not email_domain_name:
             messages.error(request, "Domain name and IP address are required.")
             return render(request, 'registration/questionnaire.html')
         
         # Save directly to the existing Organization model fields
         org = user.organization
-        org.website_domain = domain_name
+        org.email_domain = email_domain_name
+        org.website_domain = website_domain_name
         org.external_ip = ip_address
         org.require_mfa_email = mfa_email
         org.require_mfa_computer = mfa_computers

@@ -312,30 +312,52 @@ function simulateScannerPost() {
   }
 
   const dummyPayload = {
-    findings: [
+    findings:
+    [
+  {
+    "severity": "INFO",
+    "category": "port",
+    "description": "Open port: 443/tcp open https",
+    "information": "Port 443 is open on target 216.239.32.21.",
+    "portid": "443",
+    "protocol": "tcp",
+    "service": "https",
+    "scripts": [],
+    "timestamp": "2025-07-18T22:09:34.408Z"
+  },
+  {
+    "severity": "HIGH",
+    "category": "vulnerability",
+    "description": "CVE-2021-41773: Apache HTTP Server Path Traversal",
+    "information": "A path traversal vulnerability was detected on the target web server, potentially allowing an unauthenticated attacker to read arbitrary files from the file system outside the document root.",
+    "portid": "443",
+    "protocol": "tcp",
+    "service": "https",
+    "scripts": [
       {
-        "severity": "INFO",
-        "category": "port",
-        "description": "Open port: 80/tcp open http",
-        "information": "Port 80 is open on target 216.239.32.21.",
-        "portid": "80",
-        "protocol": "tcp",
-        "service": "http",
-        "scripts": [],
-        "timestamp": "2025-07-18T22:09:34.408Z"
-      },
-      {
-        "severity": "INFO",
-        "category": "port",
-        "description": "Open port: 443/tcp open https",
-        "information": "Port 443 is open on target 216.239.32.21.",
-        "portid": "443",
-        "protocol": "tcp",
-        "service": "https",
-        "scripts": [],
-        "timestamp": "2025-07-18T22:09:34.408Z"
+        "id": "http-vuln-cve2021-41773",
+        "output": "VULNERABLE: The target appears to be running Apache 2.4.49 and is susceptible to path traversal."
       }
     ],
+    "timestamp": "2025-07-18T22:09:34.408Z"
+  },
+  {
+    "severity": "MEDIUM",
+    "category": "configuration",
+    "description": "SSL/TLS: Weak Cipher Suites Supported",
+    "information": "The target 216.239.32.21 is configured to accept weak SSL/TLS cipher suites (e.g., CBC-mode ciphers), which increases the risk of cryptographic attacks or interception.",
+    "portid": "443",
+    "protocol": "tcp",
+    "service": "https",
+    "scripts": [
+      {
+        "id": "ssl-enum-ciphers",
+        "output": "TLSv1.2: Least strength is C (Weak ciphers detected)."
+      }
+    ],
+    "timestamp": "2025-07-18T22:09:34.408Z"
+  }
+]
   };
 
   const submitEndpoint = '/api/scan/submit/'; 
