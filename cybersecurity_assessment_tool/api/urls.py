@@ -24,7 +24,8 @@ urlpatterns = [
     # path('public-signup/', views.public_registration, name='public_registration'),
 
     # Login URLs
-    path('login/', views.login_view, name='login'),
+    # path('login/', views.login_view, name='login'),
+    path('google-oauth-login/', views.google_oauth_login, name='google_oauth_login'),
     path('verify-login-otp/', views.verify_login_otp, name='verify_login_otp'),
     path('login-redirect/', views.questionnaire_redirect, name='login_redirect'),
 

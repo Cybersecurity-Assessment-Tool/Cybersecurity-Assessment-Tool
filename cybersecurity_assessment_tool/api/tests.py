@@ -1,4 +1,8 @@
-from django.test import TestCase
+from unittest.mock import patch
+
+from django.test import TestCase, override_settings
+from django.urls import reverse
+
 from api.models import Organization, User, Report, Risk
 
 class DatabaseEncryptionTests(TestCase):
@@ -84,3 +88,51 @@ class DatabaseEncryptionTests(TestCase):
         self.assertEqual(fetched_risk.affected_elements, plaintext_affected)
         self.assertEqual(fetched_risk.recommendations, plaintext_recommendations)
         self.assertEqual(fetched_risk.recommendations["easy_fix"], "Apply the latest security patch.")
+
+
+@override_settings(GOOGLE_OAUTH_CLIENT_ID='test-google-client-id.apps.googleusercontent.com')
+class GoogleOAuthLoginTests(TestCase):
+    def setUp(self):
+        self.org = Organization.objects.create(org_name="Acme School")
+        self.user = User.objects.create_user(
+            username="oauthuser",
+            email="oauth@example.com",
+            password="StrongPassword123!",
+            organization=self.org,
+            is_active=True,
+        )
+
+    @patch('api.views.id_token.verify_oauth2_token')
+    def test_google_oauth_logs_in_existing_active_user(self, mock_verify):
+        mock_verify.return_value = {
+            'email': self.user.email,
+            'email_verified': True,
+            'given_name': 'OAuth',
+            'family_name': 'User',
+        }
+
+        response = self.client.post(
+            reverse('google_oauth_login'),
+            data='{"credential": "fake-google-jwt"}',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['success'], True)
+        self.assertIn('_auth_user_id', self.client.session)
+
+    @patch('api.views.id_token.verify_oauth2_token')
+    def test_google_oauth_rejects_unknown_user(self, mock_verify):
+        mock_verify.return_value = {
+            'email': 'missing@example.com',
+            'email_verified': True,
+        }
+
+        response = self.client.post(
+            reverse('google_oauth_login'),
+            data='{"credential": "fake-google-jwt"}',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json()['success'], False)

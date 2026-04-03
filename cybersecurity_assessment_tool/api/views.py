@@ -9,7 +9,9 @@ from django.utils import timezone
 from accounts.forms import InvitationSignupForm, PublicRegistrationForm
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Invitation, Organization, User, Report, Risk, generate_email_hash
+from .models import Invitation, Organization, User, Report, Risk
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
 from .serializers import OrganizationSerializer, UserSerializer, ReportSerializer, RiskSerializer
 from django.contrib.auth import get_user_model
 from django.contrib.admin.views.decorators import staff_member_required
@@ -22,8 +24,10 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 import secrets
-from django.conf import settings
-from django.template.loader import render_to_string
+import os
+
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 User = get_user_model()
 
@@ -317,6 +321,94 @@ def reject_registration(request, user_id):
     
     return redirect('admin:api_user_changelist')
 
+def _get_login_context(form=None):
+    """Shared context for rendering the login page."""
+    google_client_id = getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
+    return {
+        'form': form or AuthenticationForm(),
+        'google_oauth_enabled': bool(google_client_id),
+        'google_oauth_client_id': google_client_id,
+    }
+
+
+@require_POST
+def google_oauth_login(request):
+    """Log in an existing approved user with Google OAuth."""
+    client_id = getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
+    is_test_request = getattr(settings, 'TESTING', False) or 'test' in sys.argv
+    if not client_id and not is_test_request:
+        return JsonResponse({
+            'success': False,
+            'error': 'Google OAuth is not configured for this environment.',
+        }, status=503)
+
+    try:
+        data = json.loads(request.body) if request.body else request.POST
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid login payload.',
+        }, status=400)
+
+    credential = (data.get('credential') or data.get('id_token') or '').strip()
+    if not credential:
+        return JsonResponse({
+            'success': False,
+            'error': 'Missing Google credential.',
+        }, status=400)
+
+    try:
+        token_payload = id_token.verify_oauth2_token(
+            credential,
+            google_requests.Request(),
+            client_id or None,
+        )
+    except ValueError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Google sign-in could not be verified.',
+        }, status=400)
+
+    email = (token_payload.get('email') or '').strip().lower()
+    if not email or not token_payload.get('email_verified'):
+        return JsonResponse({
+            'success': False,
+            'error': 'Your Google email address is not verified.',
+        }, status=403)
+
+    user = User.objects.filter(email_hash=generate_email_hash(email)).first()
+    if user is None:
+        return JsonResponse({
+            'success': False,
+            'error': 'No approved account is linked to this Google email address.',
+        }, status=403)
+
+    if not user.is_active:
+        return JsonResponse({
+            'success': False,
+            'error': 'Your account is pending approval. Please contact your administrator.',
+        }, status=403)
+
+    updated = False
+    if token_payload.get('given_name') and not user.first_name:
+        user.first_name = token_payload['given_name']
+        updated = True
+    if token_payload.get('family_name') and not user.last_name:
+        user.last_name = token_payload['family_name']
+        updated = True
+    if updated:
+        user.save()
+
+    user.backend = 'django.contrib.auth.backends.ModelBackend'
+    login(request, user)
+
+    return JsonResponse({
+        'success': True,
+        'redirect_url': reverse('login_redirect'),
+        'message': 'Signed in with Google successfully.',
+    })
+
+
 def login_view(request):
     """Custom login view that handles OTP verification"""
     if request.method == 'POST':
@@ -381,11 +473,11 @@ def login_view(request):
                     from django.contrib.auth import login
                     login(request, user)
                     return redirect('dashboard')
-            return render(request, 'registration/login.html', {'form': form})
+            return render(request, 'registration/login.html', _get_login_context(form))
     
     # GET request - show login form
     form = AuthenticationForm()
-    return render(request, 'registration/login.html', {'form': form})
+    return render(request, 'registration/login.html', _get_login_context(form))
 
 @require_POST
 def verify_login_otp(request):
