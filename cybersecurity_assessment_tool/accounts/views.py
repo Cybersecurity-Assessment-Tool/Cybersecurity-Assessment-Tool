@@ -127,7 +127,6 @@ import traceback
 from api.utils.email_tasks import queue_email
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.conf import settings
 from api.models import User, Invitation, generate_email_hash 
 
 # Takes care of public registration for Org Admins and company databases
