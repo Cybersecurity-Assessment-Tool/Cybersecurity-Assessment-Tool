@@ -460,10 +460,8 @@ def run_tcp_port_scan(target_ip: str) -> dict:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(3)
         try:
-            errno = sock.connect_ex((target_ip, port))
-            if errno != 0:
-                logger.info(f"[PortScan] Port {port} closed or filtered (errno={errno})")
-                continue  # Port is closed/filtered — skip to next port
+            sock.connect((target_ip, port))
+            # If we get here, the connection succeeded — port is open
             scripts = _grab_banner(sock, port)
             result = {
                 'severity': 'INFO',
@@ -493,30 +491,13 @@ def run_tcp_port_scan(target_ip: str) -> dict:
                     'timestamp': timezone.now().isoformat(),
                 })
         except socket.timeout:
-            # connect_ex raises socket.timeout when settimeout is used and the
-            # connection doesn't complete in time — treat as open|filtered
-            logger.info(f"[PortScan] Port {port} timed out")
-            findings.append({
-                'severity': 'INFO',
-                'category': 'port',
-                'description': "Port timeout: " + str(port) + "/tcp timeout  " + TCP_PORT_SERVICES.get(port, 'unknown'),
-                'information': "",
-                'portid': str(port), 'protocol': 'tcp',
-                'service': TCP_PORT_SERVICES.get(port, 'unknown'),
-                'scripts': [],
-                'timestamp': timezone.now().isoformat(),
-            })
-        except Exception:
-            findings.append({
-                'severity': 'INFO',
-                'category': 'port',
-                'description': "Port Error: " + str(port) + "/tcp error  " + TCP_PORT_SERVICES.get(port, 'unknown'),
-                'information': "",
-                'portid': str(port), 'protocol': 'tcp',
-                'service': TCP_PORT_SERVICES.get(port, 'unknown'),
-                'scripts': "", 
-                'timestamp': timezone.now().isoformat(),
-            })
+            # No response within timeout — port is filtered (firewall dropping packets)
+            logger.info(f"[PortScan] Port {port} timed out — filtered")
+        except (ConnectionRefusedError, OSError) as e:
+            # Connection refused (RST) or network unreachable — port is closed
+            logger.info(f"[PortScan] Port {port} closed ({e})")
+        except Exception as e:
+            logger.warning(f"[PortScan] Port {port} unexpected error: {e}")
         finally:
             sock.close()
         logger.info(f"[PortScan] Finished TCP port {port}")
