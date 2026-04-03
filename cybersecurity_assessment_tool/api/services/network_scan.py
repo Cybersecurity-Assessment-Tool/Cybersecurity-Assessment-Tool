@@ -493,9 +493,26 @@ def run_tcp_port_scan(target_ip: str) -> dict:
         except socket.timeout:
             # No response within timeout — port is filtered (firewall dropping packets)
             logger.info(f"[PortScan] Port {port} timed out — filtered")
-        except (ConnectionRefusedError, OSError) as e:
-            # Connection refused (RST) or network unreachable — port is closed
-            logger.info(f"[PortScan] Port {port} closed ({e})")
+        except ConnectionRefusedError:
+            # RST received — firewall allows traffic but no service is listening.
+            # From a security perspective this is an open port — it's reachable from the internet.
+            logger.info(f"[PortScan] Port {port} open (no service listening)")
+            result = {
+                'severity': 'INFO',
+                'category': 'port',
+                'description': "Open port: " + str(port) + "/tcp open  " + TCP_PORT_SERVICES.get(port, 'unknown'),
+                'information': "Port is open through the firewall but no service is currently listening.",
+                'portid': str(port), 'protocol': 'tcp',
+                'service': TCP_PORT_SERVICES.get(port, 'unknown'),
+                'scripts': [],
+                'timestamp': timezone.now().isoformat(),
+            }
+            if port in TCP_PORT_FINDINGS:
+                result['severity'], result['information'] = TCP_PORT_FINDINGS[port]
+            findings.append(result)
+        except OSError as e:
+            # Network unreachable or similar OS-level error
+            logger.info(f"[PortScan] Port {port} OS error ({e})")
         except Exception as e:
             logger.warning(f"[PortScan] Port {port} unexpected error: {e}")
         finally:
