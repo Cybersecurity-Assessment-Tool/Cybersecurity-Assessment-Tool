@@ -460,6 +460,7 @@ def run_tcp_port_scan(target_ip: str) -> dict:
         sock.settimeout(2)
         try:
             if sock.connect_ex((target_ip, port)) != 0:
+                logger.info(f"[PortScan] Port {port} closed or filtered")
                 continue  # Port is closed/filtered — skip to next port
             scripts = _grab_banner(sock, port)
             result = {
@@ -489,6 +490,20 @@ def run_tcp_port_scan(target_ip: str) -> dict:
                     'scripts': [],
                     'timestamp': timezone.now().isoformat(),
                 })
+        except socket.timeout:
+            # connect_ex raises socket.timeout when settimeout is used and the
+            # connection doesn't complete in time — treat as open|filtered
+            logger.info(f"[PortScan] Port {port} timed out")
+            findings.append({
+                'severity': 'INFO',
+                'category': 'port',
+                'description': "Port timeout: " + str(port) + "/tcp timeout  " + TCP_PORT_SERVICES.get(port, 'unknown'),
+                'information': "",
+                'portid': str(port), 'protocol': 'tcp',
+                'service': TCP_PORT_SERVICES.get(port, 'unknown'),
+                'scripts': [],
+                'timestamp': timezone.now().isoformat(),
+            })
         except Exception:
             findings.append({
                 'severity': 'INFO',
