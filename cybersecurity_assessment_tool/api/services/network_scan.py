@@ -451,16 +451,18 @@ def _attempt_zone_transfer(target, ns_records, findings):
 
 def run_tcp_port_scan(target_ip: str) -> dict:
     """Port scan against the organization's WAN IP."""
-    logger.info(f"[PortScan] Starting on {target_ip}")
+    target_ip = target_ip.strip()
+    logger.info(f"[PortScan] Starting on '{target_ip}' (len={len(target_ip)})")
     findings = []
 
     for port in TCP_PORT_SERVICES:
         logger.info(f"[PortScan] Scanning TCP port {port} ({TCP_PORT_SERVICES[port]})")
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(2)
+        sock.settimeout(3)
         try:
-            if sock.connect_ex((target_ip, port)) != 0:
-                logger.info(f"[PortScan] Port {port} closed or filtered")
+            errno = sock.connect_ex((target_ip, port))
+            if errno != 0:
+                logger.info(f"[PortScan] Port {port} closed or filtered (errno={errno})")
                 continue  # Port is closed/filtered — skip to next port
             scripts = _grab_banner(sock, port)
             result = {
