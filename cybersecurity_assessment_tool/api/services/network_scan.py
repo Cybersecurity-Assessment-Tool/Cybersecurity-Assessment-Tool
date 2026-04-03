@@ -455,6 +455,7 @@ def run_tcp_port_scan(target_ip: str) -> dict:
     findings = []
 
     for port in TCP_PORT_SERVICES:
+        logger.info(f"[PortScan] Scanning TCP port {port} ({TCP_PORT_SERVICES[port]})")
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(2)
         try:
@@ -501,6 +502,7 @@ def run_tcp_port_scan(target_ip: str) -> dict:
             })
         finally:
             sock.close()
+        logger.info(f"[PortScan] Finished TCP port {port}")
 
     open_count = sum(1 for f in findings if "Open port" in f['description']) # Get number of open ports based on descriptions
     findings.sort(key=lambda f: SEVERITY_ORDER.get(f['severity'], 99))
@@ -522,6 +524,7 @@ def run_udp_port_scan(target_ip: str) -> dict:
     findings = []
 
     for port in UDP_PORT_SERVICES:
+        logger.info(f"[UDPPortScan] Scanning UDP port {port} ({UDP_PORT_SERVICES[port]})")
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.settimeout(2)
         scripts = []
@@ -575,6 +578,7 @@ def run_udp_port_scan(target_ip: str) -> dict:
             })
         finally:
             sock.close()
+        logger.info(f"[UDPPortScan] Finished UDP port {port}")
 
     open_count = sum(1 for f in findings if "Open port" in f['description'])
     findings.sort(key=lambda f: SEVERITY_ORDER.get(f['severity'], 99))
