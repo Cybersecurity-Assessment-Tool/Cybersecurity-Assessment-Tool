@@ -7,6 +7,7 @@ from .views_scan import (
     submit_scan_results,
     scan_status,
     list_scans,
+    start_server_scan,
 )
 
 router = DefaultRouter()
@@ -37,4 +38,5 @@ urlpatterns = [
     path('scan/status/<uuid:scan_id>/', scan_status, name='scan_status'),
     path('scan/list/', list_scans, name='scan_list'),
     path('scan/download/', views.download_scanner_exe, name='scan_download_exe'),
+    path('scan/start/', start_server_scan, name='scan_server_start'),
 ]
