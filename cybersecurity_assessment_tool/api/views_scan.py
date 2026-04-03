@@ -314,7 +314,7 @@ def start_server_scan(request):
 
     # Queue the background task
     task_id = async_task(
-        'api.services.server_scan.run_server_scan',
+        'api.services.network_scan.run_server_scan',
         str(scan.id),
     )
 
