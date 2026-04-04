@@ -745,10 +745,20 @@ def risks_list(request):
     user = request.user
     organization = user.organization
     
+    is_admin = False
+    can_resolve_risk = False
+    
     # Base queryset - filter out archived risks!
     if organization:
         risks = Risk.objects.filter(organization=organization, is_archived=False)
         has_organization = True
+        
+        # Determine if the user is the org admin (first user to join the org)
+        first_user = User.objects.filter(organization=organization).order_by('date_joined').first()
+        is_admin = (first_user == user)
+        
+        # Check if user has the specific django permission
+        can_resolve_risk = user.has_perm('api.can_resolve_risk') 
     else:
         risks = Risk.objects.none()
         has_organization = False
@@ -799,19 +809,6 @@ def risks_list(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
-    # For the severity breakdown chart
-    risks_json = '[]'
-    if base_risks.exists():
-        risks_data = list(base_risks.values('risk_id', 'severity', 'risk_name')[:100])
-        
-        # Convert UUID objects to strings
-        for item in risks_data:
-            if 'risk_id' in item and item['risk_id']:
-                item['risk_id'] = str(item['risk_id'])
-        
-        # Serialize to JSON
-        risks_json = json.dumps(risks_data)
-    
     context = {
         'page_obj': page_obj,
         'severity_counts': severity_counts,
@@ -822,8 +819,9 @@ def risks_list(request):
         'filtered_count': risks.count(),
         'has_organization': has_organization,
         'has_risks': base_risks.exists(),
-        # 'risks_json': risks_json,
-        # 'has_data': risks.exists(),
+        # Add our new permission variables here:
+        'is_admin': is_admin,
+        'can_resolve_risk': can_resolve_risk,
     }
     return render(request, 'api/risks.html', context)
 
@@ -861,13 +859,23 @@ def risk_detail(request, risk_id):
 @require_POST
 def resolve_risk(request, risk_id):
     """AJAX endpoint to mark a risk as resolved (archived)"""
+    user = request.user
+    
     try:
         risk = Risk.objects.get(risk_id=risk_id)
+        user_org = user.organization
         
-        # Verify permissions
-        user_org = request.user.organization
+        # 1. Verify the user belongs to the same organization as the risk
         if not user_org or risk.organization != user_org:
             return JsonResponse({"error": "Unauthorized"}, status=403)
+            
+        # 2. Verify the user has permission to resolve (Admin OR has permission flag)
+        first_user = User.objects.filter(organization=user_org).order_by('date_joined').first()
+        is_admin = (first_user == user)
+        can_resolve = user.has_perm('api.can_resolve_risk')
+        
+        if not (is_admin or can_resolve):
+            return JsonResponse({"error": "You do not have permission to resolve risks."}, status=403)
         
         # Archive the risk
         risk.is_archived = True
