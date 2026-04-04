@@ -39,6 +39,11 @@ urlpatterns = [
     path('scan/', views.scan, name='scan'),  # /scan/
 
     path('tasks/<str:task_id>/', views.check_task_status, name='check_task_status'),
+    
+    # Chatbot & Async Task URLs
+    path('reports/<uuid:report_id>/chat/', views.chat_about_report, name='chat_about_report'),
+    path('risks/<uuid:risk_id>/chat/', views.chat_about_risk, name='chat_about_risk'),
+    path('task-status/<str:task_id>/', views.check_task_status, name='check_task_status'),
 
     ## DEBUG
     path('test-email/', views.test_sendgrid, name='test_email'),
