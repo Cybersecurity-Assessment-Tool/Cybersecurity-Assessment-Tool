@@ -673,6 +673,55 @@ def check_registration_status(request):
     # TODO: Check organization status in database
     return JsonResponse({'status': 'pending'})
     
+    
+from django.contrib.auth.views import (
+    PasswordChangeView,
+    PasswordResetView,
+    PasswordResetDoneView,
+    PasswordResetConfirmView,
+    PasswordResetCompleteView
+)
+
+from django.views.generic import TemplateView
+
+# ==========================================
+# PASSWORD CHANGE VIEWS (Logged In Users)
+# ==========================================
+
+class CustomPasswordChangeView(PasswordChangeView):
+    """Handles the form where logged-in users enter old & new passwords"""
+    template_name = 'registration/password_change_form.html' 
+    success_url = reverse_lazy('password_change_done') 
+    # NOTE: If you are using an app namespace in your urls.py (e.g., app_name = 'accounts'), 
+    # change the success_url to reverse_lazy('accounts:password_change_done')
+
+class CustomPasswordChangeDoneView(TemplateView):
+    """Displays the success message after changing a password"""
+    template_name = 'registration/password_change_done.html'
+
+
+# ==========================================
+# PASSWORD RESET VIEWS (Forgot Password)
+# ==========================================
+
+class CustomPasswordResetView(PasswordResetView):
+    """Handles the form asking for an email to send the reset link"""
+    template_name = 'registration/password_reset_form.html'
+    success_url = reverse_lazy('accounts:password_reset_done')
+    
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    """Displays the message telling the user to check their email"""
+    template_name = 'registration/password_reset_done.html'
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    """Handles the form from the email link where users type their new password"""
+    template_name = 'registration/password_reset_confirm.html'
+    success_url = reverse_lazy('accounts:password_reset_complete')
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    """Displays the final success message after resetting a forgotten password"""
+    template_name = 'registration/password_reset_complete.html'
+    
 # from django.shortcuts import render, redirect, get_object_or_404
 # from django.contrib.auth.decorators import login_required
 # from django.contrib import messages
