@@ -745,9 +745,9 @@ def risks_list(request):
     user = request.user
     organization = user.organization
     
-    # Base queryset - if no organization, show empty results
+    # Base queryset - filter out archived risks!
     if organization:
-        risks = Risk.objects.filter(organization=organization)
+        risks = Risk.objects.filter(organization=organization, is_archived=False)
         has_organization = True
     else:
         risks = Risk.objects.none()
@@ -770,8 +770,8 @@ def risks_list(request):
 
         risks = risks.filter(risk_id__in=matching_risk_ids)
     
-    # Severity counts for filter badges - Calculate from BASE queryset (unfiltered)
-    base_risks = Risk.objects.filter(organization=organization) if organization else Risk.objects.none()
+    # Severity counts for filter badges - Calculate from BASE queryset (unfiltered, but unarchived)
+    base_risks = Risk.objects.filter(organization=organization, is_archived=False) if organization else Risk.objects.none()
     severity_counts = {
         'Critical': base_risks.filter(severity='Critical').count(),
         'High': base_risks.filter(severity='High').count(),
@@ -856,6 +856,29 @@ def risk_detail(request, risk_id):
         'affected_elements_list': affected_elements_list,
     }
     return render(request, 'api/risk_detail.html', context)
+
+@login_required
+@require_POST
+def resolve_risk(request, risk_id):
+    """AJAX endpoint to mark a risk as resolved (archived)"""
+    try:
+        risk = Risk.objects.get(risk_id=risk_id)
+        
+        # Verify permissions
+        user_org = request.user.organization
+        if not user_org or risk.organization != user_org:
+            return JsonResponse({"error": "Unauthorized"}, status=403)
+        
+        # Archive the risk
+        risk.is_archived = True
+        risk.save()
+        
+        return JsonResponse({"success": True})
+        
+    except Risk.DoesNotExist:
+        return JsonResponse({"error": "Risk not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 @login_required
 def report_list(request):

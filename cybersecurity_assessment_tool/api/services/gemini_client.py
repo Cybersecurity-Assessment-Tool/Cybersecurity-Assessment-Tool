@@ -52,10 +52,11 @@ def get_questionnaire_dict(org: Organization) -> dict:
 
 def build_current_risks_dict(organization_id: int) -> dict:
     """
-    Fetches existing risks for an organization and formats them 
+    Fetches existing active risks for an organization and formats them 
     into a dictionary that the AI service expects.
     """
-    existing_risks = Risk.objects.filter(organization_id=organization_id)
+    existing_risks = Risk.objects.filter(organization_id=organization_id, is_archived=False)
+    
     current_risks = {
         "all_vulnerabilities": [
             {
