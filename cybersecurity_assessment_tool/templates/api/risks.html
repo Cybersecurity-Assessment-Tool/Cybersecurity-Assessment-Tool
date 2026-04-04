@@ -629,7 +629,9 @@
                             <th>Overview</th>
                             <th>Report Date</th>
                             <th>Actions</th>
+                            {% if is_admin or perms.api.can_resolve_risk %}
                             <th>Resolve</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -647,22 +649,24 @@
                             </td>
                             <td class="risk-overview">{{ risk.overview|truncatechars:100 }}</td>
                             <td class="risk-date">{{ risk.report.completed|date:"Y-m-d" }}</td>
-                            <!-- TODO: Fix this so only certain permissions can resolve risks -->
                             <td class="risk-actions">
                                 <a href="{% url 'risk_detail' risk.risk_id %}" class="action-link">View</a>
                                 {% if risk.report and risk.report.id %}
                                     <a href="{% url 'report_detail' risk.report.report_id %}" class="action-link">Report</a>
                                 {% endif %}
                             </td>
+                            {% if is_admin or perms.api.can_resolve_risk %}
                             <td class="risk-actions">
-                                <a href="{% url 'risk_detail' risk.risk_id %}" class="action-link">View</a>
-                                {% if risk.report and risk.report.id %}
-                                    <a href="{% url 'report_detail' risk.report.report_id %}" class="action-link">Report</a>
+                                {% if is_admin or can_resolve_risk %}
+                                    <button class="action-link resolve-btn" 
+                                            data-risk-id="{{ risk.risk_id }}" 
+                                            data-url="{% url 'resolve_risk' risk.risk_id %}" 
+                                            style="border: none; background: none; cursor: pointer; padding: 0; color: #166534;">
+                                        Resolve ✓
+                                    </button>
                                 {% endif %}
-                                <button class="action-link resolve-btn" data-risk-id="{{ risk.risk_id }}" style="border: none; background: none; cursor: pointer; padding: 0; color: #166534;">
-                                    Resolve ✓
-                                </button>
                             </td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -720,8 +724,8 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // --- Resolution Logic ---
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    // 1. Grab the CSRF token directly from Django's template engine
+    const csrfToken = "{{ csrf_token }}";
     const resolveButtons = document.querySelectorAll('.resolve-btn');
 
     resolveButtons.forEach(btn => {
@@ -732,8 +736,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            const riskId = this.getAttribute('data-risk-id');
             const row = this.closest('tr');
+            const resolveUrl = this.getAttribute('data-url'); // 2. Get the exact URL
             const originalText = this.innerHTML;
             
             // Show loading state
@@ -741,7 +745,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.disabled = true;
             this.style.opacity = '0.5';
 
-            fetch(`/api/risks/${riskId}/resolve/`, { // Ensure this path matches your urls.py exactly!
+            fetch(resolveUrl, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrfToken,
@@ -749,9 +753,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Accept': 'application/json',
                 }
             })
-            .then(response => response.json())
+            .then(async response => {
+                // Parse the response regardless of success/fail to get the error message
+                const data = await response.json().catch(() => null);
+                
+                if (!response.ok) {
+                    // Throw an error with the server's message, or a fallback
+                    throw new Error((data && data.error) ? data.error : `HTTP error! status: ${response.status}`);
+                }
+                return data;
+            })
             .then(data => {
-                if (data.success) {
+                if (data && data.success) {
                     // Fade out animation
                     row.style.transition = 'all 0.4s ease';
                     row.style.opacity = '0';
@@ -759,19 +772,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     setTimeout(() => {
                         row.remove();
-                        // Optional: You could update the summary counts dynamically here, 
-                        // but a simple removal feels smooth and keeps them on their workflow.
                     }, 400);
                 } else {
-                    alert('Error: ' + (data.error || 'Failed to resolve risk.'));
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                    this.style.opacity = '1';
+                    throw new Error((data && data.error) ? data.error : 'Unknown error occurred');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('An unexpected error occurred. Please try again.');
+                console.error('Resolution Error:', error);
+                alert('Failed to resolve risk: ' + error.message);
+                
+                // Reset the button so they can try again
                 this.innerHTML = originalText;
                 this.disabled = false;
                 this.style.opacity = '1';
