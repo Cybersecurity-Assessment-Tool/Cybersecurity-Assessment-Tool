@@ -259,7 +259,8 @@ def _check_spf(txt_records, findings):
     if not spf_records:
         findings.append({
             'severity': 'HIGH', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'spf',
             'description': 'No SPF record — domain vulnerable to email spoofing'
         })
         return {
@@ -271,7 +272,8 @@ def _check_spf(txt_records, findings):
     if len(spf_records) > 1:
         findings.append({
             'severity': 'HIGH', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'spf',
         	'description': 'Multiple SPF records — invalid per RFC 7208'
         })
         return {
@@ -286,14 +288,16 @@ def _check_spf(txt_records, findings):
         info['enforcement'] = '+all (none)'
         findings.append({
             'severity': 'CRITICAL', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'spf',
             'description': 'SPF uses "+all" — any server can send mail as this domain'
         })
     elif '~all' in spf:
         info['enforcement'] = '~all (softfail)'
         findings.append({
             'severity': 'LOW', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'spf',
             'description': 'SPF uses "~all" (softfail) — consider upgrading to "-all"'
         })
         info['issue'] = 'SPF uses "~all" (softfail) — consider upgrading to "-all"'
@@ -303,7 +307,8 @@ def _check_spf(txt_records, findings):
         info['enforcement'] = '?all (neutral)'
         findings.append({
             'severity': 'MEDIUM', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'spf',
             'description': 'SPF uses "?all" (neutral) — provides no protection'
         })
     return info
@@ -315,7 +320,8 @@ def _check_dmarc(target, resolver, findings):
     if not raw:
         findings.append({
             'severity': 'HIGH', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'dmarc',
             'description': f'No DMARC record at _dmarc.{target}'
         })
         return {'found': False, 'record': '', 'parsed': {}, 'policy': 'none'}
@@ -331,19 +337,22 @@ def _check_dmarc(target, resolver, findings):
     if policy == 'none':
         findings.append({
             'severity': 'MEDIUM', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'dmarc',
             'description': 'DMARC policy is "none" — unauthenticated email is delivered without action'
 		})
     elif policy == 'quarantine':
         findings.append({
             'severity': 'LOW', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'dmarc',
         	'description': 'DMARC policy is "quarantine" — consider upgrading to "reject"'
         })
     if not tags.get('rua'):
         findings.append({
             'severity': 'LOW', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'dmarc',
             'description': 'DMARC has no "rua" reporting address — failures go unmonitored'
 		})
     return info
@@ -358,7 +367,8 @@ def _check_dkim(target, resolver, findings):
     if not found:
         findings.append({
             'severity': 'MEDIUM', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'dkim',
             'description': 'No DKIM selectors found — emails cannot be cryptographically verified'
 		})
     return {'selectors_probed': DKIM_SELECTORS, 'found': found}
@@ -374,7 +384,8 @@ def _check_mta_sts(target, resolver, findings):
         result['found'] = False
         findings.append({
             'severity': 'LOW', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'mta-sts',
             'description': 'No MTA-STS DNS record — inbound email TLS not enforced'
         })
     try:
@@ -387,14 +398,16 @@ def _check_mta_sts(target, resolver, findings):
                 result['mode'] = 'testing'
                 findings.append({
                     'severity': 'LOW', 
-                    'category': 'email',
+                    'scan_type': 'email',
+                    'category': 'mta-sts',
                     'description': 'MTA-STS policy is in "testing" mode — not yet enforcing'
 				})
             elif 'mode: none' in r.text:
                 result['mode'] = 'none'
                 findings.append({
                     'severity': 'MEDIUM', 
-                    'category': 'email',
+                    'scan_type': 'email',
+                    'category': 'mta-sts',
                     'description': 'MTA-STS policy mode is "none" — provides no protection'})
         else:
             result['policy_fetch_status'] = r.status_code
@@ -412,7 +425,8 @@ def _check_dnssec(target, resolver, findings):
     else:
         findings.append({
             'severity': 'MEDIUM', 
-            'category': 'dns',
+            'scan_type': 'email/infra',
+            'category': 'dnssec',
             'description': 'No DNSKEY record — DNSSEC does not appear to be enabled'
         })
     ds = _resolve_safe(resolver, target, 'DS')
@@ -437,7 +451,8 @@ def _attempt_zone_transfer(target, ns_records, findings):
                 })
                 findings.append({
                     'severity': 'CRITICAL', 
-                    'category': 'dns',
+                    'scan_type': 'email',
+                    'category': 'zone transfer',
                     'description': f'Zone transfer (AXFR) succeeded on {ns_clean} — entire DNS zone exposed'
                 })
             except Exception:
@@ -463,32 +478,32 @@ def run_tcp_port_scan(target_ip: str) -> dict:
             sock.connect((target_ip, port))
             # If we get here, the connection succeeded — port is open
             scripts = _grab_banner(sock, port)
-            result = {
+            finding = {
                 'severity': 'INFO',
-                'category': 'port',
+                'scan_type': 'tcp',
                 'description': "Open port: " + str(port) + "/tcp open  " + TCP_PORT_SERVICES.get(port, 'unknown'),
                 'information': "",
-                'portid': str(port), 'protocol': 'tcp',
+                'portid': str(port), 
+                'protocol': 'tcp',
                 'service': TCP_PORT_SERVICES.get(port, 'unknown'),
                 'scripts': scripts, 
-                'timestamp': timezone.now().isoformat(),
             }
             # If we have a hard coded finding for this port, use it instead of the generic INFO/Open port description
             if port in TCP_PORT_FINDINGS:
-                result['severity'], result['information'] = TCP_PORT_FINDINGS[port]
-            findings.append(result)
+                finding['severity'], finding['information'] = TCP_PORT_FINDINGS[port]
+            findings.append(finding)
             # Emit an additional critical CVE advisory if warranted (e.g. port 80/443) (Ian's Group 10)
             if port in TCP_PORT_CVE_WARNINGS:
                 cve_severity, cve_info = TCP_PORT_CVE_WARNINGS[port]
                 findings.append({
                     'severity': cve_severity,
-					'category': 'port',
+					'scan_type': 'tcp',
                     'description': f"CVE advisory for port {port}/{TCP_PORT_SERVICES.get(port, 'unknown')}",
                     'information': cve_info,
-                    'portid': str(port), 'protocol': 'tcp',
+                    'portid': str(port), 
+                    'protocol': 'tcp',
                     'service': TCP_PORT_SERVICES.get(port, 'unknown'),
                     'scripts': [],
-                    'timestamp': timezone.now().isoformat(),
                 })
         except socket.timeout:
             # No response within timeout — port is filtered (firewall dropping packets)
@@ -497,19 +512,19 @@ def run_tcp_port_scan(target_ip: str) -> dict:
             # RST received — firewall allows traffic but no service is listening.
             # From a security perspective this is an open port — it's reachable from the internet.
             logger.info(f"[PortScan] Port {port} open (no service listening)")
-            result = {
+            finding = {
                 'severity': 'INFO',
-                'category': 'port',
+                'scan_type': 'tcp',
                 'description': "Open port: " + str(port) + "/tcp open  " + TCP_PORT_SERVICES.get(port, 'unknown'),
                 'information': "Port is open through the firewall but no service is currently listening.",
-                'portid': str(port), 'protocol': 'tcp',
+                'portid': str(port), 
+                'protocol': 'tcp',
                 'service': TCP_PORT_SERVICES.get(port, 'unknown'),
                 'scripts': [],
-                'timestamp': timezone.now().isoformat(),
             }
             if port in TCP_PORT_FINDINGS:
-                result['severity'], result['information'] = TCP_PORT_FINDINGS[port]
-            findings.append(result)
+                finding['severity'], finding['information'] = TCP_PORT_FINDINGS[port]
+            findings.append(finding)
         except OSError as e:
             # Network unreachable or similar OS-level error
             logger.info(f"[PortScan] Port {port} OS error ({e})")
@@ -551,45 +566,42 @@ def run_udp_port_scan(target_ip: str) -> dict:
                 scripts = [{'id': 'udp-response', 'output': data.decode('utf-8', errors='ignore')[:200]}]
             result = {
                 'severity': 'INFO',
-                'category': 'port',
+                'scan_type': 'udp',
                 'description': "Open port: " + str(port) + "/udp open  " + UDP_PORT_SERVICES.get(port, 'unknown'),
                 'information': "",
                 'portid': str(port), 'protocol': 'udp',
                 'service': UDP_PORT_SERVICES.get(port, 'unknown'),
                 'scripts': scripts,
-                'timestamp': timezone.now().isoformat(),
             }
             if port in UDP_PORT_FINDINGS:
-                result['severity'], result['information'] = UDP_PORT_FINDINGS[port]
-            findings.append(result)
+                finding['severity'], finding['information'] = UDP_PORT_FINDINGS[port]
+            findings.append(finding)
         except socket.timeout:
-            # Timeout = open|filtered — still worth reporting
-            result = {
+            # Timeout = open|filtered - LOGIC NEEDS UPDATED
+            finding = {
                 'severity': 'INFO',
-                'category': 'port',
+                'scan_type': 'udp',
                 'description': "Open|Filtered port: " + str(port) + "/udp open|filtered  " + UDP_PORT_SERVICES.get(port, 'unknown'),
                 'information': "",
                 'portid': str(port), 'protocol': 'udp',
                 'service': UDP_PORT_SERVICES.get(port, 'unknown'),
                 'scripts': [],
-                'timestamp': timezone.now().isoformat(),
             }
             if port in UDP_PORT_FINDINGS:
-                result['severity'], result['information'] = UDP_PORT_FINDINGS[port]
-            findings.append(result)
+                finding['severity'], finding['information'] = UDP_PORT_FINDINGS[port]
+            findings.append(finding)
         except ConnectionRefusedError:
             # ICMP port unreachable — definitively closed, skip
             pass
         except Exception:
             findings.append({
                 'severity': 'INFO',
-                'category': 'port',
+                'scan_type': 'udp',
                 'description': "Port Error: " + str(port) + "/udp error  " + UDP_PORT_SERVICES.get(port, 'unknown'),
                 'information': "",
                 'portid': str(port), 'protocol': 'udp',
                 'service': UDP_PORT_SERVICES.get(port, 'unknown'),
                 'scripts': [],
-                'timestamp': timezone.now().isoformat(),
             })
         finally:
             sock.close()
@@ -638,7 +650,8 @@ def run_email_scan(target_domain: str) -> dict:
     if not mx_records:
         findings.append({
             'severity': 'HIGH', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'mx',
             'description': 'No MX records — domain cannot receive email'
 		})
 
