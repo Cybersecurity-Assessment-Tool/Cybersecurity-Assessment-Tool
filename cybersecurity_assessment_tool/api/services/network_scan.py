@@ -564,7 +564,7 @@ def run_udp_port_scan(target_ip: str) -> dict:
             # Got a response — port is open
             if data:
                 scripts = [{'id': 'udp-response', 'output': data.decode('utf-8', errors='ignore')[:200]}]
-            result = {
+            finding = {
                 'severity': 'INFO',
                 'scan_type': 'udp',
                 'description': "Open port: " + str(port) + "/udp open  " + UDP_PORT_SERVICES.get(port, 'unknown'),
