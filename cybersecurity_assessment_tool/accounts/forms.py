@@ -133,6 +133,16 @@ class PublicRegistrationForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'company', 'password1', 'password2']
 
+    def __init__(self, *args, require_password=True, **kwargs):
+        self.require_password = require_password
+        super().__init__(*args, **kwargs)
+
+        if not self.require_password:
+            self.fields['password1'].required = False
+            self.fields['password2'].required = False
+            self.fields['password1'].help_text = 'Optional when you continue with Google.'
+            self.fields['password2'].help_text = 'Optional when you continue with Google.'
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if email:
@@ -143,6 +153,9 @@ class PublicRegistrationForm(UserCreationForm):
 
     def clean_password1(self):
         password = self.cleaned_data.get('password1')
+        if not password:
+            return None if not self.require_password else password
+
         try:
             validate_password(password)
         except ValidationError as e:
@@ -153,6 +166,11 @@ class PublicRegistrationForm(UserCreationForm):
         cleaned_data = super().clean()
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
+
+        if self.require_password and not password1:
+            self.add_error('password1', 'Password is required unless you continue with Google.')
+        if self.require_password and not password2:
+            self.add_error('password2', 'Please confirm your password unless you continue with Google.')
         if password1 and password2 and password1 != password2:
             self.add_error('password2', "The two password fields didn't match.")
         return cleaned_data
@@ -163,6 +181,9 @@ class PublicRegistrationForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
+
+        if not self.cleaned_data.get('password1'):
+            user.set_unusable_password()
 
         org_name = self.cleaned_data.get('company', '')
         if org_name:
@@ -183,18 +204,30 @@ class InvitationSignupForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         self.email = kwargs.pop('email', None)
+        self.require_password = kwargs.pop('require_password', True)
         super().__init__(*args, **kwargs)
+
+        if not self.require_password:
+            self.fields['password1'].required = False
+            self.fields['password2'].required = False
+            self.fields['password1'].help_text = 'Optional when you continue with Google.'
+            self.fields['password2'].help_text = 'Optional when you continue with Google.'
 
     def clean(self):
         cleaned_data = super().clean()
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
 
+        if self.require_password and not password1:
+            self.add_error('password1', 'Password is required unless you continue with Google.')
+        if self.require_password and not password2:
+            self.add_error('password2', 'Please confirm your password unless you continue with Google.')
+
         # If passwords don't match, force the error onto the 'password2' line
         # instead of letting it default to the top of the box.
         if password1 and password2 and password1 != password2:
             self.add_error('password2', "The two password fields didn't match.")
-            
+
         return cleaned_data
 
     def save(self, commit=True):
@@ -202,6 +235,8 @@ class InvitationSignupForm(UserCreationForm):
         user.email = self.email
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
+        if not self.cleaned_data.get('password1'):
+            user.set_unusable_password()
         if commit:
             user.save()
         return user

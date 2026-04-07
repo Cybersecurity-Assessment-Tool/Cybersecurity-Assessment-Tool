@@ -170,6 +170,94 @@
         border: 1px solid #a7f3d0;
         color: #065f46;
     }
+
+    .auth-divider {
+        position: relative;
+        text-align: center;
+        margin: 1.25rem 0;
+    }
+
+    .auth-divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background-color: #e5e7eb;
+    }
+
+    .divider-text {
+        position: relative;
+        display: inline-block;
+        padding: 0 0.75rem;
+        font-size: 0.75rem;
+        color: #6b7280;
+        background-color: white;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .social-login {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .social-button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        background-color: white;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+    }
+
+    .social-button:hover {
+        background-color: #f9fafb;
+        color: #374151;
+        text-decoration: none;
+        border-color: #cbd5e1;
+    }
+
+    .google-badge {
+        width: 1.25rem;
+        height: 1.25rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .google-badge svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .oauth-google-slot {
+        width: 100%;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .oauth-help {
+        color: #6b7280;
+        font-size: 0.75rem;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
 </style>
 {% endblock %}
 
@@ -204,6 +292,35 @@
                 <h1 class="auth-title">Join {{ organization }}</h1>
                 <p class="auth-subtitle">You've been invited to join as a team member</p>
             </div>
+
+            <div class="auth-divider">
+                <span class="divider-text">Optional Google prefill</span>
+            </div>
+
+            <div class="social-login">
+                {% if google_oauth_enabled %}
+                    <a id="googleInviteSignupButton" class="social-button" href="{% url 'google_oauth_start' %}?flow=invite&next={{ request.path|urlencode }}&expected_email={{ email|urlencode }}">
+                        <span class="google-badge" aria-hidden="true">
+                            <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                                <path fill="#4285F4" d="M17.64 9.2045c0-.638-.0573-1.2518-.1636-1.8409H9v3.4818h4.8436c-.2086 1.125-.8427 2.0782-1.7968 2.7164v2.2582h2.9086C16.6591 14.2518 17.64 11.4391 17.64 9.2045z"/>
+                                <path fill="#34A853" d="M9 18c2.43 0 4.4673-.8064 5.9564-2.1791l-2.9086-2.2582c-.8064.54-1.8377.8591-3.0477.8591-2.3441 0-4.3282-1.5845-5.0364-3.7118H.9573v2.3327A9 9 0 0 0 9 18z"/>
+                                <path fill="#FBBC05" d="M3.9636 10.71A5.4093 5.4093 0 0 1 3.6818 9c0-.5932.1023-1.1682.2818-1.71V4.9573H.9573A9 9 0 0 0 0 9c0 1.4523.3477 2.8273.9573 4.0427l3.0063-2.3327z"/>
+                                <path fill="#EA4335" d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.3455l2.5814-2.5814C13.4632.8918 11.426 0 9 0A9 9 0 0 0 .9573 4.9573L3.9636 7.29C4.6718 5.1641 6.6559 3.5795 9 3.5795z"/>
+                            </svg>
+                        </span>
+                        <span>Continue with Google</span>
+                    </a>
+                {% else %}
+                    <button class="social-button" disabled title="Set GOOGLE_OAUTH_CLIENT_ID to enable Google sign-up">
+                        <span class="google-badge" aria-hidden="true">G</span>
+                        <span>Continue with Google</span>
+                    </button>
+                {% endif %}
+            </div>
+            <p class="oauth-help">Google can confirm the invited email, pre-fill your name, and replace the password step. You still need to submit this form to finish creating the account.
+                {% if google_oauth_enabled %}<br><a href="{% url 'google_oauth_start' %}?flow=invite&next={{ request.path|urlencode }}&expected_email={{ email|urlencode }}">If the popup fails, continue with a full-page Google redirect instead.</a>{% endif %}
+            </p>
+            <div id="googleInviteStatus" class="alert" style="display: none;"></div>
 
             {% if form.non_field_errors %}
             <div class="auth-error">
@@ -246,17 +363,21 @@
                     {{ form.username.errors }}
                 </div>
 
-                <div class="form-group {% if form.password1.errors %}has-error{% endif %}">
-                    <label for="password1">Password</label>
-                    <input type="password" name="password1" id="password1" class="form-input" required>
-                    {{ form.password1.errors }}
+                <div id="invitePasswordFields" style="{% if google_passwordless_signup %}display: none;{% endif %}">
+                    <div class="form-group {% if form.password1.errors %}has-error{% endif %}">
+                        <label for="password1">Password</label>
+                        <input type="password" name="password1" id="password1" class="form-input" {% if not google_passwordless_signup %}required{% endif %}>
+                        {{ form.password1.errors }}
+                    </div>
+
+                    <div class="form-group {% if form.password2.errors %}has-error{% endif %}">
+                        <label for="password2">Confirm Password</label>
+                        <input type="password" name="password2" id="password2" class="form-input" {% if not google_passwordless_signup %}required{% endif %}>
+                        {{ form.password2.errors }}
+                    </div>
                 </div>
 
-                <div class="form-group {% if form.password2.errors %}has-error{% endif %}">
-                    <label for="password2">Confirm Password</label>
-                    <input type="password" name="password2" id="password2" class="form-input" required>
-                    {{ form.password2.errors }}
-                </div>
+                <p id="invitePasswordlessNotice" class="form-text" style="margin-top: -0.5rem; {% if not google_passwordless_signup %}display: none;{% endif %}">Google already confirmed the invited email, so creating a password is optional for this signup.</p>
 
                 <button type="submit" class="auth-button">Create Account</button>
             </form>
@@ -271,3 +392,21 @@
 {% endblock %}
 
 {% block footer %} {% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    function setInvitePasswordRequirement(isPasswordless) {
+        $('#invitePasswordFields').toggle(!isPasswordless);
+        $('#invitePasswordlessNotice').toggle(isPasswordless);
+        $('#password1, #password2').prop('required', !isPasswordless);
+        if (isPasswordless) {
+            $('#password1, #password2').val('');
+        }
+    }
+
+    window.setInvitePasswordRequirement = setInvitePasswordRequirement;
+    setInvitePasswordRequirement({{ google_passwordless_signup|yesno:'true,false' }});
+});
+</script>
+{% endblock %}

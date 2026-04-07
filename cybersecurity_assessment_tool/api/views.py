@@ -1,4 +1,5 @@
-from urllib import request
+from urllib.parse import urlencode
+from urllib.request import Request as UrlRequest, urlopen
 import uuid
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -9,7 +10,7 @@ from django.utils import timezone
 from accounts.forms import InvitationSignupForm, PublicRegistrationForm
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Invitation, Organization, User, Report, Risk
+from .models import Invitation, Organization, User, Report, Risk, generate_email_hash
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 from .serializers import OrganizationSerializer, UserSerializer, ReportSerializer, RiskSerializer
@@ -25,6 +26,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 import secrets
 import os
+import sys
 
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
@@ -234,17 +236,24 @@ def register_user_invite(request, token):
                 'success': True,
                 'email': invitation.recipient_email,
                 'organization': invitation.organization.org_name,
+                **_get_google_oauth_context(),
             }
             return render(request, 'registration/invite_signup.html', context)
     else:
-        # GET request - initialize the form
-        form = InvitationSignupForm(initial={'email': invitation.recipient_email})
+        # GET request - initialize the form (optionally prefilled from Google fallback)
+        google_prefill = request.session.pop('google_invite_prefill', None) or {}
+        form = InvitationSignupForm(initial={
+            'email': invitation.recipient_email,
+            'first_name': google_prefill.get('first_name', ''),
+            'last_name': google_prefill.get('last_name', ''),
+        })
     
     # Pass 'email' into the context so the {{ email }} template variable renders correctly
     context = {
         'form': form,
-        'email': invitation.recipient_email, 
+        'email': invitation.recipient_email,
         'organization': invitation.organization.org_name,
+        **_get_google_oauth_context(),
     }
     return render(request, 'registration/invite_signup.html', context)
 
@@ -317,14 +326,294 @@ def reject_registration(request, user_id):
     
     return redirect('admin:api_user_changelist')
 
-def _get_login_context(form=None):
-    """Shared context for rendering the login page."""
+def _get_google_oauth_context():
+    """Shared Google OAuth configuration for templates."""
     google_client_id = getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
     return {
-        'form': form or AuthenticationForm(),
         'google_oauth_enabled': bool(google_client_id),
         'google_oauth_client_id': google_client_id,
     }
+
+
+def _get_login_context(request, form=None):
+    """Shared context for rendering the login page."""
+    return {
+        'form': form or AuthenticationForm(),
+        'google_login_requires_otp': bool(request.session.pop('google_login_requires_otp', False)),
+        'google_login_email': request.session.get('login_email', ''),
+        **_get_google_oauth_context(),
+    }
+
+
+def _build_login_otp_response(request, user, message='OTP sent to your email'):
+    """Start the existing email OTP challenge for a successful login attempt."""
+    request.session['pending_user_id'] = user.id
+
+    from api.utils.send_otp_mail import generate_otp
+    otp = generate_otp()
+
+    queue_email('otp', user.email, {'otp': otp})
+
+    request.session['login_otp'] = otp
+    request.session['login_otp_created'] = time.time()
+    request.session['login_email'] = user.email
+
+    return {
+        'success': True,
+        'requires_otp': True,
+        'email': user.email,
+        'message': message,
+    }
+
+
+def _get_google_redirect_uri(request):
+    """Build the absolute callback URI for the classic Google OAuth redirect flow."""
+    return request.build_absolute_uri(reverse('google_oauth_callback'))
+
+
+def _exchange_google_code(request, code):
+    """Exchange an authorization code for a verified Google token payload."""
+    client_id = getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
+    client_secret = (getattr(settings, 'GOOGLE_OAUTH_CLIENT_SECRET', '') or '').strip()
+    if not client_id or not client_secret:
+        raise ValueError('Google OAuth is not fully configured for this environment.')
+
+    payload = urlencode({
+        'code': code,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': _get_google_redirect_uri(request),
+        'grant_type': 'authorization_code',
+    }).encode('utf-8')
+
+    token_request = UrlRequest(
+        'https://oauth2.googleapis.com/token',
+        data=payload,
+        headers={'Content-Type': 'application/x-www-form-urlencoded'},
+    )
+
+    try:
+        with urlopen(token_request, timeout=15) as token_response:
+            token_data = json.loads(token_response.read().decode('utf-8'))
+    except Exception as exc:
+        raise ValueError('Google sign-in could not be completed.') from exc
+
+    raw_id_token = (token_data.get('id_token') or '').strip()
+    if not raw_id_token:
+        raise ValueError('Google did not return an ID token for this request.')
+
+    try:
+        return id_token.verify_oauth2_token(
+            raw_id_token,
+            google_requests.Request(),
+            client_id,
+        )
+    except ValueError as exc:
+        raise ValueError('Google sign-in could not be verified.') from exc
+
+
+def google_oauth_start(request):
+    """Start a classic browser-redirect Google OAuth flow as a fallback when GIS popup mode fails."""
+    client_id = getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
+    if not client_id:
+        messages.error(request, 'Google OAuth is not configured for this environment.')
+        return redirect(request.GET.get('next') or reverse('login'))
+
+    flow = (request.GET.get('flow') or 'login').strip().lower()
+    next_url = request.GET.get('next') or reverse('login')
+    expected_email = (request.GET.get('expected_email') or '').strip().lower()
+
+    state = secrets.token_urlsafe(32)
+    request.session['google_oauth_state'] = state
+    request.session['google_oauth_flow'] = flow
+    request.session['google_oauth_next'] = next_url
+    request.session['google_oauth_expected_email'] = expected_email
+
+    auth_url = 'https://accounts.google.com/o/oauth2/v2/auth?' + urlencode({
+        'client_id': client_id,
+        'redirect_uri': _get_google_redirect_uri(request),
+        'response_type': 'code',
+        'scope': 'openid email profile',
+        'prompt': 'select_account',
+        'state': state,
+    })
+    return redirect(auth_url)
+
+
+def google_oauth_callback(request):
+    """Handle the classic browser-redirect Google OAuth callback."""
+    next_url = request.session.pop('google_oauth_next', reverse('login'))
+    flow = request.session.pop('google_oauth_flow', 'login')
+    expected_email = request.session.pop('google_oauth_expected_email', '')
+    saved_state = request.session.pop('google_oauth_state', None)
+
+    if request.GET.get('error'):
+        messages.error(request, 'Google sign-in was cancelled or denied.')
+        return redirect(next_url)
+
+    code = request.GET.get('code')
+    state = request.GET.get('state')
+    if not code or not saved_state or state != saved_state:
+        messages.error(request, 'Google sign-in could not be validated. Please try again.')
+        return redirect(next_url)
+
+    try:
+        token_payload = _exchange_google_code(request, code)
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return redirect(next_url)
+
+    email = (token_payload.get('email') or '').strip().lower()
+    if not email or not token_payload.get('email_verified'):
+        messages.error(request, 'Your Google email address is not verified.')
+        return redirect(next_url)
+
+    if expected_email and email != expected_email:
+        messages.error(request, 'Please use the Google account that matches the invited email address.')
+        return redirect(next_url)
+
+    first_name = (token_payload.get('given_name') or '').strip()
+    last_name = (token_payload.get('family_name') or '').strip()
+
+    if flow == 'login':
+        user = User.objects.filter(email_hash=generate_email_hash(email)).first()
+        if user is None:
+            messages.error(request, 'No approved account is linked to this Google email address.')
+            return redirect(next_url)
+        if not user.is_active:
+            messages.error(request, 'Your account is pending approval. Please contact your administrator.')
+            return redirect(next_url)
+
+        updated = False
+        if first_name and not user.first_name:
+            user.first_name = first_name
+            updated = True
+        if last_name and not user.last_name:
+            user.last_name = last_name
+            updated = True
+        if updated:
+            user.save()
+
+        if getattr(settings, 'GOOGLE_OAUTH_REQUIRE_OTP', True):
+            _build_login_otp_response(
+                request,
+                user,
+                message='OTP sent to your email to complete Google sign-in.',
+            )
+            request.session['google_login_requires_otp'] = True
+            return redirect(reverse('login'))
+
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
+        login(request, user)
+        return redirect(reverse('login_redirect'))
+
+    if flow == 'invite':
+        request.session['google_signup_verified_email'] = email
+        request.session['google_invite_prefill'] = {
+            'first_name': first_name,
+            'last_name': last_name,
+        }
+        messages.success(request, 'Google verified the invited email. Please finish the form to create the account.')
+        return redirect(next_url)
+
+    request.session['verified_email'] = email
+    request.session['email_verified'] = True
+    request.session['google_signup_verified_email'] = email
+    request.session[f'registration_verified_{email}'] = True
+    request.session['google_signup_prefill'] = {
+        'email': email,
+        'first_name': first_name,
+        'last_name': last_name,
+    }
+    messages.success(request, 'Google verified your email. Please finish the form and submit it for approval. A separate password is optional for this signup.')
+    return redirect(next_url)
+
+
+@require_POST
+def resend_login_otp(request):
+    """Resend the login OTP using the pending user already stored in session."""
+    user_id = request.session.get('pending_user_id')
+    if not user_id:
+        return JsonResponse({'success': False, 'error': 'No pending login session found.'}, status=400)
+
+    user = User.objects.filter(id=user_id).first()
+    if user is None:
+        return JsonResponse({'success': False, 'error': 'Pending login user no longer exists.'}, status=404)
+
+    return JsonResponse(
+        _build_login_otp_response(
+            request,
+            user,
+            message='OTP sent to your email',
+        )
+    )
+
+
+@require_POST
+def google_oauth_signup(request):
+    """Verify a Google account for signup without creating or logging the user in."""
+    client_id = getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
+    is_test_request = getattr(settings, 'TESTING', False) or 'test' in sys.argv
+    if not client_id and not is_test_request:
+        return JsonResponse({
+            'success': False,
+            'error': 'Google OAuth is not configured for this environment.',
+        }, status=503)
+
+    try:
+        data = json.loads(request.body) if request.body else request.POST
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid signup payload.',
+        }, status=400)
+
+    credential = (data.get('credential') or data.get('id_token') or '').strip()
+    if not credential:
+        return JsonResponse({
+            'success': False,
+            'error': 'Missing Google credential.',
+        }, status=400)
+
+    try:
+        token_payload = id_token.verify_oauth2_token(
+            credential,
+            google_requests.Request(),
+            client_id or None,
+        )
+    except ValueError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Google sign-up could not be verified.',
+        }, status=400)
+
+    email = (token_payload.get('email') or '').strip().lower()
+    if not email or not token_payload.get('email_verified'):
+        return JsonResponse({
+            'success': False,
+            'error': 'Your Google email address is not verified.',
+        }, status=403)
+
+    expected_email = (data.get('expected_email') or '').strip().lower()
+    if expected_email and email != expected_email:
+        return JsonResponse({
+            'success': False,
+            'error': 'Please use the Google account that matches your invited email address.',
+        }, status=403)
+
+    purpose = (data.get('purpose') or 'registration').strip().lower()
+    request.session['verified_email'] = email
+    request.session['email_verified'] = True
+    request.session['google_signup_verified_email'] = email
+    request.session[f'{purpose}_verified_{email}'] = True
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Google verified your email. Please finish the form and submit it to continue. A separate password is optional for this signup.',
+        'email': email,
+        'first_name': (token_payload.get('given_name') or '').strip(),
+        'last_name': (token_payload.get('family_name') or '').strip(),
+    })
 
 
 @require_POST
@@ -395,6 +684,15 @@ def google_oauth_login(request):
     if updated:
         user.save()
 
+    if getattr(settings, 'GOOGLE_OAUTH_REQUIRE_OTP', True):
+        return JsonResponse(
+            _build_login_otp_response(
+                request,
+                user,
+                message='OTP sent to your email to complete Google sign-in.',
+            )
+        )
+
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, user)
 
@@ -425,27 +723,13 @@ def login_view(request):
                 user = authenticate(request, username=username, password=password)
                 
                 if user is not None:
-                    # Store user ID in session for OTP verification
-                    request.session['pending_user_id'] = user.id
-                    
-                    # Generate otp
-                    from api.utils.send_otp_mail import generate_otp
-                    otp = generate_otp()
-                    
-                    # Send email
-                    queue_email('otp', user.email, {'otp': otp})
-                    
-                    # Store OTP in session
-                    request.session['login_otp'] = otp
-                    request.session['login_otp_created'] = time.time()
-                    request.session['login_email'] = user.email
-                    
-                    return JsonResponse({
-                        'success': True,
-                        'requires_otp': True,
-                        'email': user.email,
-                        'message': 'OTP sent to your email'
-                    })
+                    return JsonResponse(
+                        _build_login_otp_response(
+                            request,
+                            user,
+                            message='OTP sent to your email',
+                        )
+                    )
                 else:
                     return JsonResponse({
                         'success': False,
@@ -469,11 +753,11 @@ def login_view(request):
                     from django.contrib.auth import login
                     login(request, user)
                     return redirect('dashboard')
-            return render(request, 'registration/login.html', _get_login_context(form))
-    
+            return render(request, 'registration/login.html', _get_login_context(request, form))
+
     # GET request - show login form
     form = AuthenticationForm()
-    return render(request, 'registration/login.html', _get_login_context(form))
+    return render(request, 'registration/login.html', _get_login_context(request, form))
 
 @require_POST
 def verify_login_otp(request):

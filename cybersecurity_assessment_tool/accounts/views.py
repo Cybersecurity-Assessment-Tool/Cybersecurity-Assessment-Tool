@@ -2,8 +2,59 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView
 from .forms import CustomUserCreationForm, InvitationSignupForm, PublicRegistrationForm
 from django.contrib.auth import get_user_model
+from django.conf import settings as django_settings
 
 User = get_user_model()
+
+
+def _get_google_oauth_context():
+    """Shared Google OAuth configuration for signup templates."""
+    google_client_id = getattr(django_settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
+    return {
+        'google_oauth_enabled': bool(google_client_id),
+        'google_oauth_client_id': google_client_id,
+    }
+
+
+def _get_system_notification_user():
+    """Return a stable internal user for approval/invitation emails without colliding with real admin emails."""
+    username = "Frontend Integration Testing"
+    admin_inbox = getattr(django_settings, 'ADMIN_EMAIL_INBOX', '').strip() or None
+    base_email = 'frontend-integration-testing@local.invalid'
+
+    system_user = User.objects.filter(username=username).first()
+    if system_user:
+        updates = []
+        if admin_inbox and system_user.email_inbox != admin_inbox:
+            system_user.email_inbox = admin_inbox
+            updates.append('email_inbox')
+        if not system_user.email:
+            system_user.email = base_email
+            updates.append('email')
+        if updates:
+            system_user.save(update_fields=updates)
+        return system_user
+
+    candidate_email = base_email
+    suffix = 1
+    while User.objects.filter(email_hash=generate_email_hash(candidate_email)).exists():
+        candidate_email = f"frontend-integration-testing+{suffix}@local.invalid"
+        suffix += 1
+
+    system_user = User(
+        username=username,
+        email_inbox=admin_inbox,
+        email=candidate_email,
+        first_name="System",
+        last_name="Integration",
+        is_active=True,
+        is_staff=True,
+        is_superuser=False,
+    )
+    system_user.set_unusable_password()
+    system_user.save()
+    return system_user
+
 
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
@@ -132,17 +183,28 @@ from api.models import User, Invitation, generate_email_hash
 # Takes care of public registration for Org Admins and company databases
 def public_register(request):
     """Handle public registration for Org Admins"""
+    google_verified_email = (request.session.get('google_signup_verified_email') or '').strip().lower()
+
     if request.method == 'POST':
-        form = PublicRegistrationForm(request.POST)
+        post_data = request.POST.copy()
+        submitted_email = post_data.get('email')
+
+        if google_verified_email and not (submitted_email or '').strip():
+            post_data['email'] = google_verified_email
+            submitted_email = google_verified_email
+
+        normalized_submitted_email = (submitted_email or '').strip().lower()
+        google_passwordless_signup = bool(google_verified_email and normalized_submitted_email == google_verified_email)
+
+        form = PublicRegistrationForm(post_data, require_password=not google_passwordless_signup)
         
         # 1. Run standard form validation
         is_valid = form.is_valid()
         
         # --- STRICT BACKEND CHECKS ---
-        password = request.POST.get('password1')
-        password_confirm = request.POST.get('password2')
-        submitted_email = request.POST.get('email')
-        username = request.POST.get('username')
+        password = post_data.get('password1')
+        password_confirm = post_data.get('password2')
+        username = post_data.get('username')
         
         # 2. Enforce Uniqueness (Username & Email)
         if username and User.objects.filter(username__iexact=username).exists():
@@ -156,13 +218,13 @@ def public_register(request):
                 form.add_error('email', 'An account with this email address already exists.')
                 is_valid = False
 
-        # 3. Enforce Password Matching
-        if password != password_confirm:
+        # 3. Enforce Password Matching (unless Google already authenticated the signup)
+        if not google_passwordless_signup and password != password_confirm:
             form.add_error('password2', 'Passwords do not match.')
             is_valid = False
             
-        # 4. Enforce Django's built-in Password Strength/Length rules
-        if password:
+        # 4. Enforce Django's built-in Password Strength/Length rules unless Google substitutes the password step
+        if not google_passwordless_signup and password:
             try:
                 validate_password(password)
             except ValidationError as e:
@@ -171,12 +233,12 @@ def public_register(request):
                     form.add_error('password1', error)
                 is_valid = False
 
-        # 5. Enforce Strict OTP Verification
-        verified_email = request.session.get('verified_email')
-        email_verified = request.session.get(f'registration_verified_{submitted_email}')
+        # 5. Enforce Strict OTP / Google verification
+        verified_email = (request.session.get('verified_email') or '').strip().lower()
+        email_verified = request.session.get(f'registration_verified_{normalized_submitted_email}')
 
-        if not email_verified or submitted_email != verified_email:
-            form.add_error('email', 'You must verify your email address via the "Verify" button before registering.')
+        if not email_verified or normalized_submitted_email != verified_email:
+            form.add_error('email', 'You must verify your email address via the "Verify" button or Google before registering.')
             is_valid = False
         
         # --- EXECUTION BLOCK ---
@@ -184,11 +246,15 @@ def public_register(request):
         if is_valid:
             # Clear session verification so it can't be reused later
             request.session.pop('verified_email', None)
-            request.session.pop(f'registration_verified_{submitted_email}', None)
+            request.session.pop(f'registration_verified_{normalized_submitted_email}', None)
+            request.session.pop('google_signup_verified_email', None)
             
-            # Securely save the user and hash their validated password
+            # Securely save the user. If Google already authenticated them, keep the account passwordless.
             user = form.save(commit=False)
-            user.set_password(password)
+            if google_passwordless_signup and not password:
+                user.set_unusable_password()
+            else:
+                user.set_password(password)
             user.save()
             
             # Store data in session for the waiting page
@@ -197,21 +263,7 @@ def public_register(request):
             request.session['pending_submitted'] = timezone.now().isoformat()
 
             # Get system user for admin notifications
-            try:
-                system_user = User.objects.get(username="Frontend Integration Testing")
-            except User.DoesNotExist:
-                system_user = User.objects.create_user(
-                    username="Frontend Integration Testing",
-                    email_inbox=settings.ADMIN_EMAIL_INBOX,
-                    email=settings.DEFAULT_FROM_EMAIL,
-                    password=settings.EMAIL_HOST_PASSWORD,
-                    first_name="System",
-                    last_name="Integration",
-                    is_active=True,
-                    is_staff=True,
-                    is_superuser=False
-                )
-                print("Created system user")
+            system_user = _get_system_notification_user()
                 
             invitation = Invitation.objects.filter(
                 recipient_user=user,
@@ -249,9 +301,10 @@ def public_register(request):
             print(f"Generated reject URL: {reject_url}")
             
             # Send request email to admin
-            queue_email('request', system_user.email_inbox, {
+            admin_recipient = system_user.email_inbox or django_settings.ADMIN_EMAIL_INBOX
+            queue_email('request', admin_recipient, {
                 'requester_name': f"{user.first_name} {user.last_name}",
-                "requester_email": user.email_inbox,
+                "requester_email": user.email,
                 "company": user.organization.org_name if user.organization else "Unknown",
                 "role": "Org Admin",
                 "approve_url": approve_url,
@@ -268,10 +321,23 @@ def public_register(request):
         # to render the form with the errors displayed!
 
     else:
-        # GET request - display empty form
-        form = PublicRegistrationForm()
+        # GET request - display empty form (optionally prefilled from Google fallback)
+        google_prefill = (request.session.get('google_signup_prefill') or {}).copy()
+        if google_verified_email:
+            google_prefill.setdefault('email', google_verified_email)
+        form = PublicRegistrationForm(initial=google_prefill, require_password=not bool(google_verified_email))
+        google_passwordless_signup = bool(google_verified_email)
     
-    return render(request, 'registration/public_register.html', {'form': form})
+    return render(
+        request,
+        'registration/public_register.html',
+        {
+            'form': form,
+            'google_signup_verified_email': google_verified_email,
+            'google_passwordless_signup': google_passwordless_signup,
+            **_get_google_oauth_context(),
+        },
+    )
 
 # Waiting Page
 def waiting_page(request):
@@ -638,14 +704,25 @@ def accept_invitation(request, token):
             'error_message': 'This invitation has expired. Please request a new one from your organization administrator.'
         }, status=400)
 
+    google_verified_email = (request.session.get('google_signup_verified_email') or '').strip().lower()
+    google_passwordless_signup = bool(google_verified_email and google_verified_email == invitation.recipient_email.strip().lower())
+
     # 3. Handle the form submission if everything is valid
     if request.method == 'POST':
-        form = InvitationSignupForm(request.POST, email=invitation.recipient_email)
+        form = InvitationSignupForm(
+            request.POST,
+            email=invitation.recipient_email,
+            require_password=not google_passwordless_signup,
+        )
         if form.is_valid():
             user = form.save(commit=False)
             user.organization = invitation.organization
             user.is_active = True  # Automatically activate the user
+            if google_passwordless_signup and not form.cleaned_data.get('password1'):
+                user.set_unusable_password()
             user.save()
+
+            request.session.pop('google_signup_verified_email', None)
 
             # Update invitation
             invitation.recipient_user = user
@@ -656,15 +733,27 @@ def accept_invitation(request, token):
                 'success': True,
                 'email': invitation.recipient_email,
                 'organization': invitation.organization.org_name,
+                'google_passwordless_signup': google_passwordless_signup,
+                **_get_google_oauth_context(),
             }
             return render(request, 'registration/invite_signup.html', context)
     else:
-        form = InvitationSignupForm(email=invitation.recipient_email)
+        google_prefill = request.session.pop('google_invite_prefill', None) or {}
+        form = InvitationSignupForm(
+            email=invitation.recipient_email,
+            require_password=not google_passwordless_signup,
+            initial={
+                'first_name': google_prefill.get('first_name', ''),
+                'last_name': google_prefill.get('last_name', ''),
+            },
+        )
 
     context = {
         'form': form,
         'email': invitation.recipient_email,
         'organization': invitation.organization.org_name,
+        'google_passwordless_signup': google_passwordless_signup,
+        **_get_google_oauth_context(),
     }
     return render(request, 'registration/invite_signup.html', context)
 

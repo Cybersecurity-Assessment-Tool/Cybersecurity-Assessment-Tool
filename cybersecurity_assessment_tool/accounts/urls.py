@@ -2,6 +2,7 @@ from django.urls import path
 from api import views as api_views
 from . import views
 from rest_framework.routers import DefaultRouter
+import api.views as api_views
 
 app_name = 'accounts'
 
@@ -15,6 +16,8 @@ urlpatterns = [
     path('public-register/', views.public_register, name='public_register'),
     path('waiting/', views.waiting_page, name='waiting'),
     path('questionnaire/', views.questionnaire, name='questionnaire'),
+    path('google-oauth-login/', api_views.google_oauth_login, name='google_oauth_login'),
+    path('google-oauth-signup/', api_views.google_oauth_signup, name='google_oauth_signup'),
     
     # OTP endpoints
     path('send-otp/', views.send_otp, name='send_otp'),

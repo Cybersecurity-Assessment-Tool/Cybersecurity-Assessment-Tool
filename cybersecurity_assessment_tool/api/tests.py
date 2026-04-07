@@ -1,9 +1,10 @@
 from unittest.mock import patch
 
+from django.core import mail
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from api.models import Organization, User, Report, Risk
+from api.models import Invitation, Organization, User, Report, Risk
 
 class DatabaseEncryptionTests(TestCase):
     def setUp(self):
@@ -90,7 +91,79 @@ class DatabaseEncryptionTests(TestCase):
         self.assertEqual(fetched_risk.recommendations["easy_fix"], "Apply the latest security patch.")
 
 
-@override_settings(GOOGLE_OAUTH_CLIENT_ID='test-google-client-id.apps.googleusercontent.com')
+@override_settings(
+    GOOGLE_OAUTH_CLIENT_ID='test-google-client-id.apps.googleusercontent.com',
+    STORAGES={
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    },
+)
+class PublicRegistrationGoogleButtonTests(TestCase):
+    def test_google_oauth_start_redirects_to_google_consent_screen(self):
+        response = self.client.get(
+            reverse('google_oauth_start'),
+            {'flow': 'registration', 'next': reverse('accounts:public_register')},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('https://accounts.google.com/o/oauth2/v2/auth', response.url)
+        self.assertIn('client_id=test-google-client-id.apps.googleusercontent.com', response.url)
+        self.assertEqual(self.client.session['google_oauth_flow'], 'registration')
+
+    @override_settings(GOOGLE_OAUTH_CLIENT_SECRET='test-google-client-secret')
+    @patch('api.views.urlopen')
+    @patch('api.views.id_token.verify_oauth2_token')
+    def test_google_oauth_callback_marks_registration_verified(self, mock_verify, mock_urlopen):
+        mock_urlopen.return_value.__enter__.return_value.read.return_value = b'{"id_token": "fake-id-token"}'
+        mock_verify.return_value = {
+            'email': 'callback@example.com',
+            'email_verified': True,
+            'given_name': 'Callback',
+            'family_name': 'User',
+        }
+
+        session = self.client.session
+        session['google_oauth_state'] = 'state-123'
+        session['google_oauth_flow'] = 'registration'
+        session['google_oauth_next'] = reverse('accounts:public_register')
+        session.save()
+
+        response = self.client.get(
+            reverse('google_oauth_callback'),
+            {'code': 'sample-code', 'state': 'state-123'},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('accounts:public_register'))
+        self.assertEqual(self.client.session['verified_email'], 'callback@example.com')
+        self.assertTrue(self.client.session['registration_verified_callback@example.com'])
+
+    def test_public_register_shows_google_button_when_client_id_present(self):
+        response = self.client.get(reverse('accounts:public_register'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="googleSignupButton"', html=False)
+        self.assertNotContains(response, 'Set GOOGLE_OAUTH_CLIENT_ID to enable Google sign-up')
+
+
+@override_settings(
+    GOOGLE_OAUTH_CLIENT_ID='test-google-client-id.apps.googleusercontent.com',
+    GOOGLE_OAUTH_REQUIRE_OTP=True,
+)
+class GoogleOAuthLoginTests(TestCase):
+    def test_public_register_shows_google_button_when_client_id_present(self):
+        response = self.client.get(reverse('accounts:public_register'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="googleSignupButton"', html=False)
+        self.assertNotContains(response, 'Set GOOGLE_OAUTH_CLIENT_ID to enable Google sign-up')
+
+
+@override_settings(
+    GOOGLE_OAUTH_CLIENT_ID='test-google-client-id.apps.googleusercontent.com',
+    GOOGLE_OAUTH_REQUIRE_OTP=True,
+)
 class GoogleOAuthLoginTests(TestCase):
     def setUp(self):
         self.org = Organization.objects.create(org_name="Acme School")
@@ -103,7 +176,7 @@ class GoogleOAuthLoginTests(TestCase):
         )
 
     @patch('api.views.id_token.verify_oauth2_token')
-    def test_google_oauth_logs_in_existing_active_user(self, mock_verify):
+    def test_google_oauth_starts_otp_challenge_for_existing_active_user(self, mock_verify):
         mock_verify.return_value = {
             'email': self.user.email,
             'email_verified': True,
@@ -119,6 +192,32 @@ class GoogleOAuthLoginTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['success'], True)
+        self.assertTrue(response.json()['requires_otp'])
+        self.assertEqual(response.json()['email'], self.user.email)
+        self.assertNotIn('_auth_user_id', self.client.session)
+        self.assertEqual(self.client.session['pending_user_id'], self.user.id)
+        self.assertIn('login_otp', self.client.session)
+
+    @override_settings(
+        GOOGLE_OAUTH_CLIENT_ID='test-google-client-id.apps.googleusercontent.com',
+        GOOGLE_OAUTH_REQUIRE_OTP=False,
+    )
+    @patch('api.views.id_token.verify_oauth2_token')
+    def test_google_oauth_can_skip_otp_when_toggle_is_disabled(self, mock_verify):
+        mock_verify.return_value = {
+            'email': self.user.email,
+            'email_verified': True,
+        }
+
+        response = self.client.post(
+            reverse('google_oauth_login'),
+            data='{"credential": "fake-google-jwt"}',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['success'], True)
+        self.assertFalse(response.json().get('requires_otp', False))
         self.assertIn('_auth_user_id', self.client.session)
 
     @patch('api.views.id_token.verify_oauth2_token')
@@ -131,6 +230,206 @@ class GoogleOAuthLoginTests(TestCase):
         response = self.client.post(
             reverse('google_oauth_login'),
             data='{"credential": "fake-google-jwt"}',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json()['success'], False)
+
+
+@override_settings(
+    GOOGLE_OAUTH_CLIENT_ID='test-google-client-id.apps.googleusercontent.com',
+    STORAGES={
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    },
+)
+class GoogleOAuthSignupTests(TestCase):
+    @patch('api.views.id_token.verify_oauth2_token')
+    def test_google_oauth_signup_marks_registration_email_verified(self, mock_verify):
+        mock_verify.return_value = {
+            'email': 'newsignup@example.com',
+            'email_verified': True,
+            'given_name': 'New',
+            'family_name': 'User',
+        }
+
+        response = self.client.post(
+            reverse('google_oauth_signup'),
+            data='{"credential": "fake-google-jwt", "purpose": "registration"}',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['success'], True)
+        self.assertEqual(response.json()['email'], 'newsignup@example.com')
+        self.assertEqual(response.json()['first_name'], 'New')
+        self.assertEqual(self.client.session['verified_email'], 'newsignup@example.com')
+        self.assertTrue(self.client.session['registration_verified_newsignup@example.com'])
+
+    def test_public_registration_prefills_google_verified_email_on_get(self):
+        session = self.client.session
+        session['verified_email'] = 'prefill@example.com'
+        session['google_signup_verified_email'] = 'prefill@example.com'
+        session['registration_verified_prefill@example.com'] = True
+        session['google_signup_prefill'] = {
+            'email': 'prefill@example.com',
+            'first_name': 'Prefilled',
+            'last_name': 'User',
+        }
+        session.save()
+
+        response = self.client.get(reverse('accounts:public_register'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'value="prefill@example.com"', html=False)
+        self.assertContains(response, 'password and OTP step can be skipped', html=False)
+
+    @override_settings(
+        EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+        DEFAULT_FROM_EMAIL='noreply@example.com',
+        ADMIN_EMAIL_INBOX='admin@example.com',
+        ASYNC_EMAIL_ENABLED=False,
+    )
+    def test_public_registration_sends_admin_notification_email(self):
+        session = self.client.session
+        session['verified_email'] = 'notify-admin@example.com'
+        session['google_signup_verified_email'] = 'notify-admin@example.com'
+        session['registration_verified_notify-admin@example.com'] = True
+        session.save()
+
+        response = self.client.post(
+            reverse('accounts:public_register'),
+            data={
+                'first_name': 'Notify',
+                'last_name': 'Admin',
+                'username': 'notifyadmin',
+                'company': 'Notify Org',
+                'email': 'notify-admin@example.com',
+                'password1': '',
+                'password2': '',
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('accounts:waiting'))
+        self.assertGreaterEqual(len(mail.outbox), 2)
+        self.assertIn('admin@example.com', mail.outbox[-1].to)
+        self.assertEqual(mail.outbox[-1].subject, 'New Account Request - Action Required')
+
+    @override_settings(
+        EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+        DEFAULT_FROM_EMAIL='admin@example.com',
+        ADMIN_EMAIL_INBOX='admin@example.com',
+        ASYNC_EMAIL_ENABLED=False,
+    )
+    def test_public_registration_does_not_crash_when_admin_email_already_exists(self):
+        User.objects.create_superuser(
+            username='existingadmin',
+            email='admin@example.com',
+            password='StrongPassword123!',
+        )
+
+        session = self.client.session
+        session['verified_email'] = 'new-org-admin@example.com'
+        session['google_signup_verified_email'] = 'new-org-admin@example.com'
+        session['registration_verified_new-org-admin@example.com'] = True
+        session.save()
+
+        response = self.client.post(
+            reverse('accounts:public_register'),
+            data={
+                'first_name': 'New',
+                'last_name': 'OrgAdmin',
+                'username': 'neworgadmin',
+                'company': 'Conflict Org',
+                'email': 'new-org-admin@example.com',
+                'password1': '',
+                'password2': '',
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('accounts:waiting'))
+        self.assertTrue(User.objects.filter(username='neworgadmin').exists())
+
+    def test_public_registration_can_skip_password_after_google_verification(self):
+        session = self.client.session
+        session['verified_email'] = 'google-admin@example.com'
+        session['google_signup_verified_email'] = 'google-admin@example.com'
+        session['registration_verified_google-admin@example.com'] = True
+        session.save()
+
+        response = self.client.post(
+            reverse('accounts:public_register'),
+            data={
+                'first_name': 'Google',
+                'last_name': 'Admin',
+                'username': 'googleadmin',
+                'company': 'Google Org',
+                'email': 'google-admin@example.com',
+                'password1': '',
+                'password2': '',
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('accounts:waiting'))
+
+        user = User.objects.get(username='googleadmin')
+        self.assertFalse(user.has_usable_password())
+
+    def test_invite_signup_can_skip_password_after_google_verification(self):
+        organization = Organization.objects.create(org_name='Invite Org')
+        sender = User.objects.create_user(
+            username='inviter',
+            email='inviter@example.com',
+            password='StrongPassword123!',
+            organization=organization,
+            is_active=True,
+        )
+        invitation = Invitation.objects.create(
+            sender=sender,
+            organization=organization,
+            recipient_email='invitee@example.com',
+            recipient_role='observer',
+            status='sent',
+        )
+
+        session = self.client.session
+        session['google_signup_verified_email'] = 'invitee@example.com'
+        session.save()
+
+        response = self.client.post(
+            reverse('accounts:accept_invitation', args=[invitation.token]),
+            data={
+                'first_name': 'Invitee',
+                'last_name': 'User',
+                'username': 'inviteeuser',
+                'password1': '',
+                'password2': '',
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Account Created!')
+
+        user = User.objects.get(username='inviteeuser')
+        invitation.refresh_from_db()
+        self.assertFalse(user.has_usable_password())
+        self.assertEqual(invitation.status, 'accepted')
+
+    @patch('api.views.id_token.verify_oauth2_token')
+    def test_google_oauth_signup_rejects_invite_email_mismatch(self, mock_verify):
+        mock_verify.return_value = {
+            'email': 'different@example.com',
+            'email_verified': True,
+        }
+
+        response = self.client.post(
+            reverse('google_oauth_signup'),
+            data='{"credential": "fake-google-jwt", "purpose": "invite", "expected_email": "invited@example.com"}',
             content_type='application/json',
         )
 
