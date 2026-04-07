@@ -40,6 +40,86 @@
   }
   .scan-notice.success { background-color: #d1fae5; border: 1px solid #6ee7b7; color: #065f46; }
   .scan-notice.error   { background-color: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+
+  .scan-type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.625rem;
+  }
+  @media (max-width: 576px) {
+    .scan-type-grid { grid-template-columns: 1fr; }
+  }
+
+  .scan-type-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+  }
+  .scan-type-toggle:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+  }
+  .scan-type-toggle.is-checked {
+    border-color: #111827;
+    background: #f9fafb;
+  }
+  .scan-type-toggle input[type="checkbox"] {
+    display: none;
+  }
+  .toggle-pip {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+    border: 1.5px solid #d1d5db;
+    border-radius: 4px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .scan-type-toggle.is-checked .toggle-pip {
+    background: #111827;
+    border-color: #111827;
+  }
+  .toggle-pip svg { display: none; }
+  .scan-type-toggle.is-checked .toggle-pip svg { display: block; }
+  .toggle-text strong {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+    display: block;
+    line-height: 1.3;
+  }
+  .toggle-text span {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
+  .duration-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.875rem;
+    padding: 0.5rem 0.875rem;
+    background: #f3f4f6;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    color: #374151;
+    transition: background 0.15s, color 0.15s;
+  }
+  .duration-strip.warn {
+    background: #fef9c3;
+    color: #854d0e;
+  }
+  .duration-strip svg { flex-shrink: 0; }
 </style>
 {% endblock %}
 
@@ -48,12 +128,77 @@
 
 <div class="container py-4">
 
-  {# ------------------------------------------------------------------ #}
-  {# ROW 1: Start New Scan                                              #}
-  {# ------------------------------------------------------------------ #}
-  <div class="row mb-4">
-    <div class="col-12 d-flex align-items-center justify-content-between">
+  {# ROW 1: Page heading #}
+  <div class="row mb-3">
+    <div class="col-12">
       <h4 class="mb-0">Scans</h4>
+    </div>
+  </div>
+
+  {# ROW 2: Scan type toggles #}
+  <div class="row mb-3">
+    <div class="col-12">
+      <div class="scan-type-grid" id="scanTypeGrid">
+
+        <label class="scan-type-toggle is-checked" data-type="tcp">
+          <input type="checkbox" value="tcp" checked>
+          <div class="toggle-pip">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="toggle-text">
+            <strong>TCP Port Scan</strong>
+            <span>Common TCP ports &amp; banners</span>
+          </div>
+        </label>
+
+        <label class="scan-type-toggle is-checked" data-type="udp">
+          <input type="checkbox" value="udp" checked>
+          <div class="toggle-pip">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="toggle-text">
+            <strong>UDP Port Scan</strong>
+            <span>DNS, SNMP, NTP &amp; other UDP services</span>
+          </div>
+        </label>
+
+        <label class="scan-type-toggle is-checked" data-type="email">
+          <input type="checkbox" value="email" checked>
+          <div class="toggle-pip">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="toggle-text">
+            <strong>Email Security</strong>
+            <span>SPF, DMARC, DKIM &amp; MTA-STS</span>
+          </div>
+        </label>
+
+      </div>
+
+      <div class="duration-strip" id="durationStrip">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="durationText">Estimated scan duration: about 5 minutes</span>
+      </div>
+    </div>
+  </div>
+
+  {# ROW 3: Start button + notice #}
+  <div class="row mb-4">
+    <div class="col-12 d-flex align-items-center justify-content-end">
       <button class="start-scan-btn" id="startScanBtn" onclick="startScan()">
         <span class="spinner"></span>
         <span class="btn-label">Start New Scan</span>
@@ -66,9 +211,7 @@
     </div>
   </div>
 
-  {# ------------------------------------------------------------------ #}
-  {# ROW 2: Active scan status (shown while scan in progress)           #}
-  {# ------------------------------------------------------------------ #}
+  {# ROW 4: Active scan status (shown while scan in progress) #}
   <div id="activeScanCard" class="row mb-4 d-none">
     <div class="col-12">
       <div class="card border-primary">
@@ -79,10 +222,8 @@
             <h5 class="mb-0" id="scanStatusHeading">Waiting for scanner...</h5>
           </div>
 
-          {# Status label #}
           <p id="scanStatusLabel" class="text-muted mb-3">The scanner is running on your machine.</p>
 
-          {# Findings summary badges - shown once results arrive #}
           <div id="findingsBadges" class="mb-3 d-none">
             <span class="badge bg-danger me-1">Critical: <span id="badgeCritical">0</span></span>
             <span class="badge bg-warning text-dark me-1">High: <span id="badgeHigh">0</span></span>
@@ -91,7 +232,6 @@
             <span class="badge bg-light text-dark border me-1">Info: <span id="badgeInfo">0</span></span>
           </div>
 
-          {# Report generation notice #}
           <div id="generatingNotice" class="alert alert-info py-2 d-none">
             <div class="spinner-border spinner-border-sm me-2" role="status"></div>
             Scan complete. AI report is being generated — this may take a moment.
@@ -102,9 +242,7 @@
     </div>
   </div>
 
-  {# ------------------------------------------------------------------ #}
-  {# ROW 3: Completed scan notice                                       #}
-  {# ------------------------------------------------------------------ #}
+  {# ROW 5: Completed scan notice #}
   <div id="completedCard" class="row mb-4 d-none">
     <div class="col-12">
       <div class="alert alert-success d-flex align-items-center justify-content-between">
@@ -116,9 +254,7 @@
     </div>
   </div>
 
-  {# ------------------------------------------------------------------ #}
-  {# ROW 4: Error notice                                                #}
-  {# ------------------------------------------------------------------ #}
+  {# ROW 6: Error notice #}
   <div id="errorCard" class="row mb-4 d-none">
     <div class="col-12">
       <div class="alert alert-danger">
@@ -128,9 +264,7 @@
     </div>
   </div>
 
-  {# ------------------------------------------------------------------ #}
-  {# ROW 5: Recent scans table                                          #}
-  {# ------------------------------------------------------------------ #}
+  {# ROW 7: Recent scans table #}
   <div class="row">
     <div class="col-12">
       <div class="card bg-light">
@@ -149,17 +283,52 @@
 
 {% block extra_js %}
 <script>
-// -------------------------------------------------------------------------
-// State
-// -------------------------------------------------------------------------
-let activeScanId   = null;
-let pollInterval   = null;
-const POLL_MS      = 3000;  // poll every 3 seconds
+let activeScanId = null;
+let pollInterval = null;
+const POLL_MS    = 3000;
 
-// -------------------------------------------------------------------------
-// On load: restore any active scan from sessionStorage
-// -------------------------------------------------------------------------
+// You can manually adjust the estimated times here
+const SCAN_DURATIONS = { tcp: 60, udp: 60, email: 30 };
+const BASE_OVERHEAD  = 150;
+
+function getSelectedScanTypes() {
+  return Array.from(
+    document.querySelectorAll('#scanTypeGrid input[type="checkbox"]:checked')
+  ).map(el => el.value);
+}
+
+function updateDurationEstimate() {
+  const types = getSelectedScanTypes();
+  const strip = document.getElementById('durationStrip');
+  const text  = document.getElementById('durationText');
+  const btn   = document.getElementById('startScanBtn');
+
+  if (types.length === 0) {
+    strip.classList.add('warn');
+    text.textContent = 'Select at least one scan type to continue.';
+    btn.disabled = true;
+    return;
+  }
+
+  btn.disabled = false;
+  strip.classList.remove('warn');
+
+  const secs = BASE_OVERHEAD + types.reduce((n, t) => n + (SCAN_DURATIONS[t] || 0), 0);
+  const mins = Math.ceil(secs / 60);
+  text.textContent = `Estimated scan duration: about ${mins} minute${mins !== 1 ? 's' : ''}`;
+}
+
+document.querySelectorAll('.scan-type-toggle').forEach(label => {
+  label.addEventListener('click', () => {
+    const cb = label.querySelector('input[type="checkbox"]');
+    cb.checked = !cb.checked;
+    label.classList.toggle('is-checked', cb.checked);
+    updateDurationEstimate();
+  });
+});
+
 document.addEventListener('DOMContentLoaded', function () {
+  updateDurationEstimate();
   loadRecentScans();
 
   const savedScanId = sessionStorage.getItem('activeScanId');
@@ -170,14 +339,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
-// -------------------------------------------------------------------------
-// Step 1: Generate token
-// -------------------------------------------------------------------------
 function generateToken() {
   const btn = document.getElementById('generateTokenBtn');
-  // Extra safety check in JS just in case
-  if (!btn) return; 
-  
+  if (!btn) return;
+
   btn.disabled = true;
   btn.textContent = 'Generating...';
 
@@ -198,15 +363,11 @@ function generateToken() {
       return;
     }
 
-    // Show token UI
     document.getElementById('step-generate').classList.add('d-none');
     document.getElementById('step-token').classList.remove('d-none');
     document.getElementById('tokenDisplay').value = data.token;
-
-    // Set download link (Django serves the exe - update URL as needed)
     document.getElementById('downloadLink').href = "{% url 'scan_download_exe' %}";
 
-    // Save scan_id and start polling
     activeScanId = data.scan_id;
     sessionStorage.setItem('activeScanId', data.scan_id);
 
@@ -220,9 +381,6 @@ function generateToken() {
   });
 }
 
-// -------------------------------------------------------------------------
-// Copy token to clipboard
-// -------------------------------------------------------------------------
 function copyToken() {
   const input = document.getElementById('tokenDisplay');
   input.select();
@@ -230,9 +388,6 @@ function copyToken() {
   alert('Token copied to clipboard.');
 }
 
-// -------------------------------------------------------------------------
-// Polling
-// -------------------------------------------------------------------------
 function startPolling(scanId) {
   if (pollInterval) clearInterval(pollInterval);
   pollInterval = setInterval(() => pollScanStatus(scanId), POLL_MS);
@@ -249,40 +404,35 @@ function pollScanStatus(scanId) {
   fetch(`/api/scan/status/${scanId}/`)
     .then(r => r.json())
     .then(data => handleStatusUpdate(data))
-    .catch(() => {/* silently retry next interval */});
+    .catch(() => {});
 }
 
 function handleStatusUpdate(data) {
-  const status = data.status;
-  const heading  = document.getElementById('scanStatusHeading');
-  const label    = document.getElementById('scanStatusLabel');
+  const status  = data.status;
+  const heading = document.getElementById('scanStatusHeading');
+  const label   = document.getElementById('scanStatusLabel');
 
   switch (status) {
-
     case 'PENDING':
       heading.textContent = 'Waiting for scanner...';
       label.textContent   = 'Run the downloaded scanner on your machine.';
       break;
-
     case 'RUNNING':
       heading.textContent = 'Scan in progress...';
       label.textContent   = 'The scanner is actively running on your network.';
       break;
-
     case 'RECEIVED':
       heading.textContent = 'Results received.';
       label.textContent   = 'Scan data uploaded. Preparing AI report...';
       updateFindingsBadges(data.findings_summary);
       document.getElementById('generatingNotice').classList.remove('d-none');
       break;
-
     case 'GENERATING':
       heading.textContent = 'Generating report...';
       label.textContent   = 'AI is analyzing your scan results.';
       updateFindingsBadges(data.findings_summary);
       document.getElementById('generatingNotice').classList.remove('d-none');
       break;
-
     case 'COMPLETE':
       stopPolling();
       sessionStorage.removeItem('activeScanId');
@@ -290,7 +440,6 @@ function handleStatusUpdate(data) {
       document.getElementById('activeScanCard').classList.add('d-none');
       loadRecentScans();
       break;
-
     case 'FAILED':
       stopPolling();
       sessionStorage.removeItem('activeScanId');
@@ -300,12 +449,9 @@ function handleStatusUpdate(data) {
   }
 }
 
-// -------------------------------------------------------------------------
-// TEST: Simulate Scanner Submission
-// -------------------------------------------------------------------------
 function simulateScannerPost() {
   const token = document.getElementById('tokenDisplay').value;
-  
+
   if (!token) {
     alert('No token available! Please generate a token first.');
     return;
@@ -339,16 +485,16 @@ function simulateScannerPost() {
         "scripts": [],
         "timestamp": "2025-07-18T22:09:34.408Z"
       },
-      { 
-        "severity": "CRITICAL", 
-		"category": "port",
+      {
+        "severity": "CRITICAL",
+        "category": "port",
         "description": "Host is vulnerable to MS17-010 (EternalBlue). The SMBv1 protocol is enabled and missing critical security patches, which allows unauthenticated remote code execution.",
-		"information": "",
-		"portid": "445",
-		"protocol": "tcp",
-		"service": "microsoft-ds",
-		"scripts": [],
-		"timestamp": "2025-07-18T22:09:34.408Z"
+        "information": "",
+        "portid": "445",
+        "protocol": "tcp",
+        "service": "microsoft-ds",
+        "scripts": [],
+        "timestamp": "2025-07-18T22:09:34.408Z"
       }
     ],
     "raw_results": {
@@ -357,7 +503,7 @@ function simulateScannerPost() {
     }
   };
 
-  const submitEndpoint = '/api/scan/submit/'; 
+  const submitEndpoint = '/api/scan/submit/';
 
   console.log(`Sending fake scan data to ${submitEndpoint}...`);
 
@@ -365,7 +511,6 @@ function simulateScannerPost() {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // The backend expects the token in the Authorization header:
       'Authorization': `ScanToken ${token}`
     },
     body: JSON.stringify(dummyPayload),
@@ -385,9 +530,6 @@ function simulateScannerPost() {
   });
 }
 
-// -------------------------------------------------------------------------
-// UI helpers
-// -------------------------------------------------------------------------
 function showActiveScanCard(message) {
   document.getElementById('activeScanCard').classList.remove('d-none');
   document.getElementById('scanStatusHeading').textContent = message;
@@ -434,11 +576,10 @@ function resetScanUI() {
     btn.disabled = false;
     btn.textContent = 'Generate Token & Download Scanner';
   }
+
+  updateDurationEstimate();
 }
 
-// -------------------------------------------------------------------------
-// Recent scans table
-// -------------------------------------------------------------------------
 function loadRecentScans() {
   fetch('/api/scan/list/')
     .then(r => r.json())
@@ -509,16 +650,21 @@ function statusBadge(status) {
   return `<span class="badge ${cls}">${status}</span>`;
 }
 
-// -------------------------------------------------------------------------
-// Start New Scan
-// -------------------------------------------------------------------------
 function startScan() {
-  const btn = document.getElementById('startScanBtn');
+  const btn    = document.getElementById('startScanBtn');
   const notice = document.getElementById('scanNotice');
+  const types  = getSelectedScanTypes();
+
+  if (types.length === 0) {
+    notice.textContent   = 'Please select at least one scan type before starting.';
+    notice.className     = 'scan-notice error';
+    notice.style.display = 'block';
+    return;
+  }
 
   btn.disabled = true;
   btn.classList.add('loading');
-  notice.className = 'scan-notice';
+  notice.className     = 'scan-notice';
   notice.style.display = 'none';
 
   fetch('/api/scan/start/', {
@@ -527,6 +673,7 @@ function startScan() {
       'X-CSRFToken': getCsrf(),
       'Content-Type': 'application/json',
     },
+    // body: JSON.stringify({ scan_types: types }), (use this for passing scan selections onto the backend)
   })
   .then(res => res.json().then(data => ({ ok: res.ok, data })))
   .then(({ ok, data }) => {
@@ -534,30 +681,26 @@ function startScan() {
     btn.classList.remove('loading');
     if (ok) {
       notice.textContent = data.message;
-      notice.className = 'scan-notice success';
-      // Start polling the new scan
+      notice.className   = 'scan-notice success';
       activeScanId = data.scan_id;
       sessionStorage.setItem('activeScanId', data.scan_id);
       showActiveScanCard('Scan queued...');
       startPolling(data.scan_id);
     } else {
       notice.textContent = data.error || 'Failed to start scan.';
-      notice.className = 'scan-notice error';
+      notice.className   = 'scan-notice error';
     }
     notice.style.display = 'block';
   })
   .catch(() => {
     btn.disabled = false;
     btn.classList.remove('loading');
-    notice.textContent = 'Network error — could not start scan.';
-    notice.className = 'scan-notice error';
+    notice.textContent   = 'Network error — could not start scan.';
+    notice.className     = 'scan-notice error';
     notice.style.display = 'block';
   });
 }
 
-// -------------------------------------------------------------------------
-// CSRF helper
-// -------------------------------------------------------------------------
 function getCsrf() {
   return document.querySelector('[name=csrfmiddlewaretoken]').value;
 }
