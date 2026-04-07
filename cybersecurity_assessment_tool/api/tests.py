@@ -435,3 +435,121 @@ class GoogleOAuthSignupTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.json()['success'], False)
+
+
+@override_settings(
+    MICROSOFT_OAUTH_CLIENT_ID='test-microsoft-client-id',
+    MICROSOFT_OAUTH_CLIENT_SECRET='test-microsoft-client-secret',
+    MICROSOFT_OAUTH_TENANT_ID='common',
+    MICROSOFT_OAUTH_REQUIRE_OTP=True,
+    STORAGES={
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    },
+)
+class MicrosoftOAuthFlowTests(TestCase):
+    def setUp(self):
+        self.org = Organization.objects.create(org_name='Contoso')
+        self.user = User.objects.create_user(
+            username='msuser',
+            email='msuser@example.com',
+            password='StrongPassword123!',
+            organization=self.org,
+            is_active=True,
+        )
+
+    def test_microsoft_oauth_start_redirects_to_microsoft_consent_screen(self):
+        response = self.client.get(
+            reverse('microsoft_oauth_start'),
+            {'flow': 'registration', 'next': reverse('accounts:public_register')},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('https://login.microsoftonline.com/common/oauth2/v2.0/authorize', response.url)
+        self.assertIn('client_id=test-microsoft-client-id', response.url)
+        self.assertEqual(self.client.session['microsoft_oauth_flow'], 'registration')
+
+    @override_settings(MICROSOFT_OAUTH_REDIRECT_BASE_URL='http://localhost:8000')
+    def test_microsoft_oauth_start_uses_localhost_callback_when_configured(self):
+        response = self.client.get(
+            reverse('microsoft_oauth_start'),
+            {'flow': 'login', 'next': reverse('login')},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(
+            'redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fmicrosoft-oauth%2Fcallback%2F',
+            response.url,
+        )
+
+    def test_public_register_shows_microsoft_verified_notice_when_microsoft_was_used(self):
+        session = self.client.session
+        session['verified_email'] = 'msuser@example.com'
+        session['google_signup_verified_email'] = 'msuser@example.com'
+        session['registration_verified_msuser@example.com'] = True
+        session['social_signup_provider'] = 'Microsoft'
+        session.save()
+
+        response = self.client.get(reverse('accounts:public_register'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Microsoft already verified this email', html=False)
+        self.assertContains(response, 'not required after Microsoft verification', html=False)
+
+    @patch('api.views._exchange_microsoft_code')
+    def test_microsoft_oauth_callback_marks_registration_verified(self, mock_exchange):
+        mock_exchange.return_value = {
+            'preferred_username': 'mscallback@example.com',
+            'given_name': 'Morgan',
+            'family_name': 'Callback',
+        }
+
+        session = self.client.session
+        session['microsoft_oauth_state'] = 'ms-state-123'
+        session['microsoft_oauth_flow'] = 'registration'
+        session['microsoft_oauth_next'] = reverse('accounts:public_register')
+        session.save()
+
+        response = self.client.get(
+            reverse('microsoft_oauth_callback'),
+            {'code': 'sample-code', 'state': 'ms-state-123'},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('accounts:public_register'))
+        self.assertEqual(self.client.session['verified_email'], 'mscallback@example.com')
+        self.assertTrue(self.client.session['registration_verified_mscallback@example.com'])
+
+    @patch('api.views._exchange_microsoft_code')
+    def test_microsoft_oauth_callback_starts_otp_for_existing_active_user(self, mock_exchange):
+        mock_exchange.return_value = {
+            'email': self.user.email,
+            'preferred_username': self.user.email,
+            'given_name': 'Microsoft',
+            'family_name': 'User',
+        }
+
+        session = self.client.session
+        session['microsoft_oauth_state'] = 'ms-login-state'
+        session['microsoft_oauth_flow'] = 'login'
+        session['microsoft_oauth_next'] = reverse('login')
+        session.save()
+
+        response = self.client.get(
+            reverse('microsoft_oauth_callback'),
+            {'code': 'login-code', 'state': 'ms-login-state'},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('login'))
+        self.assertEqual(self.client.session['pending_user_id'], self.user.id)
+        self.assertTrue(self.client.session['google_login_requires_otp'])
+        self.assertIn('login_otp', self.client.session)
+
+    def test_login_template_shows_microsoft_button_when_client_id_present(self):
+        response = self.client.get(reverse('login'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="microsoftSignInButton"', html=False)
+        self.assertNotContains(response, 'Set MICROSOFT_OAUTH_CLIENT_ID to enable Microsoft sign-in')

@@ -1,4 +1,5 @@
-from urllib.parse import urlencode
+from functools import lru_cache
+from urllib.parse import quote, urlencode
 from urllib.request import Request as UrlRequest, urlopen
 import uuid
 from django.shortcuts import render, redirect
@@ -326,12 +327,21 @@ def reject_registration(request, user_id):
     
     return redirect('admin:api_user_changelist')
 
+def _get_microsoft_oauth_base_url():
+    """Optional absolute base URL for local Microsoft OAuth flows (for example, http://localhost:8000)."""
+    return (getattr(settings, 'MICROSOFT_OAUTH_REDIRECT_BASE_URL', '') or '').strip().rstrip('/')
+
+
 def _get_google_oauth_context():
-    """Shared Google OAuth configuration for templates."""
+    """Shared social OAuth configuration for auth templates."""
     google_client_id = getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
+    microsoft_client_id = getattr(settings, 'MICROSOFT_OAUTH_CLIENT_ID', '').strip()
     return {
         'google_oauth_enabled': bool(google_client_id),
         'google_oauth_client_id': google_client_id,
+        'microsoft_oauth_enabled': bool(microsoft_client_id),
+        'microsoft_oauth_client_id': microsoft_client_id,
+        'microsoft_oauth_base_url': _get_microsoft_oauth_base_url(),
     }
 
 
@@ -366,9 +376,16 @@ def _build_login_otp_response(request, user, message='OTP sent to your email'):
     }
 
 
+def _build_oauth_absolute_uri(request, route_name, base_url=''):
+    """Build an absolute URI for OAuth routes, with an optional local override."""
+    if base_url:
+        return f"{base_url}{reverse(route_name)}"
+    return request.build_absolute_uri(reverse(route_name))
+
+
 def _get_google_redirect_uri(request):
     """Build the absolute callback URI for the classic Google OAuth redirect flow."""
-    return request.build_absolute_uri(reverse('google_oauth_callback'))
+    return _build_oauth_absolute_uri(request, 'google_oauth_callback')
 
 
 def _exchange_google_code(request, code):
@@ -410,6 +427,101 @@ def _exchange_google_code(request, code):
         )
     except ValueError as exc:
         raise ValueError('Google sign-in could not be verified.') from exc
+
+
+def _get_microsoft_redirect_uri(request):
+    """Build the absolute callback URI for the Microsoft OAuth redirect flow."""
+    return _build_oauth_absolute_uri(
+        request,
+        'microsoft_oauth_callback',
+        _get_microsoft_oauth_base_url(),
+    )
+
+
+def _get_microsoft_tenant_id():
+    return (getattr(settings, 'MICROSOFT_OAUTH_TENANT_ID', 'organizations') or 'organizations').strip()
+
+
+@lru_cache(maxsize=4)
+def _get_microsoft_openid_config(tenant_id):
+    metadata_url = (
+        f"https://login.microsoftonline.com/{quote(tenant_id, safe='')}/v2.0/.well-known/openid-configuration"
+    )
+    metadata_request = UrlRequest(metadata_url, headers={'Accept': 'application/json'})
+    try:
+        with urlopen(metadata_request, timeout=15) as metadata_response:
+            return json.loads(metadata_response.read().decode('utf-8'))
+    except Exception as exc:
+        raise ValueError('Microsoft sign-in is temporarily unavailable.') from exc
+
+
+def _extract_microsoft_identity(token_payload):
+    email = (
+        token_payload.get('email')
+        or token_payload.get('preferred_username')
+        or token_payload.get('upn')
+        or ''
+    ).strip().lower()
+    return {
+        'email': email,
+        'first_name': (token_payload.get('given_name') or '').strip(),
+        'last_name': (token_payload.get('family_name') or '').strip(),
+    }
+
+
+def _exchange_microsoft_code(request, code):
+    """Exchange an authorization code for a verified Microsoft/Office 365 token payload."""
+    client_id = getattr(settings, 'MICROSOFT_OAUTH_CLIENT_ID', '').strip()
+    client_secret = (getattr(settings, 'MICROSOFT_OAUTH_CLIENT_SECRET', '') or '').strip()
+    if not client_id or not client_secret:
+        raise ValueError('Microsoft OAuth is not fully configured for this environment.')
+
+    tenant_id = _get_microsoft_tenant_id()
+    openid_config = _get_microsoft_openid_config(tenant_id)
+
+    payload = urlencode({
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'code': code,
+        'redirect_uri': _get_microsoft_redirect_uri(request),
+        'grant_type': 'authorization_code',
+        'scope': 'openid profile email',
+    }).encode('utf-8')
+
+    token_request = UrlRequest(
+        openid_config['token_endpoint'],
+        data=payload,
+        headers={'Content-Type': 'application/x-www-form-urlencoded'},
+    )
+
+    try:
+        with urlopen(token_request, timeout=15) as token_response:
+            token_data = json.loads(token_response.read().decode('utf-8'))
+    except Exception as exc:
+        raise ValueError('Microsoft sign-in could not be completed.') from exc
+
+    raw_id_token = (token_data.get('id_token') or '').strip()
+    if not raw_id_token:
+        raise ValueError('Microsoft did not return an ID token for this request.')
+
+    try:
+        token_payload = id_token.verify_token(
+            raw_id_token,
+            google_requests.Request(),
+            audience=client_id,
+            certs_url=openid_config['jwks_uri'],
+        )
+    except ValueError as exc:
+        raise ValueError('Microsoft sign-in could not be verified.') from exc
+
+    issuer = (token_payload.get('iss') or '').strip()
+    if issuer and not (
+        issuer.startswith('https://login.microsoftonline.com/')
+        or issuer.startswith('https://sts.windows.net/')
+    ):
+        raise ValueError('Microsoft sign-in could not be verified.')
+
+    return token_payload
 
 
 def google_oauth_start(request):
@@ -508,6 +620,7 @@ def google_oauth_callback(request):
         return redirect(reverse('login_redirect'))
 
     if flow == 'invite':
+        request.session['social_signup_provider'] = 'Google'
         request.session['google_signup_verified_email'] = email
         request.session['google_invite_prefill'] = {
             'first_name': first_name,
@@ -516,6 +629,7 @@ def google_oauth_callback(request):
         messages.success(request, 'Google verified the invited email. Please finish the form to create the account.')
         return redirect(next_url)
 
+    request.session['social_signup_provider'] = 'Google'
     request.session['verified_email'] = email
     request.session['email_verified'] = True
     request.session['google_signup_verified_email'] = email
@@ -526,6 +640,131 @@ def google_oauth_callback(request):
         'last_name': last_name,
     }
     messages.success(request, 'Google verified your email. Please finish the form and submit it for approval. A separate password is optional for this signup.')
+    return redirect(next_url)
+
+
+def microsoft_oauth_start(request):
+    """Start the Microsoft/Office 365 OAuth redirect flow."""
+    client_id = getattr(settings, 'MICROSOFT_OAUTH_CLIENT_ID', '').strip()
+    if not client_id:
+        messages.error(request, 'Microsoft OAuth is not configured for this environment.')
+        return redirect(request.GET.get('next') or reverse('login'))
+
+    flow = (request.GET.get('flow') or 'login').strip().lower()
+    next_url = request.GET.get('next') or reverse('login')
+    expected_email = (request.GET.get('expected_email') or '').strip().lower()
+
+    state = secrets.token_urlsafe(32)
+    request.session['microsoft_oauth_state'] = state
+    request.session['microsoft_oauth_flow'] = flow
+    request.session['microsoft_oauth_next'] = next_url
+    request.session['microsoft_oauth_expected_email'] = expected_email
+
+    tenant_id = _get_microsoft_tenant_id()
+    auth_url = (
+        f"https://login.microsoftonline.com/{quote(tenant_id, safe='')}/oauth2/v2.0/authorize?"
+        + urlencode({
+            'client_id': client_id,
+            'redirect_uri': _get_microsoft_redirect_uri(request),
+            'response_type': 'code',
+            'response_mode': 'query',
+            'scope': 'openid profile email',
+            'prompt': 'select_account',
+            'state': state,
+        })
+    )
+    return redirect(auth_url)
+
+
+def microsoft_oauth_callback(request):
+    """Handle the classic browser-redirect Microsoft/Office 365 OAuth callback."""
+    next_url = request.session.pop('microsoft_oauth_next', reverse('login'))
+    flow = request.session.pop('microsoft_oauth_flow', 'login')
+    expected_email = request.session.pop('microsoft_oauth_expected_email', '')
+    saved_state = request.session.pop('microsoft_oauth_state', None)
+
+    if request.GET.get('error'):
+        messages.error(request, 'Microsoft sign-in was cancelled or denied.')
+        return redirect(next_url)
+
+    code = request.GET.get('code')
+    state = request.GET.get('state')
+    if not code or not saved_state or state != saved_state:
+        messages.error(request, 'Microsoft sign-in could not be validated. Please try again.')
+        return redirect(next_url)
+
+    try:
+        token_payload = _exchange_microsoft_code(request, code)
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return redirect(next_url)
+
+    identity = _extract_microsoft_identity(token_payload)
+    email = identity['email']
+    first_name = identity['first_name']
+    last_name = identity['last_name']
+
+    if not email:
+        messages.error(request, 'Microsoft sign-in did not provide a usable email address.')
+        return redirect(next_url)
+
+    if expected_email and email != expected_email:
+        messages.error(request, 'Please use the Microsoft account that matches the invited email address.')
+        return redirect(next_url)
+
+    if flow == 'login':
+        user = User.objects.filter(email_hash=generate_email_hash(email)).first()
+        if user is None:
+            messages.error(request, 'No approved account is linked to this Microsoft email address.')
+            return redirect(next_url)
+        if not user.is_active:
+            messages.error(request, 'Your account is pending approval. Please contact your administrator.')
+            return redirect(next_url)
+
+        updated = False
+        if first_name and not user.first_name:
+            user.first_name = first_name
+            updated = True
+        if last_name and not user.last_name:
+            user.last_name = last_name
+            updated = True
+        if updated:
+            user.save()
+
+        if getattr(settings, 'MICROSOFT_OAUTH_REQUIRE_OTP', getattr(settings, 'GOOGLE_OAUTH_REQUIRE_OTP', True)):
+            _build_login_otp_response(
+                request,
+                user,
+                message='OTP sent to your email to complete Microsoft sign-in.',
+            )
+            request.session['google_login_requires_otp'] = True
+            return redirect(reverse('login'))
+
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
+        login(request, user)
+        return redirect(reverse('login_redirect'))
+
+    if flow == 'invite':
+        request.session['social_signup_provider'] = 'Microsoft'
+        request.session['google_signup_verified_email'] = email
+        request.session['google_invite_prefill'] = {
+            'first_name': first_name,
+            'last_name': last_name,
+        }
+        messages.success(request, 'Microsoft verified the invited email. Please finish the form to create the account.')
+        return redirect(next_url)
+
+    request.session['social_signup_provider'] = 'Microsoft'
+    request.session['verified_email'] = email
+    request.session['email_verified'] = True
+    request.session['google_signup_verified_email'] = email
+    request.session[f'registration_verified_{email}'] = True
+    request.session['google_signup_prefill'] = {
+        'email': email,
+        'first_name': first_name,
+        'last_name': last_name,
+    }
+    messages.success(request, 'Microsoft verified your email. Please finish the form and submit it for approval. A separate password is optional for this signup.')
     return redirect(next_url)
 
 
@@ -602,6 +841,7 @@ def google_oauth_signup(request):
         }, status=403)
 
     purpose = (data.get('purpose') or 'registration').strip().lower()
+    request.session['social_signup_provider'] = 'Google'
     request.session['verified_email'] = email
     request.session['email_verified'] = True
     request.session['google_signup_verified_email'] = email

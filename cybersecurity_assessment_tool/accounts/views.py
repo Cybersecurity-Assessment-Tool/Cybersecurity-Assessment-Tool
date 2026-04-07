@@ -8,11 +8,18 @@ User = get_user_model()
 
 
 def _get_google_oauth_context():
-    """Shared Google OAuth configuration for signup templates."""
+    """Shared social OAuth configuration for signup templates."""
     google_client_id = getattr(django_settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
+    microsoft_client_id = getattr(django_settings, 'MICROSOFT_OAUTH_CLIENT_ID', '').strip()
+    microsoft_oauth_base_url = (
+        getattr(django_settings, 'MICROSOFT_OAUTH_REDIRECT_BASE_URL', '') or ''
+    ).strip().rstrip('/')
     return {
         'google_oauth_enabled': bool(google_client_id),
         'google_oauth_client_id': google_client_id,
+        'microsoft_oauth_enabled': bool(microsoft_client_id),
+        'microsoft_oauth_client_id': microsoft_client_id,
+        'microsoft_oauth_base_url': microsoft_oauth_base_url,
     }
 
 
@@ -184,6 +191,9 @@ from api.models import User, Invitation, generate_email_hash
 def public_register(request):
     """Handle public registration for Org Admins"""
     google_verified_email = (request.session.get('google_signup_verified_email') or '').strip().lower()
+    social_signup_provider_name = (request.session.get('social_signup_provider') or '').strip()
+    if not social_signup_provider_name and google_verified_email:
+        social_signup_provider_name = 'Google'
 
     if request.method == 'POST':
         post_data = request.POST.copy()
@@ -238,7 +248,7 @@ def public_register(request):
         email_verified = request.session.get(f'registration_verified_{normalized_submitted_email}')
 
         if not email_verified or normalized_submitted_email != verified_email:
-            form.add_error('email', 'You must verify your email address via the "Verify" button or Google before registering.')
+            form.add_error('email', 'You must verify your email address via the "Verify" button, Google, or Microsoft before registering.')
             is_valid = False
         
         # --- EXECUTION BLOCK ---
@@ -248,6 +258,7 @@ def public_register(request):
             request.session.pop('verified_email', None)
             request.session.pop(f'registration_verified_{normalized_submitted_email}', None)
             request.session.pop('google_signup_verified_email', None)
+            request.session.pop('social_signup_provider', None)
             
             # Securely save the user. If Google already authenticated them, keep the account passwordless.
             user = form.save(commit=False)
@@ -335,6 +346,7 @@ def public_register(request):
             'form': form,
             'google_signup_verified_email': google_verified_email,
             'google_passwordless_signup': google_passwordless_signup,
+            'social_signup_provider_name': social_signup_provider_name,
             **_get_google_oauth_context(),
         },
     )
@@ -705,6 +717,9 @@ def accept_invitation(request, token):
         }, status=400)
 
     google_verified_email = (request.session.get('google_signup_verified_email') or '').strip().lower()
+    social_signup_provider_name = (request.session.get('social_signup_provider') or '').strip()
+    if not social_signup_provider_name and google_verified_email:
+        social_signup_provider_name = 'Google'
     google_passwordless_signup = bool(google_verified_email and google_verified_email == invitation.recipient_email.strip().lower())
 
     # 3. Handle the form submission if everything is valid
@@ -723,6 +738,7 @@ def accept_invitation(request, token):
             user.save()
 
             request.session.pop('google_signup_verified_email', None)
+            request.session.pop('social_signup_provider', None)
 
             # Update invitation
             invitation.recipient_user = user
@@ -734,6 +750,7 @@ def accept_invitation(request, token):
                 'email': invitation.recipient_email,
                 'organization': invitation.organization.org_name,
                 'google_passwordless_signup': google_passwordless_signup,
+                'social_signup_provider_name': social_signup_provider_name,
                 **_get_google_oauth_context(),
             }
             return render(request, 'registration/invite_signup.html', context)
@@ -753,6 +770,7 @@ def accept_invitation(request, token):
         'email': invitation.recipient_email,
         'organization': invitation.organization.org_name,
         'google_passwordless_signup': google_passwordless_signup,
+        'social_signup_provider_name': social_signup_provider_name,
         **_get_google_oauth_context(),
     }
     return render(request, 'registration/invite_signup.html', context)

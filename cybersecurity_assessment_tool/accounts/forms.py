@@ -140,8 +140,8 @@ class PublicRegistrationForm(UserCreationForm):
         if not self.require_password:
             self.fields['password1'].required = False
             self.fields['password2'].required = False
-            self.fields['password1'].help_text = 'Optional when you continue with Google.'
-            self.fields['password2'].help_text = 'Optional when you continue with Google.'
+            self.fields['password1'].help_text = 'Optional when you continue with Google or Microsoft.'
+            self.fields['password2'].help_text = 'Optional when you continue with Google or Microsoft.'
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -168,9 +168,9 @@ class PublicRegistrationForm(UserCreationForm):
         password2 = cleaned_data.get("password2")
 
         if self.require_password and not password1:
-            self.add_error('password1', 'Password is required unless you continue with Google.')
+            self.add_error('password1', 'Password is required unless you continue with Google or Microsoft.')
         if self.require_password and not password2:
-            self.add_error('password2', 'Please confirm your password unless you continue with Google.')
+            self.add_error('password2', 'Please confirm your password unless you continue with Google or Microsoft.')
         if password1 and password2 and password1 != password2:
             self.add_error('password2', "The two password fields didn't match.")
         return cleaned_data
@@ -210,8 +210,8 @@ class InvitationSignupForm(UserCreationForm):
         if not self.require_password:
             self.fields['password1'].required = False
             self.fields['password2'].required = False
-            self.fields['password1'].help_text = 'Optional when you continue with Google.'
-            self.fields['password2'].help_text = 'Optional when you continue with Google.'
+            self.fields['password1'].help_text = 'Optional when you continue with Google or Microsoft.'
+            self.fields['password2'].help_text = 'Optional when you continue with Google or Microsoft.'
 
     def clean(self):
         cleaned_data = super().clean()
@@ -219,9 +219,9 @@ class InvitationSignupForm(UserCreationForm):
         password2 = cleaned_data.get("password2")
 
         if self.require_password and not password1:
-            self.add_error('password1', 'Password is required unless you continue with Google.')
+            self.add_error('password1', 'Password is required unless you continue with Google or Microsoft.')
         if self.require_password and not password2:
-            self.add_error('password2', 'Please confirm your password unless you continue with Google.')
+            self.add_error('password2', 'Please confirm your password unless you continue with Google or Microsoft.')
 
         # If passwords don't match, force the error onto the 'password2' line
         # instead of letting it default to the top of the box.

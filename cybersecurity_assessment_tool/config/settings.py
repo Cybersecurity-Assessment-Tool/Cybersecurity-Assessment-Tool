@@ -253,11 +253,25 @@ INTERNAL_IPS = [
 LOGIN_REDIRECT_URL = 'login_redirect'
 LOGOUT_REDIRECT_URL = "home"
 
+MICROSOFT_OAUTH_REDIRECT_BASE_URL = os.environ.get(
+    'MICROSOFT_OAUTH_REDIRECT_BASE_URL',
+    '',
+).strip().rstrip('/')
+
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', '').strip()
 GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
 GOOGLE_OAUTH_ENABLED = bool(GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET)
 # Set to False (or comment out this line and hardcode False) to skip the OTP modal after Google login.
 GOOGLE_OAUTH_REQUIRE_OTP = os.environ.get('GOOGLE_OAUTH_REQUIRE_OTP', 'False').lower() in ('true', '1', 'yes')
+
+MICROSOFT_OAUTH_CLIENT_ID = os.environ.get('MICROSOFT_OAUTH_CLIENT_ID', '').strip()
+MICROSOFT_OAUTH_CLIENT_SECRET = os.environ.get('MICROSOFT_OAUTH_CLIENT_SECRET', '').strip()
+MICROSOFT_OAUTH_TENANT_ID = os.environ.get('MICROSOFT_OAUTH_TENANT_ID', 'organizations').strip() or 'organizations'
+MICROSOFT_OAUTH_ENABLED = bool(MICROSOFT_OAUTH_CLIENT_ID and MICROSOFT_OAUTH_CLIENT_SECRET)
+MICROSOFT_OAUTH_REQUIRE_OTP = os.environ.get(
+    'MICROSOFT_OAUTH_REQUIRE_OTP',
+    'true' if GOOGLE_OAUTH_REQUIRE_OTP else 'false',
+).lower() in ('true', '1', 'yes')
 
 # ---------------------------------------------------------------------------
 # Email Configuration

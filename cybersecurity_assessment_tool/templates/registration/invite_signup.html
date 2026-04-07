@@ -200,7 +200,9 @@
 
     .social-login {
         display: flex;
+        flex-direction: column;
         justify-content: center;
+        gap: 0.75rem;
         margin-bottom: 0.75rem;
     }
 
@@ -229,7 +231,8 @@
         border-color: #cbd5e1;
     }
 
-    .google-badge {
+    .google-badge,
+    .microsoft-badge {
         width: 1.25rem;
         height: 1.25rem;
         display: inline-flex;
@@ -238,7 +241,8 @@
         flex-shrink: 0;
     }
 
-    .google-badge svg {
+    .google-badge svg,
+    .microsoft-badge svg {
         width: 100%;
         height: 100%;
         display: block;
@@ -294,7 +298,7 @@
             </div>
 
             <div class="auth-divider">
-                <span class="divider-text">Optional Google prefill</span>
+                <span class="divider-text">Optional Google or Microsoft prefill</span>
             </div>
 
             <div class="social-login">
@@ -316,8 +320,34 @@
                         <span>Continue with Google</span>
                     </button>
                 {% endif %}
+
+                {% if microsoft_oauth_enabled %}
+                    <a id="microsoftInviteSignupButton" class="social-button" href="{{ microsoft_oauth_base_url }}{% url 'microsoft_oauth_start' %}?flow=invite&next={{ request.path|urlencode }}&expected_email={{ email|urlencode }}">
+                        <span class="microsoft-badge" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                                <rect x="1" y="1" width="10" height="10" fill="#F25022"/>
+                                <rect x="13" y="1" width="10" height="10" fill="#7FBA00"/>
+                                <rect x="1" y="13" width="10" height="10" fill="#00A4EF"/>
+                                <rect x="13" y="13" width="10" height="10" fill="#FFB900"/>
+                            </svg>
+                        </span>
+                        <span>Continue with Microsoft</span>
+                    </a>
+                {% else %}
+                    <button class="social-button" disabled title="Set MICROSOFT_OAUTH_CLIENT_ID to enable Microsoft sign-up">
+                        <span class="microsoft-badge" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                                <rect x="1" y="1" width="10" height="10" fill="#F25022"/>
+                                <rect x="13" y="1" width="10" height="10" fill="#7FBA00"/>
+                                <rect x="1" y="13" width="10" height="10" fill="#00A4EF"/>
+                                <rect x="13" y="13" width="10" height="10" fill="#FFB900"/>
+                            </svg>
+                        </span>
+                        <span>Continue with Microsoft</span>
+                    </button>
+                {% endif %}
             </div>
-            <p class="oauth-help">Google can confirm the invited email, pre-fill your name, and replace the password step. You still need to submit this form to finish creating the account.
+            <p class="oauth-help">Google or Microsoft can confirm the invited email, pre-fill your name, and replace the password step. You still need to submit this form to finish creating the account.
                 {% if google_oauth_enabled %}<br><a href="{% url 'google_oauth_start' %}?flow=invite&next={{ request.path|urlencode }}&expected_email={{ email|urlencode }}">If the popup fails, continue with a full-page Google redirect instead.</a>{% endif %}
             </p>
             <div id="googleInviteStatus" class="alert" style="display: none;"></div>
