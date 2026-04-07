@@ -28,6 +28,7 @@ urlpatterns = [
     path('team/invite/resend/', views.resend_invitation, name='resend_invitation'),
     path('team/invite/cancel/', views.cancel_invitation, name='cancel_invitation'),
     path('invite/<uuid:token>/', views.accept_invitation, name='accept_invitation'),
+    path('invite/<uuid:token>/decline/', views.decline_invitation, name='decline_invitation'),
     
     # Registration status
     path('check-status/', api_views.check_registration_status, name='check_registration_status'),
