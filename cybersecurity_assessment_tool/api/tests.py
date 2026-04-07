@@ -420,6 +420,46 @@ class GoogleOAuthSignupTests(TestCase):
         self.assertFalse(user.has_usable_password())
         self.assertEqual(invitation.status, 'accepted')
 
+    @override_settings(
+        EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+        DEFAULT_FROM_EMAIL='noreply@example.com',
+        ASYNC_EMAIL_ENABLED=False,
+    )
+    def test_invite_signup_notifies_org_admin_when_account_is_created(self):
+        organization = Organization.objects.create(org_name='Invite Notify Org')
+        sender = User.objects.create_user(
+            username='notifyinviter',
+            email='notifyinviter@example.com',
+            password='StrongPassword123!',
+            organization=organization,
+            is_active=True,
+        )
+        invitation = Invitation.objects.create(
+            sender=sender,
+            organization=organization,
+            recipient_email='teammate@example.com',
+            recipient_role='observer',
+            status='sent',
+        )
+
+        response = self.client.post(
+            reverse('accounts:accept_invitation', args=[invitation.token]),
+            data={
+                'first_name': 'Team',
+                'last_name': 'Mate',
+                'username': 'teammateuser',
+                'password1': 'StrongPassword123!',
+                'password2': 'StrongPassword123!',
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Account Created!')
+        self.assertGreaterEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[-1].subject, 'Team Member Joined Your Organization')
+        self.assertIn('notifyinviter@example.com', mail.outbox[-1].to)
+        self.assertIn('teammate@example.com', mail.outbox[-1].alternatives[0][0])
+
     @patch('api.views.id_token.verify_oauth2_token')
     def test_google_oauth_signup_rejects_invite_email_mismatch(self, mock_verify):
         mock_verify.return_value = {

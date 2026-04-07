@@ -70,6 +70,20 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
                 "invite_link": "http://localhost:8000/invite/abc123xyz/"
             }
         },
+
+        # Email to the org admin when an invited user finishes creating their account
+        "invite_accepted": {
+            "subject": "Team Member Joined Your Organization",
+            "template": "emails/invite_accepted.html",
+            "context": {
+                "admin_name": "Org Admin",
+                "member_name": "New Team Member",
+                "member_email": "member@example.com",
+                "company": "RePortly",
+                "role": "Observer",
+                "login_url": "http://localhost:8000/accounts/login/",
+            }
+        },
         
         # Report ready email sent to user when their security report is generated
         "report": {
