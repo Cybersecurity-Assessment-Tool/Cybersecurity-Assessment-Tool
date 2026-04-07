@@ -571,6 +571,34 @@ def accept_invitation(request, token):
             invitation.status = 'accepted'  # Mark as complete
             invitation.save()
 
+            admin_recipient = (
+                getattr(invitation.sender, 'email', '')
+                or getattr(invitation.sender, 'email_inbox', '')
+                or django_settings.ADMIN_EMAIL_INBOX
+            )
+            if admin_recipient:
+                try:
+                    domain = request.get_host()
+                    protocol = 'https' if (request.is_secure() or 'herokuapp.com' in domain) else 'http'
+                    admin_name = (
+                        ' '.join(part for part in [invitation.sender.first_name, invitation.sender.last_name] if part).strip()
+                        or invitation.sender.username
+                    )
+                    member_name = (
+                        ' '.join(part for part in [user.first_name, user.last_name] if part).strip()
+                        or user.username
+                    )
+                    queue_email('invite_accepted', admin_recipient, {
+                        'admin_name': admin_name,
+                        'member_name': member_name,
+                        'member_email': user.email,
+                        'company': invitation.organization.org_name,
+                        'role': invitation.recipient_role,
+                        'login_url': f"{protocol}://{domain}{reverse('login')}",
+                    })
+                except Exception as exc:
+                    print(f"Error notifying org admin about accepted invitation: {exc}")
+
             context = {
                 'success': True,
                 'email': invitation.recipient_email,
