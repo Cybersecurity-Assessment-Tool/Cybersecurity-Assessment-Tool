@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from ..models import Report, User, Organization
+from ..models import Report, User, Organization, Scan
 import json
 
 @transaction.atomic
@@ -8,10 +8,11 @@ def create_report(
     user_created: User,
     organization: Organization,
     name: str,
-    date_created,
+    # date_created,
     started,
     completed=None,
-    report_text=None # JSONField content (dict or list in Python)
+    report_text=None, # JSONField content (dict or list in Python)
+    scan: Scan = None ## NEW
 ) -> Report:
     """
     Stores (creates) a new Report object in the database.
@@ -23,11 +24,17 @@ def create_report(
         user_created=user_created,
         organization=organization,
         report_name=name,
-        date_created=date_created,
+        # date_created=date_created,
         started=started,
         completed=completed,
         report_text=report_text
     )
+
+    ## NEW
+    if scan:
+        scan.report = report
+        scan.save(update_fields=['report'])
+
     return report
 
 def get_report_by_id(report_id: str) -> Report | None:

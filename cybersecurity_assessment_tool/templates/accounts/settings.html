@@ -320,6 +320,96 @@
             text-align: center;
         }
     }
+
+    /* Other */
+    .member-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .member-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .member-name {
+        font-weight: 500;
+        color: #111827;
+    }
+    
+    .member-email {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+    
+    .member-role-badge {
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+    
+    .invite-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .invite-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .invite-email {
+        font-weight: 500;
+        color: #856404;
+    }
+    
+    .invite-role {
+        font-size: 0.75rem;
+        color: #856404;
+        opacity: 0.8;
+    }
+    
+    .invite-status {
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        background-color: #ffeeba;
+        color: #856404;
+    }
+    
+    .invite-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+    }
 </style>
 {% endblock %}
 
@@ -352,11 +442,12 @@
                 onclick="location.href='?tab=notifications'">
             Notifications
         </button>
-        <button class="tab-button {% if active_tab == 'security' %}active{% endif %}" 
-                onclick="location.href='?tab=security'">
-            Security
-        </button>
+        
         {% if is_admin %}
+        <button class="tab-button {% if active_tab == 'posture' %}active{% endif %}" 
+                onclick="location.href='?tab=posture'">
+            Security Posture
+        </button>
         <button class="tab-button {% if active_tab == 'organization' %}active{% endif %}" 
                 onclick="location.href='?tab=organization'">
             Organization
@@ -377,61 +468,61 @@
                     <h2>Profile Information</h2>
                     <p>Update your personal information and how others see you</p>
                 </div>
-                
+
                 <div class="card-body">
-                    <!-- Avatar Section -->
                     <div class="avatar-section">
-                        {% if profile.profile_image %}
-                            <img src="{{ profile.profile_image.url }}" alt="Profile" class="current-avatar" id="profileImage">
+                        {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}" alt="Profile" class="current-avatar" id="profileImage">
                         {% else %}
                             <div class="avatar-placeholder" id="profileImagePlaceholder">
                                 {{ user.username|first|upper }}
                             </div>
                         {% endif %}
                         <div>
-                            <label for="{{ profile_form.profile_image.id_for_label }}" class="btn btn-secondary">
+                            <label for="profile_image_input" class="btn btn-secondary">
                                 Change Photo
                             </label>
                             <p class="form-text">JPG, PNG or GIF. Max 2MB.</p>
-                            {{ profile_form.profile_image }}
-                        </div>
-                    </div>
-
-                    <!-- Two Column Layout -->
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="{{ profile_form.display_name.id_for_label }}">Display Name</label>
-                            {{ profile_form.display_name }}
-                            <span class="form-text">How your name appears to others</span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="{{ profile_form.job_title.id_for_label }}">Job Title</label>
-                            {{ profile_form.job_title }}
+                            <input type="file" id="profile_image_input" name="profile_image" style="display: none;">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="{{ profile_form.phone_number.id_for_label }}">Phone Number</label>
-                            {{ profile_form.phone_number }}
+                            <label for="first_name">First Name</label>
+                            <input type="text" id="first_name" name="first_name" class="form-input" value="{{ user.first_name|default:'' }}">
                         </div>
                         
                         <div class="form-group">
-                            <label for="{{ profile_form.timezone.id_for_label }}">Timezone</label>
-                            {{ profile_form.timezone }}
+                            <label for="last_name">Last Name</label>
+                            <input type="text" id="last_name" name="last_name" class="form-input" value="{{ user.last_name|default:'' }}">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="{{ profile_form.items_per_page.id_for_label }}">Items Per Page</label>
-                            {{ profile_form.items_per_page }}
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" class="form-input" value="{{ user.username|default:'' }}">
                         </div>
                         
                         <div class="form-group">
-                            <label for="{{ profile_form.default_view.id_for_label }}">Default View</label>
-                            {{ profile_form.default_view }}
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" class="form-input" value="{{ user.email|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="organization">Organization</label>
+                            <input type="text" id="organization" class="form-input" value="{{ user.organization.org_name|default:'No Organization Assigned' }}" readonly style="background-color: #f3f4f6; color: #6b7280; cursor: not-allowed;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" class="form-input" value="********" readonly style="background-color: #f3f4f6; color: #6b7280; cursor: not-allowed;">
+                            <span class="form-text">
+                                <a href="{% url 'password_change' %}" style="color: #3b82f6; text-decoration: none;">Click here to change password</a>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -439,34 +530,6 @@
                 <div class="card-footer">
                     <span class="save-indicator" id="profileSaveIndicator">All changes saved</span>
                     <button type="submit" name="update_profile" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Email Settings Card -->
-        <div class="settings-card">
-            <form method="post" id="emailForm">
-                {% csrf_token %}
-                <input type="hidden" name="active_tab" value="profile">
-                
-                <div class="card-header">
-                    <h2>Email Address</h2>
-                    <p>Your primary email for notifications and account recovery</p>
-                </div>
-                
-                <div class="card-body">
-                    <div class="form-group">
-                        <label for="{{ email_form.email.id_for_label }}">Email</label>
-                        {{ email_form.email }}
-                        {% if email_form.email.errors %}
-                            <div class="alert alert-error">{{ email_form.email.errors }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div class="card-footer">
-                    <span class="save-indicator" id="emailSaveIndicator">Current email</span>
-                    <button type="submit" name="update_email" class="btn btn-primary">Update Email</button>
                 </div>
             </form>
         </div>
@@ -521,186 +584,209 @@
         </div>
         {% endif %}
 
-        <!-- Security Tab -->
-        {% if active_tab == 'security' %}
-        <!-- Password Change (from Django auth) -->
+        <!-- Security Posture Tab (Admin Only) -->
+        {% if active_tab == 'posture' and is_admin %}
         <div class="settings-card">
-            <div class="card-header">
-                <h2>Password</h2>
-                <p>Change your password regularly to keep your account secure</p>
-            </div>
-            
-            <div class="card-body">
-                <a href="{% url 'password_change' %}" class="btn btn-secondary">Change Password</a>
-            </div>
-        </div>
-
-        <!-- Two-Factor Authentication -->
-        <div class="settings-card">
-            <form method="post">
+            <form method="post" id="postureForm">
                 {% csrf_token %}
-                <input type="hidden" name="active_tab" value="security">
+                <input type="hidden" name="active_tab" value="posture">
                 
                 <div class="card-header">
-                    <h2>Two-Factor Authentication (2FA)</h2>
-                    <p>Add an extra layer of security to your account</p>
+                    <h2>Organization Security Posture</h2>
+                    <p>Update your organization's network information and security policies.</p>
                 </div>
                 
                 <div class="card-body">
-                    <!-- TODO: Implement actual 2FA -->
-                    <!-- 
-                        Implementation Plan:
-                        1. Install django-otp or pyotp
-                        2. Add OTP model to User
-                        3. Generate secret key per user
-                        4. Display QR code for authenticator apps
-                        5. Verify code before enabling
-                        6. Store backup codes for recovery
-                    -->
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #374151;">Network & Domain Information</h3>
                     
-                    <div class="info-box">
-                        <div class="info-box-title">📱 Setup Two-Factor Authentication</div>
-                        <div class="info-box-content">
-                            <p>1. Install an authenticator app like Google Authenticator or Authy</p>
-                            <p>2. Scan the QR code below with your app</p>
-                            <p>3. Enter the 6-digit code to verify setup</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email_domain_name">Email Domain Name</label>
+                            <input type="text" 
+                                   name="email_domain_name" 
+                                   id="email_domain_name" 
+                                   class="form-input" 
+                                   value="{{ request.user.organization.email_domain|default:'' }}" 
+                                   placeholder="e.g., example.com"
+                                   pattern="^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$"
+                                   title="Please enter a valid domain name (e.g., company.com)"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="website_domain_name">Website Domain Name</label>
+                            <input type="text" 
+                                   name="website_domain_name" 
+                                   id="website_domain_name" 
+                                   class="form-input" 
+                                   value="{{ request.user.organization.website_domain|default:'' }}" 
+                                   placeholder="e.g., example.com"
+                                   pattern="^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$"
+                                   title="Please enter a valid domain name (e.g., company.com)"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ip_address">External IP Address</label>
+                            <input type="text" 
+                                   name="ip_address" 
+                                   id="ip_address" 
+                                   class="form-input" 
+                                   value="{{ request.user.organization.external_ip|default:'' }}" 
+                                   placeholder="e.g., 198.51.100.1 or 203.0.113.0/24"
+                                   pattern="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:[0-9]|[1-2][0-9]|3[0-2]))?$"
+                                   title="Please enter a valid IPv4 address or CIDR notation (e.g., 192.168.1.1 or 10.0.0.0/24)"
+                                   required>
                         </div>
                     </div>
 
-                    <!-- QR Code Placeholder -->
-                    <div class="qr-placeholder">
-                        <span class="text-muted">QR Code Preview</span>
-                    </div>
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 1rem; color: #374151;">Access & Authentication</h3>
                     
-                    <div class="form-group">
-                        <label for="{{ twofa_form.verification_code.id_for_label }}">Verification Code</label>
-                        {{ twofa_form.verification_code }}
-                        <span class="form-text">Enter the 6-digit code from your authenticator app</span>
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="mfa_email" id="mfa_email" class="form-checkbox" 
+                               {% if request.user.organization.require_mfa_email %}checked{% endif %}>
+                        <label for="mfa_email">MFA required for all users to access email</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="mfa_computers" id="mfa_computers" class="form-checkbox"
+                               {% if request.user.organization.require_mfa_computer %}checked{% endif %}>
+                        <label for="mfa_computers">MFA required for all users to log into computers</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="mfa_sensitive_data" id="mfa_sensitive_data" class="form-checkbox"
+                               {% if request.user.organization.require_mfa_sensitive_data %}checked{% endif %}>
+                        <label for="mfa_sensitive_data">MFA required for all users to access sensitive data systems</label>
+                    </div>
+
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 1rem; color: #374151;">Policies & Training</h3>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="has_aup" id="has_aup" class="form-checkbox"
+                               {% if request.user.organization.employee_acceptable_use_policy %}checked{% endif %}>
+                        <label for="has_aup">Organization has an employee acceptable use policy</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="training_new_employees" id="training_new_employees" class="form-checkbox"
+                               {% if request.user.organization.training_new_employees %}checked{% endif %}>
+                        <label for="training_new_employees">Security awareness training is required for new employees</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="training_annual" id="training_annual" class="form-checkbox"
+                               {% if request.user.organization.training_once_per_year %}checked{% endif %}>
+                        <label for="training_annual">Security awareness training is required for all employees at least once per year</label>
                     </div>
                 </div>
                 
                 <div class="card-footer">
-                    <button type="submit" name="setup_2fa" class="btn btn-primary">Enable 2FA</button>
-                    <span class="text-muted">(Placeholder - not functional)</span>
+                    <span class="save-indicator" id="postureSaveIndicator">All changes saved</span>
+                    <button type="submit" name="update_posture" class="btn btn-primary">Save Security Posture</button>
                 </div>
             </form>
         </div>
-
-        <!-- Active Sessions -->
-        <div class="settings-card">
-            <div class="card-header">
-                <h2>Active Sessions</h2>
-                <p>Devices and locations where you're logged in</p>
-            </div>
-            
-            <div class="card-body">
-                <!-- TODO: Implement session management -->
-                <!-- 
-                    Implementation Plan:
-                    1. Use django.contrib.sessions to track sessions
-                    2. Store additional metadata (IP, device, location)
-                    3. Allow users to revoke specific sessions
-                    4. Show current session highlighted
-                -->
-                <p class="text-muted">Session management coming soon...</p>
-            </div>
-        </div>
         {% endif %}
 
-        <!-- Organization Tab (Phase 3 - Admin only) -->
+        <!-- Organization Tab (Admin Only) -->
         {% if active_tab == 'organization' and is_admin %}
+        <!-- Team Members Card -->
         <div class="settings-card">
             <div class="card-header">
                 <h2>Team Members</h2>
                 <p>Manage your organization's team members and their roles</p>
             </div>
-            
+
             <div class="card-body">
-                <!-- TODO: Implement organization management -->
-                <!-- 
-                    Implementation Plan:
-                    1. Create Organization model with name, billing info, etc.
-                    2. Add organization ForeignKey to UserProfile
-                    3. Create Invitation model with token and expiry
-                    4. Implement email-based invitation system
-                    5. Add role-based permissions (admin, analyst, viewer, auditor)
-                    6. Create audit log for organization changes
-                -->
+                <!-- Current Team Members List -->
+                <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Current Members</h3>
+                <div id="teamMembersList" style="margin-bottom: 2rem;">
+                    </div>
+            
+                <!-- Invite New Member Form -->    
+                <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Invite New Member</h3>
+                <form id="inviteForm" class="invite-form" style="background-color: #f9fafb; padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+                    {% csrf_token %}
+                    <input type="hidden" name="active_tab" value="organization">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="invite_email">Email Address</label>
+                            <input type="email" 
+                                id="invite_email" 
+                                name="email" 
+                                class="form-input" 
+                                placeholder="colleague@company.com"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="invite_email_confirm">Confirm Email</label>
+                            <input type="email" 
+                                id="invite_email_confirm" 
+                                class="form-input" 
+                                placeholder="colleague@company.com"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="invite_role">Role</label>
+                            <select id="invite_role" name="role" class="form-select">
+                                <option value="observer">Observer</option>
+                                <option value="tester">Tester</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                        <button type="submit" class="btn btn-primary" id="sendInviteBtn">
+                            <span class="spinner-border spinner-border-sm d-none" id="inviteSpinner" role="status"></span>
+                            Send Invitation
+                        </button>
+                    </div>
+                    <div id="inviteMessage" class="mt-2"></div>
+                </form>            
+                <!-- Pending Invitations List -->
+                <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Pending Invitations</h3>
+                <div id="pendingInvitesList">
+                    </div>
+            </div>
+        
+            <!-- {# TODO: Implement team management functionality #}
+            {# 
+                Implementation Plan:
+                1. Create Invitation model with fields:
+                   - organization (ForeignKey)
+                   - email (EmailField)
+                   - role (CharField with choices)
+                   - invited_by (ForeignKey to User)
+                   - token (UUIDField, unique)
+                   - status (CharField: pending, accepted, expired)
+                   - created_at (DateTimeField)
+                   - expires_at (DateTimeField)
+
+                2. Create API endpoints:
+                   - GET /api/team/members/ - List current members
+                   - GET /api/team/invites/ - List pending invites
+                   - POST /api/team/invite/ - Send new invitation
+                   - POST /api/team/invite/resend/ - Resend invitation
+                   - POST /api/team/invite/cancel/ - Cancel invitation
+                   - GET /invite/<token>/ - Accept invitation page
                 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h3>Current Members</h3>
-                    <button class="btn btn-primary" onclick="alert('Invite functionality coming soon!')">
-                        Invite Member
-                    </button>
-                </div>
-
-                <table class="table" style="width: 100%;">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Joined</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{ user.username }}</td>
-                            <td><span class="badge bg-primary">Admin</span></td>
-                            <td><span class="badge bg-success">Active</span></td>
-                            <td>2024-01-15</td>
-                            <td>
-                                <button class="btn btn-secondary btn-sm" onclick="alert('Role management coming soon!')">
-                                    Change Role
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <!-- Pending Invites -->
-                <h3 style="margin-top: 2rem;">Pending Invitations</h3>
-                <p class="text-muted">No pending invitations</p>
-            </div>
-        </div>
-
-        <!-- Organization Settings -->
-        <div class="settings-card">
-            <div class="card-header">
-                <h2>Organization Settings</h2>
-                <p>Configure your organization's default settings</p>
-            </div>
-            
-            <div class="card-body">
-                <div class="form-group">
-                    <label>Organization Name</label>
-                    <input type="text" class="form-input" value="Your Organization" readonly>
-                </div>
-
-                <div class="form-group">
-                    <label>Default Scan Settings</label>
-                    <select class="form-select" disabled>
-                        <option>Standard Scan</option>
-                        <option>Deep Scan</option>
-                        <option>Quick Scan</option>
-                    </select>
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" class="form-checkbox" id="autoScan" checked disabled>
-                    <label for="autoScan">Automatically scan new assets</label>
-                </div>
-
-                <p class="text-muted" style="margin-top: 1rem;">
-                    Organization settings will be fully implemented in a future update.
-                </p>
-            </div>
+                3. Email template for invitations
+                4. Auto-login or redirect to signup with pre-filled email
+                5. Add user to organization upon acceptance
+            #} -->
         </div>
         {% endif %}
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <!-- JavaScript for Save Indicators and AJAX Upload -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -736,7 +822,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Profile image preview
+    // Profile image preview <- not currently working
     const imageInput = document.getElementById('{{ profile_form.profile_image.id_for_label }}');
     if (imageInput) {
         imageInput.addEventListener('change', function(e) {
@@ -763,5 +849,302 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+    // Security Posture Form Validation
+    const postureForm = document.getElementById('postureForm');
+    if (postureForm) {
+        const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+        const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:[0-9]|[1-2][0-9]|3[0-2]))?$/;
+
+        postureForm.addEventListener('submit', function(e) {
+            const emailDomain = document.getElementById('email_domain_name').value.trim();
+            const websiteDomain = document.getElementById('website_domain_name').value.trim();
+            const ipAddress = document.getElementById('ip_address').value.trim();
+
+            let isValid = true;
+            let errorMessage = "";
+
+            if (!domainRegex.test(emailDomain)) {
+                isValid = false;
+                errorMessage += "Please enter a valid Email Domain (e.g., example.com).\n";
+            }
+            
+            if (!domainRegex.test(websiteDomain)) {
+                isValid = false;
+                errorMessage += "Please enter a valid Website Domain (e.g., example.com).\n";
+            }
+
+            if (!ipRegex.test(ipAddress)) {
+                isValid = false;
+                errorMessage += "Please enter a valid IPv4 address or CIDR (e.g., 192.168.1.1 or 10.0.0.0/24).\n";
+            }
+
+            if (!isValid) {
+                e.preventDefault(); // Stop submission
+                alert(errorMessage);
+            }
+        });
+    }
+
+// Team Management JavaScript
+$(document).ready(function() {
+    // Only load team data if we're on the organization tab and user is admin
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTab = urlParams.get('tab');
+    if (activeTab === 'organization' && {{ is_admin|lower }}) {
+        loadTeamMembers();
+        loadPendingInvites();
+    }
+});
+    
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function loadTeamMembers() {
+    const teamMembersUrl = '{% url "accounts:team_members" %}';
+    const removeMemberUrl = '{% url "accounts:remove_member" %}';
+    const csrfToken = '{{ csrf_token }}';
+
+    $('#teamMembersList').html(`
+        <div class="text-center text-muted py-3">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            Loading team members...
+        </div>
+    `);
+
+    $.ajax({
+        url: teamMembersUrl,
+        method: 'GET',
+        success: function(data) {
+            if (data.members && data.members.length > 0) {
+                let html = '';
+                for (let i = 0; i < data.members.length; i++) {
+                    const member = data.members[i];
+                    
+                    const statusBadge = member.is_active 
+                        ? '' 
+                        : '<span class="badge bg-warning text-dark ms-2">Pending</span>';
+                    
+                    // Show remove button for ALL members
+                    const removeButton = `<button class="btn btn-sm btn-danger ms-2 remove-member" data-member-id="${member.id}" data-member-name="${escapeHtml(member.name || member.username || member.email)}">Remove</button>`;
+
+                    html += `
+                        <div class="member-item">
+                            <div class="member-info">
+                                <span class="member-name">${escapeHtml(member.name || member.username || member.email)}</span>
+                                <span class="member-email">${escapeHtml(member.email)}</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="member-role-badge">${member.role || 'Member'}${statusBadge}</span>
+                                ${removeButton}
+                            </div>
+                        </div>
+                    `;
+                }
+                $('#teamMembersList').html(html);
+
+                // Attach remove button handlers
+                $('.remove-member').click(function() {
+                    const memberId = $(this).data('member-id');
+                    const memberName = $(this).data('member-name');
+                    
+                    if (confirm(`Are you sure you want to remove ${memberName} from the organization?`)) {
+                        $.ajax({
+                            url: removeMemberUrl,
+                            method: 'POST',
+                            data: {
+                                member_id: memberId,
+                                csrfmiddlewaretoken: csrfToken
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    alert(response.message);
+                                    loadTeamMembers();
+                                } else {
+                                    alert('Error: ' + response.error);
+                                }
+                            },
+                            error: function(xhr) {
+                                alert('Failed to remove member: ' + (xhr.responseJSON?.error || 'Unknown error'));
+                            }
+                        });
+                    }
+                });
+            } else {
+                $('#teamMembersList').html(`
+                    <div class="text-center text-muted py-3">
+                        No team members yet. Invite someone to get started!
+                    </div>
+                `);
+            }
+        },
+        error: function() {
+            $('#teamMembersList').html(`
+                <div class="alert alert-error" style="margin: 0;">
+                    Failed to load team members. Please refresh the page.
+                </div>
+            `);
+        }
+    });
+}
+
+function loadPendingInvites() {
+    $('#pendingInvitesList').html(`
+        <div class="text-center text-muted py-3">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            Loading pending invitations...
+        </div>
+    `);
+    
+    $.ajax({
+        url: '{% url "accounts:pending_invites" %}',
+        method: 'GET',
+        success: function(data) {
+            if (data.invites && data.invites.length > 0) {
+                let html = '';
+                data.invites.forEach(invite => {
+                    html += `
+                        <div class="invite-item" data-invite-id="${invite.id}">
+                            <div class="invite-info">
+                                <span class="invite-email">${invite.email}</span>
+                                <span class="invite-role">Role: ${invite.role}</span>
+                            </div>
+                            <div class="invite-actions">
+                                <span class="invite-status">Pending</span>
+                                <button class="btn btn-secondary btn-sm" onclick="resendInvite('${invite.id}')">
+                                    Resend
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="cancelInvite('${invite.id}')">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                $('#pendingInvitesList').html(html);
+            } else {
+                $('#pendingInvitesList').html(`
+                    <div class="text-center text-muted py-3">
+                        No pending invitations.
+                    </div>
+                `);
+            }
+        },
+        error: function() {
+            $('#pendingInvitesList').html(`
+                <div class="alert alert-error" style="margin: 0;">
+                    Failed to load pending invitations.
+                </div>
+            `);
+        }
+    });
+}
+
+$('#inviteForm').submit(function(e) {
+    e.preventDefault();
+    
+    const email = $('#invite_email').val();
+    const confirmEmail = $('#invite_email_confirm').val();
+    const role = $('#invite_role').val();
+    
+    // Check if the first email field is empty
+    if (!email) {
+        $('#inviteMessage').html(`
+            <div class="alert alert-error">Please enter an email address.</div>
+        `);
+        return;
+    }
+
+    // Check if both email fields match exactly
+    if (email !== confirmEmail) {
+        $('#inviteMessage').html(`
+            <div class="alert alert-error">Email addresses do not match. Please ensure both fields are identical.</div>
+        `);
+        return;
+    }
+    
+    // Disable button and show spinner
+    $('#sendInviteBtn').prop('disabled', true);
+    $('#inviteSpinner').removeClass('d-none');
+    $('#inviteMessage').empty();
+    
+    $.ajax({
+        url: '{% url "accounts:send_invitation" %}',
+        method: 'POST',
+        data: {
+            email: email,
+            role: role,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response) {
+            $('#inviteMessage').html(`
+                <div class="alert alert-success">Invitation sent successfully to ${email}!</div>
+            `);
+            $('#inviteForm')[0].reset();
+            loadPendingInvites();
+        },
+        error: function(xhr) {
+            const errorMsg = xhr.responseJSON?.error || 'Failed to send invitation.';
+            $('#inviteMessage').html(`
+                <div class="alert alert-error">${errorMsg}</div>
+            `);
+        },
+        complete: function() {
+            $('#sendInviteBtn').prop('disabled', false);
+            $('#inviteSpinner').addClass('d-none');
+            
+            setTimeout(() => {
+                $('#inviteMessage').fadeOut(function() {
+                    $(this).empty().show();
+                });
+            }, 5000);
+        }
+    });
+});
+
+function resendInvite(inviteId) {
+    $.ajax({
+        url: '{% url "accounts:resend_invitation" %}',
+        method: 'POST',
+        data: {
+            invite_id: inviteId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function() {
+            alert('Invitation resent successfully!');
+        },
+        error: function() {
+            alert('Failed to resend invitation.');
+        }
+    });
+}
+
+function cancelInvite(inviteId) {
+    if (!confirm('Are you sure you want to cancel this invitation?')) {
+        return;
+    }
+    
+    $.ajax({
+        url: '{% url "accounts:cancel_invitation" %}',
+        method: 'POST',
+        data: {
+            invite_id: inviteId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function() {
+            loadPendingInvites();
+        },
+        error: function() {
+            alert('Failed to cancel invitation.');
+        }
+    });
+}
 </script>
 {% endblock %}

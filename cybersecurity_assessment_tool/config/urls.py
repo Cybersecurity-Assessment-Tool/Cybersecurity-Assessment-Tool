@@ -23,6 +23,8 @@ from api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
+    path('accounts/login/', views.login_view, name='login'),
     path("accounts/", include("accounts.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     
@@ -31,19 +33,28 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),  # /dashboard/
     path('reports/', views.report_list, name='report_list'),  # /reports/
     path('reports/<uuid:report_id>/', views.report_detail, name='report_detail'),  # /reports/1/
+    path('reports/<uuid:report_id>/pdf/', views.download_report_pdf, name='download_report_pdf'),  # /reports/1/pdf/
     path('risks/', views.risks_list, name='risks_list'),  # /risks/
     path('risks/<uuid:risk_id>/', views.risk_detail, name='risk_detail'),  # /risk/1/
     path('scan/', views.scan, name='scan'),  # /scan/
-    path('settings/', views.settings, name='settings'),  # /settings/
-    path('profile/', views.profile, name='profile'),  # /profile/
 
-    # path('questionnaire/', views.home, name='questionnaire'),  # /questionnaire/ (not implemented yet)
+    path('tasks/<str:task_id>/', views.check_task_status, name='check_task_status'),
+    
+    # Chatbot & Async Task URLs
+    path('reports/<uuid:report_id>/chat/', views.chat_about_report, name='chat_about_report'),
+    path('risks/<uuid:risk_id>/chat/', views.chat_about_risk, name='chat_about_risk'),
+    path('task-status/<str:task_id>/', views.check_task_status, name='check_task_status'),
+
+    ## DEBUG
+    path('test-email/', views.test_sendgrid, name='test_email'),
 ]
 
-if not settings.TESTING:
-    from debug_toolbar.toolbar import debug_toolbar_urls
+## cat hate BANAN
 
-    urlpatterns = [
-        *urlpatterns,
-        path('api/v1/', include('api.urls')), # to see the backend engine (DEV ONLY)
-    ] + debug_toolbar_urls()
+# Add debug toolbar only if it's installed
+if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
+    try:
+        from debug_toolbar.toolbar import debug_toolbar_urls
+        urlpatterns += debug_toolbar_urls()
+    except ImportError:
+        pass  # debug_toolbar not installed, ignore

@@ -1,12 +1,9 @@
-<!-- templates/registration/signup.html -->
 {% extends "base.html" %}
 
 {% block title %}Sign Up{% endblock %}
 
-<!-- different styling -->
 {% block extra_css %}
 <style>
-    /* Barebones but clean styling */
     .auth-container {
         min-height: 100vh;
         display: flex;
@@ -39,6 +36,7 @@
         margin-bottom: 0.5rem;
     }
 
+    /* Keeps top errors only for non-field errors */
     .auth-error {
         background-color: #fee2e2;
         border: 1px solid #fecaca;
@@ -51,6 +49,15 @@
 
     .auth-error p {
         margin: 0.25rem 0;
+    }
+
+    /* NEW: Django renders field errors as a ul with class 'errorlist' */
+    .errorlist {
+        color: #ef4444; /* Small red text */
+        font-size: 0.75rem;
+        margin: 0.35rem 0 0 0;
+        padding-left: 0;
+        list-style-type: none;
     }
 
     .auth-form {
@@ -77,6 +84,11 @@
         border-radius: 6px;
         box-sizing: border-box;
         transition: border-color 0.15s;
+    }
+
+    /* Optional: Add a red border to the input if there's an error */
+    .form-group.has-error .form-input {
+        border-color: #ef4444;
     }
 
     .form-input:focus {
@@ -146,7 +158,6 @@
 </style>
 {% endblock %}
 
-<!-- removed nav bar -->
 {% block auth %} {% endblock %}
 
 {% block content %}
@@ -156,67 +167,47 @@
             <h1 class="auth-title">Sign up</h1>
         </div>
 
-        <!-- Error Messages -->
-        {% if form.errors %}
+        {% if form.non_field_errors %}
         <div class="auth-error">
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <p><strong>{{ field.label }}:</strong> {{ error }}</p>
-                {% endfor %}
-            {% endfor %}
             {% for error in form.non_field_errors %}
                 <p>{{ error }}</p>
             {% endfor %}
         </div>
         {% endif %}
 
-        <!-- Sign Up Form -->
         <form method="post" class="auth-form">
             {% csrf_token %}
             
-            <!-- Username Field -->
-            <div class="form-group">
+            <div class="form-group {% if form.username.errors %}has-error{% endif %}">
                 <label for="{{ form.username.id_for_label }}">Username</label>
                 {{ form.username }}
-                <!-- {% if form.username.help_text %}
-                <span class="form-text">{{ form.username.help_text }}</span>
-                {% endif %} -->
+                {{ form.username.errors }}
             </div>
 
-            <!-- Email Field (New!) -->
-            <div class="form-group">
+            <div class="form-group {% if form.email.errors %}has-error{% endif %}">
                 <label for="{{ form.email.id_for_label }}">Email</label>
                 {{ form.email }}
                 {% if form.email.help_text %}
                 <span class="form-text">{{ form.email.help_text }}</span>
                 {% endif %}
+                {{ form.email.errors }}
             </div>
 
-            <!-- Password Field -->
-            <div class="form-group">
+            <div class="form-group {% if form.password1.errors %}has-error{% endif %}">
                 <label for="{{ form.password1.id_for_label }}">Password</label>
                 {{ form.password1 }}
-                <!-- {% if form.password1.help_text %}
-                <div class="password-requirements">
-                    {{ form.password1.help_text|safe }}
-                </div>
-                {% endif %} -->
+                {{ form.password1.errors }}
             </div>
 
-            <!-- Confirm Password Field -->
-            <div class="form-group">
+            <div class="form-group {% if form.password2.errors %}has-error{% endif %}">
                 <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
                 {{ form.password2 }}
-                <!-- {% if form.password2.help_text %}
-                <span class="form-text">{{ form.password2.help_text }}</span>
-                {% endif %} -->
+                {{ form.password2.errors }}
             </div>
 
-            <!-- Submit Button -->
             <button type="submit" class="auth-button">Sign Up</button>
         </form>
 
-        <!-- Login Link -->
         <div class="auth-footer">
             <p>Already have an account? <a href="{% url 'login' %}" class="signup-link">Log In</a></p>
         </div>
@@ -224,5 +215,4 @@
 </div>
 {% endblock %}
 
-<!-- removed footer -->
 {% block footer %} {% endblock %}

@@ -3,26 +3,13 @@
 
 {% block title %}Login{% endblock %}
 
-<!-- different styling -->
 {% block extra_css %}
 <style>
-    .position-relative {
-        position: relative !important;
-    }
+    .position-relative { position: relative !important; }
+    .position-absolute { position: absolute !important; }
+    .right-0 { right: 0 !important; }
+    .top-0 { top: 0 !important; }
 
-    .position-absolute {
-        position: absolute !important;
-    }
-
-    .right-0 {
-        right: 0 !important;
-    }
-
-    .top-0 {
-        top: 0 !important;
-    }
-
-    /* Auth Container */
     .auth-container {
         min-height: 100vh;
         display: flex;
@@ -33,7 +20,6 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
 
-    /* Auth Card */
     .auth-card {
         background: white;
         border-radius: 16px;
@@ -44,15 +30,9 @@
         border: 1px solid #e5e7eb;
     }
 
-    /* Auth Header */
     .auth-header {
         text-align: center;
         margin-bottom: 2rem;
-    }
-
-    .auth-logo {
-        color: #4b5563;
-        margin-bottom: 1rem;
     }
 
     .auth-title {
@@ -62,22 +42,16 @@
         margin-bottom: 0.5rem;
     }
 
-    /* Error Message */
     .auth-error {
         background-color: #fee2e2;
         border: 1px solid #fecaca;
         border-radius: 6px;
         padding: 0.75rem 1rem;
         margin-bottom: 1.5rem;
-    }
-
-    .auth-error p {
         color: #b91c1c;
         font-size: 0.875rem;
-        margin: 0;
     }
 
-    /* Form */
     .auth-form {
         margin-bottom: 1.5rem;
     }
@@ -113,11 +87,6 @@
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    .form-input::placeholder {
-        color: #9ca3af;
-    }
-
-    /* Forgot Password */
     .forgot-password {
         text-align: right;
         margin-top: -0.5rem;
@@ -133,7 +102,6 @@
         text-decoration: underline;
     }
 
-    /* Auth Button */
     .auth-button {
         width: 100%;
         padding: 0.625rem 1rem;
@@ -151,12 +119,11 @@
         background-color: #1f2937;
     }
 
-    .auth-button:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.1);
+    .auth-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
-    /* Divider */
     .auth-divider {
         position: relative;
         text-align: center;
@@ -184,7 +151,6 @@
         letter-spacing: 0.05em;
     }
 
-    /* Social Login */
     .social-login {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -212,7 +178,6 @@
         background-color: #f9fafb;
     }
 
-    /* Footer */
     .auth-footer {
         text-align: center;
         font-size: 0.875rem;
@@ -232,15 +197,9 @@
         text-decoration: underline;
     }
 
-    /* Responsive */
     @media (max-width: 640px) {
-        .auth-card {
-            padding: 1.5rem;
-        }
-        
-        .social-login {
-            grid-template-columns: 1fr;
-        }
+        .auth-card { padding: 1.5rem; }
+        .social-login { grid-template-columns: 1fr; }
     }
 </style>
 {% endblock %}
@@ -249,83 +208,173 @@
 {% block auth %} {% endblock %}
 
 {% block content %}
-<!-- <h2>Log In</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form }}
-  <button type="submit">Log In</button>
-</form> -->
-
 <div class="auth-container">
     <div class="auth-card">
-        <!-- Logo/Header -->
         <div class="auth-header">
             <h1 class="auth-title">Sign in</h1>
         </div>
 
-        <!-- Error Messages -->
-        {% if form.errors %}
-        <div class="auth-error">
-            <p>Incorrect username or password. Please try again.</p>
-        </div>
-        {% endif %}
+        <div id="loginError" class="auth-error" style="display: none;"></div>
 
-        <!-- Login Form -->
-        <form method="post" class="auth-form">
+        <form id="loginForm" class="auth-form">
             {% csrf_token %}
             
             <div class="form-group">
-                <label for="{{ form.username.id_for_label }}">Username</label>
+                <label for="username">Username</label>
                 <input type="text" 
-                       name="{{ form.username.name }}" 
-                       id="{{ form.username.id_for_label }}" 
+                       name="username" 
+                       id="username" 
                        class="form-input" 
                        placeholder="Enter your username"
-                       required
-                       {% if form.username.value %}value="{{ form.username.value }}"{% endif %}>
+                       required>
             </div>
 
             <div class="form-group position-relative">
-                <label for="{{ form.password.id_for_label }}">Password</label>
+                <label for="password">Password</label>
                 <input type="password" 
-                       name="{{ form.password.name }}" 
-                       id="{{ form.password.id_for_label }}" 
+                       name="password" 
+                       id="password" 
                        class="form-input" 
                        placeholder="Enter your password"
                        required>
-                <!-- Forgot Password Link -->
-                <div class="form-group forgot-password">
-                    <a href="{% url 'password_reset' %}" class="forgot-link position-absolute top-0 right-0">Forgot password?</a>
+                <div class="forgot-password">
+                    <a href="{% url 'password_reset' %}" class="forgot-link">Forgot password?</a>
                 </div>
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="auth-button">Sign in</button>
+            <button type="submit" class="auth-button" id="loginBtn">
+                Sign in
+            </button>
         </form>
 
-        <!-- Alternative Sign In Options (Placeholder) -->
-        <div class="auth-divider">
+        <!-- <div class="auth-divider">
             <span class="divider-text">Or continue with</span>
         </div>
 
         <div class="social-login">
-            <button class="social-button">
-                Google
-            </button>
-            <button class="social-button">
-                Apple
-            </button>
-        </div>
+            <button class="social-button" disabled>Google</button>
+            <button class="social-button" disabled>Apple</button>
+        </div> -->
 
-        <!-- Sign Up Link -->
         <div class="auth-footer">
-            <p>New to our platform? <a href="{% url 'accounts:signup' %}" class="signup-link">Create an account</a></p>
+            <p>New to our platform? <a href="{% url 'accounts:public_register' %}" class="signup-link">Create an account</a></p>
         </div>
     </div>
 </div>
+
+{% include 'components/otp_popup.html' %}
+
 {% endblock %}
 
 <!-- removed footer -->
 {% block footer %} {% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// CSRF token setup
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+        }
+    }
+});
+
+$(document).ready(function() {
+
+    $('#loginForm').submit(function(e) {
+        e.preventDefault();
+
+        const username = $('#username').val();
+        const password = $('#password').val();
+
+        $('#loginBtn').prop('disabled', true).text('Verifying...');
+        $('#loginError').hide();
+
+        $.ajax({
+            url: '{% url "login" %}',
+            method: 'POST',
+            data: { username: username, password: password },
+            success: function(response) {
+                if (response.requires_otp) {
+                    openOtpModal({
+                        email: response.email || '',
+                        login: true,
+
+                        onVerify: function(otpCode, done) {
+                            $.ajax({
+                                url: '{% url "verify_login_otp" %}',
+                                method: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify({ otp_input: otpCode }),
+                                success: function(res) {
+                                    done(); // signal success to the modal
+                                    // store redirect for onSuccess below
+                                    window._otpRedirectUrl = res.redirect_url;
+                                },
+                                error: function(xhr) {
+                                    done(xhr.responseJSON?.error || 'Invalid code. Please try again.');
+                                }
+                            });
+                        },
+
+                        onResend: function(done) {
+                            $.ajax({
+                                url: '{% url "login" %}',
+                                method: 'POST',
+                                data: { username: username, password: password, resend: true },
+                                success: function() { done(); },
+                                error: function() { done('Failed to resend code. Please try again.'); }
+                            });
+                        },
+
+                        onSuccess: function() {
+                            window.location.href = window._otpRedirectUrl || '/dashboard/';
+                        },
+
+                        onCancel: function() {
+                            $('#loginBtn').prop('disabled', false).text('Sign in');
+                        }
+                    });
+                } else {
+                    window.location.href = '/dashboard/';
+                }
+            },
+            error: function(xhr) {
+                $('#loginBtn').prop('disabled', false).text('Sign in');
+                const response = xhr.responseJSON;
+                if (response && response.errors) {
+                    const errorMsg = response.errors.__all__ ||
+                                    response.errors.username ||
+                                    'Invalid username or password';
+                    $('#loginError').text(errorMsg).show();
+                } else {
+                    $('#loginError').text('Invalid username or password').show();
+                }
+            }
+        });
+    });
+
+});
+</script>
+{% endblock %}
 
 <!-- http://127.0.0.1:8000/accounts/login/ -->

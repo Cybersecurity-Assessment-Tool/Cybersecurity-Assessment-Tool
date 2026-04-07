@@ -1,0 +1,877 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ report.report_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Design: editorial minimalism, newspaper-like monochromatic grid ──── */
+    :root {
+        --ink:        #0a0a0a;
+        --ink-mid:    #3d3d3d;
+        --ink-light:  #717171;
+        --rule:       #c8c8c8;
+        --rule-light: #e8e8e8;
+        --surface:    #fafafa;
+        --paper:      #ffffff;
+        --accent:     #0a0a0a;
+        --link:       #0066cc;
+
+        --font-body:    'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --font-mono:    'Consolas', 'Courier New', monospace;
+        --weight-heavy: 700;
+    }
+
+    /* ── Layout ────────────────────────────────────────────────────────────── */
+    .rp-wrap {
+        position: relative;
+        max-width: 900px;
+        margin: 2.5rem auto;
+        padding: 0 1.5rem 4rem;
+        font-family: var(--font-body);
+        color: var(--ink);
+    }
+
+    /* ── Masthead ──────────────────────────────────────────────────────── */
+    .rp-masthead {
+        border-bottom: 1px solid var(--ink);
+        padding: 1.5rem 0 1.25rem;
+        margin-bottom: 2.5rem;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: end;
+        gap: 1rem;
+    }
+    .rp-masthead-eyebrow {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        margin-bottom: 0.4rem;
+    }
+    .rp-masthead h1 {
+        font-size: 1.625rem;
+        font-weight: var(--weight-heavy);
+        line-height: 1.25;
+        color: var(--ink);
+        margin: 0;
+    }
+    .rp-masthead-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-end;
+        flex-shrink: 0;
+    }
+
+    /* ── Buttons ───────────────────────────────────────────────────────────── */
+    .rp-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 1rem;
+        font-family: var(--font-body);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-decoration: none;
+        border: 1.5px solid var(--ink);
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        white-space: nowrap;
+    }
+    .rp-btn-primary {
+        background: var(--ink);
+        color: var(--paper);
+    }
+    .rp-btn-primary:hover {
+        background: var(--ink-mid);
+        border-color: var(--ink-mid);
+        color: var(--paper);
+    }
+
+    /* ── Section ───────────────────────────────────────────────────────────── */
+    .rp-section {
+        margin-bottom: 3rem;
+    }
+    .rp-section-heading {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        border-bottom: 1px solid var(--rule);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .rp-kv-table td:last-child {
+        text-align: center;
+    }
+
+    /* ── Tables ────────────────────────────────────────────────────────────── */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.2rem 0;
+        font-size: 0.9rem;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 0.6rem 0.8rem;
+        text-align: left;
+        vertical-align: top;
+    }
+    th {
+        background-color: #f5f7f9;
+        font-weight: 600;
+    }
+
+    /* ── Summary block ─────────────────────────────────────────────────────── */
+    .rp-summary {
+        font-size: 0.9rem;
+        line-height: 1.8;
+        color: var(--ink-mid);
+        margin-bottom: 1.5rem;
+    }
+
+    /* ── Vulnerability card ────────────────────────────────────────────────── */
+    .rp-vuln-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+    .rp-vuln-card {
+        border: 1px solid var(--rule);
+        border-top: none;
+    }
+    .rp-vuln-card:first-child {
+        border-top: 1px solid var(--rule);
+    }
+
+    .rp-vuln-header {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 1.25rem;
+        background: var(--rule-light);
+        border-bottom: 1px solid var(--rule-light);
+        cursor: pointer;
+        user-select: none;
+    }
+    .rp-vuln-header:hover {
+        background: #f0f0f0;
+    }
+    .rp-vuln-name {
+        font-size: 0.9375rem;
+        font-weight: 700;
+        color: var(--ink);
+    }
+    .rp-sev {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-mid);
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .rp-toggle-icon {
+        font-size: 0.8rem;
+        color: var(--ink-light);
+        transition: transform 0.2s;
+    }
+    .rp-vuln-card.open .rp-toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    .rp-vuln-body {
+        display: none;
+        padding: 1.25rem 2.5rem 1.5rem;
+    }
+    .rp-vuln-card.open .rp-vuln-body {
+        display: block;
+    }
+
+    .rp-vuln-overview {
+        font-size: 0.875rem;
+        line-height: 1.7;
+        color: var(--ink-mid);
+        margin-bottom: 1.1rem;
+    }
+
+    .rp-sub-label {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        margin-bottom: 0.4rem;
+    }
+
+    .rp-pill-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-bottom: 1rem;
+    }
+    .rp-pill {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: var(--ink-mid);
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        padding: 0.15rem 0.55rem;
+    }
+
+    .rp-rec-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    .rp-rec-box {
+        background: var(--surface);
+        border: 1px solid var(--rule-light);
+        border-radius: 3px;
+        padding: 0.85rem 1rem;
+    }
+    .rp-rec-box-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .rp-rec-box p {
+        font-size: 0.8125rem;
+        color: var(--ink-mid);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .rp-risk-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--link);
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        padding-bottom: 1px;
+        margin-top: 0.75rem;
+        letter-spacing: 0.02em;
+    }
+    .rp-risk-link:hover {
+        border-bottom-color: var(--link);
+    }
+
+    /* ── Observation card ──────────────────────────────────────────────────── */
+    .rp-obs-card {
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--rule-light);
+    }
+    .rp-obs-card:last-child {
+        border-bottom: none;
+    }
+    .rp-obs-name {
+        font-size: 0.9375rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .rp-obs-name::before {
+        content: '✓';
+        font-size: 0.85rem;
+        color: var(--ink-light);
+    }
+    .rp-obs-card p {
+        font-size: 0.875rem;
+        line-height: 1.65;
+        color: var(--ink-mid);
+        margin-bottom: 0.5rem;
+    }
+
+    /* ── Placeholder card ──────────────────────────────────────────────────── */
+    .rp-placeholder {
+        border: 1px dashed var(--rule);
+        border-radius: 3px;
+        padding: 1.75rem;
+        text-align: center;
+        color: var(--ink-light);
+    }
+    .rp-placeholder p {
+        font-size: 0.875rem;
+        margin: 0;
+        font-style: italic;
+    }
+
+    /* ── Conclusion ────────────────────────────────────────────────────────── */
+    .rp-conclusion {
+        font-size: 0.9rem;
+        line-height: 1.8;
+        color: var(--ink-mid);
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────────────── */
+    .rp-footer-rule {
+        border: none;
+        border-top: 1px solid var(--rule);
+        margin-top: 3.5rem;
+    }
+    .rp-footer-text {
+        font-size: 0.75rem;
+        color: var(--ink-light);
+        margin-top: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    @media (max-width: 640px) {
+        .rp-masthead {
+            grid-template-columns: 1fr;
+        }
+        .rp-masthead-actions {
+            flex-direction: row;
+            align-items: flex-start;
+        }
+        .rp-rec-grid {
+            grid-template-columns: 1fr;
+        }
+        .rp-vuln-header {
+            grid-template-columns: 1fr auto;
+        }
+        .rp-toggle-icon {
+            display: none;
+        }
+    }
+
+    /* ── Sticky button (bottom left corner) ──────────────────────────────────── */
+    .sticky-bottom-btn {
+        position: fixed;
+        bottom: 2rem;
+        left: 2rem;
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--paper);
+        border: 1.5px solid var(--ink);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: var(--ink);
+        text-decoration: none;
+        z-index: 1000;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .sticky-bottom-btn:hover {
+        background: var(--ink);
+        color: var(--paper);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .sticky-bottom-btn svg {
+        width: 20px;
+        height: 20px;
+        stroke: currentColor;
+        stroke-width: 2;
+    }
+
+    /* ── Chatbot Widget (Bottom Right) ──────────────────────────────────── */
+    .chat-widget-toggle {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 56px;
+        height: 56px;
+        background-color: var(--ink);
+        color: var(--paper);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 9999;
+        border: none;
+        transition: transform 0.2s ease;
+    }
+    .chat-widget-toggle:hover {
+        transform: scale(1.05);
+    }
+    .chat-widget-panel {
+        position: fixed;
+        bottom: 5.5rem;
+        right: 2rem;
+        width: 350px;
+        height: 500px;
+        background: var(--paper);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        display: flex;
+        flex-direction: column;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+    }
+    .chat-widget-panel.open {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    .chat-header {
+        padding: 1rem;
+        background: var(--surface);
+        border-bottom: 1px solid var(--rule);
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .chat-header h4 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--ink);
+    }
+    .chat-close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--ink-light);
+        line-height: 1;
+    }
+    .chat-messages {
+        flex: 1;
+        padding: 1rem;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: #fff;
+    }
+    .chat-bubble {
+        max-width: 85%;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+    .chat-bubble.bot {
+        background: var(--surface);
+        border: 1px solid var(--rule-light);
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+    }
+    .chat-bubble.user {
+        background: var(--ink);
+        color: var(--paper);
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
+    }
+    .chat-input-area {
+        padding: 1rem;
+        border-top: 1px solid var(--rule);
+        background: var(--surface);
+        display: flex;
+        gap: 0.5rem;
+        border-radius: 0 0 8px 8px;
+    }
+    .chat-input-area input {
+        flex: 1;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--rule);
+        border-radius: 4px;
+        font-size: 0.875rem;
+        outline: none;
+    }
+    .chat-input-area input:focus {
+        border-color: var(--ink);
+    }
+    .chat-input-area button {
+        background: var(--ink);
+        color: var(--paper);
+        border: none;
+        padding: 0 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+    .chat-input-area button:hover {
+        background: var(--ink-mid);
+    }
+    .chat-typing {
+        font-size: 0.8rem;
+        color: var(--ink-light);
+        font-style: italic;
+        margin-top: -0.5rem;
+        display: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+        .sticky-bottom-btn {
+            bottom: 1rem;
+            left: 1rem;
+            width: 40px;
+            height: 40px;
+        }
+        .sticky-bottom-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+        
+        /* Adjust chat widget for mobile */
+        .chat-widget-toggle {
+            bottom: 1rem;
+            right: 1rem;
+        }
+        .chat-widget-panel {
+            bottom: 4.5rem;
+            right: 1rem;
+            left: 1rem;
+            width: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<button id="backToReportsBtn" class="sticky-bottom-btn" aria-label="Back to Reports">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+</button>
+
+<div class="rp-wrap">
+    <div class="rp-masthead">
+        <div>
+            <div class="rp-masthead-eyebrow">Cybersecurity Assessment Report</div>
+            <h1>{{ report.report_name }}</h1>
+        </div>
+        <div class="rp-masthead-actions">
+            <button id="pdfDownloadBtn" class="rp-btn rp-btn-primary"
+                    data-report-id="{{ report.report_id }}"
+                    data-report-name="{{ report.report_name }}">
+                Download PDF
+            </button>
+        </div>
+    </div>
+
+    {% if overview %}
+    <div class="rp-section">
+        <div class="rp-section-heading">01 — Overview</div>
+        <table>
+            <tbody>
+                {% for key, value in overview.items %}
+                <tr>
+                    <th style="width: 35%">{{ key }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if observations %}
+    <div class="rp-section">
+        <div class="rp-section-heading">
+            02 — Positive Observations
+        </div>
+        {% for o in observations %}
+        <div class="rp-obs-card">
+            <div class="rp-obs-name">{{ o.name }}</div>
+            <p>{{ o.overview }}</p>
+            {% if o.affected_elements %}
+            <div class="rp-pill-list">
+                {% for elem in o.affected_elements %}
+                <span class="rp-pill">{{ elem }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if questionnaire %}
+    <div class="rp-section">
+        <div class="rp-section-heading">03 — Security Questionnaire Review</div>
+        <table class="rp-kv-table">
+            <thead>
+                <tr>
+                    <th>Control Question</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, value in questionnaire.items %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td>
+                        {% if value == 'Yes' %}Y{% elif value == 'No' %}N{% else %}{{ value }}{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="rp-section">
+        <div class="rp-section-heading">
+            04 — Risks &amp; Recommendations
+        </div>
+
+        {% if summary %}
+        <div class="rp-summary">{{ summary }}</div>
+        {% endif %}
+
+        {% if vulnerabilities %}
+        <div class="rp-vuln-list" id="vulnList">
+            {% for v in vulnerabilities %}
+            <div class="rp-vuln-card" id="vuln-{{ forloop.counter }}">
+                <div class="rp-vuln-header" onclick="toggleVuln('vuln-{{ forloop.counter }}')">
+                    <span class="rp-vuln-name">{{ v.risk }}</span>
+                    <span class="rp-sev" data-sev="{{ v.severity }}">{{ v.severity }}</span>
+                    <span class="rp-toggle-icon">▾</span>
+                </div>
+                <div class="rp-vuln-body">
+                    <p class="rp-vuln-overview">{{ v.overview }}</p>
+
+                    {% if v.affected_elements %}
+                    <div class="rp-sub-label">Affected Elements</div>
+                    <div class="rp-pill-list" style="margin-bottom:1.1rem;">
+                        {% for elem in v.affected_elements %}
+                        <span class="rp-pill">{{ elem }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if v.easy_fix or v.long_term_fix %}
+                    <div class="rp-sub-label">Recommendations</div>
+                    <div class="rp-rec-grid">
+                        {% if v.easy_fix %}
+                        <div class="rp-rec-box">
+                            <div class="rp-rec-box-title">Quick Fix</div>
+                            <p>{{ v.easy_fix }}</p>
+                        </div>
+                        {% endif %}
+                        {% if v.long_term_fix %}
+                        <div class="rp-rec-box">
+                            <div class="rp-rec-box-title">Long-term Fix</div>
+                            <p>{{ v.long_term_fix }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if v.risk_id %}
+                    <a href="{% url 'risk_detail' v.risk_id %}" class="rp-risk-link">
+                        View Full Risk Record →
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="rp-placeholder">
+            <p>No vulnerabilities were identified in this report.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if conclusion %}
+    <div class="rp-section">
+        <div class="rp-section-heading">05 — Conclusion</div>
+        <div class="rp-conclusion">{{ conclusion }}</div>
+    </div>
+    {% endif %}
+
+    <hr class="rp-footer-rule">
+    <div class="rp-footer-text">
+        <span>Vuleevu Inc — RePortly</span>
+    </div>
+</div>
+
+<button id="chatToggle" class="chat-widget-toggle" aria-label="Open Security Assistant">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+</button>
+
+<div id="chatPanel" class="chat-widget-panel">
+    <div class="chat-header">
+        <h4>AI Security Assistant</h4>
+        <button id="chatClose" class="chat-close-btn">&times;</button>
+    </div>
+    <div id="chatMessages" class="chat-messages">
+        <div class="chat-bubble bot">Hello! I'm your AI security assistant. Ask me any questions about this report.</div>
+    </div>
+    <div id="chatTyping" class="chat-typing">Assistant is thinking...</div>
+    <form id="chatForm" class="chat-input-area">
+        <input type="text" id="chatInput" placeholder="Ask about this report..." required autocomplete="off">
+        <button type="submit">Send</button>
+    </form>
+</div>
+<input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/vfs_fonts.js"></script>
+<script src="{% static 'js/report_utils.js' %}"></script>
+
+<script>
+    // ---------------------------------------------------------------------
+    // Download PDF functionality
+    // ---------------------------------------------------------------------
+    document.getElementById('pdfDownloadBtn').addEventListener('click', function() {
+        downloadReportAsPdf(this.dataset.reportId, this.dataset.reportName);
+    });
+
+    // ---------------------------------------------------------------------
+    // Collapsible risk cards
+    // ---------------------------------------------------------------------
+    function toggleVuln(id) {
+        const card = document.getElementById(id);
+        if (!card) return;
+        card.classList.toggle('open');
+    }
+
+    const stickyBackBtn = document.getElementById('backToReportsBtn');
+    if (stickyBackBtn) {
+        stickyBackBtn.addEventListener('click', function() {
+            window.location.href = '{% url "report_list" %}';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const first = document.querySelector('.rp-vuln-card');
+        if (first) first.classList.add('open');
+    });
+
+    // ---------------------------------------------------------------------
+    // Chatbot Functionality
+    // ---------------------------------------------------------------------
+    const chatToggle = document.getElementById('chatToggle');
+    const chatPanel = document.getElementById('chatPanel');
+    const chatClose = document.getElementById('chatClose');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatTyping = document.getElementById('chatTyping');
+    const csrfToken = document.getElementById('csrfToken').value;
+
+    // Chat URLs
+    const triggerChatUrl = "{% url 'chat_about_report' report.report_id %}";
+    // Assuming your URL name is 'check_task_status'. We use a string placeholder to replace in JS.
+    const pollTaskUrlTemplate = "{% url 'check_task_status' 'REPLACE_ME' %}"; 
+
+    // Toggle logic
+    chatToggle.addEventListener('click', () => chatPanel.classList.add('open'));
+    chatClose.addEventListener('click', () => chatPanel.classList.remove('open'));
+
+    function appendMessage(text, sender) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chat-bubble ${sender}`;
+        msgDiv.textContent = text;
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function pollTaskStatus(taskId) {
+        const pollUrl = pollTaskUrlTemplate.replace('REPLACE_ME', taskId);
+        
+        try {
+            const response = await fetch(pollUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            
+            if (data.state === 'SUCCESS') {
+                chatTyping.style.display = 'none';
+                appendMessage(data.result, 'bot');
+            } else if (data.state === 'FAILURE') {
+                chatTyping.style.display = 'none';
+                appendMessage("I'm sorry, I encountered an error while processing that.", 'bot');
+            } else {
+                // Still processing, poll again in 2 seconds
+                setTimeout(() => pollTaskStatus(taskId), 2000);
+            }
+        } catch (error) {
+            console.error('Polling error:', error);
+            chatTyping.style.display = 'none';
+            appendMessage("I lost connection to the server. Please try again.", 'bot');
+        }
+    }
+
+    chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const prompt = chatInput.value.trim();
+        if (!prompt) return;
+
+        // Display user message
+        appendMessage(prompt, 'user');
+        chatInput.value = '';
+        chatTyping.style.display = 'block';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Form data for the POST request
+        const formData = new FormData();
+        formData.append('prompt', prompt);
+
+        try {
+            const response = await fetch(triggerChatUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            });
+
+            if (response.status === 202) {
+                const data = await response.json();
+                // Start polling the task ID
+                pollTaskStatus(data.task_id);
+            } else {
+                throw new Error("Failed to start chat process.");
+            }
+        } catch (error) {
+            console.error(error);
+            chatTyping.style.display = 'none';
+            appendMessage("I'm sorry, there was a network error reaching the assistant.", 'bot');
+        }
+    });
+</script>
+{% endblock %}

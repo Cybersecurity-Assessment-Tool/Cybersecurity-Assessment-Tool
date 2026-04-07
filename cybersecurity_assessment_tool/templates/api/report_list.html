@@ -5,27 +5,9 @@
 
 {% block extra_css %}
 <style>
-    .organization-message {
-        background-color: #fff3cd;
-        border: 1px solid #ffeeba;
-        color: #856404;
-        padding: 1rem;
-        border-radius: 6px;
-        margin-bottom: 2rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        font-size: 0.875rem;
-    }
-    
-    .organization-message svg {
-        flex-shrink: 0;
-        width: 20px;
-        height: 20px;
-    }
-
+    /* ── Page shell ─────────────────────────────────────────────────────────── */
     .reports-container {
-        max-width: 1400px;
+        max-width: 1100px;
         margin: 0 auto;
         padding: 2rem;
     }
@@ -41,12 +23,13 @@
         font-size: 2rem;
         font-weight: 600;
         color: #111827;
-        margin: 0 0 0.5rem 0;
+        margin: 0 0 0.25rem 0;
     }
 
     .page-subtitle {
         color: #6b7280;
         margin: 0;
+        font-size: 0.875rem;
     }
 
     .total-count {
@@ -55,343 +38,367 @@
         border-radius: 20px;
         font-size: 0.875rem;
         color: #374151;
+        white-space: nowrap;
     }
 
-    /* Reports Grid */
-    .reports-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+    .organization-message {
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        color: #856404;
+        padding: 0.875rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
     }
 
-    .report-card {
+    /* ── Table container — mirrors .risks-table-container ───────────────────── */
+    .reports-table-container {
         background-color: white;
         border: 1px solid #e5e7eb;
         border-radius: 8px;
         overflow: hidden;
-        transition: all 0.2s;
+        margin-bottom: 1.5rem;
     }
 
-    .report-card:hover {
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
+    /* ── Table — mirrors .risks-table ────────────────────────────────────────── */
+    .reports-table {
+        width: 100%;
+        border-collapse: collapse;
     }
 
-    .report-card-header {
-        padding: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+    .reports-table th {
+        text-align: left;
+        padding: 0.75rem 1rem;
+        background-color: #f9fafb;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #6b7280;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+    }
+
+    .reports-table td {
+        padding: 0.875rem 1rem;
         border-bottom: 1px solid #f3f4f6;
+        font-size: 0.875rem;
+        vertical-align: middle;
     }
 
-    .report-title h3 {
-        font-size: 1.125rem;
+    .reports-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .reports-table tbody tr:hover td {
+        background-color: #fafafa;
+    }
+
+    /* ── Report name + date cell ─────────────────────────────────────────────── */
+    .report-name-link {
         font-weight: 600;
         color: #111827;
-        margin: 0 0 0.25rem 0;
+        text-decoration: none;
+        font-size: 0.9rem;
+        display: block;
     }
-
+    .report-name-link:hover {
+        color: #3b82f6;
+        text-decoration: underline;
+    }
     .report-date {
         font-size: 0.75rem;
-        color: #6b7280;
+        color: #9ca3af;
+        margin-top: 0.2rem;
     }
 
-    .report-card-body {
-        padding: 1.5rem;
-    }
-
-    .severity-summary {
+    /* ── Severity badges — mirrors risks.html .severity-badge family ─────────── */
+    .sev-row {
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 1.5rem;
-        padding: 0.75rem;
-        background-color: #f9fafb;
-        border-radius: 6px;
+        flex-wrap: wrap;
+        gap: 0.35rem;
     }
 
-    .severity-item {
-        text-align: center;
-    }
-
-    .severity-item.critical .severity-count {
-        color: #dc2626;
+    .sev-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
         font-weight: 600;
+        white-space: nowrap;
     }
 
-    .severity-item.high .severity-count {
-        color: #f97316;
-        font-weight: 600;
-    }
-
-    .severity-item.medium .severity-count {
-        color: #eab308;
-        font-weight: 600;
-    }
-
-    .severity-label {
-        display: block;
+    .sev-badge-num {
         font-size: 0.75rem;
-        color: #6b7280;
-        margin-bottom: 0.25rem;
+        font-weight: 700;
     }
 
-    .severity-count {
-        font-size: 1.125rem;
-        font-weight: 500;
-    }
+    .sev-badge.critical { background-color: #fee2e2; color: #b91c1c; }
+    .sev-badge.high     { background-color: #ffedd5; color: #c2410c; }
+    .sev-badge.medium   { background-color: #fef9c3; color: #854d0e; }
+    .sev-badge.low      { background-color: #dcfce7; color: #166534; }
 
-    .report-meta {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
+    /* Badges for zero counts are hidden — keeps the row tidy */
+    .sev-badge.zero { display: none; }
 
-    .meta-item {
-        text-align: center;
-    }
-
-    .meta-label {
-        display: block;
-        font-size: 0.75rem;
-        color: #6b7280;
-        margin-bottom: 0.25rem;
-    }
-
-    .meta-value {
+    /* ── Total count ─────────────────────────────────────────────────────────── */
+    .total-findings {
         font-size: 0.875rem;
-        font-weight: 500;
-        color: #111827;
+        font-weight: 600;
+        color: #374151;
     }
 
-    .report-card-footer {
+    /* ── Generated-by cell ───────────────────────────────────────────────────── */
+    .generated-by {
+        font-size: 0.8125rem;
+        color: #6b7280;
+    }
+
+    /* ── Action buttons — Design 1 style, slightly larger ───────────────────── */
+    .report-actions {
         display: flex;
-        border-top: 1px solid #e5e7eb;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
     }
 
-    .report-action {
-        flex: 1;
-        padding: 1rem;
-        text-align: center;
-        font-size: 0.875rem;
+    .rpt-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.5rem 1.1rem;     /* larger than D1's 0.35/0.75 */
+        font-size: 0.85rem;
         font-weight: 500;
+        border-radius: 5px;
         text-decoration: none;
-        transition: all 0.15s;
-        border: none;
-        background: none;
         cursor: pointer;
+        border: 1px solid;
+        white-space: nowrap;
+        line-height: 1;
+        font-family: inherit;
+        transition: background 0.12s, color 0.12s, border-color 0.12s;
     }
 
-    .report-action.view {
-        color: #3b82f6;
-        border-right: 1px solid #e5e7eb;
+    /* Ghost / outline — "View Details" */
+    .rpt-btn-view {
+        background: transparent;
+        color: #374151;
+        border-color: #d1d5db;
     }
-
-    .report-action.view:hover {
-        background-color: #eff6ff;
-    }
-
-    .report-action.download {
+    .rpt-btn-view:hover {
+        background: #f3f4f6;
         color: #111827;
+        border-color: #9ca3af;
     }
 
-    .report-action.download:hover {
-        background-color: #f3f4f6;
+    /* Filled dark — "Download PDF" */
+    .rpt-btn-dl {
+        background: #111827;
+        color: white;
+        border-color: #111827;
+    }
+    .rpt-btn-dl:hover {
+        background: #1f2937;
+        border-color: #1f2937;
+    }
+    .rpt-btn-dl:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
+    /* ── Responsive column hiding ────────────────────────────────────────────── */
+    @media (max-width: 860px) {
+        .col-by,    th.col-by    { display: none; }
+    }
+    @media (max-width: 680px) {
+        .col-total, th.col-total { display: none; }
+    }
+    @media (max-width: 520px) {
+        .col-sev,   th.col-sev   { display: none; }
+    }
+
+    /* ── Empty state ─────────────────────────────────────────────────────────── */
     .empty-state {
-        grid-column: 1 / -1;
         text-align: center;
-        padding: 4rem;
+        padding: 4rem 2rem;
         color: #9ca3af;
     }
-
-    .empty-state svg {
-        margin-bottom: 1rem;
+    .empty-state p  { font-size: 1rem; margin: 0.4rem 0; }
+    .empty-sub      { font-size: 0.875rem !important; color: #d1d5db; }
+    .empty-action-btn {
+        display: inline-block;
+        margin-top: 1.25rem;
+        padding: 0.625rem 1.25rem;
+        background-color: #111827;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        transition: background 0.15s;
     }
+    .empty-action-btn:hover { background-color: #1f2937; }
 
-    .empty-state p {
-        font-size: 1.125rem;
-        margin: 0.5rem 0;
-    }
-
-    .empty-sub {
-        font-size: 0.875rem !important;
-        color: #d1d5db;
-    }
-
-    /* Pagination (same as risks) */
+    /* ── Pagination ──────────────────────────────────────────────────────────── */
     .pagination {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
     }
-
     .page-link {
-        padding: 0.5rem 1rem;
+        padding: 0.4rem 0.875rem;
         background-color: white;
         border: 1px solid #e5e7eb;
         border-radius: 6px;
         color: #374151;
         text-decoration: none;
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
+        transition: background 0.15s, border-color 0.15s;
     }
-
     .page-link:hover {
         background-color: #f9fafb;
+        border-color: #d1d5db;
     }
-
     .current-page {
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         color: #6b7280;
-    }
-
-        .messages {
-        margin-bottom: 2rem;
-    }
-    
-    .alert {
-        padding: 1rem;
-        border-radius: 6px;
-        margin-bottom: 1rem;
-    }
-    
-    .alert-info {
-        background-color: #dbeafe;
-        border: 1px solid #bfdbfe;
-        color: #1e40af;
-    }
-    
-    .empty-action-btn {
-        display: inline-block;
-        margin-top: 1.5rem;
-        padding: 0.75rem 1.5rem;
-        background-color: #3b82f6;
-        color: white;
-        text-decoration: none;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        transition: background-color 0.15s;
-    }
-    
-    .empty-action-btn:hover {
-        background-color: #2563eb;
     }
 </style>
 {% endblock %}
 
+
 {% block content %}
 <div class="reports-container">
-    <!-- Header -->
+
+    {# ── Page header ─────────────────────────────────────────────────────────── #}
     <div class="page-header">
-        <div class="header-left">
+        <div>
             <h1 class="page-title">Security Reports</h1>
             <p class="page-subtitle">View and download generated security assessment reports</p>
         </div>
-        <div class="header-right">
-            <span class="total-count">{{ total_reports }} total reports</span>
-        </div>
+        <span class="total-count">{{ total_reports }} report{{ total_reports|pluralize }}</span>
     </div>
 
-    <!-- Message -->
+    {# ── No-org warning ──────────────────────────────────────────────────────── #}
     {% if not has_organization %}
     <div class="organization-message">
-        <span>No organization associated with your account. Please contact an administrator.</span>
+        No organization associated with your account. Please contact an administrator.
     </div>
     {% endif %}
 
-    <!-- Reports Grid -->
+    {# ── Reports table ───────────────────────────────────────────────────────── #}
     {% if has_data %}
-    <div class="reports-grid">
-        {% for report in page_obj %}
-        <div class="report-card">
-            <div class="report-card-header">
-                <div class="report-title">
-                    <h3>{{ report.report_name }}</h3>
-                    <span class="report-date">{{ report.completed|date:"F j, Y" }}</span>
-                </div>
-            </div>
+    <div class="reports-table-container">
+        <table class="reports-table">
+            <thead>
+                <tr>
+                    <th>Report</th>
+                    <th class="col-sev">Findings</th>
+                    <th class="col-total">Total</th>
+                    <th class="col-by">Generated by</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in page_obj %}
+                <tr>
 
-            <div class="report-card-body">
-                <!-- Severity Summary -->
-                <div class="severity-summary">
-                    <div class="severity-item critical">
-                        <span class="severity-label">Critical</span>
-                        <span class="severity-count">{{ report.critical_count }}</span>
-                    </div>
-                    <div class="severity-item high">
-                        <span class="severity-label">High</span>
-                        <span class="severity-count">{{ report.high_count }}</span>
-                    </div>
-                    <div class="severity-item medium">
-                        <span class="severity-label">Medium</span>
-                        <span class="severity-count">{{ report.medium_count }}</span>
-                    </div>
-                </div>
+                    {# Name + date #}
+                    <td>
+                        <a href="{% url 'report_detail' report.report_id %}"
+                           class="report-name-link">{{ report.report_name }}</a>
+                        <div class="report-date">{{ report.completed|date:"M j, Y" }}</div>
+                    </td>
 
-                <div class="report-meta">
-                    <div class="meta-item">
-                        <span class="meta-label">Total Findings</span>
-                        <span class="meta-value">{{ report.risk_count }}</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Generated By</span>
-                        <span class="meta-value">{{ report.user_created.username }}</span>
-                    </div>
-                </div>
-            </div>
+                    {# Severity badges — zero-count ones hidden by .zero class #}
+                    <td class="col-sev">
+                        <div class="sev-row">
+                            <span class="sev-badge critical {% if report.critical_count == 0 %}zero{% endif %}">
+                                <span class="sev-badge-num">{{ report.critical_count }}</span> C
+                            </span>
+                            <span class="sev-badge high {% if report.high_count == 0 %}zero{% endif %}">
+                                <span class="sev-badge-num">{{ report.high_count }}</span> H
+                            </span>
+                            <span class="sev-badge medium {% if report.medium_count == 0 %}zero{% endif %}">
+                                <span class="sev-badge-num">{{ report.medium_count }}</span> M
+                            </span>
+                            <span class="sev-badge low {% if report.low_count == 0 %}zero{% endif %}">
+                                <span class="sev-badge-num">{{ report.low_count }}</span> L
+                            </span>
+                        </div>
+                    </td>
 
-            <div class="report-card-footer">
-                <a href="{% url 'report_detail' report.report_id %}" class="report-action view">
-                    View Details
-                </a>
-                <button class="report-action download" data-report-id="{{ report.report_id }}" onclick="downloadReport(this)">
-                    Download
-                </button>
-            </div>
-        </div>
-        {% endfor %}
+                    {# Total findings count #}
+                    <td class="col-total">
+                        <span class="total-findings">{{ report.risk_count }}</span>
+                    </td>
+
+                    {# Generated by #}
+                    <td class="col-by">
+                        <span class="generated-by">{{ report.user_created.username }}</span>
+                    </td>
+
+                    {# Buttons: ghost "View Details" + filled dark "Download PDF" #}
+                    <td>
+                        <div class="report-actions">
+                            <a href="{% url 'report_detail' report.report_id %}"
+                               class="rpt-btn rpt-btn-view">
+                                View Details
+                            </a>
+                            <button class="rpt-btn rpt-btn-dl"
+                                    data-report-id="{{ report.report_id }}"
+                                    data-report-name="{{ report.report_name }}"
+                                    onclick="downloadReportAsPdf(
+                                        this.dataset.reportId,
+                                        this.dataset.reportName,
+                                        this
+                                    )">
+                                ↓ Download PDF
+                            </button>
+                        </div>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+
     {% else %}
-    <!-- Empty State - No Reports -->
     <div class="empty-state">
         <p>No reports generated yet</p>
         <p class="empty-sub">Run a vulnerability scan to generate your first security report.</p>
-        
-        <!-- Optional: Add a call-to-action button -->
         <a href="{% url 'scan' %}" class="empty-action-btn">Start New Scan</a>
     </div>
     {% endif %}
 
-    <!-- Pagination (only show if there are reports) -->
+    {# ── Pagination ──────────────────────────────────────────────────────────── #}
     {% if has_data and page_obj.has_other_pages %}
     <div class="pagination">
         {% if page_obj.has_previous %}
         <a href="?page=1" class="page-link">&laquo; First</a>
         <a href="?page={{ page_obj.previous_page_number }}" class="page-link">Previous</a>
         {% endif %}
-        
         <span class="current-page">
             Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
         </span>
-        
         {% if page_obj.has_next %}
         <a href="?page={{ page_obj.next_page_number }}" class="page-link">Next</a>
         <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">Last &raquo;</a>
         {% endif %}
     </div>
     {% endif %}
+
 </div>
 {% endblock %}
 
+
 {% block extra_js %}
-<script>
-function downloadReport(button) {
-    const reportId = button.getAttribute('data-report-id');
-    // TODO: Implement actual download
-    alert('Download functionality coming soon! Report ID: ' + reportId);
-}
-</script>
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.9/vfs_fonts.js"></script>
+<script src="{% static 'js/report_utils.js' %}"></script>
 {% endblock %}
