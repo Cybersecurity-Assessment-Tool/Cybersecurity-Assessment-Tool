@@ -6,7 +6,7 @@ Runs three scans against the organization's configured targets:
   - Email scan     → org.email_domain
   - Infra scan     → org.website_domain (falls back to email_domain)
 
-Entry point for Django-Q2: run_server_scan(scan_id)
+Entry point for Django-Q2: run_network_scan(scan_id)
 """
 
 from ast import Lambda
@@ -249,15 +249,15 @@ def _resolve_safe(resolver, name, rtype):
         return []
 
 
-def _summarise(findings, results):
-    results['security_findings'] = findings
-    results['scan_metadata'].update({
-        'total_findings': len(findings),
-        'critical': sum(1 for f in findings if f['severity'] == 'CRITICAL'),
-        'high':     sum(1 for f in findings if f['severity'] == 'HIGH'),
-        'medium':   sum(1 for f in findings if f['severity'] == 'MEDIUM'),
-        'low':      sum(1 for f in findings if f['severity'] == 'LOW'),
-    })
+def _add_metadata(scan_type, scan_start_ts, **extras):
+    scan_end_ts = datetime.now(dt_timezone.utc)
+    return {
+        'scan_type': scan_type,
+        'scan_start': scan_start_ts.isoformat(),
+        'scan_end': scan_end_ts.isoformat(),
+        'scan_duration': round((scan_end_ts - scan_start_ts).total_seconds(), 2),
+        **extras,
+    }
 
 
 # ── Banner grabbing ──────────────────────────────────────────────────────────
@@ -589,6 +589,7 @@ def _check_tls(hostname, findings):
 
     return result
 
+
 def _check_http(hostname, session, findings):
     http_result = {}
     for scheme in ['https', 'http']:
@@ -829,14 +830,25 @@ def _probe_paths(base_url, session, findings):
             r = session.get(f'{base_url}{path}', timeout=5, allow_redirects=False,
                             headers={'User-Agent': 'SimpleScan/1.0'})
             if r.status_code in (200, 301, 302, 403):
-                discovered.append({'path': path, 'status': r.status_code,
-                                   'content_length': r.headers.get('Content-Length', '?')})
+                discovered.append({
+                    'path': path, 
+                    'status': r.status_code,
+                    'content_length': r.headers.get('Content-Length', '?')
+                })
                 if r.status_code == 200 and any(s in path for s in sensitive):
-                    findings.append({'severity': 'CRITICAL', 'category': 'paths',
-                                     'finding': f'Sensitive path accessible: {path} (HTTP 200)'})
+                    findings.append({
+                        'severity': 'CRITICAL', 
+                        'scan_type': 'infra',
+                        'category': 'paths',
+                        'finding': f'Sensitive path accessible: {path} (HTTP 200)'
+					})
                 elif r.status_code == 403 and any(s in path for s in sensitive):
-                    findings.append({'severity': 'MEDIUM', 'category': 'paths',
-                                     'finding': f'Sensitive path exists but forbidden: {path} (HTTP 403)'})
+                    findings.append({
+                        'severity': 'MEDIUM', 
+                        'scan_type': 'infra',
+                        'category': 'paths',
+                        'finding': f'Sensitive path exists but forbidden: {path} (HTTP 403)'
+					})
         except Exception:
             pass
     return discovered
@@ -850,8 +862,12 @@ def _check_http_methods(base_url, session, findings):
         methods['allow_header'] = allow
         dangerous = [m for m in ['TRACE', 'DELETE', 'PUT', 'CONNECT'] if m in allow]
         if dangerous:
-            findings.append({'severity': 'MEDIUM', 'category': 'http',
-                             'finding': f'Dangerous HTTP methods allowed: {", ".join(dangerous)}'})
+            findings.append({
+                'severity': 'MEDIUM', 
+                'scan_type': 'infra',
+                'category': 'http',
+                'finding': f'Dangerous HTTP methods allowed: {", ".join(dangerous)}'
+            })
         methods['dangerous_methods'] = dangerous
     except Exception as e:
         methods['error'] = str(e)[:100]
@@ -862,6 +878,7 @@ def _check_http_methods(base_url, session, findings):
 
 def run_tcp_port_scan(target_ip: str) -> dict:
     """Port scan against the organization's WAN IP."""
+    scan_start_ts = datetime.now(dt_timezone.utc)
     target_ip = target_ip.strip()
     logger.info(f"[PortScan] Starting on '{target_ip}' (len={len(target_ip)})")
     findings = []
@@ -934,18 +951,16 @@ def run_tcp_port_scan(target_ip: str) -> dict:
     findings.sort(key=lambda f: SEVERITY_ORDER.get(f['severity'], 99))
 
     results = {
-        'scan_metadata': {
-            'scan_type': 'tcp',
-            'timestamp': datetime.now(dt_timezone.utc).isoformat(),
-        },
+        'scan_metadata': _add_metadata('tcp', scan_start_ts),
         'findings': findings
     }
-    logger.info(f"[TCPPortScan] Complete — {open_count} open ports, {len(findings)} findings")
+    logger.info(f"[TCPPortScan] Complete — {open_count} open ports, {len(findings)} findings in {results['scan_metadata']['scan_duration']}s")
     return results
 
 
 def run_udp_port_scan(target_ip: str) -> dict:
     """UDP port scan against the organization's WAN IP."""
+    scan_start_ts = datetime.now(dt_timezone.utc)
     logger.info(f"[UDPPortScan] Starting on {target_ip}")
     findings = []
 
@@ -1007,42 +1022,36 @@ def run_udp_port_scan(target_ip: str) -> dict:
     findings.sort(key=lambda f: SEVERITY_ORDER.get(f['severity'], 99))
 
     results = {
-        'scan_metadata': {
-            'scan_type': 'udp',
-            'timestamp': datetime.now(dt_timezone.utc).isoformat(),
-        },
+        'scan_metadata': _add_metadata('udp', scan_start_ts),
         'findings': findings
     }
-    logger.info(f"[UDPPortScan] Complete — {open_count} open ports, {len(findings)} findings")
+    logger.info(f"[UDPPortScan] Complete — {open_count} open ports, {len(findings)} findings in {results['scan_metadata']['scan_duration']}s")
     return results
 
 
 def run_email_scan(target_domain: str) -> dict:
     """Email security scan: MX, SPF, DMARC, DKIM, MTA-STS, DNSSEC, zone transfer."""
+    scan_start_ts = datetime.now(dt_timezone.utc)
     logger.info(f"[EmailScan] Starting on {target_domain}")
     findings = []
     results = {
-        'scan_metadata': {
-            'scan_type': 'email',
-            'timestamp': datetime.now(dt_timezone.utc).isoformat(),
-        },
         'email': {
-        	'mx': {}, 
+            'mx': {}, 
             'spf': {}, 
             'dmarc': {}, 
             'dkim': {}, 
             'mta_sts': {},
-        	'dnssec': {}, 
+            'dnssec': {}, 
             'zone_transfer': {}
-		},
-		'findings': []
+        },
+        'findings': []
     }
 
     resolver = _make_resolver()
 
     mx_records = [{'preference': r.preference, 'exchange': str(r.exchange)}
                   for r in _resolve_safe(resolver, target_domain, 'MX')]
-    results['mx'] = {'records': mx_records, 'count': len(mx_records)}
+    results['email']['mx'] = {'records': mx_records, 'count': len(mx_records)}
     if not mx_records:
         findings.append({
             'severity': 'HIGH', 
@@ -1054,74 +1063,73 @@ def run_email_scan(target_domain: str) -> dict:
     txt_records = [r.to_text().strip('"') for r in _resolve_safe(resolver, target_domain, 'TXT')]
     ns_records  = [str(r.target) for r in _resolve_safe(resolver, target_domain, 'NS')]
 
-    results['spf']           = _check_spf(txt_records, findings)
-    results['dmarc']         = _check_dmarc(target_domain, resolver, findings)
-    results['dkim']          = _check_dkim(target_domain, resolver, findings)
-    results['mta_sts']       = _check_mta_sts(target_domain, resolver, findings)
-    results['dnssec']        = _check_dnssec(target_domain, resolver, findings)
-    results['zone_transfer'] = _attempt_zone_transfer(target_domain, ns_records, findings)
+    results['email']['spf']           = _check_spf(txt_records, findings)
+    results['email']['dmarc']         = _check_dmarc(target_domain, resolver, findings)
+    results['email']['dkim']          = _check_dkim(target_domain, resolver, findings)
+    results['email']['mta_sts']       = _check_mta_sts(target_domain, resolver, findings)
+    results['email']['dnssec']        = _check_dnssec(target_domain, resolver, findings)
+    results['email']['zone_transfer'] = _attempt_zone_transfer(target_domain, ns_records, findings)
 
-    # _summarise(findings, results)
+    results['scan_metadata'] = _add_metadata('email', scan_start_ts)
     results['findings'] = findings
-    logger.info(f"[EmailScan] Complete — {len(findings)} findings")
+    logger.info(f"[EmailScan] Complete — {len(findings)} findings in {results['scan_metadata']['scan_duration']}s")
     return results
 
 
 def run_infra_scan(target_domain: str) -> dict:
     """Web infrastructure scan: TLS, HTTP headers, DNS, subdomains, IP intel."""
+    scan_start_ts = datetime.now(dt_timezone.utc)
     logger.info(f"[InfraScan] Starting on {target_domain}")
     findings = []
     results = {
-        'scan_metadata': {
-            'target': target_domain, 'scan_type': 'infra',
-            'timestamp': datetime.now(dt_timezone.utc).isoformat(),
-        },
-        'tls': {}, 
-        'http': {}, 
-        'dns': {}, 
-        'email_secondary': {},
-        'ip_intel': [], 
-        'reverse_dns': {}, 
-        'subdomains': {}, 
-        'findings': [],
+        'infra': {
+			'tls': {}, 
+			'http': {}, 
+			'dns': {}, 
+			'email_secondary': {},
+			'ip_intel': [], 
+			'reverse_dns': {}, 
+			'subdomains': {}
+		},
+		'findings': []
     }
 
     resolver = _make_resolver()
     session = requests.Session()
 
 	# TLS
-    results['tls'] = _check_tls(target_domain, findings)
+    results['infra']['tls'] = _check_tls(target_domain, findings)
 
     # HTTP
-    results['http'] = _check_http(target_domain, session, findings)
+    results['infra']['http'] = _check_http(target_domain, session, findings)
 
     # DNS — also surfaces raw records needed by downstream helpers
     dns_data     = _check_dns(target_domain, resolver, findings)
     a_records    = dns_data.pop('a_records')
     aaaa_records = dns_data.pop('aaaa_records')
     txt_records  = dns_data.pop('txt_records')
-    results['dns'] = dns_data
+    results['infra']['dns'] = dns_data
 
     # Secondary email checks (SPF/DMARC on the web domain)
-    results['email_secondary'] = _check_email_secondary(target_domain, txt_records, resolver, findings)
+    results['infra']['email_secondary'] = _check_email_secondary(target_domain, txt_records, resolver, findings)
 
     # IP intel
-    results['ip_intel'] = _check_ip_intel(a_records, aaaa_records, findings)
+    results['infra']['ip_intel'] = _check_ip_intel(a_records, aaaa_records, findings)
 
     # Reverse DNS
-    results['reverse_dns'] = _check_reverse_dns(a_records, aaaa_records, findings)
+    results['infra']['reverse_dns'] = _check_reverse_dns(a_records, aaaa_records, findings)
 
     # Subdomain enumeration
-    results['subdomains'] = _check_subdomains(target_domain, resolver, findings)
+    results['infra']['subdomains'] = _check_subdomains(target_domain, resolver, findings)
 
-    _summarise(findings, results)
-    logger.info(f"[InfraScan] Complete — {len(findings)} findings")
+    results['scan_metadata'] = _add_metadata('infra', scan_start_ts, target=target_domain)
+    logger.info(f"[InfraScan] Complete — {len(findings)} findings in {results['scan_metadata']['scan_duration']}s")
     return results
 
 
 # ── Django-Q2 task entry point ────────────────────────────────────────────────
 
-def run_server_scan(scan_id: str):
+def run_network_scan(scan_id: str):
     """
     Django-Q2 background task.
 
@@ -1141,7 +1149,7 @@ def run_server_scan(scan_id: str):
 
         # Idempotency: if a previous retry already completed this scan, bail out
         if scan.status == Scan.Status.COMPLETE or (hasattr(scan, 'report') and scan.report_id):
-            logger.info(f"[ServerScan {scan_id}] Already complete — skipping duplicate run.")
+            logger.info(f"[NetworkScan {scan_id}] Already complete — skipping duplicate run.")
             return {'success': True, 'report_id': str(scan.report.report_id) if scan.report_id else None}
 
         org  = scan.organization
@@ -1159,6 +1167,7 @@ def run_server_scan(scan_id: str):
             )
 
         # ── Step 1: Mark scan as running ──────────────────────────────────
+        network_scan_start_ts = datetime.now(dt_timezone.utc)
         scan.status = Scan.Status.RUNNING
         scan.scan_started_at = timezone.now()
         scan.save(update_fields=['status', 'scan_started_at'])
@@ -1180,13 +1189,28 @@ def run_server_scan(scan_id: str):
 
         scan.scan_completed_at = timezone.now()
         scan.target_subnet = f"{port_target} / {infra_target}"
+
+        # Collect per-scan metadata into an array
+        scan_metadata_list = [_add_metadata('network_scan', network_scan_start_ts)]
+        for sr in (tcp_port_results, udp_port_results, email_results_list, infra_results):
+            if sr.get('scan_metadata'):
+                scan_metadata_list.append(sr['scan_metadata'])
+
+        # Build results object — pull each scan's named data bucket directly
+        results_obj = {}
+        if tcp_port_results.get('tcp'):
+            results_obj['tcp'] = tcp_port_results['tcp']
+        if udp_port_results.get('udp'):
+            results_obj['udp'] = udp_port_results['udp']
+        if email_results_list.get('email'):
+            results_obj['email'] = email_results_list['email']
+        if infra_results.get('infra'):
+            results_obj['infra'] = infra_results['infra']
+
         scan.raw_findings_json = json.dumps({
+            'scan_metadata': scan_metadata_list,
             'findings': all_findings,
-            # 'raw_results': {
-            #     'port_scan':   tcp_port_results,
-            #     'email_scans': {d: r for d, r in zip(email_targets, email_results_list)},
-            #     'infra_scan':  {},  # infra_results,
-            # },
+            'results': results_obj,
         })
         logger.info(f"Network scan results: {scan.raw_findings_json}")
         scan.tally_findings(all_findings)
@@ -1211,13 +1235,13 @@ def run_server_scan(scan_id: str):
             })
         except Exception as email_err:
             # Don't fail the task over a notification email
-            logger.warning(f"[ServerScan {scan_id}] Email notification failed: {email_err}")
+            logger.warning(f"[NetworkScan {scan_id}] Email notification failed: {email_err}")
 
-        logger.info(f"[ServerScan {scan_id}] Complete. Report {report_id} generated.")
+        logger.info(f"[NetworkScan {scan_id}] Complete. Report {report_id} generated.")
         return {'success': True, 'report_id': str(report_id)}
 
     except Exception as e:
-        logger.exception(f"[ServerScan {scan_id}] Task failed: {e}")
+        logger.exception(f"[NetworkScan {scan_id}] Task failed: {e}")
         try:
             from api.models import Scan
             # Only mark FAILED if the scan didn't actually complete — a retry
@@ -1229,7 +1253,7 @@ def run_server_scan(scan_id: str):
                 error_message=str(e)[:500],
             )
             if not updated:
-                logger.warning(f"[ServerScan {scan_id}] Exception after completion — not marking FAILED.")
+                logger.warning(f"[NetworkScan {scan_id}] Exception after completion — not marking FAILED.")
         except Exception:
             pass
         # Do NOT re-raise: prevents Django-Q2 from retrying a completed scan
