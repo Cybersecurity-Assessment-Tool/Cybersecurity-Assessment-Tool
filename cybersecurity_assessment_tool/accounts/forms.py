@@ -141,20 +141,30 @@ class PublicRegistrationForm(UserCreationForm):
                 raise forms.ValidationError('An account with this email already exists.')
         return email
 
-    def clean_password1(self):
-        password = self.cleaned_data.get('password1')
-        try:
-            validate_password(password)
-        except ValidationError as e:
-            raise forms.ValidationError(e.messages)
-        return password
+    # def clean_password1(self):
+    #     password = self.cleaned_data.get('password1')
+    #     try:
+    #         validate_password(password)
+    #     except ValidationError as e:
+    #         raise forms.ValidationError(e.messages)
+    #     return password
 
     def clean(self):
         cleaned_data = super().clean()
+        
+        # Move password strength errors from password1 to password2
+        if 'password1' in self.errors:
+            # Capture the errors from password1
+            p1_errors = self.errors.pop('password1')
+            for error in p1_errors:
+                self.add_error('password2', error)
+        
+        # Then check password match
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
             self.add_error('password2', "The two password fields didn't match.")
+        
         return cleaned_data
 
     def save(self, commit=True):
