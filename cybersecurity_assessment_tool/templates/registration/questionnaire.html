@@ -115,6 +115,10 @@
     .form-actions {
         text-align: center;
         margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
     }
     
     .btn-primary {
@@ -127,14 +131,33 @@
         border-radius: 6px;
         cursor: pointer;
         transition: background-color 0.15s;
+        width: 100%;
     }
     
     .btn-primary:hover {
         background-color: #1f2937;
     }
     
+    .btn-secondary {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #374151;
+        background-color: white;
+        border: 1px solid #d1d5db;
+        transition: background-color 0.15s;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .btn-secondary:hover {
+        background-color: #f9fafb;
+    }
+
     .form-note {
-        margin-top: 1rem;
+        margin-top: 0.5rem;
         font-size: 0.75rem;
         color: #9ca3af;
     }
@@ -167,14 +190,28 @@
             
             <div class="form-section">
                 <h2 class="section-title">Network & Domain Information</h2>
-                
+
                 <div class="form-group">
-                    <label for="domain_name">What is your organization’s website domain name?</label>
+                    <label for="email_domain_name">What is your organization’s email domain name?</label>
                     <input type="text" 
-                           name="domain_name" 
-                           id="domain_name" 
+                           name="email_domain_name" 
+                           id="email_domain_name" 
                            class="form-input" 
                            placeholder="e.g., example.com"
+                           pattern="^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$"
+                           title="Please enter a valid domain name (e.g., company.com)"
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="website_domain_name">What is your organization’s website domain name?</label>
+                    <input type="text" 
+                           name="website_domain_name" 
+                           id="website_domain_name" 
+                           class="form-input" 
+                           placeholder="e.g., example.com"
+                           pattern="^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$"
+                           title="Please enter a valid domain name (e.g., company.com)"
                            required>
                 </div>
 
@@ -185,6 +222,8 @@
                            id="ip_address" 
                            class="form-input" 
                            placeholder="e.g., 198.51.100.1 or 203.0.113.0/24"
+                           pattern="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:[0-9]|[1-2][0-9]|3[0-2]))?$"
+                           title="Please enter a valid IPv4 address or CIDR notation (e.g., 192.168.1.1 or 10.0.0.0/24)"
                            required>
                 </div>
             </div>
@@ -241,7 +280,7 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Complete Setup</button>
-                <a href="{% url 'dashboard' %}" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 1rem; font-weight: 500; border-radius: 6px; text-decoration: none; color: #374151; background-color: white; border: 1px solid #d1d5db; transition: background-color 0.15s;">Skip for now</a>
+                <a href="{% url 'dashboard' %}" class="btn-secondary">Skip for now</a>
                 <p class="form-note">You can update these settings later in your organization profile.</p>
             </div>
         </form>
@@ -250,3 +289,45 @@
 {% endblock %}
 
 {% block footer %} {% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.questionnaire-form');
+    
+    // Regex patterns
+    const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+    // Matches IPv4 or IPv4 with CIDR (e.g. 192.168.1.1 or 10.0.0.0/24)
+    const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:[0-9]|[1-2][0-9]|3[0-2]))?$/;
+
+    form.addEventListener('submit', function(e) {
+        const emailDomain = document.getElementById('email_domain_name').value.trim();
+        const websiteDomain = document.getElementById('website_domain_name').value.trim();
+        const ipAddress = document.getElementById('ip_address').value.trim();
+
+        let isValid = true;
+        let errorMessage = "";
+
+        if (!domainRegex.test(emailDomain)) {
+            isValid = false;
+            errorMessage += "Please enter a valid Email Domain (e.g., example.com).\n";
+        }
+        
+        if (!domainRegex.test(websiteDomain)) {
+            isValid = false;
+            errorMessage += "Please enter a valid Website Domain (e.g., example.com).\n";
+        }
+
+        if (!ipRegex.test(ipAddress)) {
+            isValid = false;
+            errorMessage += "Please enter a valid IPv4 address or CIDR (e.g., 192.168.1.1 or 10.0.0.0/24).\n";
+        }
+
+        if (!isValid) {
+            e.preventDefault(); // Stop submission
+            alert(errorMessage);
+        }
+    });
+});
+</script>
+{% endblock %}

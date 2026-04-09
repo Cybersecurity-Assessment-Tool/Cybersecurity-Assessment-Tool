@@ -2,17 +2,18 @@
   "vulnerabilities": [
     {
       "risk_name": "Critical Network Service Exposure",
-      "overview": "The external IP address 104.28.1.189 has multiple high-risk services exposed directly to the public internet, including FTP (Port 21), SSH (Port 22), and RDP (Port 3389). This dramatically increases the attack surface, making the network vulnerable to brute-force attacks and service exploitation.",
-      "severity_cvss_score": 9.3,
+      "overview": "Multiple high-risk ports, including RDP (3389), SSH (22), and FTP (21), are open to the public internet. This allows attackers to attempt brute-force credential attacks or exploit service-level vulnerabilities to gain direct access to the server.",
+      "severity": "Critical",
       "affected_elements": [
-        "External IP: 104.28.1.189",
         "Port 21 (FTP)",
         "Port 22 (SSH)",
+        "Port 25 (SMTP)",
+        "Port 110 (POP3)",
         "Port 3389 (RDP)"
       ],
       "recommendations": {
-        "easy_fix": "Immediately close all unnecessary ports on the external firewall. Services like RDP and SSH must be restricted to trusted IP addresses only.",
-        "long_term_fix": "Implement a Virtual Private Network (VPN) solution and require all remote access (RDP, SSH) to pass through the VPN. Replace FTP with a secure alternative like SFTP or FTPS."
+        "easy_fix": "Close unnecessary management ports (RDP, SSH, FTP) directly on the external firewall.",
+        "long_term_fix": "Move required administrative access behind a secure VPN, ensuring services are not exposed to the public internet."
       }
     }
   ]

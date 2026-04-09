@@ -442,10 +442,6 @@
                 onclick="location.href='?tab=notifications'">
             Notifications
         </button>
-        <button class="tab-button {% if active_tab == 'security' %}active{% endif %}" 
-                onclick="location.href='?tab=security'">
-            Security
-        </button>
         
         {% if is_admin %}
         <button class="tab-button {% if active_tab == 'posture' %}active{% endif %}" 
@@ -537,34 +533,6 @@
                 </div>
             </form>
         </div>
-
-        <!-- Email Settings Card -->
-        <div class="settings-card">
-            <form method="post" id="emailForm">
-                {% csrf_token %}
-                <input type="hidden" name="active_tab" value="profile">
-                
-                <div class="card-header">
-                    <h2>Email Address</h2>
-                    <p>Your primary email for notifications and account recovery</p>
-                </div>
-                
-                <div class="card-body">
-                    <div class="form-group">
-                        <label for="{{ email_form.email.id_for_label }}">Email</label>
-                        {{ email_form.email }}
-                        {% if email_form.email.errors %}
-                            <div class="alert alert-error">{{ email_form.email.errors }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div class="card-footer">
-                    <span class="save-indicator" id="emailSaveIndicator">Current email</span>
-                    <button type="submit" name="update_email" class="btn btn-primary">Update Email</button>
-                </div>
-            </form>
-        </div>
         {% endif %}
 
         <!-- Notifications Tab -->
@@ -616,92 +584,6 @@
         </div>
         {% endif %}
 
-        <!-- Security Tab -->
-        {% if active_tab == 'security' %}
-        <!-- Password Change (from Django auth) -->
-        <div class="settings-card">
-            <div class="card-header">
-                <h2>Password</h2>
-                <p>Change your password regularly to keep your account secure</p>
-            </div>
-            
-            <div class="card-body">
-                <a href="{% url 'password_change' %}" class="btn btn-secondary">Change Password</a>
-            </div>
-        </div>
-
-        <!-- Two-Factor Authentication -->
-        <!-- <div class="settings-card">
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="active_tab" value="security">
-                
-                <div class="card-header">
-                    <h2>Two-Factor Authentication (2FA)</h2>
-                    <p>Add an extra layer of security to your account</p>
-                </div>
-                
-                <div class="card-body">
-                    <-- TODO: Implement actual 2FA --
-                    <-- 
-                        Implementation Plan:
-                        1. Install django-otp or pyotp
-                        2. Add OTP model to User
-                        3. Generate secret key per user
-                        4. Display QR code for authenticator apps
-                        5. Verify code before enabling
-                        6. Store backup codes for recovery
-                    --
-                    
-                    <div class="info-box">
-                        <div class="info-box-title">📱 Setup Two-Factor Authentication</div>
-                        <div class="info-box-content">
-                            <p>1. Install an authenticator app like Google Authenticator or Authy</p>
-                            <p>2. Scan the QR code below with your app</p>
-                            <p>3. Enter the 6-digit code to verify setup</p>
-                        </div>
-                    </div>
-
-                    <-- QR Code Placeholder --
-                    <div class="qr-placeholder">
-                        <span class="text-muted">QR Code Preview</span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ twofa_form.verification_code.id_for_label }}">Verification Code</label>
-                        {{ twofa_form.verification_code }}
-                        <span class="form-text">Enter the 6-digit code from your authenticator app</span>
-                    </div>
-                </div>
-                
-                <div class="card-footer">
-                    <button type="submit" name="setup_2fa" class="btn btn-primary">Enable 2FA</button>
-                    <span class="text-muted">(Placeholder - not functional)</span>
-                </div>
-            </form>
-        </div> -->
-
-        <!-- Active Sessions -->
-        <!-- <div class="settings-card">
-            <div class="card-header">
-                <h2>Active Sessions</h2>
-                <p>Devices and locations where you're logged in</p>
-            </div>
-            
-            <div class="card-body">
-                <-- TODO: Implement session management --
-                <-- 
-                    Implementation Plan:
-                    1. Use django.contrib.sessions to track sessions
-                    2. Store additional metadata (IP, device, location)
-                    3. Allow users to revoke specific sessions
-                    4. Show current session highlighted
-                --
-                <p class="text-muted">Session management coming soon...</p>
-            </div>
-        </div>-->
-        {% endif %}
-
         <!-- Security Posture Tab (Admin Only) -->
         {% if active_tab == 'posture' and is_admin %}
         <div class="settings-card">
@@ -719,15 +601,42 @@
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="domain_name">Website Domain Name</label>
-                            <input type="text" name="domain_name" id="domain_name" class="form-input" 
-                                   value="{{ request.user.organization.website_domain|default:'' }}" required>
+                            <label for="email_domain_name">Email Domain Name</label>
+                            <input type="text" 
+                                   name="email_domain_name" 
+                                   id="email_domain_name" 
+                                   class="form-input" 
+                                   value="{{ request.user.organization.email_domain|default:'' }}" 
+                                   placeholder="e.g., example.com"
+                                   pattern="^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$"
+                                   title="Please enter a valid domain name (e.g., company.com)"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="website_domain_name">Website Domain Name</label>
+                            <input type="text" 
+                                   name="website_domain_name" 
+                                   id="website_domain_name" 
+                                   class="form-input" 
+                                   value="{{ request.user.organization.website_domain|default:'' }}" 
+                                   placeholder="e.g., example.com"
+                                   pattern="^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$"
+                                   title="Please enter a valid domain name (e.g., company.com)"
+                                   required>
                         </div>
 
                         <div class="form-group">
                             <label for="ip_address">External IP Address</label>
-                            <input type="text" name="ip_address" id="ip_address" class="form-input" 
-                                   value="{{ request.user.organization.external_ip|default:'' }}" required>
+                            <input type="text" 
+                                   name="ip_address" 
+                                   id="ip_address" 
+                                   class="form-input" 
+                                   value="{{ request.user.organization.external_ip|default:'' }}" 
+                                   placeholder="e.g., 198.51.100.1 or 203.0.113.0/24"
+                                   pattern="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:[0-9]|[1-2][0-9]|3[0-2]))?$"
+                                   title="Please enter a valid IPv4 address or CIDR notation (e.g., 192.168.1.1 or 10.0.0.0/24)"
+                                   required>
                         </div>
                     </div>
 
@@ -793,27 +702,37 @@
                 <!-- Current Team Members List -->
                 <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Current Members</h3>
                 <div id="teamMembersList" style="margin-bottom: 2rem;">
-                    <!-- Populated by JavaScript -->
-                </div>
+                    </div>
             
-                <!-- Invite New Member Form -->
+                <!-- Invite New Member Form -->    
                 <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Invite New Member</h3>
                 <form id="inviteForm" class="invite-form" style="background-color: #f9fafb; padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
                     {% csrf_token %}
                     <input type="hidden" name="active_tab" value="organization">
 
                     <div class="form-row">
-                        <div class="form-group" style="flex: 2;">
+                        <div class="form-group">
                             <label for="invite_email">Email Address</label>
                             <input type="email" 
-                                   id="invite_email" 
-                                   name="email" 
-                                   class="form-input" 
-                                   placeholder="colleague@company.com"
-                                   required>
+                                id="invite_email" 
+                                name="email" 
+                                class="form-input" 
+                                placeholder="colleague@company.com"
+                                required>
                         </div>
 
-                        <div class="form-group" style="flex: 1;">
+                        <div class="form-group">
+                            <label for="invite_email_confirm">Confirm Email</label>
+                            <input type="email" 
+                                id="invite_email_confirm" 
+                                class="form-input" 
+                                placeholder="colleague@company.com"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
                             <label for="invite_role">Role</label>
                             <select id="invite_role" name="role" class="form-select">
                                 <option value="observer">Observer</option>
@@ -829,17 +748,15 @@
                         </button>
                     </div>
                     <div id="inviteMessage" class="mt-2"></div>
-                </form>
-            
+                </form>            
                 <!-- Pending Invitations List -->
                 <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Pending Invitations</h3>
                 <div id="pendingInvitesList">
-                    <!-- Populated by JavaScript -->
-                </div>
+                    </div>
             </div>
         
-            <!-- TODO: Implement team management functionality -->
-            <!-- 
+            <!-- {# TODO: Implement team management functionality #}
+            {# 
                 Implementation Plan:
                 1. Create Invitation model with fields:
                    - organization (ForeignKey)
@@ -862,7 +779,7 @@
                 3. Email template for invitations
                 4. Auto-login or redirect to signup with pre-filled email
                 5. Add user to organization upon acceptance
-            -->
+            #} -->
         </div>
         {% endif %}
     </div>
@@ -905,7 +822,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Profile image preview
+    // Profile image preview <- not currently working
     const imageInput = document.getElementById('{{ profile_form.profile_image.id_for_label }}');
     if (imageInput) {
         imageInput.addEventListener('change', function(e) {
@@ -932,6 +849,42 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+    // Security Posture Form Validation
+    const postureForm = document.getElementById('postureForm');
+    if (postureForm) {
+        const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+        const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:[0-9]|[1-2][0-9]|3[0-2]))?$/;
+
+        postureForm.addEventListener('submit', function(e) {
+            const emailDomain = document.getElementById('email_domain_name').value.trim();
+            const websiteDomain = document.getElementById('website_domain_name').value.trim();
+            const ipAddress = document.getElementById('ip_address').value.trim();
+
+            let isValid = true;
+            let errorMessage = "";
+
+            if (!domainRegex.test(emailDomain)) {
+                isValid = false;
+                errorMessage += "Please enter a valid Email Domain (e.g., example.com).\n";
+            }
+            
+            if (!domainRegex.test(websiteDomain)) {
+                isValid = false;
+                errorMessage += "Please enter a valid Website Domain (e.g., example.com).\n";
+            }
+
+            if (!ipRegex.test(ipAddress)) {
+                isValid = false;
+                errorMessage += "Please enter a valid IPv4 address or CIDR (e.g., 192.168.1.1 or 10.0.0.0/24).\n";
+            }
+
+            if (!isValid) {
+                e.preventDefault(); // Stop submission
+                alert(errorMessage);
+            }
+        });
+    }
 
 // Team Management JavaScript
 $(document).ready(function() {
@@ -1098,11 +1051,21 @@ $('#inviteForm').submit(function(e) {
     e.preventDefault();
     
     const email = $('#invite_email').val();
+    const confirmEmail = $('#invite_email_confirm').val();
     const role = $('#invite_role').val();
     
+    // Check if the first email field is empty
     if (!email) {
         $('#inviteMessage').html(`
             <div class="alert alert-error">Please enter an email address.</div>
+        `);
+        return;
+    }
+
+    // Check if both email fields match exactly
+    if (email !== confirmEmail) {
+        $('#inviteMessage').html(`
+            <div class="alert alert-error">Email addresses do not match. Please ensure both fields are identical.</div>
         `);
         return;
     }

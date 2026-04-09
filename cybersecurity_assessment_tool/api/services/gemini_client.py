@@ -52,10 +52,11 @@ def get_questionnaire_dict(org: Organization) -> dict:
 
 def build_current_risks_dict(organization_id: int) -> dict:
     """
-    Fetches existing risks for an organization and formats them 
+    Fetches existing active risks for an organization and formats them 
     into a dictionary that the AI service expects.
     """
-    existing_risks = Risk.objects.filter(organization_id=organization_id)
+    existing_risks = Risk.objects.filter(organization_id=organization_id, is_archived=False)
+    
     current_risks = {
         "all_vulnerabilities": [
             {
@@ -77,7 +78,8 @@ def _inject_overview_and_questionnaire(report_data: dict, org: Organization) -> 
     new_section_data = {
         "Overview": {
             "Organization Name": org.org_name,
-            "Primary Domain": org.email_domain,
+            "Email Domain": org.email_domain,
+            "Website Domain": org.website_domain,
             "External IP Address": org.external_ip,
             "Report Date": timezone.now().strftime('%Y-%m-%d')
         },
@@ -114,6 +116,8 @@ def generate_and_process_report(
     """
     Acts as the client to gather DB fields, call the AI service, 
     sort the resulting data, inject database context, and save objects.
+    Please have the context_data (network scan) be a JSON string, as the AI takes strings only. 
+    Do not load it as a dictionary.
     """
     # Fetch the database records
     org = Organization.objects.get(organization_id=organization_id)

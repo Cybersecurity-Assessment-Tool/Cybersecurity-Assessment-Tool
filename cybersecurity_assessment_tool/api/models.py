@@ -108,7 +108,7 @@ class User(AbstractUser):
     def profile_image_path(instance, filename):
         """Generate file path for new profile image"""
         ext = filename.split('.')[-1]
-        filename = f"profile_{instance.user.username}_{instance.user.id}.{ext}"
+        filename = f"profile_{instance.username}_{instance.user.id}.{ext}"
         return os.path.join('uploads/profile_images/', filename)
 
     user_id = models.UUIDField(

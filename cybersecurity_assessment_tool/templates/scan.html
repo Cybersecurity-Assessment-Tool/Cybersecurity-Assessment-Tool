@@ -2,67 +2,67 @@
 
 {% block title %}Scan - {{ block.super }}{% endblock %}
 
+{% block extra_css %}
+<style>
+  .start-scan-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .start-scan-btn:hover:not(:disabled) { background-color: #2563eb; }
+  .start-scan-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+  .start-scan-btn .spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  .start-scan-btn.loading .spinner { display: inline-block; }
+  .start-scan-btn.loading .btn-label { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .scan-notice {
+    display: none;
+    padding: 0.875rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+  .scan-notice.success { background-color: #d1fae5; border: 1px solid #6ee7b7; color: #065f46; }
+  .scan-notice.error   { background-color: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+</style>
+{% endblock %}
+
 {% block content %}
 {% csrf_token %}
 
 <div class="container py-4">
 
   {# ------------------------------------------------------------------ #}
-  {# ROW 1: Token + Download                                            #}
+  {# ROW 1: Start New Scan                                              #}
   {# ------------------------------------------------------------------ #}
   <div class="row mb-4">
+    <div class="col-12 d-flex align-items-center justify-content-between">
+      <h4 class="mb-0">Scans</h4>
+      <button class="start-scan-btn" id="startScanBtn" onclick="startScan()">
+        <span class="spinner"></span>
+        <span class="btn-label">Start New Scan</span>
+      </button>
+    </div>
+  </div>
+  <div class="row mb-2">
     <div class="col-12">
-      <div class="card bg-light">
-        <div class="card-body">
-          <h5 class="card-title mb-3">Start a New Scan</h5>
-
-          {# Step 1: Generate token #}
-          <div id="step-generate">
-            <p class="text-muted mb-3">
-              Generate a one-time token, then download the scanner and paste the token into its GUI.
-              The token expires in <strong>24 hours</strong>.
-            </p>
-            
-            {% if request.user.organization and request.user.organization.questionnaire_completed %}
-                <button id="generateTokenBtn" class="btn btn-primary" onclick="generateToken()">
-                  Generate Token &amp; Download Scanner
-                </button>
-            {% else %}
-                <a href="{% url 'accounts:questionnaire' %}" class="btn btn-warning text-dark">
-                  Complete Setup Questionnaire to Scan
-                </a>
-                <p class="text-danger mt-2 mb-0 small">
-                  <strong>Note:</strong> You must complete your organization's security questionnaire before running your first scan.
-                </p>
-            {% endif %}
-          </div>
-
-          {# Step 2: Show token after generation #}
-          <div id="step-token" class="d-none">
-            <p class="text-muted mb-2">Copy this token and paste it into the scanner GUI:</p>
-            <div class="input-group mb-3" style="max-width: 520px;">
-              <input type="text" id="tokenDisplay" class="form-control font-monospace" readonly>
-              <button class="btn btn-outline-secondary" onclick="copyToken()">Copy</button>
-            </div>
-            <p class="text-muted small mb-3">
-              Once the scanner finishes, this page will update automatically.
-            </p>
-            <a id="downloadLink" href="#" class="btn btn-success me-2" download>
-              ⬇ Download Scanner (.exe)
-            </a>
-            <button class="btn btn-outline-secondary btn-sm" onclick="resetScanUI()">
-              Start Over
-            </button>
-
-            {# --- FOR TESTING ONLY REMOVE IN ACTUAL --- #}
-            <button class="btn btn-outline-danger btn-sm ms-2" onclick="simulateScannerPost()">
-              🧪 TEST: Fake Scanner POST
-            </button>
-            {# ----------------------------------------- #}
-          </div>
-
-        </div>
-      </div>
+      <div class="scan-notice" id="scanNotice"></div>
     </div>
   </div>
 
@@ -315,20 +315,45 @@ function simulateScannerPost() {
     target_subnet: "192.168.1.0/24",
     scan_version: "1.0.0-test",
     scan_duration_seconds: 42,
-    groups_completed: 5,
+    groups_completed: 1,
     findings: [
-      { 
-        severity: "critical", 
-        description: "Host is vulnerable to MS17-010 (EternalBlue). The SMBv1 protocol is enabled and missing critical security patches, which allows unauthenticated remote code execution." 
+      {
+        "severity": "INFO",
+        "category": "port",
+        "description": "Open port: 80/tcp open http",
+        "information": "Port 80 is open on target 216.239.32.21.",
+        "portid": "80",
+        "protocol": "tcp",
+        "service": "http",
+        "scripts": [],
+        "timestamp": "2025-07-18T22:09:34.408Z"
+      },
+      {
+        "severity": "INFO",
+        "category": "port",
+        "description": "Open port: 443/tcp open https",
+        "information": "Port 443 is open on target 216.239.32.21.",
+        "portid": "443",
+        "protocol": "tcp",
+        "service": "https",
+        "scripts": [],
+        "timestamp": "2025-07-18T22:09:34.408Z"
       },
       { 
-        severity: "high", 
-        description: "Anonymous FTP login is enabled. An unauthenticated attacker can connect to the FTP service, potentially exposing sensitive files or allowing unauthorized uploads." 
+        "severity": "CRITICAL", 
+		"category": "port",
+        "description": "Host is vulnerable to MS17-010 (EternalBlue). The SMBv1 protocol is enabled and missing critical security patches, which allows unauthenticated remote code execution.",
+		"information": "",
+		"portid": "445",
+		"protocol": "tcp",
+		"service": "microsoft-ds",
+		"scripts": [],
+		"timestamp": "2025-07-18T22:09:34.408Z"
       }
     ],
-    raw_results: {
-      test_string: "HARD_CODED_TEST_STRING_FOR_AI_PROCESSING",
-      note: "The AI should see this inside the raw_results dict."
+    "raw_results": {
+      "test_string": "HARD_CODED_TEST_STRING_FOR_AI_PROCESSING",
+      "note": "The AI should see this inside the raw_results dict."
     }
   };
 
@@ -482,6 +507,52 @@ function statusBadge(status) {
   };
   const cls = map[status] || 'bg-secondary';
   return `<span class="badge ${cls}">${status}</span>`;
+}
+
+// -------------------------------------------------------------------------
+// Start New Scan
+// -------------------------------------------------------------------------
+function startScan() {
+  const btn = document.getElementById('startScanBtn');
+  const notice = document.getElementById('scanNotice');
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+  notice.className = 'scan-notice';
+  notice.style.display = 'none';
+
+  fetch('/api/scan/start/', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCsrf(),
+      'Content-Type': 'application/json',
+    },
+  })
+  .then(res => res.json().then(data => ({ ok: res.ok, data })))
+  .then(({ ok, data }) => {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    if (ok) {
+      notice.textContent = data.message;
+      notice.className = 'scan-notice success';
+      // Start polling the new scan
+      activeScanId = data.scan_id;
+      sessionStorage.setItem('activeScanId', data.scan_id);
+      showActiveScanCard('Scan queued...');
+      startPolling(data.scan_id);
+    } else {
+      notice.textContent = data.error || 'Failed to start scan.';
+      notice.className = 'scan-notice error';
+    }
+    notice.style.display = 'block';
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    notice.textContent = 'Network error — could not start scan.';
+    notice.className = 'scan-notice error';
+    notice.style.display = 'block';
+  });
 }
 
 // -------------------------------------------------------------------------

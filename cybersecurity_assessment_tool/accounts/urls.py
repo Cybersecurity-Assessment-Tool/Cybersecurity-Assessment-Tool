@@ -31,4 +31,14 @@ urlpatterns = [
     
     # Registration status
     path('check-status/', api_views.check_registration_status, name='check_registration_status'),
+
+    # Password Change URLs
+    path('password_change/', views.CustomPasswordChangeView.as_view(), name='password_change'),
+    path('password_change/done/', views.CustomPasswordChangeDoneView.as_view(), name='password_change_done'),
+
+    # Password Reset URLs
+    path('password_reset/', views.CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', views.CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', views.CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', views.CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]

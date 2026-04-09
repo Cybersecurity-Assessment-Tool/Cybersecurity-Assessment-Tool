@@ -7,6 +7,7 @@ from .views_scan import (
     submit_scan_results,
     scan_status,
     list_scans,
+    start_server_scan,
 )
 
 router = DefaultRouter()
@@ -31,10 +32,14 @@ urlpatterns = [
     path('admin/approve/<int:user_id>/', views.approve_registration, name='approve_registration'),
     path('admin/reject/<int:user_id>/', views.reject_registration, name='reject_registration'),
 
+    # Resolving risks
+    path('api/risks/<uuid:risk_id>/resolve/', views.resolve_risk, name='resolve_risk'),
+
     # Scan URLs
     path('scan/token/', generate_scan_token, name='scan_token'),
     path('scan/submit/', submit_scan_results, name='scan_submit'),
     path('scan/status/<uuid:scan_id>/', scan_status, name='scan_status'),
     path('scan/list/', list_scans, name='scan_list'),
     path('scan/download/', views.download_scanner_exe, name='scan_download_exe'),
+    path('scan/start/', start_server_scan, name='scan_server_start'),
 ]

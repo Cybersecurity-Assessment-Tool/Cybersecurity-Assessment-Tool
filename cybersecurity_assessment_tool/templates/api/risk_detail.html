@@ -131,6 +131,155 @@
     .action-button:hover {
         background-color: #1f2937;
     }
+
+    /* ── Chatbot Widget (Bottom Right) ──────────────────────────────────── */
+    .chat-widget-toggle {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 56px;
+        height: 56px;
+        background-color: #111827;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 9999;
+        border: none;
+        transition: transform 0.2s ease;
+    }
+    .chat-widget-toggle:hover {
+        transform: scale(1.05);
+    }
+    .chat-widget-panel {
+        position: fixed;
+        bottom: 5.5rem;
+        right: 2rem;
+        width: 350px;
+        height: 500px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        display: flex;
+        flex-direction: column;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+    }
+    .chat-widget-panel.open {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    .chat-header {
+        padding: 1rem;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .chat-header h4 {
+        margin: 0;
+        font-size: 1rem;
+        color: #111827;
+    }
+    .chat-close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+        line-height: 1;
+    }
+    .chat-messages {
+        flex: 1;
+        padding: 1rem;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: #fff;
+    }
+    .chat-bubble {
+        max-width: 85%;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+    .chat-bubble.bot {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+    }
+    .chat-bubble.user {
+        background: #111827;
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
+    }
+    .chat-input-area {
+        padding: 1rem;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        display: flex;
+        gap: 0.5rem;
+        border-radius: 0 0 8px 8px;
+    }
+    .chat-input-area input {
+        flex: 1;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        outline: none;
+    }
+    .chat-input-area input:focus {
+        border-color: #111827;
+    }
+    .chat-input-area button {
+        background: #111827;
+        color: white;
+        border: none;
+        padding: 0 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+    .chat-input-area button:hover {
+        background: #1f2937;
+    }
+    .chat-typing {
+        font-size: 0.8rem;
+        color: #6b7280;
+        font-style: italic;
+        margin-top: -0.5rem;
+        display: none;
+        padding-left: 1rem;
+    }
+
+    @media (max-width: 640px) {
+        .chat-widget-toggle {
+            bottom: 1rem;
+            right: 1rem;
+        }
+        .chat-widget-panel {
+            bottom: 4.5rem;
+            right: 1rem;
+            left: 1rem;
+            width: auto;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -188,4 +337,127 @@
         </div>
     </div>
 </div>
+
+<button id="chatToggle" class="chat-widget-toggle" aria-label="Open Security Assistant">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+</button>
+
+<div id="chatPanel" class="chat-widget-panel">
+    <div class="chat-header">
+        <h4>AI Security Assistant</h4>
+        <button id="chatClose" class="chat-close-btn">&times;</button>
+    </div>
+    <div id="chatMessages" class="chat-messages">
+        <div class="chat-bubble bot">Hello! Ask me any questions about this vulnerability.</div>
+    </div>
+    <div id="chatTyping" class="chat-typing">Assistant is thinking...</div>
+    <form id="chatForm" class="chat-input-area">
+        <input type="text" id="chatInput" placeholder="Ask about this risk..." required autocomplete="off">
+        <button type="submit">Send</button>
+    </form>
+</div>
+<input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatToggle = document.getElementById('chatToggle');
+        const chatPanel = document.getElementById('chatPanel');
+        const chatClose = document.getElementById('chatClose');
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatTyping = document.getElementById('chatTyping');
+        const csrfToken = document.getElementById('csrfToken').value;
+
+        // Chat URLs
+        const triggerChatUrl = "{% url 'chat_about_risk' risk.risk_id %}";
+        // Ensure this matches your URL configuration name exactly
+        const pollTaskUrlTemplate = "{% url 'check_task_status' 'REPLACE_ME' %}";
+
+        // Toggle logic
+        chatToggle.addEventListener('click', () => chatPanel.classList.add('open'));
+        chatClose.addEventListener('click', () => chatPanel.classList.remove('open'));
+
+        function appendMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `chat-bubble ${sender}`;
+            msgDiv.textContent = text;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function pollTaskStatus(taskId) {
+            const pollUrl = pollTaskUrlTemplate.replace('REPLACE_ME', taskId);
+            
+            try {
+                const response = await fetch(pollUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.state === 'SUCCESS') {
+                    chatTyping.style.display = 'none';
+                    appendMessage(data.result, 'bot');
+                } else if (data.state === 'FAILURE') {
+                    chatTyping.style.display = 'none';
+                    appendMessage("I'm sorry, I encountered an error while processing that.", 'bot');
+                } else {
+                    // Still processing, poll again in 2 seconds
+                    setTimeout(() => pollTaskStatus(taskId), 2000);
+                }
+            } catch (error) {
+                console.error('Polling error:', error);
+                chatTyping.style.display = 'none';
+                appendMessage("I lost connection to the server. Please try again.", 'bot');
+            }
+        }
+
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const prompt = chatInput.value.trim();
+            if (!prompt) return;
+
+            // Display user message
+            appendMessage(prompt, 'user');
+            chatInput.value = '';
+            chatTyping.style.display = 'block';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Form data for the POST request
+            const formData = new FormData();
+            formData.append('prompt', prompt);
+
+            try {
+                const response = await fetch(triggerChatUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: formData
+                });
+
+                if (response.status === 202) {
+                    const data = await response.json();
+                    // Start polling the task ID
+                    pollTaskStatus(data.task_id);
+                } else {
+                    throw new Error("Failed to start chat process.");
+                }
+            } catch (error) {
+                console.error(error);
+                chatTyping.style.display = 'none';
+                appendMessage("I'm sorry, there was a network error reaching the assistant.", 'bot');
+            }
+        });
+    });
+</script>
 {% endblock %}

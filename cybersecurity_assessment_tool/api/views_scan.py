@@ -259,3 +259,73 @@ def list_scans(request):
             for s in scans
         ]
     })
+
+
+# ---------------------------------------------------------------------------
+# 5. Start server-side scan
+#    Called by the "Start New Scan" button on the reports page.
+#    Runs port scan, email scan, and infra scan entirely on the server,
+#    then generates an AI report and emails the user when done.
+# ---------------------------------------------------------------------------
+
+@login_required
+@require_POST
+def start_server_scan(request):
+    """
+    Creates a Scan record and queues run_network_scan as a Django-Q2 background task.
+    Targets are read from the organization's saved configuration.
+    """
+    user = request.user
+
+    if not user.organization:
+        return JsonResponse(
+            {'error': 'No organization associated with your account.'},
+            status=400
+        )
+
+    if not user.organization.questionnaire_completed:
+        return JsonResponse(
+            {'error': 'Complete the security questionnaire before scanning. '
+                      'Go to Settings → Security Posture.'},
+            status=403
+        )
+
+    if not user.organization.external_ip:
+        return JsonResponse(
+            {'error': 'No external IP configured. '
+                      'Add it in Settings → Security Posture.'},
+            status=400
+        )
+
+    email_domains = [d.strip() for d in (user.organization.email_domain or '').split(',') if d.strip()]
+    if not email_domains:
+        return JsonResponse(
+            {'error': 'No email domain configured. '
+                      'Add it in Settings → Security Posture.'},
+            status=400
+        )
+
+    # Create the scan record (no ScanToken needed for server-side scans)
+    scan = Scan.objects.create(
+        user=user,
+        organization=user.organization,
+        status=Scan.Status.PENDING,
+    )
+
+    # Queue the background task (timeout 900s = 15 min to allow for scan + Gemini report generation)
+    task_id = async_task(
+        'api.services.network_scan.run_network_scan',
+        str(scan.id),
+        timeout=900,
+    )
+
+    scan.report_task_id = task_id
+    scan.save(update_fields=['report_task_id'])
+
+    logger.info(f"Server scan {scan.id} queued as task {task_id} for user {user.username}")
+
+    return JsonResponse({
+        'status': 'started',
+        'scan_id': str(scan.id),
+        'message': "Scan started. We'll email you when your report is ready — this usually takes 3–5 minutes.",
+    }, status=202)
