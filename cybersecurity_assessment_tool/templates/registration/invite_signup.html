@@ -43,6 +43,7 @@
         text-align: center;
     }
 
+    /* Keeps top errors only for non-field errors */
     .auth-error {
         background-color: #fee2e2;
         border: 1px solid #fecaca;
@@ -57,8 +58,9 @@
         margin: 0.25rem 0;
     }
 
+    /* NEW: Django renders field errors as a ul with class 'errorlist' */
     .errorlist {
-        color: #ef4444;
+        color: #ef4444; /* Small red text */
         font-size: 0.75rem;
         margin: 0.35rem 0 0 0;
         padding-left: 0;
@@ -91,6 +93,7 @@
         transition: border-color 0.15s;
     }
 
+    /* Add a red border to the input if there's an error */
     .form-group.has-error .form-input {
         border-color: #ef4444;
     }
@@ -150,20 +153,7 @@
         text-decoration: underline;
     }
 
-    /* Decline link — muted so it doesn't compete with the primary action */
-    .decline-link {
-        display: block;
-        margin-top: 0.875rem;
-        font-size: 0.8125rem;
-        color: #9ca3af;
-        text-decoration: none;
-        transition: color 0.15s;
-    }
-    .decline-link:hover {
-        color: #6b7280;
-        text-decoration: underline;
-    }
-
+    /* Alert Messages */
     .alert {
         padding: 0.75rem 1rem;
         border-radius: 6px;
@@ -206,7 +196,7 @@
             <script>
                 setTimeout(function() {
                     window.location.href = "{% url 'login' %}";
-                }, 5000);
+                }, 5000); // 5000 milliseconds = 5 seconds
             </script>
 
         {% else %}
@@ -273,14 +263,6 @@
 
             <div class="auth-footer">
                 <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
-
-                {# Decline link — only shown while the invitation is still pending (token is in context). #}
-                {# Clicking this deletes the invitation row so the email hash is freed up.               #}
-                {% if token %}
-                <a href="{% url 'accounts:decline_invitation' token %}" class="decline-link">
-                    No thanks, decline this invitation
-                </a>
-                {% endif %}
             </div>
         {% endif %}
         

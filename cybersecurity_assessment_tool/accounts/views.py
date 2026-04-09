@@ -665,38 +665,8 @@ def accept_invitation(request, token):
         'form': form,
         'email': invitation.recipient_email,
         'organization': invitation.organization.org_name,
-        'token': token,
     }
     return render(request, 'registration/invite_signup.html', context)
-
-def decline_invitation(request, token):
-    """
-    Called when an invitee clicks "Decline" on the invite signup page.
- 
-    Deletes the pending invitation so the email address is freed from the
-    unique-hash constraint, allowing the admin to re-invite later or the
-    recipient to register via another route without collisions.
- 
-    Only invitations that are still in the 'sent' state (i.e. not yet accepted,
-    not already expired) are deleted — this prevents an already-accepted
-    invitation from being revoked.
-    """
-    try:
-        invitation = Invitation.objects.get(token=token, status='sent')
-    except Invitation.DoesNotExist:
-        # Already used, already declined, or invalid token — show a neutral page
-        return render(request, 'registration/invite_error.html', {
-            'error_title': 'Invitation Not Found',
-            'error_message': (
-                'This invitation link is invalid, has already been used, '
-                'or has already been declined.'
-            ),
-        }, status=400)
- 
-    # Delete the row entirely so recipient_email_hash is released.
-    invitation.delete()
- 
-    return render(request, 'registration/invite_declined.html')
 
 def check_registration_status(request):
     """AJAX endpoint to check if registration has been approved"""
