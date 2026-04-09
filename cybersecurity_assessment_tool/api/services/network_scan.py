@@ -366,7 +366,7 @@ def _check_dmarc(target, resolver, findings):
             'severity': 'HIGH', 
             'scan_type': 'email',
             'category': 'dmarc',
-            'description': f'No DMARC record at _dmarc.{target}'
+            'description': f'No DMARC record at '#_dmarc.{target}' FIX THIS/SANITIZE
         })
         return {'found': False, 'record': '', 'parsed': {}, 'policy': 'none'}
     dmarc_str = raw[0]
@@ -687,10 +687,10 @@ def _check_http(hostname, session, findings):
                 'severity': 'HIGH', 
                 'scan_type': 'infra',
                 'category': 'http',
-                'finding': f'SSL error on {scheme}: {str(e)[:120]}'
+                'finding': f'SSL error on scheme: {str(e)[:120]}' # FIX THIS/SANITIZE
 			})
         except Exception as e:
-            http_result[f'{scheme}_error'] = str(e)[:120]
+            http_result[f'scheme_error'] = str(e)[:120] # FIX THIS/SANITIZE
     return http_result
 
 
@@ -743,14 +743,14 @@ def _check_email_secondary(target_domain, txt_records, resolver, findings):
 def _check_ip_intel(a_records, aaaa_records, findings):
     ip_intel = []
     for ip in (a_records + aaaa_records)[:5]:
-        info = {'ip': ip}
+        info = {} # {'ip': ip} # FIX THIS/SANITIZE
         try:
             r = requests.get(f'https://ipinfo.io/{ip}/json', timeout=5,
                              headers={'User-Agent': 'SimpleScan/1.0'})
             if r.status_code == 200:
                 data = r.json()
                 info.update({
-                    'hostname': data.get('hostname'),
+                    # 'hostname': data.get('hostname'),
                     'org':      data.get('org'),
                     'city':     data.get('city'),
                     'country':  data.get('country'),
@@ -774,10 +774,10 @@ def _check_reverse_dns(a_records, aaaa_records, findings):
     for ip in (a_records + aaaa_records)[:5]:
         try:
             hostname, _, _ = socket.gethostbyaddr(ip)
-            ptr_results[ip] = hostname
+            # ptr_results[ip] = hostname
             try:
                 fwd = socket.gethostbyname(hostname)
-                ptr_results[f'{ip}_fcrdns'] = 'pass' if fwd == ip else f'fail (resolves to {fwd})'
+                ptr_results[f'ip_fcrdns'] = 'pass' if fwd == ip else f'fail (resolves to {fwd})' # FIX THIS/SANITIZE
                 if fwd != ip:
                     findings.append({
                         'severity': 'LOW', 
@@ -786,9 +786,9 @@ def _check_reverse_dns(a_records, aaaa_records, findings):
                         'finding': f'FCrDNS mismatch for {ip}: PTR={hostname} resolves to {fwd}'
 					})
             except Exception:
-                ptr_results[f'{ip}_fcrdns'] = 'fail (forward lookup failed)'
+                ptr_results[f'ip_fcrdns'] = 'fail (forward lookup failed)' # FIX THIS/SANITIZE
         except Exception:
-            ptr_results[ip] = None
+            ptr_results[f'ip'] = None # FIX THIS/SANITIZE
     return ptr_results
 
 
@@ -1122,7 +1122,7 @@ def run_infra_scan(target_domain: str) -> dict:
     # Subdomain enumeration
     results['infra']['subdomains'] = _check_subdomains(target_domain, resolver, findings)
 
-    results['scan_metadata'] = _add_metadata('infra', scan_start_ts, target=target_domain)
+    results['scan_metadata'] = _add_metadata('infra', scan_start_ts) # , target=target_domain) # FIX THIS/SANITIZE
     logger.info(f"[InfraScan] Complete — {len(findings)} findings in {results['scan_metadata']['scan_duration']}s")
     return results
 
