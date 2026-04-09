@@ -24,6 +24,7 @@ class UserDetailView(LoginRequiredMixin, TemplateView):
     
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.conf import settings as django_settings # Have to import it like this to avoid conflicts
     
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -202,9 +203,9 @@ def public_register(request):
             except User.DoesNotExist:
                 system_user = User.objects.create_user(
                     username="Frontend Integration Testing",
-                    email_inbox=settings.ADMIN_EMAIL_INBOX,
-                    email=settings.DEFAULT_FROM_EMAIL,
-                    password=settings.EMAIL_HOST_PASSWORD,
+                    email_inbox=django_settings.ADMIN_EMAIL_INBOX,
+                    email=django_settings.DEFAULT_FROM_EMAIL,
+                    password=django_settings.EMAIL_HOST_PASSWORD,
                     first_name="System",
                     last_name="Integration",
                     is_active=True,
