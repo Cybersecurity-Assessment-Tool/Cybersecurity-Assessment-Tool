@@ -28,9 +28,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.conf import settings
 
 @login_required
-def settings(request):
+def settings_view(request):
     """Display settings page with tabs"""
     user = request.user
     is_admin = False
@@ -251,14 +252,14 @@ def public_register(request):
             # Send request email to admin
             queue_email('request', system_user.email_inbox, {
                 'requester_name': f"{user.first_name} {user.last_name}",
-                "requester_email": user.email_inbox,
+                "requester_email": user.email,
                 "company": user.organization.org_name if user.organization else "Unknown",
                 "role": "Org Admin",
                 "approve_url": approve_url,
                 "reject_url": reject_url,
             })
             
-            messages.success(request, 'Registration successful. Please wait for admin approval.')
+            #messages.success(request, 'Registration successful. Please wait for admin approval.')
             
             # Redirect to waiting page
             return redirect('accounts:waiting')
