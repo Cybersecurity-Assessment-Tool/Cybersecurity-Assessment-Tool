@@ -252,7 +252,7 @@ def public_register(request):
             # Send request email to admin
             queue_email('request', system_user.email_inbox, {
                 'requester_name': f"{user.first_name} {user.last_name}",
-                "requester_email": user.email_inbox,
+                "requester_email": user.email,
                 "company": user.organization.org_name if user.organization else "Unknown",
                 "role": "Org Admin",
                 "approve_url": approve_url,
