@@ -215,3 +215,52 @@ class InvitationSignupForm(UserCreationForm):
         if commit:
             user.save()
         return user
+    
+from django.contrib.auth.forms import PasswordResetForm
+from django.template.loader import render_to_string
+from django_q.tasks import async_task
+from django.contrib.auth import get_user_model
+from api.models import generate_email_hash  # Adjust this import if needed
+
+User = get_user_model()
+
+class AsyncPasswordResetForm(PasswordResetForm):
+    
+    def get_users(self, email):
+        """
+        Override how Django finds the user to account for encrypted emails!
+        """
+        # 1. Hash the typed email so it matches the DB
+        email_hash = generate_email_hash(email)
+        
+        # 2. Find active users with that exact hash
+        active_users = User.objects.filter(email_hash=email_hash, is_active=True)
+        
+        # 3. Yield them back to Django (only if they have a real password)
+        for user in active_users:
+            if user.has_usable_password():
+                yield user
+
+    def send_mail(self, subject_template_name, email_template_name,
+                  context, from_email, to_email, html_email_template_name=None):
+        """
+        Send the email via Django Q2 Background Worker
+        """
+        subject = render_to_string(subject_template_name, context)
+        subject = ''.join(subject.splitlines())
+        
+        body = render_to_string(email_template_name, context)
+        
+        html_body = None
+        if html_email_template_name:
+            html_body = render_to_string(html_email_template_name, context)
+
+        async_task(
+            'django.core.mail.send_mail',
+            subject,
+            body,
+            from_email,
+            [to_email],
+            fail_silently=False,
+            html_message=html_body,
+        )

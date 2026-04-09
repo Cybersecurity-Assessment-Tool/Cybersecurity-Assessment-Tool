@@ -2,6 +2,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView
 from .forms import CustomUserCreationForm, InvitationSignupForm, PublicRegistrationForm
 from django.contrib.auth import get_user_model
+from .forms import AsyncPasswordResetForm 
 
 User = get_user_model()
 
@@ -708,6 +709,7 @@ class CustomPasswordChangeDoneView(TemplateView):
 class CustomPasswordResetView(PasswordResetView):
     """Handles the form asking for an email to send the reset link"""
     template_name = 'registration/password_reset_form.html'
+    form_class = AsyncPasswordResetForm 
     success_url = reverse_lazy('accounts:password_reset_done')
     
 class CustomPasswordResetDoneView(PasswordResetDoneView):
