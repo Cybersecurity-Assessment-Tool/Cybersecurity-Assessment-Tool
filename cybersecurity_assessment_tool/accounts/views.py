@@ -259,7 +259,7 @@ def public_register(request):
                 "reject_url": reject_url,
             })
             
-            messages.success(request, 'Registration successful. Please wait for admin approval.')
+            #messages.success(request, 'Registration successful. Please wait for admin approval.')
             
             # Redirect to waiting page
             return redirect('accounts:waiting')
