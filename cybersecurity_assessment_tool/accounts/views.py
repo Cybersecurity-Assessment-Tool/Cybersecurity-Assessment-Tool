@@ -30,7 +30,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 @login_required
-def settings(request):
+def settings_view(request):
     """Display settings page with tabs"""
     user = request.user
     is_admin = False
