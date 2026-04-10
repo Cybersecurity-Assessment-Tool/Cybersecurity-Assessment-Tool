@@ -1582,23 +1582,14 @@ def report_list(request):
 
 @login_required
 def report_detail(request, report_id):
-    """
-    Renders the full AI-generated report from the encrypted JSON field.
-    
-    Encryption note: report.report_text is an EncryptedJSONField. Django's
-    ORM calls from_db_value() automatically on load, so report.report_text
-    arrives here as a plain Python dict — no manual decryption needed.
-
-    We build a risk_map {risk_name: risk_id} from the database so that each
-    vulnerability card in the template can link to its risk detail page.
-    """
+    """Renders the full AI-generated report from the encrypted JSON field."""
     try:
         report = Report.objects.get(report_id=report_id)
     except Report.DoesNotExist:
         messages.error(request, "Report not found.")
         return redirect('report_list')
 
-    # ── Permission check ──────────────────────────────────────────────────────
+    # Permission check
     try:
         user_org = request.user.organization
         if not user_org or report.organization != user_org:
@@ -1608,7 +1599,6 @@ def report_detail(request, report_id):
         messages.error(request, "Unable to verify permissions.")
         return redirect('report_list')
 
-    # ── Parse the (already-decrypted) JSON ───────────────────────────────────
     raw = report.report_text or {}
     if isinstance(raw, str):
         try:
@@ -1619,21 +1609,17 @@ def report_detail(request, report_id):
     report_items = raw.get('report', [])
     report_item  = report_items[0] if report_items else {}
 
-    # ── Extract sections in the display order we want ─────────────────────────
     overview      = report_item.get('Overview', {})
     observations  = report_item.get('Observations', [])
     questionnaire = report_item.get('Questionnaire Review', {})
     risks_section = report_item.get('Risks & Recommendations', {})
     conclusion    = report_item.get('Conclusion', '')
-
-    summary   = risks_section.get('Summary', '')
-    raw_vulns = risks_section.get('Vulnerabilities Found', [])
+    summary       = risks_section.get('Summary', '')
+    raw_vulns     = risks_section.get('Vulnerabilities Found', [])
     
-    # ── Deep-parse Scan Findings before formatting ───────────────
+    # Deep-parse Scan Findings
     scan_findings_raw = report_item.get('Scan Findings', {})
-    
     if scan_findings_raw and isinstance(scan_findings_raw, dict):
-        # Look for stringified JSON inside the dict and parse it so it indents properly
         for key, val in scan_findings_raw.items():
             if isinstance(val, str):
                 val_stripped = val.strip()
@@ -1642,45 +1628,45 @@ def report_detail(request, report_id):
                     try:
                         scan_findings_raw[key] = json.loads(val_stripped)
                     except json.JSONDecodeError:
-                        pass # Leave as string if it fails to parse
-
+                        pass
         scan_findings = json.dumps(scan_findings_raw, indent=2)
     else:
         scan_findings = None
 
-    # ── Build a name → risk_id map from the database ──────────────────────────
-    risk_map = {
-        risk.risk_name: str(risk.risk_id)
-        for risk in Risk.objects.filter(report=report)
-    }
+    risk_map = {risk.risk_name: str(risk.risk_id) for risk in Risk.objects.filter(report=report)}
 
     # ── Bulletproof parsing of AI vulnerability outputs ──────────
     SEVERITY_ORDER = {'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4, 'Info': 5}
     vulnerabilities = []
 
     for v in raw_vulns:
-        # Aggressive fallbacks using 'or' to catch empty strings or hallucinated keys
-        # 1. Handle case-insensitive keys
-        risk_name = v.get('Risk') or v.get('risk') or v.get('risk_name') or v.get('name') or 'Unknown Risk'
-        overview_text = v.get('Overview') or v.get('overview') or v.get('description') or v.get('details') or 'No description provided.'
+        if not isinstance(v, dict):
+            continue
+            
+        # Flatten all keys to lowercase and replace underscores with spaces
+        v_lower = {str(k).lower().strip().replace('_', ' '): val for k, val in v.items()}
         
-        # 2. Clean rogue characters from Severity (e.g. 'CRITICAL",' -> 'Critical')
-        severity_val = v.get('Severity') or v.get('severity') or 'Info'
+        risk_name = v_lower.get('risk') or v_lower.get('risk name') or v_lower.get('name') or 'Unknown Risk'
+        overview_text = v_lower.get('overview') or v_lower.get('description') or v_lower.get('details') or 'No description provided.'
+        
+        severity_val = v_lower.get('severity') or 'Info'
         if isinstance(severity_val, str):
             severity_val = severity_val.replace('"', '').replace(',', '').replace('[', '').replace(']', '').strip().capitalize()
         
-        # 3. Handle arrays safely
-        elements = v.get('Affected Elements') or v.get('affected_elements') or v.get('elements') or []
+        elements = v_lower.get('affected elements') or v_lower.get('elements') or []
         if isinstance(elements, str):
             elements = [e.strip() for e in elements.split(',') if e.strip()]
             
-        # 4. Handle nested recommendation objects
-        recs = v.get('Recommendation') or v.get('recommendations') or v.get('recommendation') or {}
-        if isinstance(recs, str):
+        recs = v_lower.get('recommendation') or v_lower.get('recommendations') or {}
+        
+        if isinstance(recs, dict):
+            r_lower = {str(k).lower().strip().replace('_', ' '): val for k, val in recs.items()}
+            easy_fix = r_lower.get('easy fix') or r_lower.get('quick fix') or ''
+            long_term_fix = r_lower.get('long term fix') or ''
+        elif isinstance(recs, str):
             easy_fix, long_term_fix = recs, ''
         else:
-            easy_fix = recs.get('easy_fix') or recs.get('Easy Fix') or ''
-            long_term_fix = recs.get('long_term_fix') or recs.get('Long Term Fix') or ''
+            easy_fix, long_term_fix = '', ''
 
         vulnerabilities.append({
             'risk':              risk_name,
@@ -1724,7 +1710,6 @@ def download_report_pdf(request, report_id):
     except Report.DoesNotExist:
         return JsonResponse({'error': 'Report not found.'}, status=404)
 
-    # Permission check
     try:
         user_org = request.user.organization
         if not user_org or report.organization != user_org:
@@ -1732,7 +1717,6 @@ def download_report_pdf(request, report_id):
     except Exception:
         return JsonResponse({'error': 'Permission error.'}, status=403)
 
-    # Extract report data from encrypted JSON field
     report_data = report.report_text
     if isinstance(report_data, str):
         try:
@@ -1743,9 +1727,7 @@ def download_report_pdf(request, report_id):
     report_items = report_data.get('report', [])
     report_item = report_items[0] if report_items else {}
 
-    # 1. Deep-parse the Scan Findings for the PDF
     scan_findings_raw = report_item.get('Scan Findings', {})
-    
     if scan_findings_raw and isinstance(scan_findings_raw, dict):
         for key, val in scan_findings_raw.items():
             if isinstance(val, str):
@@ -1760,31 +1742,37 @@ def download_report_pdf(request, report_id):
     else:
         scan_findings_formatted = "No raw scan data available."
 
-    # 2. Aggressive parsing for Vulnerabilities (Mirroring report_detail)
+    # ── ✨ BULLETPROOF AI PARSING (Same as above) ✨ ──────────
     raw_vulns = report_item.get('Risks & Recommendations', {}).get('Vulnerabilities Found', [])
     pdf_vulns = []
     
     for v in raw_vulns:
-        # Aggressive fallbacks to catch AI schema hallucinations
-        risk_name = v.get('Risk') or v.get('risk') or v.get('risk_name') or v.get('name') or 'Unknown Risk'
-        overview_text = v.get('Overview') or v.get('overview') or v.get('description') or v.get('details') or 'No description provided.'
+        if not isinstance(v, dict):
+            continue
+            
+        v_lower = {str(k).lower().strip().replace('_', ' '): val for k, val in v.items()}
         
-        severity_val = v.get('Severity') or v.get('severity') or 'Info'
+        risk_name = v_lower.get('risk') or v_lower.get('risk name') or v_lower.get('name') or 'Unknown Risk'
+        overview_text = v_lower.get('overview') or v_lower.get('description') or v_lower.get('details') or 'No description provided.'
+        
+        severity_val = v_lower.get('severity') or 'Info'
         if isinstance(severity_val, str):
             severity_val = severity_val.replace('"', '').replace(',', '').replace('[', '').replace(']', '').strip().capitalize()
         
-        elements = v.get('Affected Elements') or v.get('affected_elements') or v.get('elements') or []
+        elements = v_lower.get('affected elements') or v_lower.get('elements') or []
         if isinstance(elements, str):
             elements = [e.strip() for e in elements.split(',') if e.strip()]
             
-        recs = v.get('Recommendation') or v.get('recommendations') or v.get('recommendation') or {}
-        if isinstance(recs, str):
+        recs = v_lower.get('recommendation') or v_lower.get('recommendations') or {}
+        if isinstance(recs, dict):
+            r_lower = {str(k).lower().strip().replace('_', ' '): val for k, val in recs.items()}
+            easy_fix = r_lower.get('easy fix') or r_lower.get('quick fix') or ''
+            long_term_fix = r_lower.get('long term fix') or ''
+        elif isinstance(recs, str):
             easy_fix, long_term_fix = recs, ''
         else:
-            easy_fix = recs.get('easy_fix') or recs.get('Easy Fix') or ''
-            long_term_fix = recs.get('long_term_fix') or recs.get('Long Term Fix') or ''
+            easy_fix, long_term_fix = '', ''
             
-        # IMPORTANT: Use lowercase keys here to match what your JS likely expects!
         pdf_vulns.append({
             'risk': risk_name,
             'overview': overview_text,
@@ -1794,7 +1782,6 @@ def download_report_pdf(request, report_id):
             'long_term_fix': long_term_fix
         })
 
-    # Prepare final data payload
     pdf_data = {
         'report_name': report.report_name,
         'report_id': str(report.report_id),
