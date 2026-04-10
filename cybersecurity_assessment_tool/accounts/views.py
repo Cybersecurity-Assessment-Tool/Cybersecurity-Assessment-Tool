@@ -657,7 +657,7 @@ def accept_invitation(request, token):
             admin_recipient = (
                 getattr(invitation.sender, 'email', '')
                 or getattr(invitation.sender, 'email_inbox', '')
-                or django_settings.ADMIN_EMAIL_INBOX
+                or settings.ADMIN_EMAIL_INBOX
             )
             if admin_recipient:
                 try:
