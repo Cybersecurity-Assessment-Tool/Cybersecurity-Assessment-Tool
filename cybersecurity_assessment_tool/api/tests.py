@@ -4,7 +4,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.core import mail
 
-from api.models import Organization, User, Report, Risk
+from api.models import Invitation, Organization, User, Report, Risk
 
 class DatabaseEncryptionTests(TestCase):
     def setUp(self):
