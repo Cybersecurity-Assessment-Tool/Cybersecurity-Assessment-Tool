@@ -162,6 +162,10 @@ def generate_and_process_report(
 
     if report_data is None or risks_data is None:
         print("[ERROR] AI Service failed to generate report or risks data.")
+        # FIX: Update the scan status to FAILED so the UI knows to stop
+        if scan_obj:
+            scan_obj.status = 'FAILED'
+            scan_obj.save(update_fields=['status'])
         return None, None
     
     ## DEBUG pt 1
@@ -197,10 +201,10 @@ def generate_and_process_report(
                 completed=timezone.now()
             )
 
-            ## NEW: Link the report back to the Scan
             if scan_obj:
                 scan_obj.report = new_report
-                scan_obj.save(update_fields=['report'])
+                scan_obj.status = 'COMPLETE' 
+                scan_obj.save(update_fields=['report', 'status'])
 
             # Create the Risks
             created_risks = []
@@ -231,4 +235,7 @@ def generate_and_process_report(
         return None, None
     except Exception as e:
         print(f"[ERROR] Database save failed: {e}")
+        if scan_obj:
+            scan_obj.status = 'FAILED'
+            scan_obj.save(update_fields=['status'])
         return None, None
