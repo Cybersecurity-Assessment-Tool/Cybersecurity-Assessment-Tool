@@ -9,7 +9,7 @@ from django.utils import timezone
 from accounts.forms import InvitationSignupForm, PublicRegistrationForm
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Invitation, Organization, User, Report, Risk
+from .models import Invitation, Organization, User, Report, Risk, generate_email_hash
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 from .serializers import OrganizationSerializer, UserSerializer, ReportSerializer, RiskSerializer
