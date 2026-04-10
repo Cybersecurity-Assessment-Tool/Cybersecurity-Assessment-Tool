@@ -303,6 +303,25 @@
 
         <!-- Cleaned up social login section -->
         <div class="social-login">
+
+            {% if google_oauth_enabled %}
+                <!-- Google's Native HTML API handles the race conditions automatically! -->
+                <div id="g_id_onload"
+                     data-client_id="{{ google_oauth_client_id }}"
+                     data-callback="handleGoogleSignIn"
+                     data-auto_select="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="outline"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="left">
+                </div>
+            {% else %}
+                <button class="social-button" disabled title="Set GOOGLE_OAUTH_CLIENT_ID to enable Google sign-in">Google</button>
+            {% endif %}
             
             {% if microsoft_oauth_enabled %}
                 <a id="microsoftSignInButton" href="{% url 'microsoft_oauth_start' %}?flow=login" class="social-button" style="text-decoration: none;">
