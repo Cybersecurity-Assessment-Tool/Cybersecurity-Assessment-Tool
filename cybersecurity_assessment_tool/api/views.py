@@ -1316,13 +1316,13 @@ def chat_about_risk(request, risk_id):
     else:
         return JsonResponse({"error": "Unauthorized"}, status=403)
 
-from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.contrib import messages
 
 @login_required
 def dashboard(request):
-    """Display dashboard page with data from most recent scan only"""
+    """Display dashboard page with data from most recent scan 
+    that has unarchived risks and has at least risks to report"""
     user = request.user
     organization = user.organization
     
@@ -1332,20 +1332,31 @@ def dashboard(request):
     report_date = None
     
     if organization:
-        # Get the most recent report for this organization
+        # 1. Find the IDs of all reports that have at least one UNARCHIVED risk
+        reports_with_risks = Risk.objects.filter(
+            organization=organization,
+            is_archived=False
+        ).values_list('report_id', flat=True).distinct()
+        
+        # 2. Get the most recent report from that specific list
         latest_report = Report.objects.filter(
-            organization=organization
+            organization=organization,
+            report_id__in=reports_with_risks
         ).order_by('-completed').first()
         
         if latest_report:
-            # Iterate over the objects to force decryption
-            risks = Risk.objects.filter(report=latest_report)
+            # 3. Fetch ONLY the unarchived risks for this report
+            risks = Risk.objects.filter(
+                report=latest_report, 
+                is_archived=False
+            )
             
             for risk in risks:
                 vulnerabilities.append({
                     'severity': risk.severity,
                     'risk_name': risk.risk_name,
                     'overview': risk.overview,
+                    'url': reverse('risk_detail', args=[risk.risk_id])
                 })
             
             report_date = latest_report.completed if latest_report.completed else latest_report.started
@@ -1618,6 +1629,12 @@ def report_detail(request, report_id):
 
     summary   = risks_section.get('Summary', '')
     raw_vulns = risks_section.get('Vulnerabilities Found', [])
+    
+    # ── Extract and stringify Scan Findings for frontend display ─────────────────────────
+    import json as _json
+    scan_findings_raw = report_item.get('Scan Findings', {})
+    # Dump it to a pretty formatted string so it renders perfectly in a <pre> tag
+    scan_findings = _json.dumps(scan_findings_raw, indent=2) if scan_findings_raw else None
 
     # ── Build a name → risk_id map from the database ──────────────────────────
     # This lets each vulnerability card link to its detail page.
@@ -1655,9 +1672,6 @@ def report_detail(request, report_id):
         for o in observations
     ]
 
-    # only for showing json in report_detail.html, feel free to delete when done
-    # raw_json = json.dumps(report.report_text, indent=2, default=str)
-
     context = {
         'report':          report,
         'overview':        overview,
@@ -1665,9 +1679,9 @@ def report_detail(request, report_id):
         'questionnaire':   questionnaire,
         'summary':         summary,
         'vulnerabilities': vulnerabilities,
+        'scan_findings':   scan_findings,
         'conclusion':      conclusion,
         'total_vulns':     len(vulnerabilities),
-        # 'raw_json': raw_json, # for viewing json, can remove later
     }
     return render(request, 'api/report_detail.html', context)
 
@@ -1710,6 +1724,7 @@ def download_report_pdf(request, report_id):
         'questionnaire': report_item.get('Questionnaire Review', {}),
         'summary': report_item.get('Risks & Recommendations', {}).get('Summary', ''),
         'vulnerabilities': report_item.get('Risks & Recommendations', {}).get('Vulnerabilities Found', []),
+        'scan_findings': report_item.get('Scan Findings', {}),
         'conclusion': report_item.get('Conclusion', ''),
     }
 
