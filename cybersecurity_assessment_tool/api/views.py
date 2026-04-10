@@ -1659,27 +1659,28 @@ def report_detail(request, report_id):
     vulnerabilities = []
 
     for v in raw_vulns:
+        # Aggressive fallbacks using 'or' to catch empty strings or hallucinated keys
         # 1. Handle case-insensitive keys
-        risk_name = v.get('Risk', v.get('risk', ''))
-        overview_text = v.get('Overview', v.get('overview', ''))
+        risk_name = v.get('Risk') or v.get('risk') or v.get('risk_name') or v.get('name') or 'Unknown Risk'
+        overview_text = v.get('Overview') or v.get('overview') or v.get('description') or v.get('details') or 'No description provided.'
         
         # 2. Clean rogue characters from Severity (e.g. 'CRITICAL",' -> 'Critical')
-        severity_val = v.get('Severity', v.get('severity', 'Info'))
+        severity_val = v.get('Severity') or v.get('severity') or 'Info'
         if isinstance(severity_val, str):
             severity_val = severity_val.replace('"', '').replace(',', '').replace('[', '').replace(']', '').strip().capitalize()
         
         # 3. Handle arrays safely
-        elements = v.get('Affected Elements', v.get('affected_elements', []))
+        elements = v.get('Affected Elements') or v.get('affected_elements') or v.get('elements') or []
         if isinstance(elements, str):
             elements = [e.strip() for e in elements.split(',') if e.strip()]
             
         # 4. Handle nested recommendation objects
-        recs = v.get('Recommendation', v.get('recommendations', {}))
+        recs = v.get('Recommendation') or v.get('recommendations') or v.get('recommendation') or {}
         if isinstance(recs, str):
             easy_fix, long_term_fix = recs, ''
         else:
-            easy_fix = recs.get('easy_fix', '')
-            long_term_fix = recs.get('long_term_fix', '')
+            easy_fix = recs.get('easy_fix') or recs.get('Easy Fix') or ''
+            long_term_fix = recs.get('long_term_fix') or recs.get('Long Term Fix') or ''
 
         vulnerabilities.append({
             'risk':              risk_name,
@@ -1721,28 +1722,28 @@ def download_report_pdf(request, report_id):
     try:
         report = Report.objects.get(report_id=report_id)
     except Report.DoesNotExist:
-        messages.error(request, "Report not found.")
-        return redirect('report_list')
+        return JsonResponse({'error': 'Report not found.'}, status=404)
 
     # Permission check
     try:
         user_org = request.user.organization
         if not user_org or report.organization != user_org:
-            messages.error(request, "You don't have permission to download this report.")
-            return redirect('report_list')
+            return JsonResponse({'error': 'Unauthorized.'}, status=403)
     except Exception:
-        messages.error(request, "Unable to verify permissions.")
-        return redirect('report_list')
+        return JsonResponse({'error': 'Permission error.'}, status=403)
 
     # Extract report data from encrypted JSON field
     report_data = report.report_text
     if isinstance(report_data, str):
-        report_data = json.loads(report_data)
+        try:
+            report_data = json.loads(report_data)
+        except Exception:
+            report_data = {}
 
     report_items = report_data.get('report', [])
     report_item = report_items[0] if report_items else {}
 
-    # Format the scan findings for the PDF generator using the same deep-parse logic
+    # 1. Deep-parse the Scan Findings for the PDF
     scan_findings_raw = report_item.get('Scan Findings', {})
     
     if scan_findings_raw and isinstance(scan_findings_raw, dict):
@@ -1757,44 +1758,48 @@ def download_report_pdf(request, report_id):
                         pass
         scan_findings_formatted = json.dumps(scan_findings_raw, indent=2)
     else:
-        scan_findings_formatted = ""
+        scan_findings_formatted = "No raw scan data available."
 
-    # Prepare data for frontend PDF generation
-    # We use the same fallback logic here for vulnerabilities so the PDF generator doesn't break
+    # 2. Aggressive parsing for Vulnerabilities (Mirroring report_detail)
     raw_vulns = report_item.get('Risks & Recommendations', {}).get('Vulnerabilities Found', [])
     pdf_vulns = []
     
     for v in raw_vulns:
-        risk_name = v.get('Risk', v.get('risk', ''))
-        overview_text = v.get('Overview', v.get('overview', ''))
-        severity_val = v.get('Severity', v.get('severity', 'Info'))
+        # Aggressive fallbacks to catch AI schema hallucinations
+        risk_name = v.get('Risk') or v.get('risk') or v.get('risk_name') or v.get('name') or 'Unknown Risk'
+        overview_text = v.get('Overview') or v.get('overview') or v.get('description') or v.get('details') or 'No description provided.'
+        
+        severity_val = v.get('Severity') or v.get('severity') or 'Info'
         if isinstance(severity_val, str):
             severity_val = severity_val.replace('"', '').replace(',', '').replace('[', '').replace(']', '').strip().capitalize()
         
-        elements = v.get('Affected Elements', v.get('affected_elements', []))
+        elements = v.get('Affected Elements') or v.get('affected_elements') or v.get('elements') or []
         if isinstance(elements, str):
             elements = [e.strip() for e in elements.split(',') if e.strip()]
             
-        recs = v.get('Recommendation', v.get('recommendations', {}))
+        recs = v.get('Recommendation') or v.get('recommendations') or v.get('recommendation') or {}
         if isinstance(recs, str):
             easy_fix, long_term_fix = recs, ''
         else:
-            easy_fix = recs.get('easy_fix', '')
-            long_term_fix = recs.get('long_term_fix', '')
+            easy_fix = recs.get('easy_fix') or recs.get('Easy Fix') or ''
+            long_term_fix = recs.get('long_term_fix') or recs.get('Long Term Fix') or ''
             
+        # IMPORTANT: Use lowercase keys here to match what your JS likely expects!
         pdf_vulns.append({
-            'Risk': risk_name,
-            'Overview': overview_text,
-            'Severity': severity_val,
-            'Affected Elements': elements,
-            'Recommendation': {'easy_fix': easy_fix, 'long_term_fix': long_term_fix}
+            'risk': risk_name,
+            'overview': overview_text,
+            'severity': severity_val,
+            'affected_elements': elements,
+            'easy_fix': easy_fix,
+            'long_term_fix': long_term_fix
         })
 
+    # Prepare final data payload
     pdf_data = {
         'report_name': report.report_name,
         'report_id': str(report.report_id),
         'report_date': report.completed.strftime('%B %d, %Y'),
-        'user_created': report.user_created.username,
+        'user_created': report.user_created.username if report.user_created else 'System',
         'overview': report_item.get('Overview', {}),
         'observations': report_item.get('Observations', []),
         'questionnaire': report_item.get('Questionnaire Review', {}),
