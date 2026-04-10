@@ -26,7 +26,7 @@ def _get_google_oauth_context():
 def _get_system_notification_user():
     """Return a stable internal user for approval/invitation emails without colliding with real admin emails."""
     username = "Frontend Integration Testing"
-    admin_inbox = getattr(django_settings, 'ADMIN_EMAIL_INBOX', '').strip() or None
+    admin_inbox = getattr(settings, 'ADMIN_EMAIL_INBOX', '').strip() or None
     base_email = 'frontend-integration-testing@local.invalid'
 
     system_user = User.objects.filter(username=username).first()

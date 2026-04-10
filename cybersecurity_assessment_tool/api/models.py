@@ -138,7 +138,7 @@ class User(AbstractUser):
         blank=True     # allows the field to be optional in forms/admin
     )
     auto_frequency = models.CharField(max_length=1, choices=Frequency.choices)
-    profile_image = models.ImageField(upload_to=profile_image_path, blank=True, null=True, db_column='profile_img')
+    profile_image = models.ImageField(upload_to=profile_image_path, blank=True, null=True, db_column='profile_image')
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
     email_inbox = EncryptedEmailField(null=True, blank=True)
