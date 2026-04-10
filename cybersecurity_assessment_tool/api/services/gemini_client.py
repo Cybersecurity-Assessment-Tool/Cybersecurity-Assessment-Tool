@@ -158,14 +158,23 @@ def generate_and_process_report(
     questionnaire = get_questionnaire_dict(org)
 
     # 3. Call the AI generation service (pure AI logic, no database IDs needed)
-    report_data, risks_data = ai_generation_service(questionnaire, current_risks, context_data)
+    report_data, risks_data, ai_error_msg = ai_generation_service(questionnaire, current_risks, context_data)
 
     if report_data is None or risks_data is None:
-        print("[ERROR] AI Service failed to generate report or risks data.")
-        # FIX: Update the scan status to FAILED so the UI knows to stop
+        # Fallback just in case the error message is blank
+        final_error = ai_error_msg or "An unknown AI error prevented report generation."
+        
         if scan_obj:
             scan_obj.status = 'FAILED'
-            scan_obj.save(update_fields=['status'])
+            
+            # Save the text to the database if your model supports it
+            if hasattr(scan_obj, 'error_message'):
+                scan_obj.error_message = final_error
+                scan_obj.save(update_fields=['status', 'error_message'])
+            else:
+                # Fallback if you haven't added an error_message column to your Scan model yet
+                scan_obj.save(update_fields=['status'])
+                
         return None, None
     
     ## DEBUG pt 1
