@@ -23,10 +23,16 @@ urlpatterns = [
     path('otp/send/', views.send_otp_view, name='resend_otp'),
     # path('public-signup/', views.public_registration, name='public_registration'),
 
-    # Login URLs
+    # Login / signup OAuth URLs
     # path('login/', views.login_view, name='login'),
+    path('google-oauth/start/', views.google_oauth_start, name='google_oauth_start'),
+    path('google-oauth/callback/', views.google_oauth_callback, name='google_oauth_callback'),
+    path('microsoft-oauth/start/', views.microsoft_oauth_start, name='microsoft_oauth_start'),
+    path('microsoft-oauth/callback/', views.microsoft_oauth_callback, name='microsoft_oauth_callback'),
     path('google-oauth-login/', views.google_oauth_login, name='google_oauth_login'),
+    path('google-oauth-signup/', views.google_oauth_signup, name='google_oauth_signup'),
     path('verify-login-otp/', views.verify_login_otp, name='verify_login_otp'),
+    path('resend-login-otp/', views.resend_login_otp, name='resend_login_otp'),
     path('login-redirect/', views.questionnaire_redirect, name='login_redirect'),
 
     # Admin approval URLs
