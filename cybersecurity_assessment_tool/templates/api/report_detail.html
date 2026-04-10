@@ -360,6 +360,13 @@
         }
     }
 
+    /* ── JSON Syntax Highlighting ────────────────────────────────────────────── */
+    .json-key { color: #854d0e; font-weight: 600; }     /* Muted Brown/Gold for keys */
+    .json-string { color: #166534; }                    /* Muted Green for strings */
+    .json-number { color: #1e3a8a; font-weight: 600; }  /* Muted Blue for numbers */
+    .json-boolean { color: #991b1b; font-weight: 600; } /* Muted Red for true/false */
+    .json-null { color: var(--ink-light); font-style: italic; }
+
     /* ── Sticky button (bottom left corner) ──────────────────────────────────── */
     .sticky-bottom-btn {
         position: fixed;
@@ -708,9 +715,20 @@
     {% if scan_findings %}
     <div class="rp-section">
         <div class="rp-section-heading">05 — Scan Findings</div>
-        <div style="background: var(--surface); padding: 1.25rem; border: 1px solid var(--rule-light); border-radius: 3px; overflow-x: auto;">
-            <pre style="font-family: var(--font-mono); font-size: 0.8125rem; color: var(--ink-mid); margin: 0;">{{ scan_findings }}</pre>
+        
+        <div class="rp-vuln-card" id="scanFindingsCard">
+            <div class="rp-vuln-header" onclick="toggleVuln('scanFindingsCard')">
+                <span class="rp-vuln-name" style="font-family: var(--font-mono); font-size: 0.85rem;">{ } Raw JSON Data</span>
+                <span class="rp-toggle-icon">▾</span>
+            </div>
+            
+            <div class="rp-vuln-body" style="padding: 0; background: var(--surface);">
+                <div style="padding: 1.25rem; overflow-x: auto;">
+                    <pre id="scanFindingsPre" style="font-family: var(--font-mono); font-size: 0.8125rem; margin: 0;">{{ scan_findings }}</pre>
+                </div>
+            </div>
         </div>
+        
     </div>
     {% endif %}
 
@@ -880,6 +898,41 @@
             console.error(error);
             chatTyping.style.display = 'none';
             appendMessage("I'm sorry, there was a network error reaching the assistant.", 'bot');
+        }
+    });
+
+    // ---------------------------------------------------------------------
+    // JSON Syntax Highlighting
+    // ---------------------------------------------------------------------
+    function syntaxHighlightJSON(json) {
+        // Escape HTML characters so tags inside the JSON don't break the page
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        
+        // Regex magic to find strings, numbers, booleans, and nulls
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            let cls = 'json-number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'json-key';
+                } else {
+                    cls = 'json-string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'json-boolean';
+            } else if (/null/.test(match)) {
+                cls = 'json-null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const preEl = document.getElementById('scanFindingsPre');
+        if (preEl) {
+            // Grab the raw JSON text from the template
+            const rawJson = preEl.textContent;
+            // Run it through the highlighter and replace the HTML
+            preEl.innerHTML = syntaxHighlightJSON(rawJson);
         }
     });
 </script>

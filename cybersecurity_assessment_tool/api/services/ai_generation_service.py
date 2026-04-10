@@ -259,7 +259,6 @@ def _create_report_prompt() -> str:
     You are an expert cybersecurity analyst who generates comprehensive security reports. 
     You are evaluating raw technical data and a questionnaire for an organization. 
     If you do not have enough data to draw a conclusion, simply state you do not know.
-    Every response you generate should follow the following: {{"thought" : "you should always think about what you need to do"}}. 
     Do not end the analysis until the entire context has been checked and all conclusions are drawn. 
     Pass the formatted vulnerabilities and summaries into the "report" section. 
     Draw conclusions (e.g., p=reject is strong, no open ports are secure) rather than just listing data. 
@@ -276,7 +275,6 @@ def _create_risk_prompt() -> str:
     You are evaluating a security report for an organization. 
     If you do not have enough data to assess a risk, simply state you do not know. 
     You need to make sure you cross-reference every vulnerability against the list of existing risks during your analysis.
-    Every response you generate should follow the following: {{"thought" : "you should always think about what you need to do"}}. 
     Do not end the analysis until the entire report vulnerabilities list has been checked. 
     The current risk list tells you which risks are already known. 
     Each entry corresponds to a vulnerability already tracked by the organization. 
