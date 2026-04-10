@@ -259,7 +259,7 @@
     <div class="col-12">
       <div class="alert alert-danger">
         ❌ <strong>Scan failed.</strong> <span id="errorMessage"></span>
-        <button class="btn btn-outline-danger btn-sm ms-3" onclick="resetScanUI()">Try Again</button>
+        <button class="btn btn-outline-danger btn-sm ms-3" onclick="retryAIGeneration()">Try Again</button>
       </div>
     </div>
   </div>
@@ -703,6 +703,42 @@ function startScan() {
 
 function getCsrf() {
   return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+function retryAIGeneration() {
+  if (!activeScanId) {
+    alert("No active scan found to retry.");
+    return;
+  }
+
+  // 1. Hide the error card and show the loading spinner immediately
+  document.getElementById('errorCard').classList.add('d-none');
+  showActiveScanCard('Restarting AI Generation...');
+  document.getElementById('generatingNotice').classList.remove('d-none');
+
+  // 2. Hit the backend retry endpoint
+  fetch(`/api/scan/retry/${activeScanId}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCsrf(),
+      'Content-Type': 'application/json',
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      // 3. Success! Start polling the database for status updates again
+      startPolling(activeScanId);
+    } else {
+      // If the backend refuses the retry, show the error card again
+      showErrorCard(data.error || 'Failed to restart generation.');
+      document.getElementById('activeScanCard').classList.add('d-none');
+    }
+  })
+  .catch(() => {
+    showErrorCard('Network error while trying to restart.');
+    document.getElementById('activeScanCard').classList.add('d-none');
+  });
 }
 </script>
 {% endblock %}

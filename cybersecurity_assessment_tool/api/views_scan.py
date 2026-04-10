@@ -329,3 +329,38 @@ def start_server_scan(request):
         'scan_id': str(scan.id),
         'message': "Scan started. We'll email you when your report is ready — this usually takes 3–5 minutes.",
     }, status=202)
+
+# ---------------------------------------------------------------------------
+#  Retry Scan Button
+# ---------------------------------------------------------------------------
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django_q.tasks import async_task
+# from .models import Scan
+
+@login_required
+@require_POST
+def retry_scan_generation(request, scan_id):
+    """
+    Restarts the AI report generation for a failed scan.
+    """
+    try:
+        # Fetch the scan and ensure the requesting user owns it
+        scan = Scan.objects.get(id=scan_id, user=request.user)
+    except Scan.DoesNotExist:
+        return JsonResponse({'error': 'Scan not found or unauthorized.'}, status=404)
+
+    if scan.status != "FAILED":
+        return JsonResponse({'error': 'Only failed scans can be retried.'}, status=400)
+
+    # Reset the scan status and clear the previous error message
+    scan.status = "RECEIVED" # Puts it back in the queue state
+    scan.error_message = None
+    scan.save(update_fields=['status', 'error_message'])
+
+    # Re-queue the background task!
+    # (Make sure this path matches where your generate_report_from_scan function lives)
+    async_task('api.services.generate_report_from_scan.generate_report_from_scan', scan_id=str(scan.id))
+
+    return JsonResponse({'success': True, 'message': 'AI generation restarted.'})

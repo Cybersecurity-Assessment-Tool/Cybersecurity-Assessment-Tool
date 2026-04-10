@@ -16,7 +16,7 @@ from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable, De
 gen.configure(api_key=settings.API_KEY)
 
 # Change the model here
-MODEL_NAME = 'gemini-2.5-flash'
+MODEL_NAME = 'gemini-2.5-pro'
 model = gen.GenerativeModel(model_name=MODEL_NAME)
 
 # -----------------------------------------------------------------------------
