@@ -121,17 +121,17 @@ def _inject_overview_scan_and_questionnaire(report_data: dict, org: Organization
         }
     }
 
-    if "report" in report_data and isinstance(report_data, list):
-        for i, report_item in enumerate(report_data):
+    if "report" in report_data and isinstance(report_data["report"], list):
+        for i, report_item in enumerate(report_data["report"]):
             rebuilt_report_item = {}
             
             for key, value in new_section_data.items():
-                rebuilt_report_item = value
+                rebuilt_report_item[key] = value
                 
             for key, value in report_item.items():
-                rebuilt_report_item = value
+                rebuilt_report_item[key] = value
                 
-            report_data = rebuilt_report_item
+            report_data["report"][i] = rebuilt_report_item
 
     return report_data
 
@@ -158,10 +158,23 @@ def generate_and_process_report(
     questionnaire = get_questionnaire_dict(org)
 
     # 3. Call the AI generation service (pure AI logic, no database IDs needed)
-    report_data, risks_data = ai_generation_service(questionnaire, current_risks, context_data)
+    report_data, risks_data, ai_error_msg = ai_generation_service(questionnaire, current_risks, context_data)
 
     if report_data is None or risks_data is None:
-        print("[ERROR] AI Service failed to generate report or risks data.")
+        # Fallback just in case the error message is blank
+        final_error = ai_error_msg or "An unknown AI error prevented report generation."
+        
+        if scan_obj:
+            scan_obj.status = 'FAILED'
+            
+            # Save the text to the database if your model supports it
+            if hasattr(scan_obj, 'error_message'):
+                scan_obj.error_message = final_error
+                scan_obj.save(update_fields=['status', 'error_message'])
+            else:
+                # Fallback if you haven't added an error_message column to your Scan model yet
+                scan_obj.save(update_fields=['status'])
+                
         return None, None
     
     ## DEBUG pt 1
@@ -197,10 +210,10 @@ def generate_and_process_report(
                 completed=timezone.now()
             )
 
-            ## NEW: Link the report back to the Scan
             if scan_obj:
                 scan_obj.report = new_report
-                scan_obj.save(update_fields=['report'])
+                scan_obj.status = 'COMPLETE' 
+                scan_obj.save(update_fields=['report', 'status'])
 
             # Create the Risks
             created_risks = []
@@ -231,4 +244,7 @@ def generate_and_process_report(
         return None, None
     except Exception as e:
         print(f"[ERROR] Database save failed: {e}")
+        if scan_obj:
+            scan_obj.status = 'FAILED'
+            scan_obj.save(update_fields=['status'])
         return None, None

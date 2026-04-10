@@ -7,6 +7,7 @@ import jsonschema
 from google.genai import types
 from typing import Dict, Any
 from django.conf import settings
+from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable, DeadlineExceeded
 
 # -----------------------------------------------------------------------------
 # MODEL SETUP
@@ -413,7 +414,7 @@ def _add_risks(report: dict, current_risks: dict):
 def ai_generation_service(questionnaire: dict, current_risks: dict, context: str):
     """
     Generates report and risks data using Gemini.
-    Returns the raw parsed JSON dictionaries: (report_data, risks_data)
+    Returns: (report_data, risks_data, error_message)
     """
     try:
         # 1. Generate and validate base report data
@@ -423,11 +424,30 @@ def ai_generation_service(questionnaire: dict, current_risks: dict, context: str
         risks_data = _add_risks(report_data, current_risks)
 
         print("--- Successfully generated report and risk data dictionaries. ---")
-        return report_data, risks_data
+        return report_data, risks_data, None
 
-    except jsonschema.ValidationError as e:
-        print(f"[ERROR] AI output did not match required schema: {e.message}")
-    except Exception as e:
-        print(f"[ERROR] AI Pipeline failed: {e}")
+    except ResourceExhausted:
+        msg = "The AI is currently experiencing high traffic. Please wait a moment and try again."
+        print(f"[ERROR] {msg}")
+        return None, None, msg
         
-    return None, None
+    except (ServiceUnavailable, DeadlineExceeded):
+        msg = "The AI service timed out or is temporarily offline. Please try again later."
+        print(f"[ERROR] {msg}")
+        return None, None, msg
+        
+    except jsonschema.ValidationError as e:
+        msg = "The AI generated an improperly formatted report. Please run the scan again."
+        print(f"[ERROR] Schema validation failed: {e.message}")
+        return None, None, msg
+        
+    except Exception as e:
+        # Catch-all for safety blocks or unexpected API changes
+        error_str = str(e).lower()
+        if "safety" in error_str or "blocked" in error_str:
+            msg = "The AI blocked the generation because the scan data triggered a safety filter."
+        else:
+            msg = "An unexpected error occurred while analyzing the scan data."
+            
+        print(f"[ERROR] AI Pipeline failed: {e}")
+        return None, None, msg
