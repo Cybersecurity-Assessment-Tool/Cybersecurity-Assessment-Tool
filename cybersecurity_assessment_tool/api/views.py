@@ -26,9 +26,6 @@ from django.contrib.auth.decorators import login_required
 import secrets
 import os
 
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-
 User = get_user_model()
 
 ## Simple session-based OTP storage (use Redis/Cache in production)
