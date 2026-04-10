@@ -253,6 +253,9 @@ INTERNAL_IPS = [
 LOGIN_REDIRECT_URL = 'login_redirect'
 LOGOUT_REDIRECT_URL = "home"
 
+GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', '').strip()
+GOOGLE_OAUTH_ENABLED = bool(GOOGLE_OAUTH_CLIENT_ID)
+
 # ---------------------------------------------------------------------------
 # Email Configuration
 # ---------------------------------------------------------------------------
@@ -274,7 +277,7 @@ if EMAIL_BACKEND_TYPE == 'sendgrid' or IS_HEROKU:
 elif EMAIL_BACKEND_TYPE == 'smtp':
     # Use Gmail or other SMTP
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com') # Defaults to Gmail SMTP, but should be updated to sendgrid in the future
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.sendgrid.net') # Defaults to SendGrid SMTP
     EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
     EMAIL_USE_TLS = True
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
