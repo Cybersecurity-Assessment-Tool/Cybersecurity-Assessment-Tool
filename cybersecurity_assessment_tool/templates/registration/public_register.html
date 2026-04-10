@@ -401,9 +401,7 @@
                     <input type="email" name="email" id="email" class="form-input" placeholder="jane@company.com" value="{{ form.email.value|default_if_none:'' }}" {% if google_passwordless_signup %}readonly{% endif %} required>
                     <button type="button" class="btn btn-secondary" id="verifyEmailBtn" {% if google_passwordless_signup %}disabled{% endif %}>Verify</button>
                 </div>
-                {% if form.email.errors %}
-                    <div class="error-feedback">{{ form.email.errors }}</div>
-                {% endif %}
+                {{ form.email.errors }}
                 <div id="emailVerified" class="verified-badge" style="display: none;">✓ Email verified</div>
                 <div id="googlePasswordlessNotice" class="verified-badge" style="display: {% if google_passwordless_signup %}flex{% else %}none{% endif %};">✓ {{ social_signup_provider_name|default:'Google' }} already verified this email, so the password and OTP step can be skipped.</div>
             </div>
@@ -607,15 +605,15 @@ $(document).ready(function() {
     });
 
     // Password match validation
-    $('#password1, #password2').on('input', function() {
-        const password = $('#password1').val();
-        const confirm  = $('#password2').val();
-        if (password && confirm && password !== confirm) {
-            $('#password2')[0].setCustomValidity('Passwords do not match');
-        } else {
-            $('#password2')[0].setCustomValidity('');
-        }
-    });
+    // $('#password1, #password2').on('input', function() {
+    //     const password = $('#password1').val();
+    //     const confirm  = $('#password2').val();
+    //     if (password && confirm && password !== confirm) {
+    //         $('#password2')[0].setCustomValidity('Passwords do not match');
+    //     } else {
+    //         $('#password2')[0].setCustomValidity('');
+    //     }
+    // });
 
     // Form submission validation
     $('#registrationForm').submit(function(e) {

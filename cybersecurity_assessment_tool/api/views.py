@@ -1,6 +1,7 @@
 from functools import lru_cache
 from urllib.parse import quote, urlencode
 from urllib.request import Request as UrlRequest, urlopen
+import sys
 import uuid
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -27,10 +28,6 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 import secrets
 import os
-import sys
-
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 User = get_user_model()
 

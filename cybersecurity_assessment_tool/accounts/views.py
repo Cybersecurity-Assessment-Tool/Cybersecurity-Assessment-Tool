@@ -2,17 +2,17 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView
 from .forms import CustomUserCreationForm, InvitationSignupForm, PublicRegistrationForm
 from django.contrib.auth import get_user_model
-from django.conf import settings as django_settings
+from .forms import AsyncPasswordResetForm 
 
 User = get_user_model()
 
 
 def _get_google_oauth_context():
     """Shared social OAuth configuration for signup templates."""
-    google_client_id = getattr(django_settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
-    microsoft_client_id = getattr(django_settings, 'MICROSOFT_OAUTH_CLIENT_ID', '').strip()
+    google_client_id = getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
+    microsoft_client_id = getattr(settings, 'MICROSOFT_OAUTH_CLIENT_ID', '').strip()
     microsoft_oauth_base_url = (
-        getattr(django_settings, 'MICROSOFT_OAUTH_REDIRECT_BASE_URL', '') or ''
+        getattr(settings, 'MICROSOFT_OAUTH_REDIRECT_BASE_URL', '') or ''
     ).strip().rstrip('/')
     return {
         'google_oauth_enabled': bool(google_client_id),
@@ -86,9 +86,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.conf import settings
 
 @login_required
-def settings(request):
+def settings_view(request):
     """Display settings page with tabs"""
     user = request.user
     is_admin = False
@@ -312,7 +313,7 @@ def public_register(request):
             print(f"Generated reject URL: {reject_url}")
             
             # Send request email to admin
-            admin_recipient = system_user.email_inbox or django_settings.ADMIN_EMAIL_INBOX
+            admin_recipient = system_user.email_inbox or settings.ADMIN_EMAIL_INBOX
             queue_email('request', admin_recipient, {
                 'requester_name': f"{user.first_name} {user.last_name}",
                 "requester_email": user.email,
@@ -322,7 +323,7 @@ def public_register(request):
                 "reject_url": reject_url,
             })
             
-            messages.success(request, 'Registration successful. Please wait for admin approval.')
+            #messages.success(request, 'Registration successful. Please wait for admin approval.')
             
             # Redirect to waiting page
             return redirect('accounts:waiting')
@@ -748,7 +749,7 @@ def accept_invitation(request, token):
             admin_recipient = (
                 getattr(invitation.sender, 'email', '')
                 or getattr(invitation.sender, 'email_inbox', '')
-                or django_settings.ADMIN_EMAIL_INBOX
+                or settings.ADMIN_EMAIL_INBOX
             )
             if admin_recipient:
                 try:
@@ -842,6 +843,7 @@ class CustomPasswordChangeDoneView(TemplateView):
 class CustomPasswordResetView(PasswordResetView):
     """Handles the form asking for an email to send the reset link"""
     template_name = 'registration/password_reset_form.html'
+    form_class = AsyncPasswordResetForm 
     success_url = reverse_lazy('accounts:password_reset_done')
     
 class CustomPasswordResetDoneView(PasswordResetDoneView):

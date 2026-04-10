@@ -189,6 +189,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Force users to log in again after closing the browser
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Log the user out after 1 hour (3600 seconds) of inactivity
+SESSION_COOKIE_AGE = 3600
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
