@@ -342,13 +342,21 @@ def _get_google_oauth_context():
     }
 
 
-def _get_login_context(request, form=None):
+def _get_login_context(form=None):
     """Shared context for rendering the login page."""
+    google_client_id = getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
+    
+    # Add the Microsoft fetcher:
+    microsoft_client_id = getattr(settings, 'MICROSOFT_OAUTH_CLIENT_ID', '').strip()
+    
     return {
         'form': form or AuthenticationForm(),
-        'google_login_requires_otp': bool(request.session.pop('google_login_requires_otp', False)),
-        'google_login_email': request.session.get('login_email', ''),
-        **_get_google_oauth_context(),
+        'google_oauth_enabled': bool(google_client_id),
+        'google_oauth_client_id': google_client_id,
+        
+        # Pass the Microsoft variables to the template:
+        'microsoft_oauth_enabled': bool(microsoft_client_id),
+        'microsoft_oauth_client_id': microsoft_client_id,
     }
 
 
