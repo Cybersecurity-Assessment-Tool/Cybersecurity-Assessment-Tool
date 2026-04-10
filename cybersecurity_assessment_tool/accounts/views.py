@@ -2,6 +2,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView
 from .forms import CustomUserCreationForm, InvitationSignupForm, PublicRegistrationForm
 from django.contrib.auth import get_user_model
+from .forms import AsyncPasswordResetForm 
 
 User = get_user_model()
 
@@ -28,9 +29,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.conf import settings
 
 @login_required
-def settings(request):
+def settings_view(request):
     """Display settings page with tabs"""
     user = request.user
     is_admin = False
@@ -125,6 +127,9 @@ import string
 import uuid
 import traceback
 from api.utils.email_tasks import queue_email
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from api.models import User, Invitation, generate_email_hash 
 
 # Takes care of public registration for Org Admins and company databases
 def public_register(request):
@@ -132,20 +137,71 @@ def public_register(request):
     if request.method == 'POST':
         form = PublicRegistrationForm(request.POST)
         
-        if form.is_valid():
-            user = form.save()
+        # 1. Run standard form validation
+        is_valid = form.is_valid()
+        
+        # --- STRICT BACKEND CHECKS ---
+        password = request.POST.get('password1')
+        password_confirm = request.POST.get('password2')
+        submitted_email = request.POST.get('email')
+        username = request.POST.get('username')
+        
+        # 2. Enforce Uniqueness (Username & Email)
+        if username and User.objects.filter(username__iexact=username).exists():
+            form.add_error('username', 'This username is already taken. Please choose another.')
+            is_valid = False
+            
+        if submitted_email:
+            # We must check the deterministic hash because the email field is encrypted!
+            email_hash = generate_email_hash(submitted_email)
+            if User.objects.filter(email_hash=email_hash).exists():
+                form.add_error('email', 'An account with this email address already exists.')
+                is_valid = False
+
+        # 3. Enforce Password Matching
+        if password != password_confirm:
+            form.add_error('password2', 'Passwords do not match.')
+            is_valid = False
+            
+        # 4. Enforce Django's built-in Password Strength/Length rules
+        if password:
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                # Add each password validation error directly to the form
+                for error in e.messages:
+                    form.add_error('password1', error)
+                is_valid = False
+
+        # 5. Enforce Strict OTP Verification
+        verified_email = request.session.get('verified_email')
+        email_verified = request.session.get(f'registration_verified_{submitted_email}')
+
+        if not email_verified or submitted_email != verified_email:
+            form.add_error('email', 'You must verify your email address via the "Verify" button before registering.')
+            is_valid = False
+        
+        # --- EXECUTION BLOCK ---
+        # 6. ONLY create user and send emails if EVERYTHING above passed
+        if is_valid:
+            # Clear session verification so it can't be reused later
+            request.session.pop('verified_email', None)
+            request.session.pop(f'registration_verified_{submitted_email}', None)
+            
+            # Securely save the user and hash their validated password
+            user = form.save(commit=False)
+            user.set_password(password)
+            user.save()
             
             # Store data in session for the waiting page
             request.session['pending_company'] = user.organization.org_name if user.organization else "Your Organization"
             request.session['pending_email'] = user.email
             request.session['pending_submitted'] = timezone.now().isoformat()
 
-             # Get system user for admin notifications
+            # Get system user for admin notifications
             try:
                 system_user = User.objects.get(username="Frontend Integration Testing")
             except User.DoesNotExist:
-                # Create system user if it doesn't exist (if you don't have access to the admin email, you can
-                # replace it with your own and replace the database user to have the emails sent to your email)
                 system_user = User.objects.create_user(
                     username="Frontend Integration Testing",
                     email_inbox=settings.ADMIN_EMAIL_INBOX,
@@ -197,21 +253,22 @@ def public_register(request):
             # Send request email to admin
             queue_email('request', system_user.email_inbox, {
                 'requester_name': f"{user.first_name} {user.last_name}",
-                "requester_email": user.email_inbox,
+                "requester_email": user.email,
                 "company": user.organization.org_name if user.organization else "Unknown",
                 "role": "Org Admin",
                 "approve_url": approve_url,
                 "reject_url": reject_url,
             })
             
-            messages.success(request, 'Registration successful. Please wait for admin approval.')
+            #messages.success(request, 'Registration successful. Please wait for admin approval.')
             
             # Redirect to waiting page
             return redirect('accounts:waiting')
-        
-        # Do NOT use messages.error() here. 
-        # Just let it fall through and render the form with errors.
-    
+            
+        # NOTE: If is_valid became False at any point during our strict checks, 
+        # it completely skips the execution block above and falls directly down 
+        # to render the form with the errors displayed!
+
     else:
         # GET request - display empty form
         form = PublicRegistrationForm()
@@ -220,12 +277,38 @@ def public_register(request):
 
 # Waiting Page
 def waiting_page(request):
-    """Page shown after registration while awaiting approval"""
-    # TODO: Get organization status from database
+    """Waiting page shown after registration while awaiting approval"""
+    email = request.session.get('pending_email')
+    status = 'pending'
+    company = request.session.get('pending_company', 'Your Organization')
+    submitted = request.session.get('pending_submitted', timezone.now())
+
+    if email:
+        # Loop through all users to find matching email (due to encryption)
+        users = User.objects.all()
+        found_user = None
+        for user in users:
+            if user.email.lower() == email.lower():
+                found_user = user
+                break
+                
+        if found_user:
+            # Update the company name from the database if they have an org assigned
+            if found_user.organization:
+                company = found_user.organization.org_name
+                
+            if found_user.is_active:
+                status = 'approved'
+            else:
+                status = 'pending'
+        else:
+            status = 'rejected'  # User deleted or not found
+
     context = {
-        'company_name': request.session.get('company_name', 'Your Organization'),
-        'email': request.session.get('email', ''),
-        'submitted_at': timezone.now(),
+        'company_name': company,
+        'email': email,
+        'submitted_at': submitted,
+        'registration_status': status,
     }
     return render(request, 'registration/waiting.html', context)
 
@@ -619,6 +702,56 @@ def check_registration_status(request):
     """AJAX endpoint to check if registration has been approved"""
     # TODO: Check organization status in database
     return JsonResponse({'status': 'pending'})
+    
+    
+from django.contrib.auth.views import (
+    PasswordChangeView,
+    PasswordResetView,
+    PasswordResetDoneView,
+    PasswordResetConfirmView,
+    PasswordResetCompleteView
+)
+
+from django.views.generic import TemplateView
+
+# ==========================================
+# PASSWORD CHANGE VIEWS (Logged In Users)
+# ==========================================
+
+class CustomPasswordChangeView(PasswordChangeView):
+    """Handles the form where logged-in users enter old & new passwords"""
+    template_name = 'registration/password_change_form.html' 
+    success_url = reverse_lazy('password_change_done') 
+    # NOTE: If you are using an app namespace in your urls.py (e.g., app_name = 'accounts'), 
+    # change the success_url to reverse_lazy('accounts:password_change_done')
+
+class CustomPasswordChangeDoneView(TemplateView):
+    """Displays the success message after changing a password"""
+    template_name = 'registration/password_change_done.html'
+
+
+# ==========================================
+# PASSWORD RESET VIEWS (Forgot Password)
+# ==========================================
+
+class CustomPasswordResetView(PasswordResetView):
+    """Handles the form asking for an email to send the reset link"""
+    template_name = 'registration/password_reset_form.html'
+    form_class = AsyncPasswordResetForm 
+    success_url = reverse_lazy('accounts:password_reset_done')
+    
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    """Displays the message telling the user to check their email"""
+    template_name = 'registration/password_reset_done.html'
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    """Handles the form from the email link where users type their new password"""
+    template_name = 'registration/password_reset_confirm.html'
+    success_url = reverse_lazy('accounts:password_reset_complete')
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    """Displays the final success message after resetting a forgotten password"""
+    template_name = 'registration/password_reset_complete.html'
     
 # from django.shortcuts import render, redirect, get_object_or_404
 # from django.contrib.auth.decorators import login_required

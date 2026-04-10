@@ -194,60 +194,56 @@ def send_invite_mail(request, recipient_email):
         
 def register_user_invite(request, token):
     """Handle user registration via invitation link"""
-    # Get the invitation by token
-    invitation = get_object_or_404(Invitation, token=token, status='sent')
     
-    # Check if invitation is expired
-    if not invitation.is_valid():
-        messages.error(request, 'This invitation has expired or is no longer valid.')
-        return redirect('public_register')
-    
+    # 1. Safely check if the token exists at all (prevents hard crashes)
+    try:
+        invitation = Invitation.objects.get(token=token)
+    except Invitation.DoesNotExist:
+        messages.error(request, 'This invitation link is invalid.')
+        return redirect('login')
+
+    # 2. Check if it's already been used (friendly error instead of an invalid page)
+    if invitation.status != 'sent':
+        messages.error(request, 'This invitation has already been used or is no longer valid.')
+        return redirect('login')
+
+    # 3. Handle the form submission
     if request.method == 'POST':
-        form = InvitationSignupForm(request.POST)
+        # Because the HTML email input is 'disabled', it doesn't send in the POST data.
+        # We must manually copy the POST data and safely inject the email from the database.
+        post_data = request.POST.copy()
+        post_data['email'] = invitation.recipient_email
+        
+        form = InvitationSignupForm(post_data)
         
         if form.is_valid():
-            # Create the user
+            # Create the user and activate immediately
             user = form.save(commit=False)
-            user.email = invitation.recipient_email  # Use email from invitation
-            user.organization = invitation.organization  # Assign to organization
-            user.is_active = False  # Pending admin approval
+            user.email = invitation.recipient_email
+            user.organization = invitation.organization
+            user.is_active = True  # Automatically activate the user
             user.save()
             
-            # Update invitation
+            # Update invitation status
             invitation.recipient_user = user
-            invitation.status = 'awaiting_approval'
+            invitation.status = 'accepted'
             invitation.save()
             
-            # Store in session for waiting page
-            request.session['pending_company'] = invitation.organization.org_name
-            request.session['pending_email'] = user.email
-            request.session['pending_submitted'] = timezone.now().isoformat()
-            
-            # Send confirmation email to user
-            queue_email('registration', user.email, {
-                "username": user.username
-            })
-            
-            # Send notification to organization admin
-            # Get the organization creator (first user) or a designated admin
-            org_admin = User.objects.filter(organization=invitation.organization).order_by('date_joined').first()
-            if org_admin:
-                queue_email('request', org_admin.email, {
-                    "requester_name": f"{user.first_name} {user.last_name}",
-                    "requester_email": user.email,
-                    "company": invitation.organization.org_name,
-                    "role": invitation.recipient_role
-                })
-            
-            messages.success(request, 'Account created successfully! Please wait for admin approval.')
-            return redirect('accounts:waiting')
+            # Return the success context to trigger your 5-second redirect UI!
+            context = {
+                'success': True,
+                'email': invitation.recipient_email,
+                'organization': invitation.organization.org_name,
+            }
+            return render(request, 'registration/invite_signup.html', context)
     else:
-        # GET request - pre-fill form with email from invitation
+        # GET request - initialize the form
         form = InvitationSignupForm(initial={'email': invitation.recipient_email})
     
+    # Pass 'email' into the context so the {{ email }} template variable renders correctly
     context = {
         'form': form,
-        'invitation': invitation,
+        'email': invitation.recipient_email, 
         'organization': invitation.organization.org_name,
     }
     return render(request, 'registration/invite_signup.html', context)
@@ -716,6 +712,7 @@ def home(request):
     context = {
         'page_title': 'RePortly',
         'description': 'Cybersecurity Assessment Tool',
+        'contact_email': settings.ADMIN_EMAIL_INBOX
     }
     return render(request, 'home.html', context)
 
@@ -840,10 +837,20 @@ def risks_list(request):
     user = request.user
     organization = user.organization
     
-    # Base queryset - if no organization, show empty results
+    is_admin = False
+    can_resolve_risk = False
+    
+    # Base queryset - filter out archived risks!
     if organization:
-        risks = Risk.objects.filter(organization=organization)
+        risks = Risk.objects.filter(organization=organization, is_archived=False)
         has_organization = True
+        
+        # Determine if the user is the org admin (first user to join the org)
+        first_user = User.objects.filter(organization=organization).order_by('date_joined').first()
+        is_admin = (first_user == user)
+        
+        # Check if user has the specific django permission
+        can_resolve_risk = user.has_perm('api.can_resolve_risk') 
     else:
         risks = Risk.objects.none()
         has_organization = False
@@ -865,8 +872,8 @@ def risks_list(request):
 
         risks = risks.filter(risk_id__in=matching_risk_ids)
     
-    # Severity counts for filter badges - Calculate from BASE queryset (unfiltered)
-    base_risks = Risk.objects.filter(organization=organization) if organization else Risk.objects.none()
+    # Severity counts for filter badges - Calculate from BASE queryset (unfiltered, but unarchived)
+    base_risks = Risk.objects.filter(organization=organization, is_archived=False) if organization else Risk.objects.none()
     severity_counts = {
         'Critical': base_risks.filter(severity='Critical').count(),
         'High': base_risks.filter(severity='High').count(),
@@ -894,19 +901,6 @@ def risks_list(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
-    # For the severity breakdown chart
-    risks_json = '[]'
-    if base_risks.exists():
-        risks_data = list(base_risks.values('risk_id', 'severity', 'risk_name')[:100])
-        
-        # Convert UUID objects to strings
-        for item in risks_data:
-            if 'risk_id' in item and item['risk_id']:
-                item['risk_id'] = str(item['risk_id'])
-        
-        # Serialize to JSON
-        risks_json = json.dumps(risks_data)
-    
     context = {
         'page_obj': page_obj,
         'severity_counts': severity_counts,
@@ -917,8 +911,9 @@ def risks_list(request):
         'filtered_count': risks.count(),
         'has_organization': has_organization,
         'has_risks': base_risks.exists(),
-        # 'risks_json': risks_json,
-        # 'has_data': risks.exists(),
+        # Add our new permission variables here:
+        'is_admin': is_admin,
+        'can_resolve_risk': can_resolve_risk,
     }
     return render(request, 'api/risks.html', context)
 
@@ -951,6 +946,39 @@ def risk_detail(request, risk_id):
         'affected_elements_list': affected_elements_list,
     }
     return render(request, 'api/risk_detail.html', context)
+
+@login_required
+@require_POST
+def resolve_risk(request, risk_id):
+    """AJAX endpoint to mark a risk as resolved (archived)"""
+    user = request.user
+    
+    try:
+        risk = Risk.objects.get(risk_id=risk_id)
+        user_org = user.organization
+        
+        # 1. Verify the user belongs to the same organization as the risk
+        if not user_org or risk.organization != user_org:
+            return JsonResponse({"error": "Unauthorized"}, status=403)
+            
+        # 2. Verify the user has permission to resolve (Admin OR has permission flag)
+        first_user = User.objects.filter(organization=user_org).order_by('date_joined').first()
+        is_admin = (first_user == user)
+        can_resolve = user.has_perm('api.can_resolve_risk')
+        
+        if not (is_admin or can_resolve):
+            return JsonResponse({"error": "You do not have permission to resolve risks."}, status=403)
+        
+        # Archive the risk
+        risk.is_archived = True
+        risk.save()
+        
+        return JsonResponse({"success": True})
+        
+    except Risk.DoesNotExist:
+        return JsonResponse({"error": "Risk not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 @login_required
 def report_list(request):

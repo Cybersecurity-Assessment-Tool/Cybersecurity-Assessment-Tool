@@ -33,6 +33,9 @@ urlpatterns = [
     path('admin/approve/<int:user_id>/', views.approve_registration, name='approve_registration'),
     path('admin/reject/<int:user_id>/', views.reject_registration, name='reject_registration'),
 
+    # Resolving risks
+    path('api/risks/<uuid:risk_id>/resolve/', views.resolve_risk, name='resolve_risk'),
+
     # Scan URLs
     path('scan/token/', generate_scan_token, name='scan_token'),
     path('scan/submit/', submit_scan_results, name='scan_submit'),

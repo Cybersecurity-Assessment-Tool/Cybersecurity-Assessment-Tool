@@ -6,7 +6,7 @@ Runs three scans against the organization's configured targets:
   - Email scan     → org.email_domain
   - Infra scan     → org.website_domain (falls back to email_domain)
 
-Entry point for Django-Q2: run_server_scan(scan_id)
+Entry point for Django-Q2: run_network_scan(scan_id)
 """
 
 from ast import Lambda
@@ -187,6 +187,50 @@ DKIM_SELECTORS = [
     'selector1', 'selector2', 'smtp', 'email',
 ]
 
+SECURITY_HEADERS = [
+    'Strict-Transport-Security',
+    'Content-Security-Policy',
+    'X-Frame-Options',
+    'X-Content-Type-Options',
+    'X-XSS-Protection',
+    'Referrer-Policy',
+    'Permissions-Policy',
+]
+
+PROBE_PATHS = [
+    '/robots.txt', '/sitemap.xml', '/.well-known/security.txt',
+    '/.env', '/.env.local', '/.env.backup',
+    '/.git/HEAD', '/.git/config',
+    '/admin', '/admin/login', '/login', '/dashboard',
+    '/wp-admin/', '/wp-login.php', '/phpmyadmin/',
+    '/backup/', '/backup.zip', '/backup.sql',
+    '/config.php', '/web.config', '/.htaccess',
+    '/crossdomain.xml', '/xmlrpc.php',
+]
+
+WAF_CDN_SIGNATURES = {
+    'Cloudflare':  lambda h: 'CF-Ray' in h or h.get('Server', '').lower() == 'cloudflare',
+    'CloudFront':  lambda h: 'X-Amz-Cf-Id' in h or 'CloudFront' in h.get('Via', ''),
+    'Akamai':      lambda h: any(k.lower().startswith('x-akamai') for k in h),
+    'Sucuri':      lambda h: 'X-Sucuri-ID' in h or 'X-Sucuri-Cache' in h,
+    'Fastly':      lambda h: 'X-Served-By' in h and 'Fastly' in h.get('Via', ''),
+    'Imperva':     lambda h: 'X-Iinfo' in h or h.get('X-CDN', '') == 'Imperva',
+    'Varnish':     lambda h: 'X-Varnish' in h or 'varnish' in h.get('Via', '').lower(),
+    'Nginx':       lambda h: 'nginx' in h.get('Server', '').lower(),
+    'Apache':      lambda h: 'apache' in h.get('Server', '').lower(),
+}
+
+SUBDOMAINS_TO_PROBE = [
+    'www', 'mail', 'webmail', 'remote', 'vpn', 'portal', 'admin',
+    'ftp', 'smtp', 'pop', 'imap', 'mx', 'mx1', 'mx2',
+    'ns1', 'ns2', 'dns', 'dns1', 'dns2',
+    'student', 'staff', 'faculty', 'library', 'calendar',
+    'learning', 'canvas', 'schoology', 'powerschool', 'sis',
+    'helpdesk', 'support', 'it', 'intranet', 'internal',
+    'board', 'superintendent', 'athletics', 'lunch', 'finance',
+    'dev', 'staging', 'test', 'backup', 'old',
+]
+
 
 # ── DNS helpers ──────────────────────────────────────────────────────────────
 
@@ -205,15 +249,15 @@ def _resolve_safe(resolver, name, rtype):
         return []
 
 
-def _summarise(findings, results):
-    results['security_findings'] = findings
-    results['scan_metadata'].update({
-        'total_findings': len(findings),
-        'critical': sum(1 for f in findings if f['severity'] == 'CRITICAL'),
-        'high':     sum(1 for f in findings if f['severity'] == 'HIGH'),
-        'medium':   sum(1 for f in findings if f['severity'] == 'MEDIUM'),
-        'low':      sum(1 for f in findings if f['severity'] == 'LOW'),
-    })
+def _add_metadata(scan_type, scan_start_ts, **extras):
+    scan_end_ts = datetime.now(dt_timezone.utc)
+    return {
+        'scan_type': scan_type,
+        'scan_start': scan_start_ts.isoformat(),
+        'scan_end': scan_end_ts.isoformat(),
+        'scan_duration': round((scan_end_ts - scan_start_ts).total_seconds(), 2),
+        **extras,
+    }
 
 
 # ── Banner grabbing ──────────────────────────────────────────────────────────
@@ -259,7 +303,8 @@ def _check_spf(txt_records, findings):
     if not spf_records:
         findings.append({
             'severity': 'HIGH', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'spf',
             'description': 'No SPF record — domain vulnerable to email spoofing'
         })
         return {
@@ -271,7 +316,8 @@ def _check_spf(txt_records, findings):
     if len(spf_records) > 1:
         findings.append({
             'severity': 'HIGH', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'spf',
         	'description': 'Multiple SPF records — invalid per RFC 7208'
         })
         return {
@@ -286,14 +332,16 @@ def _check_spf(txt_records, findings):
         info['enforcement'] = '+all (none)'
         findings.append({
             'severity': 'CRITICAL', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'spf',
             'description': 'SPF uses "+all" — any server can send mail as this domain'
         })
     elif '~all' in spf:
         info['enforcement'] = '~all (softfail)'
         findings.append({
             'severity': 'LOW', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'spf',
             'description': 'SPF uses "~all" (softfail) — consider upgrading to "-all"'
         })
         info['issue'] = 'SPF uses "~all" (softfail) — consider upgrading to "-all"'
@@ -303,7 +351,8 @@ def _check_spf(txt_records, findings):
         info['enforcement'] = '?all (neutral)'
         findings.append({
             'severity': 'MEDIUM', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'spf',
             'description': 'SPF uses "?all" (neutral) — provides no protection'
         })
     return info
@@ -315,7 +364,8 @@ def _check_dmarc(target, resolver, findings):
     if not raw:
         findings.append({
             'severity': 'HIGH', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'dmarc',
             'description': f'No DMARC record at _dmarc.{target}'
         })
         return {'found': False, 'record': '', 'parsed': {}, 'policy': 'none'}
@@ -331,19 +381,22 @@ def _check_dmarc(target, resolver, findings):
     if policy == 'none':
         findings.append({
             'severity': 'MEDIUM', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'dmarc',
             'description': 'DMARC policy is "none" — unauthenticated email is delivered without action'
 		})
     elif policy == 'quarantine':
         findings.append({
             'severity': 'LOW', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'dmarc',
         	'description': 'DMARC policy is "quarantine" — consider upgrading to "reject"'
         })
     if not tags.get('rua'):
         findings.append({
             'severity': 'LOW', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'dmarc',
             'description': 'DMARC has no "rua" reporting address — failures go unmonitored'
 		})
     return info
@@ -358,7 +411,8 @@ def _check_dkim(target, resolver, findings):
     if not found:
         findings.append({
             'severity': 'MEDIUM', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'dkim',
             'description': 'No DKIM selectors found — emails cannot be cryptographically verified'
 		})
     return {'selectors_probed': DKIM_SELECTORS, 'found': found}
@@ -374,7 +428,8 @@ def _check_mta_sts(target, resolver, findings):
         result['found'] = False
         findings.append({
             'severity': 'LOW', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'mta-sts',
             'description': 'No MTA-STS DNS record — inbound email TLS not enforced'
         })
     try:
@@ -387,14 +442,16 @@ def _check_mta_sts(target, resolver, findings):
                 result['mode'] = 'testing'
                 findings.append({
                     'severity': 'LOW', 
-                    'category': 'email',
+                    'scan_type': 'email',
+                    'category': 'mta-sts',
                     'description': 'MTA-STS policy is in "testing" mode — not yet enforcing'
 				})
             elif 'mode: none' in r.text:
                 result['mode'] = 'none'
                 findings.append({
                     'severity': 'MEDIUM', 
-                    'category': 'email',
+                    'scan_type': 'email',
+                    'category': 'mta-sts',
                     'description': 'MTA-STS policy mode is "none" — provides no protection'})
         else:
             result['policy_fetch_status'] = r.status_code
@@ -412,7 +469,8 @@ def _check_dnssec(target, resolver, findings):
     else:
         findings.append({
             'severity': 'MEDIUM', 
-            'category': 'dns',
+            'scan_type': 'email/infra',
+            'category': 'dnssec',
             'description': 'No DNSKEY record — DNSSEC does not appear to be enabled'
         })
     ds = _resolve_safe(resolver, target, 'DS')
@@ -437,7 +495,8 @@ def _attempt_zone_transfer(target, ns_records, findings):
                 })
                 findings.append({
                     'severity': 'CRITICAL', 
-                    'category': 'dns',
+                    'scan_type': 'email',
+                    'category': 'zone transfer',
                     'description': f'Zone transfer (AXFR) succeeded on {ns_clean} — entire DNS zone exposed'
                 })
             except Exception:
@@ -447,10 +506,379 @@ def _attempt_zone_transfer(target, ns_records, findings):
     return result
 
 
+# ── Infra helpers ────────────────────────────────────────────────────────────
+
+def _check_tls(hostname, findings):
+    result = {}
+    try:
+        # Open the TLS connection and grab initial metadata
+        ctx = ssl.create_default_context()
+        with ctx.wrap_socket(socket.socket(socket.AF_INET), server_hostname=hostname) as s:
+            s.settimeout(10)
+            s.connect((hostname, 443))
+            cert = s.getpeercert()
+            cipher = s.cipher()
+            protocol = s.version()
+
+		# Extract more metadata
+        not_after = cert.get('notAfter', '')
+        expiry = datetime.strptime(not_after, '%b %d %H:%M:%S %Y %Z').replace(tzinfo=dt_timezone.utc)
+        days_left = (expiry - datetime.now(dt_timezone.utc)).days
+        sans = [v for _, v in cert.get('subjectAltName', [])]
+
+        result = {
+            'valid': True,
+            'subject': dict(x[0] for x in cert.get('subject', [])),
+            'issuer': dict(x[0] for x in cert.get('issuer', [])),
+            'not_before': cert.get('notBefore'),
+            'not_after': not_after,
+            'days_until_expiry': days_left,
+            'subject_alt_names': sans,
+            'negotiated_protocol': protocol,
+            'cipher_suite': cipher[0] if cipher else None,
+            'cipher_bits': cipher[2] if cipher else None,
+        }
+
+		# Warn about certificates expiring soon
+        if days_left < 14:
+            findings.append({
+                'severity': 'CRITICAL', 
+                'scan_type': 'infra',
+                'category': 'tls',
+                'information': f'TLS certificate expires in {days_left} days'
+            })
+        elif days_left < 30:
+            findings.append({
+                'severity': 'HIGH', 
+				'scan_type': 'infra',
+                'category': 'tls',
+                'information': f'TLS certificate expires in {days_left} days'
+            })
+
+		# Probe for weak TLS protocol versions
+        for label, min_ver in [('TLS 1.0', ssl.TLSVersion.TLSv1), ('TLS 1.1', ssl.TLSVersion.TLSv1_1)]:
+            try:
+                wctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+                wctx.check_hostname = False
+                wctx.verify_mode = ssl.CERT_NONE
+                wctx.minimum_version = min_ver
+                wctx.maximum_version = min_ver
+                with wctx.wrap_socket(socket.socket()) as ws:
+                    ws.settimeout(5)
+                    ws.connect((hostname, 443))
+                result.setdefault('weak_protocols_accepted', []).append(label)
+                findings.append({
+                    'severity': 'HIGH', 
+                    'scan_type': 'infra',
+                    'category': 'tls',
+                    'information': f'Server accepts deprecated {label}'
+				})
+            except Exception:
+                pass
+	# Error handle
+    except ssl.SSLCertVerificationError as e:
+        result = {'valid': False, 'error': str(e)[:200]}
+        findings.append({
+            'severity': 'CRITICAL', 
+            'scan_type': 'infra',
+            'category': 'tls',
+            'information': f'TLS certificate validation failed: {str(e)[:120]}'
+        })
+    except Exception as e:
+        result = {'error': str(e)[:200]}
+
+    return result
+
+
+def _check_http(hostname, session, findings):
+    http_result = {}
+    for scheme in ['https', 'http']:
+        try:
+            resp = session.head(f'{scheme}://{hostname}', timeout=10, allow_redirects=True,
+                                headers={'User-Agent': 'SimpleScan/1.0'})
+            all_headers = dict(resp.headers)
+            redirect_chain = [{'url': r.url, 'status_code': r.status_code} for r in resp.history]
+
+            present, missing = {}, []
+            for h in SECURITY_HEADERS:
+                val = resp.headers.get(h)
+                if val:
+                    present[h] = val
+                else:
+                    missing.append(h)
+                    findings.append({
+                        'severity': 'MEDIUM', 
+                        'scan_type': 'infra',
+                        'category': 'http',
+                        'finding': f'Missing security header: {h}'
+					})
+
+            server    = resp.headers.get('Server', '')
+            x_powered = resp.headers.get('X-Powered-By', '')
+            x_aspnet  = resp.headers.get('X-AspNet-Version', '')
+
+            if server and re.search(r'\d+\.\d+', server):
+                findings.append({
+                    'severity': 'LOW', 
+                    'scan_type': 'infra',
+                    'category': 'http',
+                    'finding': f'Server header discloses version: {server}'
+				})
+            if x_powered:
+                findings.append({
+                    'severity': 'LOW', 
+                    'scan_type': 'infra',
+                    'category': 'http',
+                    'finding': f'X-Powered-By discloses technology: {x_powered}'
+				})
+            if x_aspnet:
+                findings.append({
+                    'severity': 'LOW', 
+                    'scan_type': 'infra',
+                    'category': 'http',
+                    'finding': f'X-AspNet-Version discloses framework version: {x_aspnet}'
+				})
+
+            if scheme == 'http':
+                went_https = any(r.url.startswith('https') for r in resp.history)
+                if not went_https and not resp.url.startswith('https'):
+                    findings.append({
+                        'severity': 'HIGH', 
+                        'scan_type': 'infra',
+                        'category': 'http',
+                        'finding': 'Site does not redirect HTTP to HTTPS'
+					})
+
+            hsts = resp.headers.get('Strict-Transport-Security', '')
+            if hsts:
+                if 'preload' not in hsts.lower():
+                    findings.append({
+                        'severity': 'LOW', 
+                        'scan_type': 'infra',
+                        'category': 'http',
+                        'finding': 'HSTS missing "preload" directive'
+					})
+                if 'includeSubDomains' not in hsts:
+                    findings.append({
+                        'severity': 'LOW', 
+                        'scan_type': 'infra',
+                        'category': 'http',
+                        'finding': 'HSTS missing "includeSubDomains" directive'
+					})
+
+            base_url = f'{scheme}://{hostname}'
+            http_result = {
+                'final_url': resp.url,
+                'status_code': resp.status_code,
+                'redirect_chain': redirect_chain,
+                'security_headers': {'present': present, 'missing': missing},
+                'server_info': {
+                    'server': server or None,
+                    'x_powered_by': x_powered or None,
+                    'x_aspnet_version': x_aspnet or None,
+                },
+                'waf_cdn_detected': _detect_waf_cdn(all_headers),
+                'http_methods': _check_http_methods(base_url, session, findings),
+                'path_probe': _probe_paths(base_url, session, findings),
+            }
+            break
+        except requests.exceptions.SSLError as e:
+            findings.append({
+                'severity': 'HIGH', 
+                'scan_type': 'infra',
+                'category': 'http',
+                'finding': f'SSL error on {scheme}: {str(e)[:120]}'
+			})
+        except Exception as e:
+            http_result[f'{scheme}_error'] = str(e)[:120]
+    return http_result
+
+
+def _check_dns(target_domain, resolver, findings):
+    a_records    = [r.address for r in _resolve_safe(resolver, target_domain, 'A')]
+    aaaa_records = [r.address for r in _resolve_safe(resolver, target_domain, 'AAAA')]
+    ns_records   = [str(r.target) for r in _resolve_safe(resolver, target_domain, 'NS')]
+    caa_records  = [str(r) for r in _resolve_safe(resolver, target_domain, 'CAA')]
+    txt_records  = [r.to_text().strip('"') for r in _resolve_safe(resolver, target_domain, 'TXT')]
+
+    if len(ns_records) < 2:
+        findings.append({
+            'severity': 'MEDIUM', 
+            'scan_type': 'infra',
+            'category': 'dns',
+            'finding': 'Fewer than 2 nameservers — single point of DNS failure'
+		})
+    if not caa_records:
+        findings.append({
+            'severity': 'LOW', 
+            'scan_type': 'infra',
+            'category': 'dns',
+            'finding': 'No CAA records — any CA may issue TLS certificates for this domain'
+		})
+
+    return {
+        'a_records':     a_records,
+        'aaaa_records':  aaaa_records,
+        'ns_records':    ns_records,
+        'caa_records':   caa_records,
+        'txt_records':   txt_records,
+        'dnssec':        _check_dnssec(target_domain, resolver, findings),
+        'zone_transfer': _attempt_zone_transfer(target_domain, ns_records, findings),
+    }
+
+
+def _check_email_secondary(target_domain, txt_records, resolver, findings):
+    email_findings = []
+    result = {
+        'note': 'Secondary check — run Email Scan for full email security assessment',
+        'spf':   _check_spf(txt_records, email_findings),
+        'dmarc': _check_dmarc(target_domain, resolver, email_findings),
+    }
+    for f in email_findings:
+        f['category'] = 'email_secondary'
+    findings.extend(email_findings)
+    return result
+
+
+def _check_ip_intel(a_records, aaaa_records, findings):
+    ip_intel = []
+    for ip in (a_records + aaaa_records)[:5]:
+        info = {'ip': ip}
+        try:
+            r = requests.get(f'https://ipinfo.io/{ip}/json', timeout=5,
+                             headers={'User-Agent': 'SimpleScan/1.0'})
+            if r.status_code == 200:
+                data = r.json()
+                info.update({
+                    'hostname': data.get('hostname'),
+                    'org':      data.get('org'),
+                    'city':     data.get('city'),
+                    'country':  data.get('country'),
+                    'is_bogon': data.get('bogon', False),
+                })
+                if data.get('bogon'):
+                    findings.append({
+                        'severity': 'HIGH', 
+                        'scan_type': 'infra',
+                        'category': 'ip_intel',
+                        'finding': f'IP {ip} is a bogon (private/reserved) address'
+					})
+        except Exception as e:
+            info['error'] = str(e)[:100]
+        ip_intel.append(info)
+    return ip_intel
+
+
+def _check_reverse_dns(a_records, aaaa_records, findings):
+    ptr_results = {}
+    for ip in (a_records + aaaa_records)[:5]:
+        try:
+            hostname, _, _ = socket.gethostbyaddr(ip)
+            ptr_results[ip] = hostname
+            try:
+                fwd = socket.gethostbyname(hostname)
+                ptr_results[f'{ip}_fcrdns'] = 'pass' if fwd == ip else f'fail (resolves to {fwd})'
+                if fwd != ip:
+                    findings.append({
+                        'severity': 'LOW', 
+                        'scan_type': 'infra', 
+                        'category': 'dns',
+                        'finding': f'FCrDNS mismatch for {ip}: PTR={hostname} resolves to {fwd}'
+					})
+            except Exception:
+                ptr_results[f'{ip}_fcrdns'] = 'fail (forward lookup failed)'
+        except Exception:
+            ptr_results[ip] = None
+    return ptr_results
+
+
+def _check_subdomains(target_domain, resolver, findings):
+    discovered = []
+    for sub in SUBDOMAINS_TO_PROBE:
+        fqdn = f'{sub}.{target_domain}'
+        try:
+            answers = resolver.resolve(fqdn, 'A')
+            discovered.append({'subdomain': fqdn, 'ips': [r.address for r in answers]})
+            logger.debug(f'[InfraScan] Subdomain found: {fqdn}')
+        except Exception:
+            pass
+    if discovered:
+        findings.append({
+            'severity': 'INFO', 
+            'scan_type': 'infra',
+            'category': 'subdomain',
+            'finding': f'{len(discovered)} subdomains discovered: ' + ', '.join(d['subdomain'] for d in discovered)
+		})
+    return {
+        'probed':            len(SUBDOMAINS_TO_PROBE),
+        'discovered_count':  len(discovered),
+        'discovered':        discovered,
+    }
+
+
+# ── HTTP ─────────────────────────────────────────────────────────────────────
+
+def _detect_waf_cdn(headers):
+    return [name for name, check in WAF_CDN_SIGNATURES.items() if check(headers)]
+
+
+def _probe_paths(base_url, session, findings):
+    discovered = []
+    sensitive = {'.env', '.git', 'backup', 'config', 'htaccess', 'web.config', 'xmlrpc'}
+    for path in PROBE_PATHS:
+        try:
+            r = session.get(f'{base_url}{path}', timeout=5, allow_redirects=False,
+                            headers={'User-Agent': 'SimpleScan/1.0'})
+            if r.status_code in (200, 301, 302, 403):
+                discovered.append({
+                    'path': path, 
+                    'status': r.status_code,
+                    'content_length': r.headers.get('Content-Length', '?')
+                })
+                if r.status_code == 200 and any(s in path for s in sensitive):
+                    findings.append({
+                        'severity': 'CRITICAL', 
+                        'scan_type': 'infra',
+                        'category': 'paths',
+                        'finding': f'Sensitive path accessible: {path} (HTTP 200)'
+					})
+                elif r.status_code == 403 and any(s in path for s in sensitive):
+                    findings.append({
+                        'severity': 'MEDIUM', 
+                        'scan_type': 'infra',
+                        'category': 'paths',
+                        'finding': f'Sensitive path exists but forbidden: {path} (HTTP 403)'
+					})
+        except Exception:
+            pass
+    return discovered
+
+
+def _check_http_methods(base_url, session, findings):
+    methods = {}
+    try:
+        r = session.options(base_url, timeout=5, headers={'User-Agent': 'SimpleScan/1.0'})
+        allow = r.headers.get('Allow', '') or r.headers.get('Public', '')
+        methods['allow_header'] = allow
+        dangerous = [m for m in ['TRACE', 'DELETE', 'PUT', 'CONNECT'] if m in allow]
+        if dangerous:
+            findings.append({
+                'severity': 'MEDIUM', 
+                'scan_type': 'infra',
+                'category': 'http',
+                'finding': f'Dangerous HTTP methods allowed: {", ".join(dangerous)}'
+            })
+        methods['dangerous_methods'] = dangerous
+    except Exception as e:
+        methods['error'] = str(e)[:100]
+    return methods
+
+
 # ── Scan functions ────────────────────────────────────────────────────────────
 
 def run_tcp_port_scan(target_ip: str) -> dict:
     """Port scan against the organization's WAN IP."""
+    scan_start_ts = datetime.now(dt_timezone.utc)
     target_ip = target_ip.strip()
     logger.info(f"[PortScan] Starting on '{target_ip}' (len={len(target_ip)})")
     findings = []
@@ -463,32 +891,32 @@ def run_tcp_port_scan(target_ip: str) -> dict:
             sock.connect((target_ip, port))
             # If we get here, the connection succeeded — port is open
             scripts = _grab_banner(sock, port)
-            result = {
+            finding = {
                 'severity': 'INFO',
-                'category': 'port',
+                'scan_type': 'tcp',
                 'description': "Open port: " + str(port) + "/tcp open  " + TCP_PORT_SERVICES.get(port, 'unknown'),
                 'information': "",
-                'portid': str(port), 'protocol': 'tcp',
+                'portid': str(port), 
+                'protocol': 'tcp',
                 'service': TCP_PORT_SERVICES.get(port, 'unknown'),
                 'scripts': scripts, 
-                'timestamp': timezone.now().isoformat(),
             }
             # If we have a hard coded finding for this port, use it instead of the generic INFO/Open port description
             if port in TCP_PORT_FINDINGS:
-                result['severity'], result['information'] = TCP_PORT_FINDINGS[port]
-            findings.append(result)
+                finding['severity'], finding['information'] = TCP_PORT_FINDINGS[port]
+            findings.append(finding)
             # Emit an additional critical CVE advisory if warranted (e.g. port 80/443) (Ian's Group 10)
             if port in TCP_PORT_CVE_WARNINGS:
                 cve_severity, cve_info = TCP_PORT_CVE_WARNINGS[port]
                 findings.append({
                     'severity': cve_severity,
-					'category': 'port',
+					'scan_type': 'tcp',
                     'description': f"CVE advisory for port {port}/{TCP_PORT_SERVICES.get(port, 'unknown')}",
                     'information': cve_info,
-                    'portid': str(port), 'protocol': 'tcp',
+                    'portid': str(port), 
+                    'protocol': 'tcp',
                     'service': TCP_PORT_SERVICES.get(port, 'unknown'),
                     'scripts': [],
-                    'timestamp': timezone.now().isoformat(),
                 })
         except socket.timeout:
             # No response within timeout — port is filtered (firewall dropping packets)
@@ -497,19 +925,19 @@ def run_tcp_port_scan(target_ip: str) -> dict:
             # RST received — firewall allows traffic but no service is listening.
             # From a security perspective this is an open port — it's reachable from the internet.
             logger.info(f"[PortScan] Port {port} open (no service listening)")
-            result = {
+            finding = {
                 'severity': 'INFO',
-                'category': 'port',
+                'scan_type': 'tcp',
                 'description': "Open port: " + str(port) + "/tcp open  " + TCP_PORT_SERVICES.get(port, 'unknown'),
                 'information': "Port is open through the firewall but no service is currently listening.",
-                'portid': str(port), 'protocol': 'tcp',
+                'portid': str(port), 
+                'protocol': 'tcp',
                 'service': TCP_PORT_SERVICES.get(port, 'unknown'),
                 'scripts': [],
-                'timestamp': timezone.now().isoformat(),
             }
             if port in TCP_PORT_FINDINGS:
-                result['severity'], result['information'] = TCP_PORT_FINDINGS[port]
-            findings.append(result)
+                finding['severity'], finding['information'] = TCP_PORT_FINDINGS[port]
+            findings.append(finding)
         except OSError as e:
             # Network unreachable or similar OS-level error
             logger.info(f"[PortScan] Port {port} OS error ({e})")
@@ -523,18 +951,16 @@ def run_tcp_port_scan(target_ip: str) -> dict:
     findings.sort(key=lambda f: SEVERITY_ORDER.get(f['severity'], 99))
 
     results = {
-        'scan_metadata': {
-            'scan_type': 'tcp',
-            'timestamp': datetime.now(dt_timezone.utc).isoformat(),
-        },
+        'scan_metadata': _add_metadata('tcp', scan_start_ts),
         'findings': findings
     }
-    logger.info(f"[TCPPortScan] Complete — {open_count} open ports, {len(findings)} findings")
+    logger.info(f"[TCPPortScan] Complete — {open_count} open ports, {len(findings)} findings in {results['scan_metadata']['scan_duration']}s")
     return results
 
 
 def run_udp_port_scan(target_ip: str) -> dict:
     """UDP port scan against the organization's WAN IP."""
+    scan_start_ts = datetime.now(dt_timezone.utc)
     logger.info(f"[UDPPortScan] Starting on {target_ip}")
     findings = []
 
@@ -549,47 +975,44 @@ def run_udp_port_scan(target_ip: str) -> dict:
             # Got a response — port is open
             if data:
                 scripts = [{'id': 'udp-response', 'output': data.decode('utf-8', errors='ignore')[:200]}]
-            result = {
+            finding = {
                 'severity': 'INFO',
-                'category': 'port',
+                'scan_type': 'udp',
                 'description': "Open port: " + str(port) + "/udp open  " + UDP_PORT_SERVICES.get(port, 'unknown'),
                 'information': "",
                 'portid': str(port), 'protocol': 'udp',
                 'service': UDP_PORT_SERVICES.get(port, 'unknown'),
                 'scripts': scripts,
-                'timestamp': timezone.now().isoformat(),
             }
             if port in UDP_PORT_FINDINGS:
-                result['severity'], result['information'] = UDP_PORT_FINDINGS[port]
-            findings.append(result)
+                finding['severity'], finding['information'] = UDP_PORT_FINDINGS[port]
+            findings.append(finding)
         except socket.timeout:
-            # Timeout = open|filtered — still worth reporting
-            result = {
+            # Timeout = open|filtered - LOGIC NEEDS UPDATED
+            finding = {
                 'severity': 'INFO',
-                'category': 'port',
+                'scan_type': 'udp',
                 'description': "Open|Filtered port: " + str(port) + "/udp open|filtered  " + UDP_PORT_SERVICES.get(port, 'unknown'),
                 'information': "",
                 'portid': str(port), 'protocol': 'udp',
                 'service': UDP_PORT_SERVICES.get(port, 'unknown'),
                 'scripts': [],
-                'timestamp': timezone.now().isoformat(),
             }
             if port in UDP_PORT_FINDINGS:
-                result['severity'], result['information'] = UDP_PORT_FINDINGS[port]
-            findings.append(result)
+                finding['severity'], finding['information'] = UDP_PORT_FINDINGS[port]
+            findings.append(finding)
         except ConnectionRefusedError:
             # ICMP port unreachable — definitively closed, skip
             pass
         except Exception:
             findings.append({
                 'severity': 'INFO',
-                'category': 'port',
+                'scan_type': 'udp',
                 'description': "Port Error: " + str(port) + "/udp error  " + UDP_PORT_SERVICES.get(port, 'unknown'),
                 'information': "",
                 'portid': str(port), 'protocol': 'udp',
                 'service': UDP_PORT_SERVICES.get(port, 'unknown'),
                 'scripts': [],
-                'timestamp': timezone.now().isoformat(),
             })
         finally:
             sock.close()
@@ -599,68 +1022,114 @@ def run_udp_port_scan(target_ip: str) -> dict:
     findings.sort(key=lambda f: SEVERITY_ORDER.get(f['severity'], 99))
 
     results = {
-        'scan_metadata': {
-            'scan_type': 'udp',
-            'timestamp': datetime.now(dt_timezone.utc).isoformat(),
-        },
+        'scan_metadata': _add_metadata('udp', scan_start_ts),
         'findings': findings
     }
-    logger.info(f"[UDPPortScan] Complete — {open_count} open ports, {len(findings)} findings")
+    logger.info(f"[UDPPortScan] Complete — {open_count} open ports, {len(findings)} findings in {results['scan_metadata']['scan_duration']}s")
     return results
 
 
 def run_email_scan(target_domain: str) -> dict:
     """Email security scan: MX, SPF, DMARC, DKIM, MTA-STS, DNSSEC, zone transfer."""
+    scan_start_ts = datetime.now(dt_timezone.utc)
     logger.info(f"[EmailScan] Starting on {target_domain}")
     findings = []
     results = {
-        'scan_metadata': {
-            'scan_type': 'email',
-            'timestamp': datetime.now(dt_timezone.utc).isoformat(),
-        },
         'email': {
-        	'mx': {}, 
+            'mx': {}, 
             'spf': {}, 
             'dmarc': {}, 
             'dkim': {}, 
             'mta_sts': {},
-        	'dnssec': {}, 
+            'dnssec': {}, 
             'zone_transfer': {}
-		},
-		'findings': []
+        },
+        'findings': []
     }
 
     resolver = _make_resolver()
 
     mx_records = [{'preference': r.preference, 'exchange': str(r.exchange)}
                   for r in _resolve_safe(resolver, target_domain, 'MX')]
-    results['mx'] = {'records': mx_records, 'count': len(mx_records)}
+    results['email']['mx'] = {'records': mx_records, 'count': len(mx_records)}
     if not mx_records:
         findings.append({
             'severity': 'HIGH', 
-            'category': 'email',
+            'scan_type': 'email',
+            'category': 'mx',
             'description': 'No MX records — domain cannot receive email'
 		})
 
     txt_records = [r.to_text().strip('"') for r in _resolve_safe(resolver, target_domain, 'TXT')]
     ns_records  = [str(r.target) for r in _resolve_safe(resolver, target_domain, 'NS')]
 
-    results['spf']           = _check_spf(txt_records, findings)
-    results['dmarc']         = _check_dmarc(target_domain, resolver, findings)
-    results['dkim']          = _check_dkim(target_domain, resolver, findings)
-    results['mta_sts']       = _check_mta_sts(target_domain, resolver, findings)
-    results['dnssec']        = _check_dnssec(target_domain, resolver, findings)
-    results['zone_transfer'] = _attempt_zone_transfer(target_domain, ns_records, findings)
+    results['email']['spf']           = _check_spf(txt_records, findings)
+    results['email']['dmarc']         = _check_dmarc(target_domain, resolver, findings)
+    results['email']['dkim']          = _check_dkim(target_domain, resolver, findings)
+    results['email']['mta_sts']       = _check_mta_sts(target_domain, resolver, findings)
+    results['email']['dnssec']        = _check_dnssec(target_domain, resolver, findings)
+    results['email']['zone_transfer'] = _attempt_zone_transfer(target_domain, ns_records, findings)
 
-    # _summarise(findings, results)
+    results['scan_metadata'] = _add_metadata('email', scan_start_ts)
     results['findings'] = findings
-    logger.info(f"[EmailScan] Complete — {len(findings)} findings")
+    logger.info(f"[EmailScan] Complete — {len(findings)} findings in {results['scan_metadata']['scan_duration']}s")
+    return results
+
+
+def run_infra_scan(target_domain: str) -> dict:
+    """Web infrastructure scan: TLS, HTTP headers, DNS, subdomains, IP intel."""
+    scan_start_ts = datetime.now(dt_timezone.utc)
+    logger.info(f"[InfraScan] Starting on {target_domain}")
+    findings = []
+    results = {
+        'infra': {
+			'tls': {}, 
+			'http': {}, 
+			'dns': {}, 
+			'email_secondary': {},
+			'ip_intel': [], 
+			'reverse_dns': {}, 
+			'subdomains': {}
+		},
+		'findings': []
+    }
+
+    resolver = _make_resolver()
+    session = requests.Session()
+
+	# TLS
+    results['infra']['tls'] = _check_tls(target_domain, findings)
+
+    # HTTP
+    results['infra']['http'] = _check_http(target_domain, session, findings)
+
+    # DNS — also surfaces raw records needed by downstream helpers
+    dns_data     = _check_dns(target_domain, resolver, findings)
+    a_records    = dns_data.pop('a_records')
+    aaaa_records = dns_data.pop('aaaa_records')
+    txt_records  = dns_data.pop('txt_records')
+    results['infra']['dns'] = dns_data
+
+    # Secondary email checks (SPF/DMARC on the web domain)
+    results['infra']['email_secondary'] = _check_email_secondary(target_domain, txt_records, resolver, findings)
+
+    # IP intel
+    results['infra']['ip_intel'] = _check_ip_intel(a_records, aaaa_records, findings)
+
+    # Reverse DNS
+    results['infra']['reverse_dns'] = _check_reverse_dns(a_records, aaaa_records, findings)
+
+    # Subdomain enumeration
+    results['infra']['subdomains'] = _check_subdomains(target_domain, resolver, findings)
+
+    results['scan_metadata'] = _add_metadata('infra', scan_start_ts, target=target_domain)
+    logger.info(f"[InfraScan] Complete — {len(findings)} findings in {results['scan_metadata']['scan_duration']}s")
     return results
 
 
 # ── Django-Q2 task entry point ────────────────────────────────────────────────
 
-def run_server_scan(scan_id: str):
+def run_network_scan(scan_id: str):
     """
     Django-Q2 background task.
 
@@ -680,7 +1149,7 @@ def run_server_scan(scan_id: str):
 
         # Idempotency: if a previous retry already completed this scan, bail out
         if scan.status == Scan.Status.COMPLETE or (hasattr(scan, 'report') and scan.report_id):
-            logger.info(f"[ServerScan {scan_id}] Already complete — skipping duplicate run.")
+            logger.info(f"[NetworkScan {scan_id}] Already complete — skipping duplicate run.")
             return {'success': True, 'report_id': str(scan.report.report_id) if scan.report_id else None}
 
         org  = scan.organization
@@ -698,6 +1167,7 @@ def run_server_scan(scan_id: str):
             )
 
         # ── Step 1: Mark scan as running ──────────────────────────────────
+        network_scan_start_ts = datetime.now(dt_timezone.utc)
         scan.status = Scan.Status.RUNNING
         scan.scan_started_at = timezone.now()
         scan.save(update_fields=['status', 'scan_started_at'])
@@ -709,23 +1179,38 @@ def run_server_scan(scan_id: str):
 
         email_results_list = run_email_scan(email_domain)
 
-        # infra_results = run_infra_scan(infra_target) if infra_target else {}
+        infra_results = run_infra_scan(infra_target) if infra_target else {}
 
         # ── Step 3: Combine + persist findings ────────────────────────────
         all_findings = tcp_port_results.get('findings', [])
         all_findings += udp_port_results.get('findings', [])
         all_findings += email_results_list.get('findings', [])
-        # all_findings += infra_results.get('security_findings', [])
+        all_findings += infra_results.get('findings', [])
 
         scan.scan_completed_at = timezone.now()
         scan.target_subnet = f"{port_target} / {infra_target}"
+
+        # Collect per-scan metadata into an array
+        scan_metadata_list = [_add_metadata('network_scan', network_scan_start_ts)]
+        for sr in (tcp_port_results, udp_port_results, email_results_list, infra_results):
+            if sr.get('scan_metadata'):
+                scan_metadata_list.append(sr['scan_metadata'])
+
+        # Build results object — pull each scan's named data bucket directly
+        results_obj = {}
+        if tcp_port_results.get('tcp'):
+            results_obj['tcp'] = tcp_port_results['tcp']
+        if udp_port_results.get('udp'):
+            results_obj['udp'] = udp_port_results['udp']
+        if email_results_list.get('email'):
+            results_obj['email'] = email_results_list['email']
+        if infra_results.get('infra'):
+            results_obj['infra'] = infra_results['infra']
+
         scan.raw_findings_json = json.dumps({
+            'scan_metadata': scan_metadata_list,
             'findings': all_findings,
-            # 'raw_results': {
-            #     'port_scan':   tcp_port_results,
-            #     'email_scans': {d: r for d, r in zip(email_targets, email_results_list)},
-            #     'infra_scan':  {},  # infra_results,
-            # },
+            'results': results_obj,
         })
         logger.info(f"Network scan results: {scan.raw_findings_json}")
         scan.tally_findings(all_findings)
@@ -750,13 +1235,13 @@ def run_server_scan(scan_id: str):
             })
         except Exception as email_err:
             # Don't fail the task over a notification email
-            logger.warning(f"[ServerScan {scan_id}] Email notification failed: {email_err}")
+            logger.warning(f"[NetworkScan {scan_id}] Email notification failed: {email_err}")
 
-        logger.info(f"[ServerScan {scan_id}] Complete. Report {report_id} generated.")
+        logger.info(f"[NetworkScan {scan_id}] Complete. Report {report_id} generated.")
         return {'success': True, 'report_id': str(report_id)}
 
     except Exception as e:
-        logger.exception(f"[ServerScan {scan_id}] Task failed: {e}")
+        logger.exception(f"[NetworkScan {scan_id}] Task failed: {e}")
         try:
             from api.models import Scan
             # Only mark FAILED if the scan didn't actually complete — a retry
@@ -768,7 +1253,7 @@ def run_server_scan(scan_id: str):
                 error_message=str(e)[:500],
             )
             if not updated:
-                logger.warning(f"[ServerScan {scan_id}] Exception after completion — not marking FAILED.")
+                logger.warning(f"[NetworkScan {scan_id}] Exception after completion — not marking FAILED.")
         except Exception:
             pass
         # Do NOT re-raise: prevents Django-Q2 from retrying a completed scan

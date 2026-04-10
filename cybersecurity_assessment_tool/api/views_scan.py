@@ -272,7 +272,7 @@ def list_scans(request):
 @require_POST
 def start_server_scan(request):
     """
-    Creates a Scan record and queues run_server_scan as a Django-Q2 background task.
+    Creates a Scan record and queues run_network_scan as a Django-Q2 background task.
     Targets are read from the organization's saved configuration.
     """
     user = request.user
@@ -312,10 +312,11 @@ def start_server_scan(request):
         status=Scan.Status.PENDING,
     )
 
-    # Queue the background task
+    # Queue the background task (timeout 900s = 15 min to allow for scan + Gemini report generation)
     task_id = async_task(
-        'api.services.network_scan.run_server_scan',
+        'api.services.network_scan.run_network_scan',
         str(scan.id),
+        timeout=900,
     )
 
     scan.report_task_id = task_id

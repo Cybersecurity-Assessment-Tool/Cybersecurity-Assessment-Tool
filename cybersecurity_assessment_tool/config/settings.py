@@ -87,7 +87,7 @@ Q_CLUSTER = {
     'workers': 4,       # Number of concurrent worker processes. 4 is a safe default for a Standard Heroku Dyno.
     'recycle': 500,     # Restarts a worker after it processes 500 tasks to prevent memory leaks.
     'timeout': 300,     # Max time (in seconds) a task is allowed to run before being killed. 
-    'retry': 360,       # Set to 5 minutes (300s) here, but adjust if Gemini AI generation takes longer
+    'retry': 600,       # Set to 10 minutes (600s) here, but adjust if Gemini AI generation takes longer
     
     # DATABASE MANAGEMENT
     'compress': True,   # Compresses task data in the DB to save storage space.
@@ -184,6 +184,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Force users to log in again after closing the browser
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Log the user out after 1 hour (3600 seconds) of inactivity
+SESSION_COOKIE_AGE = 3600
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

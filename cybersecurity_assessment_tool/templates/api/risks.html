@@ -609,53 +609,70 @@
     </div>
 
     <!-- Results summary and table - FIXED SECTION -->
-    {% if has_organization %}
-        {% if page_obj and page_obj|length > 0 %}
-            <!-- We HAVE results to show -->
-            <div class="results-summary">
-                Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} risks
-                {% if severity_filter or search_query %}
-                    (filtered from {{ total_risks }} total)
-                {% endif %}
-            </div>
-            
-            <!-- Risks Table -->
-            <div class="risks-table-container">
-                <table class="risks-table">
-                    <thead>
-                        <tr>
-                            <th>Severity</th>
-                            <th>Risk Name</th>
-                            <th>Overview</th>
-                            <th>Report Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for risk in page_obj %}
-                        <tr class="risk-row {% if risk.severity == 'Critical' %}critical-row{% endif %}">
-                            <td>
-                                <span class="severity-badge severity-{{ risk.severity|lower }}">
-                                    {{ risk.severity }}
-                                </span>
-                            </td>
-                            <td class="risk-name">
-                                <a href="{% url 'risk_detail' risk.risk_id %}" class="risk-link">
-                                    {{ risk.risk_name }}
-                                </a>
-                            </td>
-                            <td class="risk-overview">{{ risk.overview|truncatechars:100 }}</td>
-                            <td class="risk-date">{{ risk.report.completed|date:"Y-m-d" }}</td>
-                            <td class="risk-actions">
-                                <a href="{% url 'risk_detail' risk.risk_id %}" class="action-link">View</a>
-                                {% if risk.report and risk.report.id %}
-                                    <a href="{% url 'report_detail' risk.report.report_id %}" class="action-link">Report</a>
+    <div id="search-results-area">
+        {% if has_organization %}
+            {% if page_obj and page_obj|length > 0 %}
+                <!-- We HAVE results to show -->
+                <div class="results-summary">
+                    Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} risks
+                    {% if severity_filter or search_query %}
+                        (filtered from {{ total_risks }} total)
+                    {% endif %}
+                </div>
+                
+                <!-- Risks Table -->
+                <div class="risks-table-container">
+                    <table class="risks-table">
+                        <thead>
+                            <tr>
+                                <th>Severity</th>
+                                <th>Risk Name</th>
+                                <th>Overview</th>
+                                <th>Report Date</th>
+                                <th>Actions</th>
+                                {% if is_admin or perms.api.can_resolve_risk %}
+                                <th>Resolve</th>
                                 {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for risk in page_obj %}
+                            <tr class="risk-row {% if risk.severity == 'Critical' %}critical-row{% endif %}">
+                                <td>
+                                    <span class="severity-badge severity-{{ risk.severity|lower }}">
+                                        {{ risk.severity }}
+                                    </span>
+                                </td>
+                                <td class="risk-name">
+                                    <a href="{% url 'risk_detail' risk.risk_id %}" class="risk-link">
+                                        {{ risk.risk_name }}
+                                    </a>
+                                </td>
+                                <td class="risk-overview">{{ risk.overview|truncatechars:100 }}</td>
+                                <td class="risk-date">{{ risk.report.completed|date:"Y-m-d" }}</td>
+                                <td class="risk-actions">
+                                    <a href="{% url 'risk_detail' risk.risk_id %}" class="action-link">View</a>
+                                    {% if risk.report and risk.report.id %}
+                                        <a href="{% url 'report_detail' risk.report.report_id %}" class="action-link">Report</a>
+                                    {% endif %}
+                                </td>
+                                {% if is_admin or perms.api.can_resolve_risk %}
+                                <td class="risk-actions">
+                                    {% if is_admin or can_resolve_risk %}
+                                        <button class="action-link resolve-btn" 
+                                                data-risk-id="{{ risk.risk_id }}" 
+                                                data-url="{% url 'resolve_risk' risk.risk_id %}" 
+                                                style="border: none; background: none; cursor: pointer; padding: 0; color: #166534;">
+                                            Resolve ✓
+                                        </button>
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Pagination -->
@@ -704,4 +721,133 @@
         </div>
     {% endif %}
 </div>
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const csrfToken = "{{ csrf_token }}";
+
+    // 1. Wrap your existing button logic in a function so it can be re-run
+    function attachResolveListeners() {
+        const resolveButtons = document.querySelectorAll('.resolve-btn');
+
+        resolveButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (!confirm('Are you sure you want to mark this vulnerability as resolved?')) {
+                    return;
+                }
+
+                const row = this.closest('tr');
+                const resolveUrl = this.getAttribute('data-url');
+                const originalText = this.innerHTML;
+                
+                // Show loading state
+                this.innerHTML = 'Resolving...';
+                this.disabled = true;
+                this.style.opacity = '0.5';
+
+                fetch(resolveUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(async response => {
+                    const data = await response.json().catch(() => null);
+                    if (!response.ok) {
+                        throw new Error((data && data.error) ? data.error : `HTTP error! status: ${response.status}`);
+                    }
+                    return data;
+                })
+                .then(data => {
+                    if (data && data.success) {
+                        row.style.transition = 'all 0.4s ease';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(20px)';
+                        setTimeout(() => { row.remove(); }, 400);
+                    } else {
+                        throw new Error((data && data.error) ? data.error : 'Unknown error occurred');
+                    }
+                })
+                .catch(error => {
+                    console.error('Resolution Error:', error);
+                    alert('Failed to resolve risk: ' + error.message);
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    this.style.opacity = '1';
+                });
+            });
+        });
+    }
+
+    // Call it immediately on page load
+    attachResolveListeners();
+
+    // 2. Add the Live Search Logic
+    const searchInput = document.querySelector('.search-input');
+    const resultsArea = document.getElementById('search-results-area');
+
+    if (searchInput && resultsArea) {
+        let debounceTimer;
+
+        // Listen for typing events
+        searchInput.addEventListener('input', function() {
+            // Clear the timer on every keystroke so we don't spam the Heroku backend
+            clearTimeout(debounceTimer);
+            
+            // Wait 300ms after the user STOPS typing before making the request
+            debounceTimer = setTimeout(() => {
+                // Build the URL based on the current search text, keeping existing filters
+                const url = new URL(window.location.href);
+                url.searchParams.set('search', this.value);
+                
+                // If they are searching, reset pagination back to page 1
+                url.searchParams.delete('page');
+
+                // Optional: Fade out the table slightly to indicate loading
+                resultsArea.style.opacity = '0.5';
+                resultsArea.style.transition = 'opacity 0.2s ease';
+
+                // Fetch the new page in the background
+                fetch(url.toString(), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // Turn the returned text into a DOM object
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Extract the updated table area and replace the current one
+                    const newResultsArea = doc.getElementById('search-results-area');
+                    if (newResultsArea) {
+                        resultsArea.innerHTML = newResultsArea.innerHTML;
+                        resultsArea.style.opacity = '1';
+                        
+                        // Re-attach the event listeners to the brand new "Resolve" buttons
+                        attachResolveListeners();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching live search results:', error);
+                    resultsArea.style.opacity = '1'; // restore view on error
+                });
+            }, 300); 
+        });
+
+        // Prevent the form from submitting normally (reloading the page) if they press "Enter"
+        const searchForm = document.querySelector('.search-form');
+        if (searchForm) {
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+            });
+        }
+    }
+});
+</script>
 {% endblock %}
