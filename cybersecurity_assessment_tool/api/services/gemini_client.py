@@ -1,3 +1,5 @@
+import json
+from django.forms.models import model_to_dict
 from typing import Any, Tuple, List, Optional
 from django.db import transaction
 from django.utils import timezone
@@ -70,11 +72,36 @@ def build_current_risks_dict(organization_id: int) -> dict:
     }
     return current_risks
 
-def _inject_overview_and_questionnaire(report_data: dict, org: Organization) -> dict:
+def _convert_scan_obj_to_dict(scan_obj: Any) -> dict:
+    """Safely converts the scan_obj into a dictionary for JSON injection."""
+    if not scan_obj:
+        return {}
+    
+    if isinstance(scan_obj, dict):
+        return scan_obj
+    
+    if isinstance(scan_obj, str):
+        try:
+            return json.loads(scan_obj)
+        except json.JSONDecodeError:
+            return {"Raw Data": scan_obj}
+            
+    # If it's a Django Model instance, convert it to a dictionary
+    if hasattr(scan_obj, '__dict__'):
+        try:
+            return model_to_dict(scan_obj)
+        except Exception:
+            return {"Raw Data": str(scan_obj)}
+            
+    return {"Raw Data": str(scan_obj)}
+
+def _inject_overview_scan_and_questionnaire(report_data: dict, org: Organization, scan_obj: Any = None) -> dict:
     """
-    Injects the Overview and Questionnaire Review sections at the top 
+    Injects the Overview, Scan Findings, and Questionnaire Review sections at the top 
     of the AI-generated report data using information from the database.
     """
+    scan_findings_dict = _convert_scan_obj_to_dict(scan_obj)
+    
     new_section_data = {
         "Overview": {
             "Organization Name": org.org_name,
@@ -83,6 +110,7 @@ def _inject_overview_and_questionnaire(report_data: dict, org: Organization) -> 
             "External IP Address": org.external_ip,
             "Report Date": timezone.now().strftime('%Y-%m-%d')
         },
+        "Scan Findings": scan_findings_dict,
         "Questionnaire Review": {
             "Do you require MFA to access email?": "Yes" if org.require_mfa_email else "No",
             "Do you require MFA to log into computers?": "Yes" if org.require_mfa_computer else "No",
@@ -93,17 +121,17 @@ def _inject_overview_and_questionnaire(report_data: dict, org: Organization) -> 
         }
     }
 
-    if "report" in report_data and isinstance(report_data["report"], list):
-        for i, report_item in enumerate(report_data["report"]):
+    if "report" in report_data and isinstance(report_data, list):
+        for i, report_item in enumerate(report_data):
             rebuilt_report_item = {}
             
             for key, value in new_section_data.items():
-                rebuilt_report_item[key] = value
+                rebuilt_report_item = value
                 
             for key, value in report_item.items():
-                rebuilt_report_item[key] = value
+                rebuilt_report_item = value
                 
-            report_data["report"][i] = rebuilt_report_item
+            report_data = rebuilt_report_item
 
     return report_data
 
@@ -111,7 +139,7 @@ def generate_and_process_report(
     organization_id: str, 
     user_id: str, 
     context_data: str,
-    scan_obj: Optional[Any] = None ## NEW
+    scan_obj: Optional[Any] = None
 ) -> Tuple[Optional[Report], Optional[List[Risk]]]:
     """
     Acts as the client to gather DB fields, call the AI service, 
@@ -149,7 +177,7 @@ def generate_and_process_report(
     # 4. Process and Save to Database
     try:
         # Inject context from the database into the AI's output
-        report_data = _inject_overview_and_questionnaire(report_data, org)
+        report_data = _inject_overview_scan_and_questionnaire(report_data, org, scan_obj)
 
         with transaction.atomic():
             # Sort the JSON vulnerabilities BEFORE saving to the database
