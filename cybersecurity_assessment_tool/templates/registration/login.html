@@ -152,8 +152,10 @@
     }
 
     .social-login {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
         gap: 0.75rem;
         margin-bottom: 1.5rem;
     }
@@ -263,27 +265,39 @@
             </button>
         </form>
 
-
-        <!-- <div class="auth-divider">
+        <!-- Cleaned up social login section -->
+        <div class="auth-divider">
             <span class="divider-text">Or continue with</span>
         </div>
 
+        <!-- Cleaned up social login section -->
         <div class="social-login">
-            <button class="social-button" disabled>Google</button>
-            <button class="social-button" disabled>Apple</button>
-        </div>
-
-        {% if google_oauth_enabled %}
-                <div id="googleSignInButton" class="oauth-google-slot"></div>
+            {% if google_oauth_enabled %}
+                <!-- Google's Native HTML API handles the race conditions automatically! -->
+                <div id="g_id_onload"
+                     data-client_id="{{ google_oauth_client_id }}"
+                     data-callback="handleGoogleSignIn"
+                     data-auto_select="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="outline"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="left">
+                </div>
             {% else %}
                 <button class="social-button" disabled title="Set GOOGLE_OAUTH_CLIENT_ID to enable Google sign-in">Google</button>
             {% endif %}
-            <button class="social-button" disabled title="Coming soon">Apple</button>
+            
+            <!-- <button class="social-button" disabled title="Coming soon">Apple</button> -->
         </div>
 
         {% if not google_oauth_enabled %}
-            <p class="oauth-disabled-note">Google sign-in will appear automatically once OAuth is configured.</p>
+            <p class="oauth-disabled-note" style="font-size: 0.75rem; text-align: center; color: #6b7280; margin-bottom: 1rem;">Google sign-in will appear automatically once OAuth is configured.</p>
         {% endif %}
+        
         <div class="auth-footer">
             <p>New to our platform? <a href="{% url 'accounts:public_register' %}" class="signup-link">Create an account</a></p>
         </div>
@@ -300,7 +314,9 @@
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 {% if google_oauth_enabled %}
+<!-- Load Google script with async defer - no ?onload needed since we use HTML API -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 {% endif %}
 
@@ -329,6 +345,7 @@ $.ajaxSetup({
     }
 });
 
+// This function is called automatically by Google's script via data-callback
 function handleGoogleSignIn(response) {
     if (!response || !response.credential) {
         $('#loginError').text('Google sign-in was cancelled. Please try again.').show();
@@ -352,30 +369,7 @@ function handleGoogleSignIn(response) {
     });
 }
 
-function initializeGoogleLogin() {
-    const buttonContainer = document.getElementById('googleSignInButton');
-    if (!buttonContainer || !window.google || !google.accounts || !google.accounts.id) {
-        return;
-    }
-
-    google.accounts.id.initialize({
-        client_id: '{{ google_oauth_client_id|escapejs }}',
-        callback: handleGoogleSignIn,
-        auto_select: false,
-        cancel_on_tap_outside: true
-    });
-
-    google.accounts.id.renderButton(buttonContainer, {
-        theme: 'outline',
-        size: 'large',
-        text: 'continue_with',
-        shape: 'rectangular',
-        width: Math.max(buttonContainer.offsetWidth, 180)
-    });
-}
-
 $(document).ready(function() {
-    initializeGoogleLogin();
 
     $('#loginForm').submit(function(e) {
         e.preventDefault();
@@ -404,7 +398,6 @@ $(document).ready(function() {
                                 data: JSON.stringify({ otp_input: otpCode }),
                                 success: function(res) {
                                     done(); // signal success to the modal
-                                    // store redirect for onSuccess below
                                     window._otpRedirectUrl = res.redirect_url;
                                 },
                                 error: function(xhr) {
@@ -453,5 +446,3 @@ $(document).ready(function() {
 });
 </script>
 {% endblock %}
-
-<!-- http://127.0.0.1:8000/accounts/login/ -->
