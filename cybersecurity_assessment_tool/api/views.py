@@ -1584,7 +1584,7 @@ def report_list(request):
 def report_detail(request, report_id):
     """
     Renders the full AI-generated report from the encrypted JSON field.
-
+    
     Encryption note: report.report_text is an EncryptedJSONField. Django's
     ORM calls from_db_value() automatically on load, so report.report_text
     arrives here as a plain Python dict — no manual decryption needed.
@@ -1629,41 +1629,69 @@ def report_detail(request, report_id):
     summary   = risks_section.get('Summary', '')
     raw_vulns = risks_section.get('Vulnerabilities Found', [])
     
-    # ── Extract and stringify Scan Findings for frontend display ─────────────────────────
+    # ── Deep-parse Scan Findings before formatting ───────────────
     scan_findings_raw = report_item.get('Scan Findings', {})
     
-    # Check if it actually contains data to prevent rendering an empty "{}"
-    if scan_findings_raw and scan_findings_raw != {}:
+    if scan_findings_raw and isinstance(scan_findings_raw, dict):
+        # Look for stringified JSON inside the dict and parse it so it indents properly
+        for key, val in scan_findings_raw.items():
+            if isinstance(val, str):
+                val_stripped = val.strip()
+                if (val_stripped.startswith('{') and val_stripped.endswith('}')) or \
+                   (val_stripped.startswith('[') and val_stripped.endswith(']')):
+                    try:
+                        scan_findings_raw[key] = json.loads(val_stripped)
+                    except json.JSONDecodeError:
+                        pass # Leave as string if it fails to parse
+
         scan_findings = json.dumps(scan_findings_raw, indent=2)
     else:
         scan_findings = None
 
     # ── Build a name → risk_id map from the database ──────────────────────────
-    # This lets each vulnerability card link to its detail page.
     risk_map = {
         risk.risk_name: str(risk.risk_id)
         for risk in Risk.objects.filter(report=report)
     }
 
-    # ── Flatten vulnerability dicts and attach the DB risk_id if found ────────
+    # ── Bulletproof parsing of AI vulnerability outputs ──────────
     SEVERITY_ORDER = {'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4, 'Info': 5}
+    vulnerabilities = []
 
-    vulnerabilities = sorted(
-        [
-            {
-                'risk':              v.get('Risk', ''),
-                'overview':          v.get('Overview', ''),
-                'severity':          v.get('Severity', 'Info'),
-                'affected_elements': v.get('Affected Elements', []),
-                'easy_fix':          v.get('Recommendation', {}).get('easy_fix', ''),
-                'long_term_fix':     v.get('Recommendation', {}).get('long_term_fix', ''),
-                # Look up the DB risk_id so the template can build the URL
-                'risk_id':           risk_map.get(v.get('Risk', ''), None),
-            }
-            for v in raw_vulns
-        ],
-        key=lambda x: SEVERITY_ORDER.get(x['severity'], 6),
-    )
+    for v in raw_vulns:
+        # 1. Handle case-insensitive keys
+        risk_name = v.get('Risk', v.get('risk', ''))
+        overview_text = v.get('Overview', v.get('overview', ''))
+        
+        # 2. Clean rogue characters from Severity (e.g. 'CRITICAL",' -> 'Critical')
+        severity_val = v.get('Severity', v.get('severity', 'Info'))
+        if isinstance(severity_val, str):
+            severity_val = severity_val.replace('"', '').replace(',', '').replace('[', '').replace(']', '').strip().capitalize()
+        
+        # 3. Handle arrays safely
+        elements = v.get('Affected Elements', v.get('affected_elements', []))
+        if isinstance(elements, str):
+            elements = [e.strip() for e in elements.split(',') if e.strip()]
+            
+        # 4. Handle nested recommendation objects
+        recs = v.get('Recommendation', v.get('recommendations', {}))
+        if isinstance(recs, str):
+            easy_fix, long_term_fix = recs, ''
+        else:
+            easy_fix = recs.get('easy_fix', '')
+            long_term_fix = recs.get('long_term_fix', '')
+
+        vulnerabilities.append({
+            'risk':              risk_name,
+            'overview':          overview_text,
+            'severity':          severity_val,
+            'affected_elements': elements,
+            'easy_fix':          easy_fix,
+            'long_term_fix':     long_term_fix,
+            'risk_id':           risk_map.get(risk_name, None),
+        })
+
+    vulnerabilities = sorted(vulnerabilities, key=lambda x: SEVERITY_ORDER.get(x['severity'], 6))
 
     obs_list = [
         {
@@ -1714,14 +1742,54 @@ def download_report_pdf(request, report_id):
     report_items = report_data.get('report', [])
     report_item = report_items[0] if report_items else {}
 
-    # Format the scan findings for the PDF generator as well
+    # Format the scan findings for the PDF generator using the same deep-parse logic
     scan_findings_raw = report_item.get('Scan Findings', {})
-    if scan_findings_raw and scan_findings_raw != {}:
+    
+    if scan_findings_raw and isinstance(scan_findings_raw, dict):
+        for key, val in scan_findings_raw.items():
+            if isinstance(val, str):
+                val_stripped = val.strip()
+                if (val_stripped.startswith('{') and val_stripped.endswith('}')) or \
+                   (val_stripped.startswith('[') and val_stripped.endswith(']')):
+                    try:
+                        scan_findings_raw[key] = json.loads(val_stripped)
+                    except json.JSONDecodeError:
+                        pass
         scan_findings_formatted = json.dumps(scan_findings_raw, indent=2)
     else:
         scan_findings_formatted = ""
 
     # Prepare data for frontend PDF generation
+    # We use the same fallback logic here for vulnerabilities so the PDF generator doesn't break
+    raw_vulns = report_item.get('Risks & Recommendations', {}).get('Vulnerabilities Found', [])
+    pdf_vulns = []
+    
+    for v in raw_vulns:
+        risk_name = v.get('Risk', v.get('risk', ''))
+        overview_text = v.get('Overview', v.get('overview', ''))
+        severity_val = v.get('Severity', v.get('severity', 'Info'))
+        if isinstance(severity_val, str):
+            severity_val = severity_val.replace('"', '').replace(',', '').replace('[', '').replace(']', '').strip().capitalize()
+        
+        elements = v.get('Affected Elements', v.get('affected_elements', []))
+        if isinstance(elements, str):
+            elements = [e.strip() for e in elements.split(',') if e.strip()]
+            
+        recs = v.get('Recommendation', v.get('recommendations', {}))
+        if isinstance(recs, str):
+            easy_fix, long_term_fix = recs, ''
+        else:
+            easy_fix = recs.get('easy_fix', '')
+            long_term_fix = recs.get('long_term_fix', '')
+            
+        pdf_vulns.append({
+            'Risk': risk_name,
+            'Overview': overview_text,
+            'Severity': severity_val,
+            'Affected Elements': elements,
+            'Recommendation': {'easy_fix': easy_fix, 'long_term_fix': long_term_fix}
+        })
+
     pdf_data = {
         'report_name': report.report_name,
         'report_id': str(report.report_id),
@@ -1731,7 +1799,7 @@ def download_report_pdf(request, report_id):
         'observations': report_item.get('Observations', []),
         'questionnaire': report_item.get('Questionnaire Review', {}),
         'summary': report_item.get('Risks & Recommendations', {}).get('Summary', ''),
-        'vulnerabilities': report_item.get('Risks & Recommendations', {}).get('Vulnerabilities Found', []),
+        'vulnerabilities': pdf_vulns,
         'scan_findings': scan_findings_formatted,
         'conclusion': report_item.get('Conclusion', ''),
     }
