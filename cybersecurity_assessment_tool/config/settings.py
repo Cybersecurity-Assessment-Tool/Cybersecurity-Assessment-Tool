@@ -91,8 +91,8 @@ Q_CLUSTER = {
     # WORKER CONFIGURATION
     'workers': 4,       # Number of concurrent worker processes. 4 is a safe default for a Standard Heroku Dyno.
     'recycle': 500,     # Restarts a worker after it processes 500 tasks to prevent memory leaks.
-    'timeout': 300,     # Max time (in seconds) a task is allowed to run before being killed. 
-    'retry': 600,       # Set to 10 minutes (600s) here, but adjust if Gemini AI generation takes longer
+    'timeout': 600,     # Max time (in seconds) a task is allowed to run before being killed. 
+    'retry': 650,       # Set to 10 minutes (600s) here, but adjust if Gemini AI generation takes longer
     
     # DATABASE MANAGEMENT
     'compress': True,   # Compresses task data in the DB to save storage space.
