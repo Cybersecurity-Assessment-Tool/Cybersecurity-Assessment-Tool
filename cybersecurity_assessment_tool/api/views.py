@@ -998,11 +998,11 @@ def login_view(request):
                     from django.contrib.auth import login
                     login(request, user)
                     return redirect('dashboard')
-            return render(request, 'registration/login.html', _get_login_context(request, form))
+            return render(request, 'registration/login.html', _get_login_context(form))
 
     # GET request - show login form
     form = AuthenticationForm()
-    return render(request, 'registration/login.html', _get_login_context(request, form))
+    return render(request, 'registration/login.html', _get_login_context(form))
 
 @require_POST
 def verify_login_otp(request):
