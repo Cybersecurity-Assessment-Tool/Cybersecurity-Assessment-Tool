@@ -1611,9 +1611,8 @@ def report_detail(request, report_id):
     # ── Parse the (already-decrypted) JSON ───────────────────────────────────
     raw = report.report_text or {}
     if isinstance(raw, str):
-        import json as _json
         try:
-            raw = _json.loads(raw)
+            raw = json.loads(raw)
         except Exception:
             raw = {}
 
@@ -1631,10 +1630,13 @@ def report_detail(request, report_id):
     raw_vulns = risks_section.get('Vulnerabilities Found', [])
     
     # ── Extract and stringify Scan Findings for frontend display ─────────────────────────
-    import json as _json
     scan_findings_raw = report_item.get('Scan Findings', {})
-    # Dump it to a pretty formatted string so it renders perfectly in a <pre> tag
-    scan_findings = _json.dumps(scan_findings_raw, indent=2) if scan_findings_raw else None
+    
+    # Check if it actually contains data to prevent rendering an empty "{}"
+    if scan_findings_raw and scan_findings_raw != {}:
+        scan_findings = json.dumps(scan_findings_raw, indent=2)
+    else:
+        scan_findings = None
 
     # ── Build a name → risk_id map from the database ──────────────────────────
     # This lets each vulnerability card link to its detail page.
@@ -1707,11 +1709,17 @@ def download_report_pdf(request, report_id):
     # Extract report data from encrypted JSON field
     report_data = report.report_text
     if isinstance(report_data, str):
-        import json
         report_data = json.loads(report_data)
 
     report_items = report_data.get('report', [])
     report_item = report_items[0] if report_items else {}
+
+    # Format the scan findings for the PDF generator as well
+    scan_findings_raw = report_item.get('Scan Findings', {})
+    if scan_findings_raw and scan_findings_raw != {}:
+        scan_findings_formatted = json.dumps(scan_findings_raw, indent=2)
+    else:
+        scan_findings_formatted = ""
 
     # Prepare data for frontend PDF generation
     pdf_data = {
@@ -1724,7 +1732,7 @@ def download_report_pdf(request, report_id):
         'questionnaire': report_item.get('Questionnaire Review', {}),
         'summary': report_item.get('Risks & Recommendations', {}).get('Summary', ''),
         'vulnerabilities': report_item.get('Risks & Recommendations', {}).get('Vulnerabilities Found', []),
-        'scan_findings': report_item.get('Scan Findings', {}),
+        'scan_findings': scan_findings_formatted,
         'conclusion': report_item.get('Conclusion', ''),
     }
 

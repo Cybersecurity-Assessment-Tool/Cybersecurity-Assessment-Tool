@@ -121,17 +121,17 @@ def _inject_overview_scan_and_questionnaire(report_data: dict, org: Organization
         }
     }
 
-    if "report" in report_data and isinstance(report_data, list):
-        for i, report_item in enumerate(report_data):
+    if "report" in report_data and isinstance(report_data["report"], list):
+        for i, report_item in enumerate(report_data["report"]):
             rebuilt_report_item = {}
             
             for key, value in new_section_data.items():
-                rebuilt_report_item = value
+                rebuilt_report_item[key] = value
                 
             for key, value in report_item.items():
-                rebuilt_report_item = value
+                rebuilt_report_item[key] = value
                 
-            report_data = rebuilt_report_item
+            report_data["report"][i] = rebuilt_report_item
 
     return report_data
 
