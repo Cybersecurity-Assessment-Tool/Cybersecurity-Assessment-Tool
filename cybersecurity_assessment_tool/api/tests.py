@@ -140,6 +140,38 @@ class PublicRegistrationGoogleButtonTests(TestCase):
         self.assertEqual(self.client.session['verified_email'], 'callback@example.com')
         self.assertTrue(self.client.session['registration_verified_callback@example.com'])
 
+    @override_settings(GOOGLE_OAUTH_CLIENT_SECRET='test-google-client-secret')
+    @patch('api.views.urlopen')
+    @patch('api.views.id_token.verify_oauth2_token')
+    def test_google_oauth_callback_shows_expected_invite_email_on_mismatch(self, mock_verify, mock_urlopen):
+        mock_urlopen.return_value.__enter__.return_value.read.return_value = b'{"id_token": "fake-id-token"}'
+        mock_verify.return_value = {
+            'email': 'wrong@example.com',
+            'email_verified': True,
+            'given_name': 'Wrong',
+            'family_name': 'Account',
+        }
+
+        session = self.client.session
+        session['google_oauth_state'] = 'invite-state-123'
+        session['google_oauth_flow'] = 'invite'
+        session['google_oauth_next'] = reverse('accounts:public_register')
+        session['google_oauth_expected_email'] = 'invitee@example.com'
+        session.save()
+
+        response = self.client.get(
+            reverse('google_oauth_callback'),
+            {'code': 'sample-code', 'state': 'invite-state-123'},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'Please use the Google account that matches the invited email address: invitee@example.com.',
+            html=False,
+        )
+
     def test_public_register_shows_google_button_when_client_id_present(self):
         response = self.client.get(reverse('accounts:public_register'))
 
@@ -421,6 +453,43 @@ class GoogleOAuthSignupTests(TestCase):
         self.assertFalse(user.has_usable_password())
         self.assertEqual(invitation.status, 'accepted')
 
+    def test_invite_signup_shows_clear_warning_for_mismatched_oauth_email(self):
+        organization = Organization.objects.create(org_name='Invite Org')
+        sender = User.objects.create_user(
+            username='mismatchinviter',
+            email='mismatchinviter@example.com',
+            password='StrongPassword123!',
+            organization=organization,
+            is_active=True,
+        )
+        invitation = Invitation.objects.create(
+            sender=sender,
+            organization=organization,
+            recipient_email='invitee@example.com',
+            recipient_role='observer',
+            status='sent',
+        )
+
+        session = self.client.session
+        session['google_signup_verified_email'] = 'wrong@example.com'
+        session['social_signup_provider'] = 'Microsoft'
+        session['google_invite_prefill'] = {
+            'first_name': 'Wrong',
+            'last_name': 'Person',
+        }
+        session.save()
+
+        response = self.client.get(reverse('accounts:accept_invitation', args=[invitation.token]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'Microsoft signed in as wrong@example.com, but this invitation is for invitee@example.com. Please sign in with the invited email address.',
+            html=False,
+        )
+        self.assertContains(response, "setInvitePasswordRequirement(false);", html=False)
+        self.assertNotIn('google_signup_verified_email', self.client.session)
+
     @override_settings(
         EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
         DEFAULT_FROM_EMAIL='noreply@example.com',
@@ -561,6 +630,34 @@ class MicrosoftOAuthFlowTests(TestCase):
         self.assertEqual(response.url, reverse('accounts:public_register'))
         self.assertEqual(self.client.session['verified_email'], 'mscallback@example.com')
         self.assertTrue(self.client.session['registration_verified_mscallback@example.com'])
+
+    @patch('api.views._exchange_microsoft_code')
+    def test_microsoft_oauth_callback_shows_expected_invite_email_on_mismatch(self, mock_exchange):
+        mock_exchange.return_value = {
+            'preferred_username': 'wrong@example.com',
+            'given_name': 'Wrong',
+            'family_name': 'Microsoft',
+        }
+
+        session = self.client.session
+        session['microsoft_oauth_state'] = 'ms-invite-state'
+        session['microsoft_oauth_flow'] = 'invite'
+        session['microsoft_oauth_next'] = reverse('accounts:public_register')
+        session['microsoft_oauth_expected_email'] = 'invitee@example.com'
+        session.save()
+
+        response = self.client.get(
+            reverse('microsoft_oauth_callback'),
+            {'code': 'invite-code', 'state': 'ms-invite-state'},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'Please use the Microsoft account that matches the invited email address: invitee@example.com.',
+            html=False,
+        )
 
     @patch('api.views._exchange_microsoft_code')
     def test_microsoft_oauth_callback_starts_otp_for_existing_active_user(self, mock_exchange):
