@@ -1511,6 +1511,8 @@ def resolve_risk(request, risk_id):
         
         # Archive the risk
         risk.is_archived = True
+        risk.resolved_by = user
+        risk.resolved_at = timezone.now()
         risk.save()
         
         return JsonResponse({"success": True})
