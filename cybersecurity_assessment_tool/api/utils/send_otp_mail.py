@@ -6,6 +6,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.urls import reverse
 
 
 def _attach_inline_logo(message):
@@ -21,6 +22,15 @@ def _attach_inline_logo(message):
         message.attach(logo)
     except Exception:
         return
+
+def _get_app_base_url():
+    return (
+        getattr(settings, 'APP_BASE_URL', '').strip()
+        or getattr(settings, 'SITE_URL', '').strip()
+        or getattr(settings, 'MICROSOFT_OAUTH_REDIRECT_BASE_URL', '').strip()
+        or 'http://localhost:8000'
+    ).rstrip('/')
+
 
 def generate_otp():
     return str(random.randint(100000, 999999))
@@ -64,6 +74,7 @@ def send_otp_email(recipient, otp=None):
         or support_email
     )
     config['context']['contact_email'] = support_email
+    config['context']['password_reset_url'] = f"{_get_app_base_url()}{reverse('password_reset')}"
 
     # Render HTML template (same as test_email.py)
     html_content = render_to_string(config['template'], config['context'])

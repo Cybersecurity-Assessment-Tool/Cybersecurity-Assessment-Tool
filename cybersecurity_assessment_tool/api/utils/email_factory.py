@@ -4,6 +4,7 @@ from pathlib import Path
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+from django.urls import reverse
 from .send_otp_mail import generate_otp
 
 
@@ -20,6 +21,15 @@ def _attach_inline_logo(message):
         message.attach(logo)
     except Exception:
         return
+
+def _get_app_base_url():
+    return (
+        getattr(settings, 'APP_BASE_URL', '').strip()
+        or getattr(settings, 'SITE_URL', '').strip()
+        or getattr(settings, 'MICROSOFT_OAUTH_REDIRECT_BASE_URL', '').strip()
+        or 'http://localhost:8000'
+    ).rstrip('/')
+
 
 def send_email_by_type(email_type, recipient=None, context_overrides=None):
     """
@@ -137,6 +147,7 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
         or 'noreply@localhost'
     )
     config['context']['contact_email'] = support_email
+    config['context'].setdefault('password_reset_url', f"{_get_app_base_url()}{reverse('password_reset')}")
     
     # Update recipient in context for templates that use it
     # if 'requester_email' in config['context']:
