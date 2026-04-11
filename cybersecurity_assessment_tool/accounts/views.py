@@ -315,7 +315,8 @@ def public_register(request):
             
             # Send confirmation email to user
             queue_email('registration', user.email, {
-                "username": user.username
+                "username": user.username,
+                "contact_email": getattr(settings, 'ADMIN_EMAIL_INBOX', getattr(settings, 'DEFAULT_FROM_EMAIL', ''))
             })
             
             # Generate approval URLs
@@ -665,6 +666,7 @@ def send_invitation(request):
             "company": user.organization.org_name,
             "role": role,
             "invite_link": invite_link,
+            "contact_email": getattr(settings, 'ADMIN_EMAIL_INBOX', getattr(settings, 'DEFAULT_FROM_EMAIL', ''))
         })
 
         return JsonResponse({'success': True, 'message': f'Invitation sent to {email}'})
@@ -690,6 +692,7 @@ def resend_invitation(request):
             "company": inv.organization.org_name,
             "role": inv.recipient_role,
             "invite_link": invite_link,
+            "contact_email": getattr(settings, 'ADMIN_EMAIL_INBOX', getattr(settings, 'DEFAULT_FROM_EMAIL', ''))
         })
         return JsonResponse({'success': True})
     except Invitation.DoesNotExist:
@@ -733,11 +736,26 @@ def accept_invitation(request, token):
             'error_message': 'This invitation has expired. Please request a new one from your organization administrator.'
         }, status=400)
 
+    invited_email = invitation.recipient_email.strip().lower()
     google_verified_email = (request.session.get('google_signup_verified_email') or '').strip().lower()
     social_signup_provider_name = (request.session.get('social_signup_provider') or '').strip()
     if not social_signup_provider_name and google_verified_email:
         social_signup_provider_name = 'Google'
-    google_passwordless_signup = bool(google_verified_email and google_verified_email == invitation.recipient_email.strip().lower())
+
+    oauth_email_mismatch_message = ''
+    if google_verified_email and google_verified_email != invited_email:
+        provider_label = social_signup_provider_name or 'Google'
+        oauth_email_mismatch_message = (
+            f"{provider_label} signed in as {google_verified_email}, but this invitation is for "
+            f"{invitation.recipient_email}. Please sign in with the invited email address."
+        )
+        request.session.pop('google_signup_verified_email', None)
+        request.session.pop('social_signup_provider', None)
+        request.session.pop('google_invite_prefill', None)
+        google_verified_email = ''
+        social_signup_provider_name = ''
+
+    google_passwordless_signup = bool(google_verified_email and google_verified_email == invited_email)
 
     # 3. Handle the form submission if everything is valid
     if request.method == 'POST':
@@ -786,6 +804,7 @@ def accept_invitation(request, token):
                         'company': invitation.organization.org_name,
                         'role': invitation.recipient_role,
                         'login_url': f"{protocol}://{domain}{reverse('login')}",
+                        'contact_email': getattr(settings, 'ADMIN_EMAIL_INBOX', getattr(settings, 'DEFAULT_FROM_EMAIL', ''))
                     })
                 except Exception as exc:
                     print(f"Error notifying org admin about accepted invitation: {exc}")
@@ -816,6 +835,7 @@ def accept_invitation(request, token):
         'organization': invitation.organization.org_name,
         'google_passwordless_signup': google_passwordless_signup,
         'social_signup_provider_name': social_signup_provider_name,
+        'oauth_email_mismatch_message': oauth_email_mismatch_message,
         **_get_google_oauth_context(),
     }
     return render(request, 'registration/invite_signup.html', context)
@@ -861,6 +881,12 @@ class CustomPasswordResetView(PasswordResetView):
     template_name = 'registration/password_reset_form.html'
     form_class = AsyncPasswordResetForm 
     success_url = reverse_lazy('accounts:password_reset_done')
+    
+    # 1. The plain text fallback (for older email clients)
+    email_template_name = 'registration/password_reset_email.txt'
+    
+    # 2. The HTML styled version you just created!
+    html_email_template_name = 'registration/password_reset_email.html'
     
 class CustomPasswordResetDoneView(PasswordResetDoneView):
     """Displays the message telling the user to check their email"""
