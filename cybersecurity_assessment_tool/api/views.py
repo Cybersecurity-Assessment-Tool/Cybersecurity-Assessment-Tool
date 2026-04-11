@@ -1628,6 +1628,24 @@ def report_detail(request, report_id):
     raw_sf = report_item.get('Scan Findings', {})
     scan_metadata = {}
     port_findings = []
+
+    # Deep-parse Scan Findings for Report Detail page only
+    scan_findings_raw = report_item.get('Scan Findings', {})
+    if scan_findings_raw and isinstance(scan_findings_raw, dict):
+        for key, val in scan_findings_raw.items():
+            if isinstance(val, str):
+                val_stripped = val.strip()
+                if (val_stripped.startswith('{') and val_stripped.endswith('}')) or \
+                   (val_stripped.startswith('[') and val_stripped.endswith(']')):
+                    try:
+                        scan_findings_raw[key] = json.loads(val_stripped)
+                    except json.JSONDecodeError:
+                        pass
+        scan_findings = json.dumps(scan_findings_raw, indent=2)
+    else:
+        scan_findings = None
+
+    risk_map = {risk.risk_name: str(risk.risk_id) for risk in Risk.objects.filter(report=report)}
     
     # Reformats scan findings metadata
     if isinstance(raw_sf, dict) and raw_sf:
@@ -1686,6 +1704,7 @@ def report_detail(request, report_id):
         'questionnaire': questionnaire,
         'summary': summary,
         'vulnerabilities': vulnerabilities,
+        'scan_findings': scan_findings,
         'scan_metadata': scan_metadata,
         'port_findings': port_findings,
         'conclusion': conclusion,
