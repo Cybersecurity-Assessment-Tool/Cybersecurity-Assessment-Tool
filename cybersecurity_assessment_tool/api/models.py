@@ -215,6 +215,14 @@ class Risk(models.Model):
     severity = models.CharField(choices=SEVERITY_CHOICES)
     affected_elements = EncryptedTextField()
     is_archived = models.BooleanField(default=False)
+    resolved_by = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='resolved_risks',
+    )
+    resolved_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         permissions = [

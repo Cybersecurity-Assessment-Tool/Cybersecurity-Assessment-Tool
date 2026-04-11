@@ -712,9 +712,84 @@
         {% endif %}
     </div>
 
+    {% if scan_metadata or port_findings %}
+    <div class="rp-section">
+        <div class="rp-section-heading">05 — Technical Scan Results</div>
+ 
+        {% if scan_metadata %}
+        {# ── Scan metadata summary table ──────────────────────────────────── #}
+        <table style="margin-bottom:1.5rem;">
+            <tbody>
+                {% for key, value in scan_metadata.items %}
+                <tr>
+                    <th style="width:35%">{{ key }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+ 
+        {% if port_findings %}
+        {# ── Per-port findings table ───────────────────────────────────────── #}
+        <div class="rp-sub-label" style="margin-bottom:0.6rem;">Open Ports &amp; Services</div>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:6%">Port</th>
+                        <th style="width:7%">Proto</th>
+                        <th style="width:12%">Service</th>
+                        <th style="width:10%">Severity</th>
+                        <th>Detail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in port_findings %}
+                    <tr>
+                        <td style="font-family:var(--font-mono);font-size:0.8125rem;">{{ f.portid }}</td>
+                        <td style="font-family:var(--font-mono);font-size:0.8125rem;text-transform:uppercase;">{{ f.protocol }}</td>
+                        <td style="font-family:var(--font-mono);font-size:0.8125rem;">{{ f.service }}</td>
+                        <td>
+                            {% if f.severity == 'CRITICAL' or f.severity == 'Critical' %}
+                                <span style="background:#fee2e2;color:#b91c1c;padding:0.15rem 0.5rem;border-radius:3px;font-size:0.72rem;font-weight:700;font-family:var(--font-mono);">CRIT</span>
+                            {% elif f.severity == 'HIGH' or f.severity == 'High' %}
+                                <span style="background:#ffedd5;color:#c2410c;padding:0.15rem 0.5rem;border-radius:3px;font-size:0.72rem;font-weight:700;font-family:var(--font-mono);">HIGH</span>
+                            {% elif f.severity == 'MEDIUM' or f.severity == 'Medium' %}
+                                <span style="background:#fef9c3;color:#854d0e;padding:0.15rem 0.5rem;border-radius:3px;font-size:0.72rem;font-weight:700;font-family:var(--font-mono);">MED</span>
+                            {% elif f.severity == 'LOW' or f.severity == 'Low' %}
+                                <span style="background:#dcfce7;color:#166534;padding:0.15rem 0.5rem;border-radius:3px;font-size:0.72rem;font-weight:700;font-family:var(--font-mono);">LOW</span>
+                            {% else %}
+                                <span style="background:#f3f4f6;color:#6b7280;padding:0.15rem 0.5rem;border-radius:3px;font-size:0.72rem;font-weight:700;font-family:var(--font-mono);">INFO</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:0.8125rem;color:var(--ink-mid);">
+                            {% if f.information %}{{ f.information }}{% else %}{{ f.description }}{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="rp-placeholder">
+            <p>This only shows up for reports generated using the old method. Newer scans will properly display port findings.</p>
+        </div>
+        {% endif %}
+ 
+    </div>
+    {% endif %}
+
+    {% if conclusion %}
+    <div class="rp-section">
+        <div class="rp-section-heading">06 — Conclusion</div>
+        <div class="rp-conclusion">{{ conclusion }}</div>
+    </div>
+    {% endif %}
+
     {% if scan_findings %}
     <div class="rp-section">
-        <div class="rp-section-heading">05 — Scan Findings</div>
+        <div class="rp-section-heading">07 — Raw Scan Data</div>
         
         <div class="rp-vuln-card" id="scanFindingsCard">
             <div class="rp-vuln-header" onclick="toggleVuln('scanFindingsCard')">
@@ -730,13 +805,6 @@
             </div>
         </div>
         
-    </div>
-    {% endif %}
-
-    {% if conclusion %}
-    <div class="rp-section">
-        <div class="rp-section-heading">06 — Conclusion</div>
-        <div class="rp-conclusion">{{ conclusion }}</div>
     </div>
     {% endif %}
 
