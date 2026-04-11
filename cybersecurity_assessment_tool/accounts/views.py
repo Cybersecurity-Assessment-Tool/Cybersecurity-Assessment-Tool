@@ -866,6 +866,12 @@ class CustomPasswordResetView(PasswordResetView):
     form_class = AsyncPasswordResetForm 
     success_url = reverse_lazy('accounts:password_reset_done')
     
+    # 1. The plain text fallback (for older email clients)
+    email_template_name = 'registration/password_reset_email.txt'
+    
+    # 2. The HTML styled version you just created!
+    html_email_template_name = 'registration/password_reset_email.html'
+    
 class CustomPasswordResetDoneView(PasswordResetDoneView):
     """Displays the message telling the user to check their email"""
     template_name = 'registration/password_reset_done.html'
