@@ -39,7 +39,7 @@
     margin-bottom: 1rem;
   }
   .scan-notice.success { background-color: #d1fae5; border: 1px solid #6ee7b7; color: #065f46; }
-  .scan-notice.error   { background-color: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+  .scan-notice.error { background-color: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
 
   .scan-type-grid {
     display: grid;
@@ -284,12 +284,13 @@
 {% block extra_js %}
 <script>
 let activeScanId = null;
+let currentScanPage = 1;
 let pollInterval = null;
-const POLL_MS    = 3000;
+const POLL_MS = 3000;
 
 // You can manually adjust the estimated times here
 const SCAN_DURATIONS = { tcp: 60, udp: 60, email: 30 };
-const BASE_OVERHEAD  = 150;
+const BASE_OVERHEAD = 150;
 
 function getSelectedScanTypes() {
   return Array.from(
@@ -300,8 +301,8 @@ function getSelectedScanTypes() {
 function updateDurationEstimate() {
   const types = getSelectedScanTypes();
   const strip = document.getElementById('durationStrip');
-  const text  = document.getElementById('durationText');
-  const btn   = document.getElementById('startScanBtn');
+  const text = document.getElementById('durationText');
+  const btn = document.getElementById('startScanBtn');
 
   if (types.length === 0) {
     strip.classList.add('warn');
@@ -408,28 +409,28 @@ function pollScanStatus(scanId) {
 }
 
 function handleStatusUpdate(data) {
-  const status  = data.status;
+  const status = data.status;
   const heading = document.getElementById('scanStatusHeading');
-  const label   = document.getElementById('scanStatusLabel');
+  const label = document.getElementById('scanStatusLabel');
 
   switch (status) {
     case 'PENDING':
       heading.textContent = 'Waiting for scanner...';
-      label.textContent   = 'Run the downloaded scanner on your machine.';
+      label.textContent = 'Run the downloaded scanner on your machine.';
       break;
     case 'RUNNING':
       heading.textContent = 'Scan in progress...';
-      label.textContent   = 'The scanner is actively running on your network.';
+      label.textContent = 'The scanner is actively running on your network.';
       break;
     case 'RECEIVED':
       heading.textContent = 'Results received.';
-      label.textContent   = 'Scan data uploaded. Preparing AI report...';
+      label.textContent = 'Scan data uploaded. Preparing AI report...';
       updateFindingsBadges(data.findings_summary);
       document.getElementById('generatingNotice').classList.remove('d-none');
       break;
     case 'GENERATING':
       heading.textContent = 'Generating report...';
-      label.textContent   = 'AI is analyzing your scan results.';
+      label.textContent = 'AI is analyzing your scan results.';
       updateFindingsBadges(data.findings_summary);
       document.getElementById('generatingNotice').classList.remove('d-none');
       break;
@@ -552,10 +553,10 @@ function updateFindingsBadges(summary) {
   if (!summary) return;
   document.getElementById('findingsBadges').classList.remove('d-none');
   document.getElementById('badgeCritical').textContent = summary.critical || 0;
-  document.getElementById('badgeHigh').textContent     = summary.high     || 0;
-  document.getElementById('badgeMedium').textContent   = summary.medium   || 0;
-  document.getElementById('badgeLow').textContent      = summary.low      || 0;
-  document.getElementById('badgeInfo').textContent     = summary.info     || 0;
+  document.getElementById('badgeHigh').textContent = summary.high || 0;
+  document.getElementById('badgeMedium').textContent = summary.medium || 0;
+  document.getElementById('badgeLow').textContent = summary.low || 0;
+  document.getElementById('badgeInfo').textContent = summary.info || 0;
 }
 
 function resetScanUI() {
@@ -580,28 +581,31 @@ function resetScanUI() {
   updateDurationEstimate();
 }
 
-function loadRecentScans() {
-  fetch('/api/scan/list/')
+function loadRecentScans(page) {
+  currentScanPage = page || currentScanPage;
+  fetch(`/api/scan/list/?page=${currentScanPage}`)
     .then(r => r.json())
-    .then(data => renderRecentScans(data.scans))
+    .then(data => renderRecentScans(data))
     .catch(() => {
       document.getElementById('recentScansContainer').innerHTML =
         '<p class="text-muted">Could not load recent scans.</p>';
     });
 }
 
-function renderRecentScans(scans) {
+function renderRecentScans(data) {
   const container = document.getElementById('recentScansContainer');
-
-  if (!scans || scans.length === 0) {
+  const scans = data.scans || [];
+  const pagination = data.pagination || {};
+ 
+  if (scans.length === 0 && pagination.current_page === 1) {
     container.innerHTML = '<p class="text-muted">No scans yet.</p>';
     return;
   }
-
+ 
   const rows = scans.map(s => {
-    const date    = new Date(s.created_at).toLocaleString();
-    const status  = statusBadge(s.status);
-    const report  = s.report_id
+    const date = new Date(s.created_at).toLocaleString();
+    const status = statusBadge(s.status);
+    const report = s.report_id
       ? `<a href="/reports/${s.report_id}/" class="btn btn-sm btn-outline-primary">View Report</a>`
       : '—';
     const findings = s.status === 'COMPLETE'
@@ -611,7 +615,6 @@ function renderRecentScans(scans) {
          <span class="badge bg-secondary me-1">${s.finding_count_low}</span>
          <span class="badge bg-light text-dark border">${s.finding_count_info}</span>`
       : '—';
-
     return `
       <tr>
         <td>${date}</td>
@@ -620,7 +623,31 @@ function renderRecentScans(scans) {
         <td>${report}</td>
       </tr>`;
   }).join('');
-
+ 
+  // Build pagination controls
+  let paginationHtml = '';
+  if (pagination.total_pages > 1) {
+    paginationHtml = `
+      <div style="display:flex;justify-content:center;align-items:center;
+                  gap:0.5rem;padding:0.75rem 1rem;border-top:1px solid #e5e7eb;">
+        <button class="btn btn-sm btn-outline-secondary"
+                onclick="loadRecentScans(1)"
+                ${!pagination.has_previous ? 'disabled' : ''}>&laquo;</button>
+        <button class="btn btn-sm btn-outline-secondary"
+                onclick="loadRecentScans(${pagination.previous_page})"
+                ${!pagination.has_previous ? 'disabled' : ''}>&lsaquo; Prev</button>
+        <span class="text-muted" style="font-size:0.8125rem;white-space:nowrap;">
+          Page ${pagination.current_page} of ${pagination.total_pages}
+        </span>
+        <button class="btn btn-sm btn-outline-secondary"
+                onclick="loadRecentScans(${pagination.next_page})"
+                ${!pagination.has_next ? 'disabled' : ''}>Next &rsaquo;</button>
+        <button class="btn btn-sm btn-outline-secondary"
+                onclick="loadRecentScans(${pagination.total_pages})"
+                ${!pagination.has_next ? 'disabled' : ''}>&raquo;</button>
+      </div>`;
+  }
+ 
   container.innerHTML = `
     <div class="table-responsive">
       <table class="table table-sm table-hover align-middle mb-0">
@@ -634,37 +661,38 @@ function renderRecentScans(scans) {
         </thead>
         <tbody>${rows}</tbody>
       </table>
-    </div>`;
+    </div>
+    ${paginationHtml}`;
 }
 
 function statusBadge(status) {
   const map = {
-    'PENDING':    'bg-secondary',
-    'RUNNING':    'bg-primary',
-    'RECEIVED':   'bg-info text-dark',
+    'PENDING': 'bg-secondary',
+    'RUNNING': 'bg-primary',
+    'RECEIVED': 'bg-info text-dark',
     'GENERATING': 'bg-warning text-dark',
-    'COMPLETE':   'bg-success',
-    'FAILED':     'bg-danger',
+    'COMPLETE': 'bg-success',
+    'FAILED': 'bg-danger',
   };
   const cls = map[status] || 'bg-secondary';
   return `<span class="badge ${cls}">${status}</span>`;
 }
 
 function startScan() {
-  const btn    = document.getElementById('startScanBtn');
+  const btn = document.getElementById('startScanBtn');
   const notice = document.getElementById('scanNotice');
-  const types  = getSelectedScanTypes();
+  const types = getSelectedScanTypes();
 
   if (types.length === 0) {
-    notice.textContent   = 'Please select at least one scan type before starting.';
-    notice.className     = 'scan-notice error';
+    notice.textContent = 'Please select at least one scan type before starting.';
+    notice.className = 'scan-notice error';
     notice.style.display = 'block';
     return;
   }
 
   btn.disabled = true;
   btn.classList.add('loading');
-  notice.className     = 'scan-notice';
+  notice.className = 'scan-notice';
   notice.style.display = 'none';
 
   fetch('/api/scan/start/', {
@@ -681,22 +709,22 @@ function startScan() {
     btn.classList.remove('loading');
     if (ok) {
       notice.textContent = data.message;
-      notice.className   = 'scan-notice success';
+      notice.className = 'scan-notice success';
       activeScanId = data.scan_id;
       sessionStorage.setItem('activeScanId', data.scan_id);
       showActiveScanCard('Scan queued...');
       startPolling(data.scan_id);
     } else {
       notice.textContent = data.error || 'Failed to start scan.';
-      notice.className   = 'scan-notice error';
+      notice.className = 'scan-notice error';
     }
     notice.style.display = 'block';
   })
   .catch(() => {
     btn.disabled = false;
     btn.classList.remove('loading');
-    notice.textContent   = 'Network error — could not start scan.';
-    notice.className     = 'scan-notice error';
+    notice.textContent = 'Network error — could not start scan.';
+    notice.className = 'scan-notice error';
     notice.style.display = 'block';
   });
 }

@@ -1437,7 +1437,7 @@ def risks_list(request):
             )
         ).order_by('severity_weight', '-report__completed')
     
-    paginator = Paginator(risks, 20)
+    paginator = Paginator(risks, 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
