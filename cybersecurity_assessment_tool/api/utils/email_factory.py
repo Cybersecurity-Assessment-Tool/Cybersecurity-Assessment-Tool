@@ -1,7 +1,25 @@
+from email.mime.image import MIMEImage
+from pathlib import Path
+
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from .send_otp_mail import generate_otp
+
+
+def _attach_inline_logo(message):
+    logo_path = Path(settings.BASE_DIR) / 'static' / 'images' / 'logo.png'
+    if not logo_path.exists():
+        return
+
+    try:
+        with logo_path.open('rb') as logo_file:
+            logo = MIMEImage(logo_file.read())
+        logo.add_header('Content-ID', '<reportly-logo>')
+        logo.add_header('Content-Disposition', 'inline', filename='logo.png')
+        message.attach(logo)
+    except Exception:
+        return
 
 def send_email_by_type(email_type, recipient=None, context_overrides=None):
     """
@@ -104,8 +122,21 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
     if context_overrides:
         print("Overriding context with:", context_overrides)
         config['context'].update(context_overrides)
-        
-    config['context']['contact_email'] = settings.ADMIN_EMAIL_INBOX
+
+    support_email = (
+        getattr(settings, 'ADMIN_EMAIL_INBOX', '').strip()
+        or str(config['context'].get('contact_email', '')).strip()
+        or getattr(settings, 'DEFAULT_FROM_EMAIL', '').strip()
+        or getattr(settings, 'EMAIL_HOST_USER', '').strip()
+        or 'noreply@localhost'
+    )
+    sender_email = (
+        getattr(settings, 'DEFAULT_FROM_EMAIL', '').strip()
+        or getattr(settings, 'EMAIL_HOST_USER', '').strip()
+        or support_email
+        or 'noreply@localhost'
+    )
+    config['context']['contact_email'] = support_email
     
     # Update recipient in context for templates that use it
     # if 'requester_email' in config['context']:
@@ -130,14 +161,17 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
     html_content = render_to_string(config['template'], config['context'])
     
     # Send using EmailMultiAlternatives (same as test_email.py)
-    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL') or settings.DEFAULT_FROM_EMAIL
+    from_email = sender_email
     msg = EmailMultiAlternatives(
         config['subject'],
         text_content,
         from_email,
-        [recipient]
+        [recipient],
+        reply_to=[support_email] if support_email else None,
     )
+    msg.mixed_subtype = 'related'
     msg.attach_alternative(html_content, "text/html")
+    _attach_inline_logo(msg)
     msg.send()
     
     print(f"✅ {config['subject']} sent to {recipient}")

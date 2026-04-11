@@ -586,7 +586,10 @@ def google_oauth_callback(request):
         return redirect(next_url)
 
     if expected_email and email != expected_email:
-        messages.error(request, 'Please use the Google account that matches the invited email address.')
+        messages.error(
+            request,
+            f'Please use the Google account that matches the invited email address: {expected_email}.',
+        )
         return redirect(next_url)
 
     first_name = (token_payload.get('given_name') or '').strip()
@@ -714,7 +717,10 @@ def microsoft_oauth_callback(request):
         return redirect(next_url)
 
     if expected_email and email != expected_email:
-        messages.error(request, 'Please use the Microsoft account that matches the invited email address.')
+        messages.error(
+            request,
+            f'Please use the Microsoft account that matches the invited email address: {expected_email}.',
+        )
         return redirect(next_url)
 
     if flow == 'login':
@@ -842,7 +848,7 @@ def google_oauth_signup(request):
     if expected_email and email != expected_email:
         return JsonResponse({
             'success': False,
-            'error': 'Please use the Google account that matches your invited email address.',
+            'error': f'Please use the Google account that matches your invited email address: {expected_email}.',
         }, status=403)
 
     purpose = (data.get('purpose') or 'registration').strip().lower()
@@ -1854,7 +1860,7 @@ def test_sendgrid(request):
             send_mail(
                 'Test Email from SendGrid',
                 'This is a test email sent via SendGrid on Heroku.',
-                settings.DEFAULT_FROM_EMAIL,
+                getattr(settings, 'ADMIN_EMAIL_INBOX', '') or settings.DEFAULT_FROM_EMAIL,
                 [request.POST.get('email')],
                 fail_silently=False,
             )
