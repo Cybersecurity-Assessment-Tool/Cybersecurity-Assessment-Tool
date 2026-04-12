@@ -1144,7 +1144,7 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
         5. Email user when report is ready
     """
     from api.models import Scan
-    from api.utils.email_factory import send_email_by_type
+    from api.utils.email_factory import send_email_async
     from .generate_report_from_scan import generate_report_from_scan
 
     try:
@@ -1260,27 +1260,16 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
         # ── Step 5: Email user ────────────────────────────────────────────
         report_id = result['report_id']
         try:
-            # Generate the relative path (/reports/<uuid>/)
-            relative_url = reverse('report_detail', kwargs={'report_id': report_id})
-            
-            # Construct the absolute URL, checking your settings for the base domain
-            base_url = (
-                getattr(settings, 'APP_BASE_URL', '').strip()
-                or getattr(settings, 'SITE_URL', '').strip()
-                or 'http://localhost:8000'
-            ).rstrip('/')
-            
-            full_report_url = f"{base_url}{relative_url}"
-
-            send_email_by_type('report', user.email, {
+            # We use send_email_async so it queues the email delivery to a background worker
+            # instead of blocking the main thread.
+            send_email_async('report', user.email, {
                 'generated_date': timezone.now().strftime('%B %d, %Y %I:%M %p UTC'),
-                #'report_id': str(report_id),
-                #'report_type': 'Comprehensive Vulnerability Assessment',
-                'report_url': full_report_url, 
+                'report_url': reverse('report_detail', kwargs={'report_id': report_id})
             })
+            
         except Exception as email_err:
             # Don't fail the task over a notification email
-            logger.warning(f"[NetworkScan {scan_id}] Email notification failed: {email_err}")
+            logger.warning(f"[NetworkScan {scan_id}] Email notification failed to queue: {email_err}")
 
         logger.info(f"[NetworkScan {scan_id}] Complete. Report {report_id} generated.")
         return {'success': True, 'report_id': str(report_id)}
