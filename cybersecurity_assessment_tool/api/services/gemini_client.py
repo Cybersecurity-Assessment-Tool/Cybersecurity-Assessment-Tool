@@ -47,7 +47,8 @@ def get_questionnaire_dict(org: Organization) -> dict:
             "Do you require MFA to access sensitive data systems?": "Yes" if org.require_mfa_sensitive_data else "No",
             "Does your organization have an employee acceptable use policy?": "Yes" if org.employee_acceptable_use_policy else "No",
             "Does your organization do security awareness training for new employees?": "Yes" if org.training_new_employees else "No",
-            "Does your organization do security awareness training for all employees at least once per year?": "Yes" if org.training_once_per_year else "No"
+            "Does your organization do security awareness training for all employees at least once per year?": "Yes" if org.training_once_per_year else "No",
+            "Does your organization regularly change/rotate your admin passwords?": "Yes" if org.admin_rotate else "No"
         }
     }
 
@@ -143,7 +144,8 @@ def _inject_overview_scan_and_questionnaire(report_data: dict, org: Organization
             "Do you require MFA to access sensitive data systems?": "Yes" if org.require_mfa_sensitive_data else "No",
             "Does your organization have an employee acceptable use policy?": "Yes" if org.employee_acceptable_use_policy else "No",
             "Does your organization do security awareness training for new employees?": "Yes" if org.training_new_employees else "No",
-            "Does your organization do security awareness training for all employees at least once per year?": "Yes" if org.training_once_per_year else "No"
+            "Does your organization do security awareness training for all employees at least once per year?": "Yes" if org.training_once_per_year else "No",
+            "Does your organization regularly change/rotate your admin passwords?": "Yes" if org.admin_rotate else "No"
         }
     }
 
