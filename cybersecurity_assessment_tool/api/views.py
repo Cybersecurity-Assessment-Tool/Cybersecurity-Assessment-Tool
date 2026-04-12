@@ -1626,11 +1626,10 @@ def report_detail(request, report_id):
     raw_vulns = risks_section.get('Vulnerabilities Found', [])
     # Extract Technical Scan Results stored by gemini_client at report-gen time.
     raw_sf = report_item.get('Scan Findings', {})
-    scan_metadata = {}
     port_findings = []
 
     # Deep-parse Scan Findings for Report Detail page only
-    scan_findings_raw = report_item.get('Scan Findings', {})
+    scan_findings_raw = raw_sf
     if scan_findings_raw and isinstance(scan_findings_raw, dict):
         for key, val in scan_findings_raw.items():
             if isinstance(val, str):
@@ -1647,19 +1646,7 @@ def report_detail(request, report_id):
 
     risk_map = {risk.risk_name: str(risk.risk_id) for risk in Risk.objects.filter(report=report)}
     
-    # Reformats scan findings metadata
     if isinstance(raw_sf, dict) and raw_sf:
-        counts = raw_sf.get('counts', {})
-        scan_metadata = {
-            'Duration': f"{raw_sf['duration_seconds']}s" if raw_sf.get('duration_seconds') else '—',
-            'Scanner Version': raw_sf.get('scanner_version') or '—',
-            'Groups Completed': str(raw_sf.get('groups_completed', '—')),
-            'Critical Findings': counts.get('Critical', 0),
-            'High Findings': counts.get('High', 0),
-            'Medium Findings': counts.get('Medium', 0),
-            'Low Findings': counts.get('Low', 0),
-            'Info Findings': counts.get('Info', 0),
-        }
         port_findings = raw_sf.get('findings', [])
  
     risk_map = {
@@ -1705,7 +1692,6 @@ def report_detail(request, report_id):
         'summary': summary,
         'vulnerabilities': vulnerabilities,
         'scan_findings': scan_findings,
-        'scan_metadata': scan_metadata,
         'port_findings': port_findings,
         'conclusion': conclusion,
         'total_vulns': len(vulnerabilities),
@@ -1736,21 +1722,6 @@ def download_report_pdf(request, report_id):
 
     report_items = report_data.get('report', [])
     report_item = report_items[0] if report_items else {}
-
-    scan_findings_raw = report_item.get('Scan Findings', {})
-    if scan_findings_raw and isinstance(scan_findings_raw, dict):
-        for key, val in scan_findings_raw.items():
-            if isinstance(val, str):
-                val_stripped = val.strip()
-                if (val_stripped.startswith('{') and val_stripped.endswith('}')) or \
-                   (val_stripped.startswith('[') and val_stripped.endswith(']')):
-                    try:
-                        scan_findings_raw[key] = json.loads(val_stripped)
-                    except json.JSONDecodeError:
-                        pass
-        scan_findings_formatted = json.dumps(scan_findings_raw, indent=2)
-    else:
-        scan_findings_formatted = "No raw scan data available."
 
     # ── ✨ BULLETPROOF AI PARSING (Same as above) ✨ ──────────
     raw_vulns = report_item.get('Risks & Recommendations', {}).get('Vulnerabilities Found', [])
@@ -1794,21 +1765,9 @@ def download_report_pdf(request, report_id):
 
     # Changed how the scan findings are extracted
     raw_sf = report_item.get('Scan Findings', {})
-    scan_metadata_pdf = {}
     port_findings_pdf = []
  
     if isinstance(raw_sf, dict) and raw_sf:
-        counts = raw_sf.get('counts', {})
-        scan_metadata_pdf = {
-            'Duration': f"{raw_sf['duration_seconds']}s" if raw_sf.get('duration_seconds') else '—',
-            'Scanner Version': raw_sf.get('scanner_version') or '—',
-            'Groups Completed': str(raw_sf.get('groups_completed', '—')),
-            'Critical': counts.get('Critical', 0),
-            'High': counts.get('High', 0),
-            'Medium': counts.get('Medium', 0),
-            'Low': counts.get('Low', 0),
-            'Info': counts.get('Info', 0),
-        }
         port_findings_pdf = raw_sf.get('findings', [])
  
     pdf_data = {
@@ -1821,7 +1780,6 @@ def download_report_pdf(request, report_id):
         'questionnaire': report_item.get('Questionnaire Review', {}),
         'summary': report_item.get('Risks & Recommendations', {}).get('Summary', ''),
         'vulnerabilities': report_item.get('Risks & Recommendations', {}).get('Vulnerabilities Found', []),
-        'scan_metadata': scan_metadata_pdf,
         'port_findings': port_findings_pdf,
         'conclusion': report_item.get('Conclusion', ''),
     }
