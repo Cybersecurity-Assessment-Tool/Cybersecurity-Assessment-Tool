@@ -371,7 +371,7 @@ def start_server_scan(request):
 @require_POST
 def retry_scan_generation(request, scan_id):
     """
-    Restarts the AI report generation for a failed scan.
+    Restarts the scan or AI generation depending on where it failed.
     """
     try:
         # Fetch the scan and ensure the requesting user owns it
@@ -382,13 +382,30 @@ def retry_scan_generation(request, scan_id):
     if scan.status != "FAILED":
         return JsonResponse({'error': 'Only failed scans can be retried.'}, status=400)
 
-    # Reset the scan status and clear the previous error message
-    scan.status = "RECEIVED" # Puts it back in the queue state
+    # Clear the previous error message
     scan.error_message = None
-    scan.save(update_fields=['status', 'error_message'])
 
-    # Re-queue the background task!
-    # (Make sure this path matches where your generate_report_from_scan function lives)
-    async_task('api.services.generate_report_from_scan.generate_report_from_scan', scan_id=str(scan.id))
+    # Condition: Did the network scan finish successfully?
+    if scan.raw_findings_json:
+        # YES: We have scan data, so only the AI generation failed.
+        scan.status = "RECEIVED" 
+        scan.save(update_fields=['status', 'error_message'])
 
-    return JsonResponse({'success': True, 'message': 'AI generation restarted.'})
+        # Re-queue just the AI task
+        async_task('api.services.generate_report_from_scan.generate_report_from_scan', scan_id=str(scan.id))
+        msg = 'AI generation restarted.'
+        
+    else:
+        # NO: We have no scan data, the network scanner itself failed.
+        scan.status = "PENDING"
+        scan.save(update_fields=['status', 'error_message'])
+
+        # Re-queue the full network scan task (with the 15-minute timeout)
+        async_task(
+            'api.services.network_scan.run_network_scan', 
+            str(scan.id),
+            timeout=900
+        )
+        msg = 'Network scan restarted.'
+
+    return JsonResponse({'success': True, 'message': msg})
