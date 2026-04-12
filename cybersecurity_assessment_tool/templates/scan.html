@@ -1066,13 +1066,17 @@ function startScan() {
   notice.className = 'scan-notice';
   notice.style.display = 'none';
 
+  // convert scan types into binary list
+  const mapping = ['tcp', 'udp', 'email', 'infra'];
+  const binaryScanArr = mapping.map(type => types.includes(type) ? 1 : 0);
+
   fetch('/api/scan/start/', {
     method: 'POST',
     headers: {
       'X-CSRFToken': getCsrf(),
       'Content-Type': 'application/json',
     },
-    // body: JSON.stringify({ scan_types: types }), (use this for passing scan selections onto the backend)
+    body: JSON.stringify({ scan_types: binaryScanArr }), // pass scan selection onto the backend
   })
   .then(res => res.json().then(data => ({ ok: res.ok, data })))
   .then(({ ok, data }) => {
