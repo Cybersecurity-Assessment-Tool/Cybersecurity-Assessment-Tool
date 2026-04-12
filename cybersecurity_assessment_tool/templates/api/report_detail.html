@@ -191,6 +191,9 @@
     .rp-vuln-card.open .rp-toggle-icon {
         transform: rotate(180deg);
     }
+    .rp-port-card.open .rp-toggle-icon {
+        transform: rotate(180deg);
+    }
 
     .rp-vuln-body {
         display: none;
@@ -198,6 +201,13 @@
     }
     .rp-vuln-card.open .rp-vuln-body {
         display: block;
+    }
+    
+    .rp-port-body {
+        display: none;
+    }
+    .rp-port-card.open .rp-port-body {
+        display: table-row-group;
     }
 
     .rp-vuln-overview {
@@ -661,7 +671,7 @@
         <div class="rp-vuln-list" id="vulnList">
             {% for v in vulnerabilities %}
             <div class="rp-vuln-card" id="vuln-{{ forloop.counter }}">
-                <div class="rp-vuln-header" onclick="toggleVuln('vuln-{{ forloop.counter }}')">
+                <div class="rp-vuln-header" onclick="toggleShow('vuln-{{ forloop.counter }}')">
                     <span class="rp-vuln-name">{{ v.risk }}</span>
                     <span class="rp-sev" data-sev="{{ v.severity }}">{{ v.severity }}</span>
                     <span class="rp-toggle-icon">▾</span>
@@ -712,39 +722,29 @@
         {% endif %}
     </div>
 
-    {% if scan_metadata or port_findings %}
+    {% if port_findings %}
     <div class="rp-section">
         <div class="rp-section-heading">05 — Technical Scan Results</div>
  
-        {% if scan_metadata %}
-        {# ── Scan metadata summary table ──────────────────────────────────── #}
-        <table style="margin-bottom:1.5rem;">
-            <tbody>
-                {% for key, value in scan_metadata.items %}
-                <tr>
-                    <th style="width:35%">{{ key }}</th>
-                    <td>{{ value }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% endif %}
- 
-        {% if port_findings %}
         {# ── Per-port findings table ───────────────────────────────────────── #}
         <div class="rp-sub-label" style="margin-bottom:0.6rem;">Open Ports &amp; Services</div>
         <div style="overflow-x:auto;">
-            <table>
-                <thead>
+            <table class="rp-port-card" id="portFindingsCard">
+                <thead onclick="toggleShow('portFindingsCard')">
                     <tr>
-                        <th style="width:6%">Port</th>
+                        <th style="width:9%">Port</th>
                         <th style="width:7%">Proto</th>
-                        <th style="width:12%">Service</th>
-                        <th style="width:10%">Severity</th>
-                        <th>Detail</th>
+                        <th style="width:14%">Service</th>
+                        <th style="width:7%">Severity</th>
+                        <th style="display: table-cell;">
+                            <span style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 0.5rem;">
+                                <span>Detail</span>
+                                <span class="rp-toggle-icon">▾</span>
+                            </span>
+                        </th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="rp-port-body">
                     {% for f in port_findings %}
                     <tr>
                         <td style="font-family:var(--font-mono);font-size:0.8125rem;">{{ f.portid }}</td>
@@ -752,15 +752,15 @@
                         <td style="font-family:var(--font-mono);font-size:0.8125rem;">{{ f.service }}</td>
                         <td>
                             {% if f.severity == 'CRITICAL' or f.severity == 'Critical' %}
-                                <span style="background:#fee2e2;color:#b91c1c;padding:0.15rem 0.5rem;border-radius:3px;font-size:0.72rem;font-weight:700;font-family:var(--font-mono);">CRIT</span>
+                                <span class= "rp-sev">CRIT</span>
                             {% elif f.severity == 'HIGH' or f.severity == 'High' %}
-                                <span style="background:#ffedd5;color:#c2410c;padding:0.15rem 0.5rem;border-radius:3px;font-size:0.72rem;font-weight:700;font-family:var(--font-mono);">HIGH</span>
+                                <span class= "rp-sev">HIGH</span>
                             {% elif f.severity == 'MEDIUM' or f.severity == 'Medium' %}
-                                <span style="background:#fef9c3;color:#854d0e;padding:0.15rem 0.5rem;border-radius:3px;font-size:0.72rem;font-weight:700;font-family:var(--font-mono);">MED</span>
+                                <span class= "rp-sev">MED</span>
                             {% elif f.severity == 'LOW' or f.severity == 'Low' %}
-                                <span style="background:#dcfce7;color:#166534;padding:0.15rem 0.5rem;border-radius:3px;font-size:0.72rem;font-weight:700;font-family:var(--font-mono);">LOW</span>
+                                <span class= "rp-sev">LOW</span>
                             {% else %}
-                                <span style="background:#f3f4f6;color:#6b7280;padding:0.15rem 0.5rem;border-radius:3px;font-size:0.72rem;font-weight:700;font-family:var(--font-mono);">INFO</span>
+                                <span class= "rp-sev">INFO</span>
                             {% endif %}
                         </td>
                         <td style="font-size:0.8125rem;color:var(--ink-mid);">
@@ -771,12 +771,6 @@
                 </tbody>
             </table>
         </div>
-        {% else %}
-        <div class="rp-placeholder">
-            <p>This only shows up for reports generated using the old method. Newer scans will properly display port findings.</p>
-        </div>
-        {% endif %}
- 
     </div>
     {% endif %}
 
@@ -792,7 +786,7 @@
         <div class="rp-section-heading">07 — Raw Scan Data</div>
         
         <div class="rp-vuln-card" id="scanFindingsCard">
-            <div class="rp-vuln-header" onclick="toggleVuln('scanFindingsCard')">
+            <div class="rp-vuln-header" onclick="toggleShow('scanFindingsCard')">
                 <span class="rp-vuln-name" style="font-family: var(--font-mono); font-size: 0.85rem;">{ } Raw JSON Data</span>
                 <span></span> 
                 <span class="rp-toggle-icon">▾</span>
@@ -855,7 +849,7 @@
     // ---------------------------------------------------------------------
     // Collapsible risk cards
     // ---------------------------------------------------------------------
-    function toggleVuln(id) {
+    function toggleShow(id) {
         const card = document.getElementById(id);
         if (!card) return;
         card.classList.toggle('open');
