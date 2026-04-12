@@ -1129,7 +1129,7 @@ def run_infra_scan(target_domain: str) -> dict:
 
 # ── Django-Q2 task entry point ────────────────────────────────────────────────
 
-def run_network_scan(scan_id: str):
+def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
     """
     Django-Q2 background task.
 
@@ -1172,40 +1172,35 @@ def run_network_scan(scan_id: str):
         scan.scan_started_at = timezone.now()
         scan.save(update_fields=['status', 'scan_started_at'])
 
-        # ── Step 2: Run the four scan types ──────────────────────────────
-        tcp_port_results = run_tcp_port_scan(port_target)
+        # ── Step 2: Run the selected scan types ─────────────────────────
+        scan_configs = [
+            ('tcp',   run_tcp_port_scan, port_target),
+            ('udp',   run_udp_port_scan, port_target),
+            ('email', run_email_scan,    email_domain),
+            ('infra', run_infra_scan,    infra_target)
+        ]
 
-        udp_port_results = run_udp_port_scan(port_target)
-
-        email_results_list = run_email_scan(email_domain)
-
-        infra_results = run_infra_scan(infra_target) if infra_target else {}
+        scan_results = {}
+        for i, (key, runner, target) in enumerate(scan_configs):
+            if scan_arr[i] and target:
+                scan_results[key] = runner(target)
+            else:
+                scan_results[key] = {}
 
         # ── Step 3: Combine + persist findings ────────────────────────────
-        all_findings = tcp_port_results.get('findings', [])
-        all_findings += udp_port_results.get('findings', [])
-        all_findings += email_results_list.get('findings', [])
-        all_findings += infra_results.get('findings', [])
+        all_findings = []
+        scan_metadata_list = [_add_metadata('network_scan', network_scan_start_ts)]
+        results_obj = {}
+
+        for key, result in scan_results.items():
+            all_findings += result.get('findings', [])
+            if result.get('scan_metadata'):
+                scan_metadata_list.append(result['scan_metadata'])
+            if result.get(key):
+                results_obj[key] = result[key]
 
         scan.scan_completed_at = timezone.now()
         scan.target_subnet = f"{port_target} / {infra_target}"
-
-        # Collect per-scan metadata into an array
-        scan_metadata_list = [_add_metadata('network_scan', network_scan_start_ts)]
-        for sr in (tcp_port_results, udp_port_results, email_results_list, infra_results):
-            if sr.get('scan_metadata'):
-                scan_metadata_list.append(sr['scan_metadata'])
-
-        # Build results object — pull each scan's named data bucket directly
-        results_obj = {}
-        if tcp_port_results.get('tcp'):
-            results_obj['tcp'] = tcp_port_results['tcp']
-        if udp_port_results.get('udp'):
-            results_obj['udp'] = udp_port_results['udp']
-        if email_results_list.get('email'):
-            results_obj['email'] = email_results_list['email']
-        if infra_results.get('infra'):
-            results_obj['infra'] = infra_results['infra']
 
         scan.raw_findings_json = json.dumps({
             'scan_metadata': scan_metadata_list,
