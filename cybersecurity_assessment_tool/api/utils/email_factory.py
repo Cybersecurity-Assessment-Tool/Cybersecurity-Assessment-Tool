@@ -119,8 +119,8 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
             "template": "emails/report_ready.html",
             "context": {
                 "generated_date": "March 5, 2026 10:44 AM EST",
-                "report_id": "SEC-2026-0305-001",
-                "report_type": "Comprehensive Vulnerability Assessment",
+                #"report_id": "SEC-2026-0305-001",
+                #"report_type": "Comprehensive Vulnerability Assessment",
                 "login_url": "http://localhost:8000/login/?next=/reports/SEC-2026-0305-001/"
             }
         }
