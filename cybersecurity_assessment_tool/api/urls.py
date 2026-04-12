@@ -52,10 +52,4 @@ urlpatterns = [
     path('scan/download/', views.download_scanner_exe, name='scan_download_exe'),
     path('scan/start/', start_server_scan, name='scan_server_start'),
     path('scan/retry/<uuid:scan_id>/', retry_scan_generation, name='retry_scan_generation'),
-    
-    # Add the Google verification route
-    path('googledd049f5c3601642d.html', TemplateView.as_view(
-        template_name='googledd049f5c3601642d.html', 
-        content_type='text/html'
-    )),
 ]
