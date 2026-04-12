@@ -19,6 +19,8 @@ from datetime import datetime, timezone as dt_timezone
 
 import requests
 from django.utils import timezone
+from django.conf import settings
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -1222,11 +1224,23 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
         # ── Step 5: Email user ────────────────────────────────────────────
         report_id = result['report_id']
         try:
+            # Generate the relative path (/reports/<uuid>/)
+            relative_url = reverse('report_detail', kwargs={'report_id': report_id})
+            
+            # Construct the absolute URL, checking your settings for the base domain
+            base_url = (
+                getattr(settings, 'APP_BASE_URL', '').strip()
+                or getattr(settings, 'SITE_URL', '').strip()
+                or 'http://localhost:8000'
+            ).rstrip('/')
+            
+            full_report_url = f"{base_url}{relative_url}"
+
             send_email_by_type('report', user.email, {
                 'generated_date': timezone.now().strftime('%B %d, %Y %I:%M %p UTC'),
-                'report_id': str(report_id),
-                'report_type': 'Comprehensive Vulnerability Assessment',
-                'login_url': f'/reports/{report_id}/',
+                #'report_id': str(report_id),
+                #'report_type': 'Comprehensive Vulnerability Assessment',
+                'report_url': full_report_url, 
             })
         except Exception as email_err:
             # Don't fail the task over a notification email
