@@ -453,6 +453,10 @@
             Organization
         </button>
         {% endif %}
+        <button class="tab-button {% if active_tab == 'logs' %}active{% endif %}"
+                onclick="location.href='?tab=logs'">
+            Logs
+        </button>
     </div>
 
     <!-- Tab Content -->
@@ -780,6 +784,85 @@
                 4. Auto-login or redirect to signup with pre-filled email
                 5. Add user to organization upon acceptance
             #} -->
+        </div>
+        {% endif %}
+
+        {% if active_tab == 'logs' and is_admin %}
+        <div class="settings-card">
+            <div class="card-header">
+                <h2>Resolved Risks Log</h2>
+                <p>Vulnerabilities that have been marked as resolved by your team</p>
+            </div>
+ 
+            <div class="card-body" style="padding: 0;">
+                {% if resolved_page_obj and resolved_page_obj.object_list %}
+                <table style="width:100%; border-collapse:collapse; font-size:0.875rem;">
+                    <thead>
+                        <tr style="background:#f9fafb; border-bottom:1px solid #e5e7eb;">
+                            <th style="text-align:left; padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280;">Risk Name</th>
+                            <th style="text-align:left; padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280;">Severity</th>
+                            <th style="text-align:left; padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280;">Resolved By</th>
+                            <th style="text-align:left; padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280;">Resolved At</th>
+                            <th style="text-align:left; padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for risk in resolved_page_obj %}
+                        <tr style="border-bottom:1px solid #f3f4f6;">
+                            <td style="padding:0.875rem 1rem; color:#111827; font-weight:500;">
+                                {{ risk.risk_name }}
+                            </td>
+                            <td style="padding:0.875rem 1rem;">
+                                {% if risk.severity == 'Critical' %}
+                                    <span style="background:#fee2e2;color:#b91c1c;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;">Critical</span>
+                                {% elif risk.severity == 'High' %}
+                                    <span style="background:#ffedd5;color:#c2410c;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;">High</span>
+                                {% elif risk.severity == 'Medium' %}
+                                    <span style="background:#fef9c3;color:#854d0e;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;">Medium</span>
+                                {% elif risk.severity == 'Low' %}
+                                    <span style="background:#dcfce7;color:#166534;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;">Low</span>
+                                {% else %}
+                                    <span style="background:#e5e7eb;color:#374151;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;">{{ risk.severity }}</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding:0.875rem 1rem; color:#6b7280;">
+                                {{ risk.resolved_by.username|default:"—" }}
+                            </td>
+                            <td style="padding:0.875rem 1rem; color:#6b7280; font-size:0.8125rem;">
+                                {% if risk.resolved_at %}{{ risk.resolved_at|date:"M j, Y H:i" }}{% else %}—{% endif %}
+                            </td>
+                            <td style="padding:0.875rem 1rem;">
+                                <a href="{% url 'risk_detail' risk.risk_id %}"
+                                   style="font-size:0.8125rem;color:#3b82f6;text-decoration:none;font-weight:500;">
+                                    View Risk →
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+ 
+                {% if resolved_page_obj.has_other_pages %}
+                <div style="display:flex;justify-content:center;align-items:center;gap:0.75rem;padding:1rem;border-top:1px solid #e5e7eb;">
+                    {% if resolved_page_obj.has_previous %}
+                    <a href="?tab=logs&page=1" style="padding:0.4rem 0.875rem;background:#fff;border:1px solid #e5e7eb;border-radius:6px;color:#374151;text-decoration:none;font-size:0.8125rem;">&laquo; First</a>
+                    <a href="?tab=logs&page={{ resolved_page_obj.previous_page_number }}" style="padding:0.4rem 0.875rem;background:#fff;border:1px solid #e5e7eb;border-radius:6px;color:#374151;text-decoration:none;font-size:0.8125rem;">Previous</a>
+                    {% endif %}
+                    <span style="font-size:0.8125rem;color:#6b7280;">Page {{ resolved_page_obj.number }} of {{ resolved_page_obj.paginator.num_pages }}</span>
+                    {% if resolved_page_obj.has_next %}
+                    <a href="?tab=logs&page={{ resolved_page_obj.next_page_number }}" style="padding:0.4rem 0.875rem;background:#fff;border:1px solid #e5e7eb;border-radius:6px;color:#374151;text-decoration:none;font-size:0.8125rem;">Next</a>
+                    <a href="?tab=logs&page={{ resolved_page_obj.paginator.num_pages }}" style="padding:0.4rem 0.875rem;background:#fff;border:1px solid #e5e7eb;border-radius:6px;color:#374151;text-decoration:none;font-size:0.8125rem;">Last &raquo;</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+ 
+                {% else %}
+                <div style="text-align:center;padding:3rem 2rem;color:#9ca3af;">
+                    <p style="font-size:1rem;margin:0;">No risks have been resolved yet.</p>
+                    <p style="font-size:0.875rem;margin:0.4rem 0 0;">Resolved risks will appear here once your team marks them as complete.</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
         {% endif %}
     </div>

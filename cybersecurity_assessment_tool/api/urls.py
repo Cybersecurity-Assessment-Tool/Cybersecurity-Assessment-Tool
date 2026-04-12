@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import OrganizationViewSet, UserViewSet, ReportViewSet, RiskViewSet
+from django.views.generic import TemplateView
 import api.views as views
 from .views_scan import (
     generate_scan_token,

@@ -1443,7 +1443,7 @@ def risks_list(request):
             )
         ).order_by('severity_weight', '-report__completed')
     
-    paginator = Paginator(risks, 20)
+    paginator = Paginator(risks, 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
@@ -1517,6 +1517,8 @@ def resolve_risk(request, risk_id):
         
         # Archive the risk
         risk.is_archived = True
+        risk.resolved_by = user
+        risk.resolved_at = timezone.now()
         risk.save()
         
         return JsonResponse({"success": True})
@@ -1613,18 +1615,21 @@ def report_detail(request, report_id):
             raw = {}
 
     report_items = raw.get('report', [])
-    report_item  = report_items[0] if report_items else {}
+    report_item = report_items[0] if report_items else {}
 
-    overview      = report_item.get('Overview', {})
-    observations  = report_item.get('Observations', [])
+    overview = report_item.get('Overview', {})
+    observations = report_item.get('Observations', [])
     questionnaire = report_item.get('Questionnaire Review', {})
     risks_section = report_item.get('Risks & Recommendations', {})
-    conclusion    = report_item.get('Conclusion', '')
-    summary       = risks_section.get('Summary', '')
-    raw_vulns     = risks_section.get('Vulnerabilities Found', [])
-    
-    # Deep-parse Scan Findings
-    scan_findings_raw = report_item.get('Scan Findings', {})
+    conclusion = report_item.get('Conclusion', '')
+    summary = risks_section.get('Summary', '')
+    raw_vulns = risks_section.get('Vulnerabilities Found', [])
+    # Extract Technical Scan Results stored by gemini_client at report-gen time.
+    raw_sf = report_item.get('Scan Findings', {})
+    port_findings = []
+
+    # Deep-parse Scan Findings for Report Detail page only
+    scan_findings_raw = raw_sf
     if scan_findings_raw and isinstance(scan_findings_raw, dict):
         for key, val in scan_findings_raw.items():
             if isinstance(val, str):
@@ -1640,71 +1645,56 @@ def report_detail(request, report_id):
         scan_findings = None
 
     risk_map = {risk.risk_name: str(risk.risk_id) for risk in Risk.objects.filter(report=report)}
+    
+    if isinstance(raw_sf, dict) and raw_sf:
+        port_findings = raw_sf.get('findings', [])
+ 
+    risk_map = {
+        risk.risk_name: str(risk.risk_id)
+        for risk in Risk.objects.filter(report=report)
+    }
 
     # ── Bulletproof parsing of AI vulnerability outputs ──────────
     SEVERITY_ORDER = {'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4, 'Info': 5}
-    vulnerabilities = []
 
-    for v in raw_vulns:
-        if not isinstance(v, dict):
-            continue
-            
-        # Flatten all keys to lowercase and replace underscores with spaces
-        v_lower = {str(k).lower().strip().replace('_', ' '): val for k, val in v.items()}
-        
-        risk_name = v_lower.get('risk') or v_lower.get('risk name') or v_lower.get('name') or 'Unknown Risk'
-        overview_text = v_lower.get('overview') or v_lower.get('description') or v_lower.get('details') or 'No description provided.'
-        
-        severity_val = v_lower.get('severity') or 'Info'
-        if isinstance(severity_val, str):
-            severity_val = severity_val.replace('"', '').replace(',', '').replace('[', '').replace(']', '').strip().capitalize()
-        
-        elements = v_lower.get('affected elements') or v_lower.get('elements') or []
-        if isinstance(elements, str):
-            elements = [e.strip() for e in elements.split(',') if e.strip()]
-            
-        recs = v_lower.get('recommendation') or v_lower.get('recommendations') or {}
-        
-        if isinstance(recs, dict):
-            r_lower = {str(k).lower().strip().replace('_', ' '): val for k, val in recs.items()}
-            easy_fix = r_lower.get('easy fix') or r_lower.get('quick fix') or ''
-            long_term_fix = r_lower.get('long term fix') or ''
-        elif isinstance(recs, str):
-            easy_fix, long_term_fix = recs, ''
-        else:
-            easy_fix, long_term_fix = '', ''
-
-        vulnerabilities.append({
-            'risk':              risk_name,
-            'overview':          overview_text,
-            'severity':          severity_val,
-            'affected_elements': elements,
-            'easy_fix':          easy_fix,
-            'long_term_fix':     long_term_fix,
-            'risk_id':           risk_map.get(risk_name, None),
-        })
-
-    vulnerabilities = sorted(vulnerabilities, key=lambda x: SEVERITY_ORDER.get(x['severity'], 6))
+    # Construct sections pertaining to the vulnerabilities found
+    vulnerabilities = sorted(
+        [
+            {
+                'risk': v.get('Risk', ''),
+                'overview': v.get('Overview', ''),
+                'severity': v.get('Severity', 'Info'),
+                'affected_elements': v.get('Affected Elements', []),
+                'easy_fix': v.get('Recommendation', {}).get('easy_fix', ''),
+                'long_term_fix': v.get('Recommendation', {}).get('long_term_fix', ''),
+                'risk_id': risk_map.get(v.get('Risk', ''), None),
+            }
+            for v in raw_vulns
+        ],
+        key=lambda x: SEVERITY_ORDER.get(x['severity'], 6),
+    )
 
     obs_list = [
         {
-            'name':              o.get('Observation', ''),
-            'overview':          o.get('Overview', ''),
+            'name': o.get('Observation', ''),
+            'overview': o.get('Overview', ''),
             'affected_elements': o.get('Affected Elements', []),
         }
         for o in observations
     ]
 
+    # Pass all parsed data to the template for rendering
     context = {
-        'report':          report,
-        'overview':        overview,
-        'observations':    obs_list,
-        'questionnaire':   questionnaire,
-        'summary':         summary,
+        'report': report,
+        'overview': overview,
+        'observations': obs_list,
+        'questionnaire': questionnaire,
+        'summary': summary,
         'vulnerabilities': vulnerabilities,
-        'scan_findings':   scan_findings,
-        'conclusion':      conclusion,
-        'total_vulns':     len(vulnerabilities),
+        'scan_findings': scan_findings,
+        'port_findings': port_findings,
+        'conclusion': conclusion,
+        'total_vulns': len(vulnerabilities),
     }
     return render(request, 'api/report_detail.html', context)
 
@@ -1732,21 +1722,6 @@ def download_report_pdf(request, report_id):
 
     report_items = report_data.get('report', [])
     report_item = report_items[0] if report_items else {}
-
-    scan_findings_raw = report_item.get('Scan Findings', {})
-    if scan_findings_raw and isinstance(scan_findings_raw, dict):
-        for key, val in scan_findings_raw.items():
-            if isinstance(val, str):
-                val_stripped = val.strip()
-                if (val_stripped.startswith('{') and val_stripped.endswith('}')) or \
-                   (val_stripped.startswith('[') and val_stripped.endswith(']')):
-                    try:
-                        scan_findings_raw[key] = json.loads(val_stripped)
-                    except json.JSONDecodeError:
-                        pass
-        scan_findings_formatted = json.dumps(scan_findings_raw, indent=2)
-    else:
-        scan_findings_formatted = "No raw scan data available."
 
     # ── ✨ BULLETPROOF AI PARSING (Same as above) ✨ ──────────
     raw_vulns = report_item.get('Risks & Recommendations', {}).get('Vulnerabilities Found', [])
@@ -1788,20 +1763,27 @@ def download_report_pdf(request, report_id):
             'long_term_fix': long_term_fix
         })
 
+    # Changed how the scan findings are extracted
+    raw_sf = report_item.get('Scan Findings', {})
+    port_findings_pdf = []
+ 
+    if isinstance(raw_sf, dict) and raw_sf:
+        port_findings_pdf = raw_sf.get('findings', [])
+ 
     pdf_data = {
         'report_name': report.report_name,
         'report_id': str(report.report_id),
         'report_date': report.completed.strftime('%B %d, %Y'),
-        'user_created': report.user_created.username if report.user_created else 'System',
+        'user_created': report.user_created.username,
         'overview': report_item.get('Overview', {}),
         'observations': report_item.get('Observations', []),
         'questionnaire': report_item.get('Questionnaire Review', {}),
         'summary': report_item.get('Risks & Recommendations', {}).get('Summary', ''),
-        'vulnerabilities': pdf_vulns,
-        'scan_findings': scan_findings_formatted,
+        'vulnerabilities': report_item.get('Risks & Recommendations', {}).get('Vulnerabilities Found', []),
+        'port_findings': port_findings_pdf,
         'conclusion': report_item.get('Conclusion', ''),
     }
-
+ 
     return JsonResponse(pdf_data)
 
 @login_required

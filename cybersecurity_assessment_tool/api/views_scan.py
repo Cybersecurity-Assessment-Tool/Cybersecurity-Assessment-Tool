@@ -1,5 +1,6 @@
 import json
 import logging
+from django.core.paginator import Paginator
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
@@ -93,9 +94,7 @@ def submit_scan_results(request):
     token_value = auth_header.split(' ', 1)[1].strip()
 
     try:
-        token_obj = ScanToken.objects.select_related('user', 'organization').get(
-            token=token_value
-        )
+        token_obj = ScanToken.objects.select_related('user', 'organization').get(token=token_value)
     except (ScanToken.DoesNotExist, ValueError):
         return JsonResponse({'error': 'Invalid token.'}, status=401)
 
@@ -108,7 +107,7 @@ def submit_scan_results(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
 
-    findings   = body.get('findings', [])
+    findings = body.get('findings', [])
     raw_results = body.get('raw_results', {})
 
     # -- DEBUG LOGGING --
@@ -127,13 +126,13 @@ def submit_scan_results(request):
         return JsonResponse({'error': 'No scan record associated with this token.'}, status=404)
 
     # -- Populate scan record --
-    scan.status                = Scan.Status.RECEIVED
-    scan.target_subnet         = body.get('target_subnet', '')
-    scan.scanner_version       = body.get('scan_version', '')
+    scan.status = Scan.Status.RECEIVED
+    scan.target_subnet = body.get('target_subnet', '')
+    scan.scanner_version = body.get('scan_version', '')
     scan.scan_duration_seconds = body.get('scan_duration_seconds')
-    scan.groups_completed      = body.get('groups_completed', 0)
-    scan.skipped_tools         = body.get('skipped_tools', [])
-    scan.scan_completed_at     = timezone.now()
+    scan.groups_completed = body.get('groups_completed', 0)
+    scan.skipped_tools = body.get('skipped_tools', [])
+    scan.scan_completed_at = timezone.now()
 
     # Store findings (encrypted via EncryptedTextField in models_scan.py)
     all_results = {
@@ -197,8 +196,8 @@ def scan_status(request, scan_id):
         return JsonResponse({'error': 'Scan not found.'}, status=404)
 
     response = {
-        'scan_id':  str(scan.id),
-        'status':   scan.status,
+        'scan_id': str(scan.id),
+        'status': scan.status,
         'created_at': scan.created_at.isoformat(),
     }
 
@@ -206,11 +205,11 @@ def scan_status(request, scan_id):
     if scan.status in [Scan.Status.RECEIVED, Scan.Status.GENERATING, Scan.Status.COMPLETE]:
         response['findings_summary'] = {
             'critical': scan.finding_count_critical,
-            'high':     scan.finding_count_high,
-            'medium':   scan.finding_count_medium,
-            'low':      scan.finding_count_low,
-            'info':     scan.finding_count_info,
-            'total':    scan.total_findings,
+            'high': scan.finding_count_high,
+            'medium': scan.finding_count_medium,
+            'low': scan.finding_count_low,
+            'info': scan.finding_count_info,
+            'total': scan.total_findings,
         }
         response['groups_completed'] = scan.groups_completed
         response['scan_duration_seconds'] = scan.scan_duration_seconds
@@ -228,7 +227,7 @@ def scan_status(request, scan_id):
 
 
 # ---------------------------------------------------------------------------
-# 4. List scans for the scan page
+# 4. List scans for the scan page using Pagination
 #    Returns recent scans for the logged-in user.
 # ---------------------------------------------------------------------------
 
@@ -236,28 +235,43 @@ def scan_status(request, scan_id):
 @require_GET
 def list_scans(request):
     """
-    Returns the user's recent scans for display on the scan page.
+    Returns a paginated list of scans for the logged-in user (10 per page).
+    Accepts:  ?page=N   (defaults to 1)
+    Returns:
+        scans       — list of scan dicts for the requested page
+        pagination  — current_page, total_pages, has_previous, has_next,
+                      previous_page, next_page
     """
-    scans = Scan.objects.filter(
-        user=request.user
-    ).order_by('-created_at')[:10]   # last 10 scans
+    all_scans = Scan.objects.filter(user=request.user).order_by('-created_at')
+    paginator = Paginator(all_scans, 10)
+    page_obj  = paginator.get_page(request.GET.get('page', 1))
+
+    scans = [
+        {
+            'scan_id':                str(s.id),
+            'status':                 s.status,
+            'created_at':             s.created_at.isoformat(),
+            'total_findings':         s.total_findings,
+            'finding_count_critical': s.finding_count_critical,
+            'finding_count_high':     s.finding_count_high,
+            'finding_count_medium':   s.finding_count_medium,
+            'finding_count_low':      s.finding_count_low,
+            'finding_count_info':     s.finding_count_info,
+            'report_id':              str(s.report.report_id) if s.report else None,
+        }
+        for s in page_obj
+    ]
 
     return JsonResponse({
-        'scans': [
-            {
-                'scan_id':    str(s.id),
-                'status':     s.status,
-                'created_at': s.created_at.isoformat(),
-                'total_findings': s.total_findings,
-                'finding_count_critical': s.finding_count_critical,
-                'finding_count_high':     s.finding_count_high,
-                'finding_count_medium':   s.finding_count_medium,
-                'finding_count_low':      s.finding_count_low,
-                'finding_count_info':     s.finding_count_info,
-                'report_id': str(s.report.report_id) if s.report else None,
-            }
-            for s in scans
-        ]
+        'scans': scans,
+        'pagination': {
+            'current_page':  page_obj.number,
+            'total_pages':   paginator.num_pages,
+            'has_previous':  page_obj.has_previous(),
+            'has_next':      page_obj.has_next(),
+            'previous_page': page_obj.previous_page_number() if page_obj.has_previous() else None,
+            'next_page':     page_obj.next_page_number()     if page_obj.has_next()     else None,
+        },
     })
 
 
@@ -304,6 +318,13 @@ def start_server_scan(request):
                       'Add it in Settings → Security Posture.'},
             status=400
         )
+    
+    # Parse the scan types from the request body
+    try:
+        data = json.loads(request.body)
+        scan_arr = data.get('scan_types', [1, 1, 1, 1]) # fallback
+    except (json.JSONDecodeError, TypeError):
+        return JsonResponse({'error': 'Invalid scan configuration.'}, status=400)
 
     # Create the scan record (no ScanToken needed for server-side scans)
     scan = Scan.objects.create(
@@ -316,6 +337,7 @@ def start_server_scan(request):
     task_id = async_task(
         'api.services.network_scan.run_network_scan',
         str(scan.id),
+        scan_arr,
         timeout=900,
     )
 
@@ -327,17 +349,12 @@ def start_server_scan(request):
     return JsonResponse({
         'status': 'started',
         'scan_id': str(scan.id),
-        'message': "Scan started. We'll email you when your report is ready — this usually takes 3–5 minutes.",
+        'message': "Scan started. We'll email you when your report is ready — this usually takes 3-5 minutes.",
     }, status=202)
 
 # ---------------------------------------------------------------------------
 #  Retry Scan Button
 # ---------------------------------------------------------------------------
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
-from django_q.tasks import async_task
-# from .models import Scan
 
 @login_required
 @require_POST

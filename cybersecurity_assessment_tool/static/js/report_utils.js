@@ -477,18 +477,102 @@ function createPdfDefinition(data) {
     }
 
 
-    // ═══════════════════════════════════════════════════════════
-    // 5. Technical Scan Results (placeholder)
-    // ═══════════════════════════════════════════════════════════
-
-    // doc.content.push(...sectionHead('05 — Technical  Scan  Results'));
-    // doc.content.push({
-    //     text:    'Detailed scan results will be shown here in a future update.',
-    //     fontSize: 8.5,
-    //     color:   C.light,
-    //     italics: true,
-    //     margin:  [0, 0, 0, 15],
-    // });
+    // ═══════════════════════════════════════════════════════════════════════════
+    // 5. Technical Scan Results
+    // ═══════════════════════════════════════════════════════════════════════════
+ 
+    doc.content.push(...sectionHead('05 — Technical  Scan  Results'));
+ 
+    if (data.scan_metadata && Object.keys(data.scan_metadata).length > 0) {
+        const metaRows = Object.entries(data.scan_metadata).map(([k, v]) => [
+            { text: k,              fontSize: 8.5, bold: true, color: C.mid },
+            { text: String(v != null ? v : '—'), fontSize: 8.5, color: C.ink },
+        ]);
+ 
+        doc.content.push({
+            table:  { widths: ['35%', '*'], body: metaRows },
+            layout: {
+                hLineWidth: () => 0.5,
+                vLineWidth: () => 0,
+                hLineColor: () => C.ruleLight,
+                fillColor:  (ri) => ri % 2 === 0 ? C.surface : C.white,
+                paddingLeft:   (ci) => ci === 0 ? 9 : 12,
+                paddingRight:  () => 0,
+                paddingTop:    () => 8,
+                paddingBottom: () => 4,
+            },
+            margin: [0, 0, 0, 14],
+        });
+    }
+ 
+    const portFindings = data.port_findings || [];
+ 
+    if (portFindings.length > 0) {
+        doc.content.push({
+            text:             'Open  Ports  &  Services',
+            fontSize:         6.5,
+            bold:             true,
+            color:            C.ink,
+            characterSpacing: 1.5,
+            margin:           [0, 0, 0, 6],
+        });
+ 
+        const sevAbbr = {
+            CRITICAL: 'CRIT', Critical: 'CRIT',
+            HIGH:     'HIGH', High:     'HIGH',
+            MEDIUM:   'MED',  Medium:   'MED',
+            LOW:      'LOW',  Low:      'LOW',
+            INFO:     'INFO', Info:     'INFO',
+        };
+ 
+        const headerRow = [
+            { text: 'Port',     fontSize: 7.5, bold: true, color: C.ink },
+            { text: 'Proto',    fontSize: 7.5, bold: true, color: C.ink },
+            { text: 'Service',  fontSize: 7.5, bold: true, color: C.ink },
+            { text: 'Severity', fontSize: 7.5, bold: true, color: C.ink, alignment: 'center' },
+            { text: 'Detail',   fontSize: 7.5, bold: true, color: C.ink },
+        ];
+ 
+        const dataRows = portFindings.map(f => {
+            const detail = (f.information || f.description || '').slice(0, 120);
+            const abbr   = sevAbbr[f.severity] || 'INFO';
+            return [
+                { text: String(f.portid   || ''), fontSize: 7.5, color: C.ink },
+                { text: String(f.protocol || '').toUpperCase(), fontSize: 7.5, color: C.mid },
+                { text: String(f.service  || ''), fontSize: 7.5, color: C.mid },
+                { text: abbr, fontSize: 7, color: C.mid, alignment: 'center', bold: true },
+                { text: detail, fontSize: 7.5, color: C.mid },
+            ];
+        });
+ 
+        doc.content.push({
+            table: {
+                widths: ['8%', '8%', '12%', '9%', '*'],
+                body:   [headerRow, ...dataRows],
+            },
+            layout: {
+                hLineWidth: () => 0.5,
+                vLineWidth: () => 0.5,
+                hLineColor: () => C.rule,
+                vLineColor: () => C.rule,
+                fillColor:  (ri) => ri === 0 ? C.tableHead : ri % 2 === 0 ? C.surface : C.white,
+                paddingLeft:   () => 5,
+                paddingRight:  () => 5,
+                paddingTop:    () => 4,
+                paddingBottom: () => 4,
+            },
+            margin: [0, 0, 0, 15],
+        });
+ 
+    } else {
+        doc.content.push({
+            text:    'Detailed port findings are not available for this report.',
+            fontSize: 8.5,
+            color:   C.light,
+            italics: true,
+            margin:  [0, 0, 0, 15],
+        });
+    }
 
 
     // ═══════════════════════════════════════════════════════════
@@ -496,7 +580,7 @@ function createPdfDefinition(data) {
     // ═══════════════════════════════════════════════════════════
 
     if (data.conclusion) {
-        doc.content.push(...sectionHead('05 — Conclusion'));
+        doc.content.push(...sectionHead('06 — Conclusion'));
         doc.content.push({
                 text:       data.conclusion,
                 fontSize:   8.5,

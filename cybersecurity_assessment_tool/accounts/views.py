@@ -3,6 +3,8 @@ from django.views.generic import CreateView
 from .forms import CustomUserCreationForm, InvitationSignupForm, PublicRegistrationForm
 from django.contrib.auth import get_user_model
 from .forms import AsyncPasswordResetForm 
+from django.core.paginator import Paginator
+from api.models import Risk
 
 User = get_user_model()
 
@@ -159,9 +161,23 @@ def settings_view(request):
             messages.success(request, "Profile updated successfully!")
             return redirect(f"{request.path}?tab=profile")
 
+    active_tab = request.GET.get('tab', 'profile')
+ 
+    resolved_page_obj = None
+    if active_tab == 'logs' and user.organization:
+        resolved_qs = (
+            Risk.objects
+            .filter(organization=user.organization, is_archived=True)
+            .select_related('resolved_by')
+            .order_by('-resolved_at')
+        )
+        paginator = Paginator(resolved_qs, 10)
+        resolved_page_obj = paginator.get_page(request.GET.get('page', 1))
+
     context = {
         'is_admin': is_admin,
-        'active_tab': request.GET.get('tab', 'profile'),
+        'active_tab': active_tab,
+        'resolved_page_obj': resolved_page_obj,
     }
     return render(request, 'accounts/settings.html', context)
 

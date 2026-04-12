@@ -11,14 +11,17 @@
     background-color: #3b82f6;
     color: white;
     border: none;
-    padding: 0.5rem 1.25rem;
+    padding: 0.75rem 1rem;
     border-radius: 6px;
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
+
+    width: 80%;
+    justify-content: center;
   }
   .start-scan-btn:hover:not(:disabled) { background-color: #2563eb; }
-  .start-scan-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+  .start-scan-btn:disabled { opacity: 0.5; cursor: not-allowed; background-color: #6b7280; }
   .start-scan-btn .spinner {
     display: none;
     width: 14px;
@@ -31,6 +34,7 @@
   .start-scan-btn.loading .spinner { display: inline-block; }
   .start-scan-btn.loading .btn-label { display: none; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  
   .scan-notice {
     display: none;
     padding: 0.875rem 1rem;
@@ -39,11 +43,11 @@
     margin-bottom: 1rem;
   }
   .scan-notice.success { background-color: #d1fae5; border: 1px solid #6ee7b7; color: #065f46; }
-  .scan-notice.error   { background-color: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+  .scan-notice.error { background-color: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
 
   .scan-type-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 0.625rem;
   }
   @media (max-width: 576px) {
@@ -120,6 +124,78 @@
     color: #854d0e;
   }
   .duration-strip svg { flex-shrink: 0; }
+
+  /* new changes */
+  .live-card {
+    background: #111827; border-radius: 10px;
+    padding: 1.25rem 1.375rem 1rem; margin-bottom: 0.875rem; color: #fff;
+    transition: opacity 0.6s ease;
+  }
+  .live-card.hidden { display: none; }
+  .live-card.fading { opacity: 0; pointer-events: none; }
+  .live-card.error-state { border: 1px solid #ef4444; }
+
+  .lc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.625rem;
+  }
+  .lc-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .lc-time {
+    font-size: 0.8125rem;
+    color: #9ca3af;
+    white-space: nowrap;
+    padding-left: 1rem;
+  }
+  .lc-time strong { color: #e5e7eb; }
+
+  .lc-status {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.875rem; color: #d1d5db;
+    margin-bottom: 0.875rem; min-height: 1.375rem;
+  }
+
+  .lc-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    color: #22c55e;
+    flex-shrink: 0;
+  }
+
+  .lc-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    border: 2px solid rgba(34,197,94,0.25);
+    border-top-color: #22c55e;
+    border-radius: 50%;
+    animation: lc-spin 0.9s linear infinite;
+  }
+  @keyframes lc-spin { to { transform: rotate(360deg); } }
+
+  .lc-progress-track {
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.1);
+    overflow: hidden;
+  }
+  .lc-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: #22c55e;
+    transition: width 0.4s ease;
+  }
+  .lc-progress-fill.done { background: #4b5563; }
+  .lc-progress-fill.fail { background: #ef4444; }
 </style>
 {% endblock %}
 
@@ -150,7 +226,6 @@
           </div>
           <div class="toggle-text">
             <strong>TCP Port Scan</strong>
-            <span>Common TCP ports &amp; banners</span>
           </div>
         </label>
 
@@ -164,7 +239,6 @@
           </div>
           <div class="toggle-text">
             <strong>UDP Port Scan</strong>
-            <span>DNS, SNMP, NTP &amp; other UDP services</span>
           </div>
         </label>
 
@@ -178,9 +252,31 @@
           </div>
           <div class="toggle-text">
             <strong>Email Security</strong>
-            <span>SPF, DMARC, DKIM &amp; MTA-STS</span>
           </div>
         </label>
+
+        <label class="scan-type-toggle is-checked" data-type="infra">
+          <input type="checkbox" value="infra" checked>
+          <div class="toggle-pip">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="toggle-text">
+            <strong>Infrastructure Scan</strong>
+          </div>
+        </label>
+
+        {# Start button #}
+        <div class="row">
+          <div class="col-12 d-flex align-items-center justify-content-end">
+            <button class="start-scan-btn" id="startScanBtn" onclick="startScan()">
+              <span class="spinner"></span>
+              <span class="btn-label">Start New Scan</span>
+            </button>
+          </div>
+        </div>
 
       </div>
 
@@ -196,15 +292,7 @@
     </div>
   </div>
 
-  {# ROW 3: Start button + notice #}
-  <div class="row mb-4">
-    <div class="col-12 d-flex align-items-center justify-content-end">
-      <button class="start-scan-btn" id="startScanBtn" onclick="startScan()">
-        <span class="spinner"></span>
-        <span class="btn-label">Start New Scan</span>
-      </button>
-    </div>
-  </div>
+  {# ROW 3: Notice ... may not be needed anymore idk #}
   <div class="row mb-2">
     <div class="col-12">
       <div class="scan-notice" id="scanNotice"></div>
@@ -212,59 +300,53 @@
   </div>
 
   {# ROW 4: Active scan status (shown while scan in progress) #}
-  <div id="activeScanCard" class="row mb-4 d-none">
+  <div class="row mb-3">
     <div class="col-12">
-      <div class="card border-primary">
-        <div class="card-body">
-
-          <div class="d-flex align-items-center mb-3">
-            <div class="spinner-border spinner-border-sm text-primary me-2" role="status" id="scanSpinner"></div>
-            <h5 class="mb-0" id="scanStatusHeading">Waiting for scanner...</h5>
-          </div>
-
-          <p id="scanStatusLabel" class="text-muted mb-3">The scanner is running on your machine.</p>
-
-          <div id="findingsBadges" class="mb-3 d-none">
-            <span class="badge bg-danger me-1">Critical: <span id="badgeCritical">0</span></span>
-            <span class="badge bg-warning text-dark me-1">High: <span id="badgeHigh">0</span></span>
-            <span class="badge bg-info text-dark me-1">Medium: <span id="badgeMedium">0</span></span>
-            <span class="badge bg-secondary me-1">Low: <span id="badgeLow">0</span></span>
-            <span class="badge bg-light text-dark border me-1">Info: <span id="badgeInfo">0</span></span>
-          </div>
-
-          <div id="generatingNotice" class="alert alert-info py-2 d-none">
-            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-            Scan complete. AI report is being generated — this may take a moment.
-          </div>
-
+ 
+      {# CARD 1 — Network Scan #}
+      <div class="live-card hidden" id="networkScanCard">
+        <div class="lc-header">
+          <span class="lc-title">Network Scan</span>
+          <span class="lc-time" id="ncTimeLabel">&nbsp;</span>
+        </div>
+        <div class="lc-status" id="ncStatus">
+          <span class="lc-spinner" id="ncSpinner"></span>
+          <span id="ncStatusText">Starting…</span>
+        </div>
+        <div class="lc-progress-track">
+          <div class="lc-progress-fill" id="ncProgressFill" style="width:0%"></div>
         </div>
       </div>
+ 
+      {# CARD 2 — Report Generation #}
+      <div class="live-card hidden" id="reportGenCard">
+        <div class="lc-header">
+          <span class="lc-title">Report Generation</span>
+          <span class="lc-time" id="rgTimeLabel">&nbsp;</span>
+        </div>
+        <div class="lc-status" id="rgStatus">
+          <span class="lc-spinner" id="rgSpinner"></span>
+          <span id="rgStatusText">Queued…</span>
+        </div>
+        <div class="lc-progress-track">
+          <div class="lc-progress-fill" id="rgProgressFill" style="width:0%"></div>
+        </div>
+      </div>
+ 
     </div>
   </div>
 
-  {# ROW 5: Completed scan notice #}
-  <div id="completedCard" class="row mb-4 d-none">
+  {# ROW 5: Error notice #}
+  <div id="errorCard" class="row mb-3 d-none">
     <div class="col-12">
-      <div class="alert alert-success d-flex align-items-center justify-content-between">
-        <div>
-          ✅ <strong>Report generated.</strong> Your security report is ready.
-        </div>
-        <a id="reportLink" href="#" class="btn btn-success btn-sm">View Report</a>
-      </div>
-    </div>
-  </div>
-
-  {# ROW 6: Error notice #}
-  <div id="errorCard" class="row mb-4 d-none">
-    <div class="col-12">
-      <div class="alert alert-danger">
+      <div class="alert alert-danger mb-0">
         ❌ <strong>Scan failed.</strong> <span id="errorMessage"></span>
         <button class="btn btn-outline-danger btn-sm ms-3" onclick="retryAIGeneration()">Try Again</button>
       </div>
     </div>
   </div>
 
-  {# ROW 7: Recent scans table #}
+  {# ROW 6: Recent scans table #}
   <div class="row">
     <div class="col-12">
       <div class="card bg-light">
@@ -283,13 +365,28 @@
 
 {% block extra_js %}
 <script>
+
 let activeScanId = null;
 let pollInterval = null;
-const POLL_MS    = 3000;
+let networkScanStartMs = null;
+let networkScanEndMs = null;
+let reportGenStartMs = null;
+let networkLingerTimer = null;
+let isScanActive = false;
+let currentScanPage = 1;
+const POLL_MS = 3000;
+let reportRiskCount = 0;
 
 // You can manually adjust the estimated times here
-const SCAN_DURATIONS = { tcp: 60, udp: 60, email: 30 };
-const BASE_OVERHEAD  = 150;
+const SCAN_DURATIONS = { tcp: 60, udp: 60, email: 30, infra: 30 };
+const BASE_OVERHEAD = 150;
+const REPORT_EST_SECS = 300;
+
+// having the report finished alert remain on screen once and only once
+let persistReportCard = true;
+if (sessionStorage.getItem('reportCompleteAcknowledged') === 'true') {
+  persistReportCard = false;
+}
 
 function getSelectedScanTypes() {
   return Array.from(
@@ -300,8 +397,8 @@ function getSelectedScanTypes() {
 function updateDurationEstimate() {
   const types = getSelectedScanTypes();
   const strip = document.getElementById('durationStrip');
-  const text  = document.getElementById('durationText');
-  const btn   = document.getElementById('startScanBtn');
+  const text = document.getElementById('durationText');
+  const btn = document.getElementById('startScanBtn');
 
   if (types.length === 0) {
     strip.classList.add('warn');
@@ -309,8 +406,7 @@ function updateDurationEstimate() {
     btn.disabled = true;
     return;
   }
-
-  btn.disabled = false;
+  if (!isScanActive) btn.disabled = false;
   strip.classList.remove('warn');
 
   const secs = BASE_OVERHEAD + types.reduce((n, t) => n + (SCAN_DURATIONS[t] || 0), 0);
@@ -334,11 +430,22 @@ document.addEventListener('DOMContentLoaded', function () {
   const savedScanId = sessionStorage.getItem('activeScanId');
   if (savedScanId) {
     activeScanId = savedScanId;
-    showActiveScanCard('Resuming scan progress check...');
+    networkScanStartMs = parseInt(sessionStorage.getItem('networkScanStartMs') || '0') || null;
+    reportGenStartMs = parseInt(sessionStorage.getItem('reportGenStartMs') || '0') || null;
+    setScanActive(true);
     startPolling(savedScanId);
   }
 });
 
+// button state
+function setScanActive(active) {
+  isScanActive = active;
+  const btn = document.getElementById('startScanBtn');
+  btn.disabled = active;
+  if (!active) btn.classList.remove('loading');
+}
+
+/* Remove This ...? */
 function generateToken() {
   const btn = document.getElementById('generateTokenBtn');
   if (!btn) return;
@@ -371,7 +478,10 @@ function generateToken() {
     activeScanId = data.scan_id;
     sessionStorage.setItem('activeScanId', data.scan_id);
 
-    showActiveScanCard('Waiting for scanner to connect...');
+    setScanActive(true);
+    showNetworkCard();
+
+    setNetworkRunning('Waiting for scanner to connect…');
     startPolling(data.scan_id);
   })
   .catch(() => {
@@ -383,10 +493,11 @@ function generateToken() {
 
 function copyToken() {
   const input = document.getElementById('tokenDisplay');
-  input.select();
+  if (!input) return; input.select();
   document.execCommand('copy');
   alert('Token copied to clipboard.');
 }
+/* ...? */
 
 function startPolling(scanId) {
   if (pollInterval) clearInterval(pollInterval);
@@ -408,49 +519,264 @@ function pollScanStatus(scanId) {
 }
 
 function handleStatusUpdate(data) {
-  const status  = data.status;
-  const heading = document.getElementById('scanStatusHeading');
-  const label   = document.getElementById('scanStatusLabel');
-
-  switch (status) {
+  switch (data.status) {
     case 'PENDING':
-      heading.textContent = 'Waiting for scanner...';
-      label.textContent   = 'Run the downloaded scanner on your machine.';
+      showNetworkCard();
+      setNetworkRunning('Queued — waiting for scanner to start…');
+      setScanActive(true);
       break;
     case 'RUNNING':
-      heading.textContent = 'Scan in progress...';
-      label.textContent   = 'The scanner is actively running on your network.';
+      if (!networkScanStartMs) {
+        networkScanStartMs = Date.now();
+        sessionStorage.setItem('networkScanStartMs', networkScanStartMs);
+      }
+      showNetworkCard();
+      setNetworkRunning('Scan in progress…');
+      setScanActive(true);
+      // ******* WAITING ON SHANE: Network scan live progress *******
+      // When the backend pushes incremental scan progress, call:
+      //   onNetworkScanProgress(progressData)
+      // See the framework section below.
       break;
     case 'RECEIVED':
-      heading.textContent = 'Results received.';
-      label.textContent   = 'Scan data uploaded. Preparing AI report...';
-      updateFindingsBadges(data.findings_summary);
-      document.getElementById('generatingNotice').classList.remove('d-none');
+      if (!networkScanEndMs) networkScanEndMs = Date.now();
+      setNetworkComplete(data.findings_summary);
+      setScanActive(true);
       break;
     case 'GENERATING':
-      heading.textContent = 'Generating report...';
-      label.textContent   = 'AI is analyzing your scan results.';
-      updateFindingsBadges(data.findings_summary);
-      document.getElementById('generatingNotice').classList.remove('d-none');
+      if (!networkScanEndMs) networkScanEndMs = Date.now();
+      setNetworkComplete(data.findings_summary);
+      if (!reportGenStartMs) {
+        reportGenStartMs = Date.now();
+        sessionStorage.setItem('reportGenStartMs', reportGenStartMs);
+        showReportCard();
+        setReportRunning('Generation started', 20);
+        scheduleNetworkCardLinger();
+      }
+      setScanActive(true);
+      // ******* WAITING ON VVV: Report generation stream *******
+      // When a streamed chunk arrives from the backend, call:
+      //   onReportStreamChunk(chunkText)
+      // See the framework section below.
       break;
     case 'COMPLETE':
       stopPolling();
       sessionStorage.removeItem('activeScanId');
-      showCompletedCard(data.report_url);
-      document.getElementById('activeScanCard').classList.add('d-none');
+      sessionStorage.removeItem('networkScanStartMs');
+      sessionStorage.removeItem('reportGenStartMs');
+      setNetworkComplete(data.findings_summary);
+      setReportComplete(data.report_url);
+
+      sessionStorage.setItem('reportCompleteAcknowledged', 'true');
+      persistReportCard = true;
+
+      setScanActive(false);
       loadRecentScans();
       break;
     case 'FAILED':
       stopPolling();
       sessionStorage.removeItem('activeScanId');
+      sessionStorage.removeItem('networkScanStartMs');
+      sessionStorage.removeItem('reportGenStartMs');
+      setNetworkError();
       showErrorCard(data.error || 'An unknown error occurred.');
-      document.getElementById('activeScanCard').classList.add('d-none');
+      setScanActive(false);
+      loadRecentScans();
       break;
   }
 }
 
+// Network Scan --- helper functions
+function showNetworkCard() {
+  const card = document.getElementById('networkScanCard');
+  card.classList.remove('hidden', 'fading', 'error-state');
+}
+function setNetworkRunning(statusText) {
+  document.getElementById('ncSpinner').style.display = 'inline-block';
+  _removeCheckmark('ncStatus');
+  document.getElementById('ncStatusText').textContent = statusText;
+  document.getElementById('ncTimeLabel').innerHTML = '&nbsp;';
+ 
+  // Approximate progress from elapsed time, basically fake the progress bar moving lol
+  if (networkScanStartMs) {
+    const types = getSelectedScanTypes();
+    const estSecs = BASE_OVERHEAD + types.reduce((n, t) => n + (SCAN_DURATIONS[t] || 0), 0);
+    const pct = Math.min(94, Math.round(((Date.now() - networkScanStartMs) / 1000 / estSecs) * 100));
+    document.getElementById('ncProgressFill').style.width = pct + '%';
+  }
+}
+function setNetworkComplete(findingsSummary) {
+  showNetworkCard();
+  document.getElementById('ncSpinner').style.display = 'none';
+  _insertCheckmark('ncStatus', 'ncStatusText');
+  document.getElementById('ncStatusText').textContent = 'Scan complete';
+  document.getElementById('ncProgressFill').style.width = '100%';
+  document.getElementById('ncProgressFill').classList.add('done');
+ 
+  if (networkScanStartMs) {
+    if (!networkScanEndMs) networkScanEndMs = Date.now();
+    const mins = Math.max(1, Math.round((networkScanEndMs - networkScanStartMs) / 60000));
+    document.getElementById('ncTimeLabel').innerHTML = `completed in <strong>${mins} min${mins !== 1 ? 's' : ''}</strong>`;
+  }
+}
+function setNetworkError() {
+  showNetworkCard();
+  document.getElementById('networkScanCard').classList.add('error-state');
+  document.getElementById('ncSpinner').style.display = 'none';
+  document.getElementById('ncStatusText').textContent = 'Scan failed';
+  document.getElementById('ncProgressFill').style.width = '100%';
+  document.getElementById('ncProgressFill').classList.add('fail');
+}
+function scheduleNetworkCardLinger() {
+  if (networkLingerTimer) return;
+  networkLingerTimer = setTimeout(() => {
+    const card = document.getElementById('networkScanCard');
+    card.classList.add('fading');
+    setTimeout(() => card.classList.add('hidden'), 650);
+  }, 10000);
+}
+
+// Report Generation --- helper functions
+function showReportCard() {
+  const card = document.getElementById('reportGenCard');
+  card.classList.remove('hidden', 'fading', 'error-state');
+}
+function setReportRunning(statusText, pct) {
+  document.getElementById('rgSpinner').style.display = 'inline-block';
+  _removeCheckmark('rgStatus');
+  document.getElementById('rgStatusText').textContent = statusText;
+  document.getElementById('rgProgressFill').style.width = (pct || 0) + '%';
+  document.getElementById('rgProgressFill').classList.remove('done', 'fail');
+ 
+  if (reportGenStartMs) {
+    const elapsed = (Date.now() - reportGenStartMs) / 1000;
+    const remMins = Math.max(1, Math.round((REPORT_EST_SECS - elapsed) / 60));
+    document.getElementById('rgTimeLabel').innerHTML = `Est. end in <strong>~${remMins} min${remMins !== 1 ? 's' : ''}</strong>`;
+  }
+}
+function setReportComplete(reportUrl) {
+  showReportCard();
+  document.getElementById('rgSpinner').style.display = 'none';
+  _insertCheckmark('rgStatus', 'rgStatusText');
+  document.getElementById('rgStatusText').innerHTML = `Report ready — <a href="${reportUrl || '/reports/'}" style="color:#86efac;font-weight:600;">View Report</a>`;
+  document.getElementById('rgProgressFill').style.width = '100%';
+  document.getElementById('rgProgressFill').classList.remove('done', 'fail');
+ 
+  if (reportGenStartMs) {
+    const mins = Math.max(1, Math.round((Date.now() - reportGenStartMs) / 60000));
+    document.getElementById('rgTimeLabel').innerHTML = `completed in <strong>${mins} min${mins !== 1 ? 's' : ''}</strong>`;
+  }
+}
+
+/* How I believe I would handle recieving the updates from Shane's end */
+
+function onNetworkScanProgress(progressData) {
+
+  // ── Detect scan finished ──────────────────────────────────────────────
+  // if (progressData.finished === true) {
+  //   networkScanEndMs = Date.now();
+  //   setNetworkComplete(progressData.findings_summary);
+  //   return;
+  // }
+
+  // ── Update progress bar ───────────────────────────────────────────────
+  // const pct = progressData.percent || 0;
+  // document.getElementById('ncProgressFill').style.width = pct + '%';
+
+  // ── Update status text ────────────────────────────────────────────────
+  // document.getElementById('ncStatusText').textContent =
+  //   progressData.status_text || 'Scanning…';
+}
+
+
+/* How I believe I would handle recieving the updates from V's end */
+
+const REPORT_KEYWORD_MAP = {
+  '"thought"':      { pct: 10, text: 'Reading over report' },
+  '"report"':       { pct: 20, text: 'Generation started' },
+  '"Summary"':      { pct: 35, text: 'Providing network summary' },
+  '"Severity"':     { pct: null, text: null },   // dynamic — handled in loop
+  '"Observations"': { pct: 80, text: 'Determining observations' },
+  '"Conclusion"':   { pct: 95, text: 'Concluding report' },
+};
+
+let _streamBuffer    = '';   // accumulated raw stream text
+let _severityHits    = 0;    // number of "Severity" keys seen so far
+let _reportPct       = 0;    // current progress percentage shown on card 2
+let _lastKeyword     = '';   // last non-looping keyword processed
+
+function onReportStreamChunk(chunkText) {
+  _streamBuffer += chunkText;
+  parseStreamKeywords(_streamBuffer);
+
+  // ── Detect report stream finished ────────────────────────────────────
+  // The polling loop also catches COMPLETE, but if the stream itself
+  // signals it you can call setReportComplete() directly here instead
+  // of waiting for the next poll.
+  //
+  // if (/* stream end condition */) {
+  //   setReportComplete(activeScanReportUrl);
+  // }
+}
+
+function parseStreamKeywords(text) {
+  // Process keywords in the order they appear in REPORT_SCHEMA_JSON
+  const ordered = [
+    '"thought"', '"report"', '"Summary"',
+    '"Severity"', '"Observations"', '"Conclusion"'
+  ];
+
+  for (const key of ordered) {
+    if (!text.includes(key)) continue;
+
+    // ── "Severity" — looping section (one entry per risk found) ────────
+    if (key === '"Severity"') {
+      const hits = (text.match(/"Severity"/g) || []).length;
+      if (hits <= _severityHits) continue;
+      _severityHits = hits;
+
+      // Advance from 35 % to 75 % spread across all Severity hits
+      _reportPct = Math.min(75, 35 + _severityHits * 4);
+
+      // Extract severity value: "Severity": "HIGH"  (most recent match)
+      // const sevMatches = text.match(/"Severity"\s*:\s*"([^"]+)"/g) || [];
+      // const latestSev  = sevMatches.length
+      //   ? sevMatches[sevMatches.length - 1]
+      //       .replace(/"Severity"\s*:\s*"/, '').replace('"', '')
+      //   : 'UNKNOWN';
+      // const displayText = `Found a ${latestSev} risk`;
+      // reportRiskCount++;
+
+      // setReportRunning(displayText, _reportPct);
+
+      // ── Update risk counter badge in the scan table (optional) ───────
+      // updateRiskCountBadge(reportRiskCount);
+
+      _lastKeyword = key;
+      continue;
+    }
+
+    // ── Non-looping keyword ─────────────────────────────────────────────
+    if (key === _lastKeyword) continue;
+    const entry = REPORT_KEYWORD_MAP[key];
+    if (entry && entry.pct > _reportPct) {
+      _reportPct = entry.pct;
+      setReportRunning(entry.text, _reportPct);
+      _lastKeyword = key;
+    }
+  }
+}
+
+function updateRiskCountBadge(count) {
+  // Refresh a visible "N risks found so far" counter on this page.
+  // No-op until the backend wires up live risk delivery.
+  // const el = document.getElementById('liveRiskCount');
+  // if (el) el.textContent = count;
+}
+
 function simulateScannerPost() {
-  const token = document.getElementById('tokenDisplay').value;
+  const input = document.getElementById('tokenDisplay');
+  const token = input && input.value;
 
   if (!token) {
     alert('No token available! Please generate a token first.');
@@ -530,78 +856,85 @@ function simulateScannerPost() {
   });
 }
 
-function showActiveScanCard(message) {
-  document.getElementById('activeScanCard').classList.remove('d-none');
-  document.getElementById('scanStatusHeading').textContent = message;
-}
+/* These were replaced */
 
-function showCompletedCard(reportUrl) {
-  const card = document.getElementById('completedCard');
-  card.classList.remove('d-none');
-  if (reportUrl) {
-    document.getElementById('reportLink').href = reportUrl;
-  }
-}
+// function showActiveScanCard(message) {
+//   document.getElementById('activeScanCard').classList.remove('d-none');
+//   document.getElementById('scanStatusHeading').textContent = message;
+// }
+
+// function showCompletedCard(reportUrl) {
+//   const card = document.getElementById('completedCard');
+//   card.classList.remove('d-none');
+//   if (reportUrl) {
+//     document.getElementById('reportLink').href = reportUrl;
+//   }
+// }
 
 function showErrorCard(message) {
   document.getElementById('errorCard').classList.remove('d-none');
   document.getElementById('errorMessage').textContent = message;
 }
 
-function updateFindingsBadges(summary) {
-  if (!summary) return;
-  document.getElementById('findingsBadges').classList.remove('d-none');
-  document.getElementById('badgeCritical').textContent = summary.critical || 0;
-  document.getElementById('badgeHigh').textContent     = summary.high     || 0;
-  document.getElementById('badgeMedium').textContent   = summary.medium   || 0;
-  document.getElementById('badgeLow').textContent      = summary.low      || 0;
-  document.getElementById('badgeInfo').textContent     = summary.info     || 0;
-}
+/* These were replaced pt2 */
 
-function resetScanUI() {
-  stopPolling();
-  sessionStorage.removeItem('activeScanId');
-  activeScanId = null;
+// function updateFindingsBadges(summary) {
+//   if (!summary) return;
+//   document.getElementById('findingsBadges').classList.remove('d-none');
+//   document.getElementById('badgeCritical').textContent = summary.critical || 0;
+//   document.getElementById('badgeHigh').textContent = summary.high || 0;
+//   document.getElementById('badgeMedium').textContent = summary.medium || 0;
+//   document.getElementById('badgeLow').textContent = summary.low || 0;
+//   document.getElementById('badgeInfo').textContent = summary.info || 0;
+// }
 
-  document.getElementById('step-generate').classList.remove('d-none');
-  document.getElementById('step-token').classList.add('d-none');
-  document.getElementById('activeScanCard').classList.add('d-none');
-  document.getElementById('completedCard').classList.add('d-none');
-  document.getElementById('errorCard').classList.add('d-none');
-  document.getElementById('findingsBadges').classList.add('d-none');
-  document.getElementById('generatingNotice').classList.add('d-none');
+// function resetScanUI() {
+//   stopPolling();
+//   sessionStorage.removeItem('activeScanId');
+//   activeScanId = null;
 
-  const btn = document.getElementById('generateTokenBtn');
-  if (btn) {
-    btn.disabled = false;
-    btn.textContent = 'Generate Token & Download Scanner';
-  }
+//   document.getElementById('step-generate').classList.remove('d-none');
+//   document.getElementById('step-token').classList.add('d-none');
+//   document.getElementById('activeScanCard').classList.add('d-none');
+//   document.getElementById('completedCard').classList.add('d-none');
+//   document.getElementById('errorCard').classList.add('d-none');
+//   document.getElementById('findingsBadges').classList.add('d-none');
+//   document.getElementById('generatingNotice').classList.add('d-none');
 
-  updateDurationEstimate();
-}
+//   const btn = document.getElementById('generateTokenBtn');
+//   if (btn) {
+//     btn.disabled = false;
+//     btn.textContent = 'Generate Token & Download Scanner';
+//   }
 
-function loadRecentScans() {
-  fetch('/api/scan/list/')
+//   updateDurationEstimate();
+// }
+
+function loadRecentScans(page) {
+  currentScanPage = page || currentScanPage;
+  fetch(`/api/scan/list/?page=${currentScanPage}`)
     .then(r => r.json())
-    .then(data => renderRecentScans(data.scans))
+    .then(data => renderRecentScans(data))
     .catch(() => {
-      document.getElementById('recentScansContainer').innerHTML =
-        '<p class="text-muted">Could not load recent scans.</p>';
+      document.getElementById('recentScansContainer').innerHTML = '<p class="text-muted">Could not load recent scans.</p>';
     });
 }
 
-function renderRecentScans(scans) {
+// NOTE TO SELF: restyle this part
+function renderRecentScans(data) {
   const container = document.getElementById('recentScansContainer');
-
-  if (!scans || scans.length === 0) {
+  const scans = data.scans || [];
+  const pagination = data.pagination || {};
+ 
+  if (scans.length === 0 && pagination.current_page === 1) {
     container.innerHTML = '<p class="text-muted">No scans yet.</p>';
     return;
   }
-
+ 
   const rows = scans.map(s => {
-    const date    = new Date(s.created_at).toLocaleString();
-    const status  = statusBadge(s.status);
-    const report  = s.report_id
+    const date = new Date(s.created_at).toLocaleString();
+    const status = statusBadge(s.status);
+    const report = s.report_id
       ? `<a href="/reports/${s.report_id}/" class="btn btn-sm btn-outline-primary">View Report</a>`
       : '—';
     const findings = s.status === 'COMPLETE'
@@ -611,7 +944,6 @@ function renderRecentScans(scans) {
          <span class="badge bg-secondary me-1">${s.finding_count_low}</span>
          <span class="badge bg-light text-dark border">${s.finding_count_info}</span>`
       : '—';
-
     return `
       <tr>
         <td>${date}</td>
@@ -620,7 +952,31 @@ function renderRecentScans(scans) {
         <td>${report}</td>
       </tr>`;
   }).join('');
-
+ 
+  // Build pagination controls
+  let paginationHtml = '';
+  if (pagination.total_pages > 1) {
+    paginationHtml = `
+      <div style="display:flex;justify-content:center;align-items:center;
+                  gap:0.5rem;padding:0.75rem 1rem;border-top:1px solid #e5e7eb;">
+        <button class="btn btn-sm btn-outline-secondary"
+                onclick="loadRecentScans(1)"
+                ${!pagination.has_previous ? 'disabled' : ''}>&laquo;</button>
+        <button class="btn btn-sm btn-outline-secondary"
+                onclick="loadRecentScans(${pagination.previous_page})"
+                ${!pagination.has_previous ? 'disabled' : ''}>&lsaquo; Prev</button>
+        <span class="text-muted" style="font-size:0.8125rem;white-space:nowrap;">
+          Page ${pagination.current_page} of ${pagination.total_pages}
+        </span>
+        <button class="btn btn-sm btn-outline-secondary"
+                onclick="loadRecentScans(${pagination.next_page})"
+                ${!pagination.has_next ? 'disabled' : ''}>Next &rsaquo;</button>
+        <button class="btn btn-sm btn-outline-secondary"
+                onclick="loadRecentScans(${pagination.total_pages})"
+                ${!pagination.has_next ? 'disabled' : ''}>&raquo;</button>
+      </div>`;
+  }
+ 
   container.innerHTML = `
     <div class="table-responsive">
       <table class="table table-sm table-hover align-middle mb-0">
@@ -634,38 +990,100 @@ function renderRecentScans(scans) {
         </thead>
         <tbody>${rows}</tbody>
       </table>
-    </div>`;
+    </div>
+    ${paginationHtml}`;
 }
 
 function statusBadge(status) {
   const map = {
-    'PENDING':    'bg-secondary',
-    'RUNNING':    'bg-primary',
-    'RECEIVED':   'bg-info text-dark',
+    'PENDING': 'bg-secondary',
+    'RUNNING': 'bg-primary',
+    'RECEIVED': 'bg-info text-dark',
     'GENERATING': 'bg-warning text-dark',
-    'COMPLETE':   'bg-success',
-    'FAILED':     'bg-danger',
+    'COMPLETE': 'bg-success',
+    'FAILED': 'bg-danger',
   };
   const cls = map[status] || 'bg-secondary';
   return `<span class="badge ${cls}">${status}</span>`;
 }
 
+function _insertCheckmark(statusRowId, textElId) {
+  const row = document.getElementById(statusRowId);
+  if (!row || row.querySelector('.lc-check')) return;
+  const check = document.createElement('span');
+  check.className = 'lc-check';
+  check.innerHTML = `
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <path d="M2 7l3.5 3.5 6.5-6.5" stroke="#22c55e" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  `;
+  const textEl = document.getElementById(textElId);
+  if (textEl) row.insertBefore(check, textEl);
+}
+
+function _removeCheckmark(statusRowId) {
+  const chk = document.getElementById(statusRowId).querySelector('.lc-check');
+  if (chk) chk.remove();
+}
+
 function startScan() {
-  const btn    = document.getElementById('startScanBtn');
+  const btn = document.getElementById('startScanBtn');
   const notice = document.getElementById('scanNotice');
-  const types  = getSelectedScanTypes();
+  const types = getSelectedScanTypes();
 
   if (types.length === 0) {
-    notice.textContent   = 'Please select at least one scan type before starting.';
-    notice.className     = 'scan-notice error';
+    notice.textContent = 'Please select at least one scan type before starting.';
+    notice.className = 'scan-notice error';
     notice.style.display = 'block';
     return;
   }
 
+  // reset states
+  networkScanStartMs = null;
+  networkScanEndMs = null;
+  reportGenStartMs = null;
+  reportRiskCount = 0;
+  if (networkLingerTimer) {
+    clearTimeout(networkLingerTimer);
+    networkLingerTimer = null;
+  }
+  sessionStorage.removeItem('reportCompleteAcknowledged');
+  persistReportCard = true;
+
+  // reset card 1
+  const ncCard = document.getElementById('networkScanCard');
+  ncCard.classList.add('hidden');
+  ncCard.classList.remove('fading', 'error-state');
+  document.getElementById('ncSpinner').style.display = 'inline-block';
+  _removeCheckmark('ncStatus');
+  document.getElementById('ncStatusText').textContent = 'Starting…';
+  document.getElementById('ncTimeLabel').innerHTML = '&nbsp;';
+  const ncFill = document.getElementById('ncProgressFill');
+  ncFill.style.width = '0%'; ncFill.classList.remove('done', 'fail');
+
+  // reset card 2
+  const rgCard = document.getElementById('reportGenCard');
+  rgCard.classList.add('hidden');
+  rgCard.classList.remove('fading', 'error-state');
+  document.getElementById('rgSpinner').style.display = 'inline-block';
+  _removeCheckmark('rgStatus');
+  document.getElementById('rgStatusText').textContent = 'Queued…';
+  document.getElementById('rgTimeLabel').innerHTML = '&nbsp;';
+  const rgFill = document.getElementById('rgProgressFill');
+  rgFill.style.width = '0%'; rgFill.classList.remove('done', 'fail');
+
+  // reset error card
+  document.getElementById('errorCard').classList.add('d-none');
+
   btn.disabled = true;
   btn.classList.add('loading');
-  notice.className     = 'scan-notice';
+  notice.className = 'scan-notice';
   notice.style.display = 'none';
+
+  // convert scan types into binary list
+  const mapping = ['tcp', 'udp', 'email', 'infra'];
+  const binaryScanArr = mapping.map(type => types.includes(type) ? 1 : 0);
 
   fetch('/api/scan/start/', {
     method: 'POST',
@@ -673,31 +1091,34 @@ function startScan() {
       'X-CSRFToken': getCsrf(),
       'Content-Type': 'application/json',
     },
-    // body: JSON.stringify({ scan_types: types }), (use this for passing scan selections onto the backend)
+    body: JSON.stringify({ scan_types: binaryScanArr }), // pass scan selection onto the backend
   })
   .then(res => res.json().then(data => ({ ok: res.ok, data })))
   .then(({ ok, data }) => {
     btn.disabled = false;
     btn.classList.remove('loading');
     if (ok) {
-      notice.textContent = data.message;
-      notice.className   = 'scan-notice success';
       activeScanId = data.scan_id;
       sessionStorage.setItem('activeScanId', data.scan_id);
-      showActiveScanCard('Scan queued...');
+      setScanActive(true);
+      showNetworkCard();
+      setNetworkRunning('Queued — waiting for scanner…');
       startPolling(data.scan_id);
     } else {
+      btn.disabled = false;
       notice.textContent = data.error || 'Failed to start scan.';
-      notice.className   = 'scan-notice error';
+      notice.className = 'scan-notice error';
+      notice.style.display = 'block';
+      setScanActive(false);
     }
-    notice.style.display = 'block';
   })
   .catch(() => {
     btn.disabled = false;
     btn.classList.remove('loading');
-    notice.textContent   = 'Network error — could not start scan.';
-    notice.className     = 'scan-notice error';
+    notice.textContent = 'Network error — could not start scan.';
+    notice.className = 'scan-notice error';
     notice.style.display = 'block';
+    setScanActive(false);
   });
 }
 
@@ -713,8 +1134,9 @@ function retryAIGeneration() {
 
   // 1. Hide the error card and show the loading spinner immediately
   document.getElementById('errorCard').classList.add('d-none');
-  showActiveScanCard('Restarting AI Generation...');
-  document.getElementById('generatingNotice').classList.remove('d-none');
+  showReportCard();
+  setReportRunning('Restarting AI generation…', 5);
+  setScanActive(true);
 
   // 2. Hit the backend retry endpoint
   fetch(`/api/scan/retry/${activeScanId}/`, {
@@ -728,16 +1150,20 @@ function retryAIGeneration() {
   .then(data => {
     if (data.success) {
       // 3. Success! Start polling the database for status updates again
+      reportGenStartMs = Date.now();
+      sessionStorage.setItem('reportGenStartMs', reportGenStartMs);
       startPolling(activeScanId);
     } else {
       // If the backend refuses the retry, show the error card again
       showErrorCard(data.error || 'Failed to restart generation.');
-      document.getElementById('activeScanCard').classList.add('d-none');
+      document.getElementById('reportGenCard').classList.add('hidden');
+      setScanActive(false);
     }
   })
   .catch(() => {
     showErrorCard('Network error while trying to restart.');
-    document.getElementById('activeScanCard').classList.add('d-none');
+    document.getElementById('reportGenCard').classList.add('hidden');
+    setScanActive(false);
   });
 }
 </script>

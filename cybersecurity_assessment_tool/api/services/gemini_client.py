@@ -1,5 +1,4 @@
 import json
-from django.forms.models import model_to_dict
 from typing import Any, Tuple, List, Optional
 from django.db import transaction
 from django.utils import timezone
@@ -72,37 +71,65 @@ def build_current_risks_dict(organization_id: int) -> dict:
     }
     return current_risks
 
-def _convert_scan_obj_to_dict(scan_obj: Any) -> dict:
-    """Safely converts the scan_obj into a dictionary for JSON injection."""
-    if not scan_obj:
+def _build_scan_findings(scan_obj: Any) -> dict:
+    """
+    Builds a structured 'Scan Findings' dict from the Scan model instance.
+    """
+    if not scan_obj or not hasattr(scan_obj, 'finding_count_critical'):
         return {}
-    
-    if isinstance(scan_obj, dict):
-        return scan_obj
-    
-    if isinstance(scan_obj, str):
-        try:
-            return json.loads(scan_obj)
-        except json.JSONDecodeError:
-            return {"Raw Data": scan_obj}
-            
-    # If it's a Django Model instance, convert it to a dictionary
-    if hasattr(scan_obj, '__dict__'):
-        try:
-            return model_to_dict(scan_obj)
-        except Exception:
-            return {"Raw Data": str(scan_obj)}
-            
-    return {"Raw Data": str(scan_obj)}
+
+    result = {
+        'duration_seconds': getattr(scan_obj, 'scan_duration_seconds', None),
+        'scanner_version': getattr(scan_obj, 'scanner_version', '') or '',
+        'groups_completed': getattr(scan_obj, 'groups_completed', 0),
+        'counts': {
+            'Critical': getattr(scan_obj, 'finding_count_critical', 0),
+            'High': getattr(scan_obj, 'finding_count_high', 0),
+            'Medium': getattr(scan_obj, 'finding_count_medium', 0),
+            'Low': getattr(scan_obj, 'finding_count_low', 0),
+            'Info': getattr(scan_obj, 'finding_count_info', 0),
+        },
+    }
+
+    # Capture individual findings before they are purged.
+    try:
+        raw = scan_obj.raw_findings_json
+        if raw:
+            container = json.loads(raw) if isinstance(raw, str) else raw
+            all_findings = container.get('findings', []) if isinstance(container, dict) else []
+
+            # Keep only port-based findings (tcp/udp) that have a port ID.
+            port_findings = [
+                {
+                    'severity': f.get('severity', 'INFO'),
+                    'portid': f.get('portid', ''),
+                    'protocol': f.get('protocol', ''),
+                    'service': f.get('service', ''),
+                    'description': f.get('description', ''),
+                    'information': f.get('information', ''),
+                }
+                for f in all_findings
+                if f.get('scan_type') in ('tcp', 'udp') and f.get('portid')
+            ]
+
+            # Sort by severity so Critical findings appear first in the table.
+            sev_order = {'CRITICAL': 1, 'HIGH': 2, 'MEDIUM': 3, 'LOW': 4, 'INFO': 5}
+            port_findings.sort(key=lambda f: sev_order.get(f['severity'].upper(), 6))
+
+            result['findings'] = port_findings
+    except Exception:
+        pass
+
+    return result
 
 def _inject_overview_scan_and_questionnaire(report_data: dict, org: Organization, scan_obj: Any = None) -> dict:
     """
     Injects the Overview, Scan Findings, and Questionnaire Review sections at the top 
     of the AI-generated report data using information from the database.
     """
-    scan_findings_dict = _convert_scan_obj_to_dict(scan_obj)
+    scan_findings = _build_scan_findings(scan_obj)
     
-    new_section_data = {
+    new_sections = {
         "Overview": {
             "Organization Name": org.org_name,
             "Email Domain": org.email_domain,
@@ -110,7 +137,6 @@ def _inject_overview_scan_and_questionnaire(report_data: dict, org: Organization
             "External IP Address": org.external_ip,
             "Report Date": timezone.now().strftime('%Y-%m-%d')
         },
-        "Scan Findings": scan_findings_dict,
         "Questionnaire Review": {
             "Do you require MFA to access email?": "Yes" if org.require_mfa_email else "No",
             "Do you require MFA to log into computers?": "Yes" if org.require_mfa_computer else "No",
@@ -121,11 +147,14 @@ def _inject_overview_scan_and_questionnaire(report_data: dict, org: Organization
         }
     }
 
+    if scan_findings:
+        new_sections["Scan Findings"] = scan_findings
+
     if "report" in report_data and isinstance(report_data["report"], list):
         for i, report_item in enumerate(report_data["report"]):
             rebuilt_report_item = {}
             
-            for key, value in new_section_data.items():
+            for key, value in new_sections.items():
                 rebuilt_report_item[key] = value
                 
             for key, value in report_item.items():
@@ -142,10 +171,8 @@ def generate_and_process_report(
     scan_obj: Optional[Any] = None
 ) -> Tuple[Optional[Report], Optional[List[Risk]]]:
     """
-    Acts as the client to gather DB fields, call the AI service, 
-    sort the resulting data, inject database context, and save objects.
-    Please have the context_data (network scan) be a JSON string, as the AI takes strings only. 
-    Do not load it as a dictionary.
+    Gathers DB fields, calls the AI service, injects database context, and saves.
+    context_data must be a JSON string (the AI only accepts strings).
     """
     # Fetch the database records
     org = Organization.objects.get(organization_id=organization_id)
@@ -194,7 +221,7 @@ def generate_and_process_report(
 
         with transaction.atomic():
             # Sort the JSON vulnerabilities BEFORE saving to the database
-            if "report" in report_data and isinstance(report_data["report"], list) and len(report_data["report"]) > 0:
+            if "report" in report_data and isinstance(report_data["report"], list) and report_data["report"]:
                 readiness_section = report_data["report"][0].get("Risks & Recommendations", {})
                 vulnerabilities = readiness_section.get("Vulnerabilities Found", [])
                 
