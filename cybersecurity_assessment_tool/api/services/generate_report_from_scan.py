@@ -10,7 +10,7 @@ from .gemini_client import generate_and_process_report
 
 logger = logging.getLogger(__name__)
 
-def generate_report_from_scan(scan_id: str):
+def generate_report_from_scan(scan_id: str, chunk_callback=None):
     """
     Django-Q2 background task that bridges the Network Scanner with the AI Pipeline.
     """
@@ -35,7 +35,8 @@ def generate_report_from_scan(scan_id: str):
             organization_id=scan.organization.organization_id,
             user_id=scan.user.user_id if scan.user else None,
             context_data=ai_context,
-            scan_obj=scan 
+            scan_obj=scan,
+            chunk_callback=chunk_callback
         )
 
         # 4. Handle AI Failure Gracefully

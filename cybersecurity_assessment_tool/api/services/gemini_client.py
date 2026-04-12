@@ -168,7 +168,8 @@ def generate_and_process_report(
     organization_id: str, 
     user_id: str, 
     context_data: str,
-    scan_obj: Optional[Any] = None
+    scan_obj: Optional[Any] = None,
+    chunk_callback=None  # <-- callback parameter 
 ) -> Tuple[Optional[Report], Optional[List[Risk]]]:
     """
     Gathers DB fields, calls the AI service, injects database context, and saves.
@@ -184,8 +185,13 @@ def generate_and_process_report(
     # 2. Fetch the questionnaire information
     questionnaire = get_questionnaire_dict(org)
 
-    # 3. Call the AI generation service (pure AI logic, no database IDs needed)
-    report_data, risks_data, ai_error_msg = ai_generation_service(questionnaire, current_risks, context_data)
+    # 3. Call the AI generation service (pass the callback down!)
+    report_data, risks_data, ai_error_msg = ai_generation_service(
+        questionnaire, 
+        current_risks, 
+        context_data, 
+        chunk_callback=chunk_callback # <-- Pass it here
+    )
 
     if report_data is None or risks_data is None:
         # Fallback just in case the error message is blank
