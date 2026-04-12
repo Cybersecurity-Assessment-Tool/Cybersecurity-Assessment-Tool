@@ -1,5 +1,6 @@
 import json
 import logging
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
@@ -214,14 +215,24 @@ def scan_status(request, scan_id):
         response['groups_completed'] = scan.groups_completed
         response['scan_duration_seconds'] = scan.scan_duration_seconds
 
-    # Add report link once complete
-    if scan.status == Scan.Status.COMPLETE and scan.report:
-        response['report_id'] = str(scan.report.report_id)
-        response['report_url'] = f'/reports/{scan.report.report_id}/'
+    # ─── THE STREAMING >:D ──────────────────────────────────────────────
+    if scan.status == Scan.Status.GENERATING:
+        # 1. Read the dictionary we saved to the cache in run_network_scan
+        progress_data = cache.get(f"scan_progress_{scan_id}", {})
+        
+        # 2. Inject the progress values into the JSON response for the frontend
+        response['generation_progress'] = progress_data.get('progress', 5)
+        response['generation_text'] = progress_data.get('text', 'Initializing AI...')
 
-    # Surface error message on failure
-    if scan.status == Scan.Status.FAILED:
-        response['error'] = scan.error_message
+    # ─── COMPLETE STATE ──────────────────────────────────────────────────
+    elif scan.status == Scan.Status.COMPLETE:
+        if scan.report_id:
+            response['report_id'] = str(scan.report.report_id)
+            response['report_url'] = f'/reports/{scan.report.report_id}/'
+
+    # ─── ERROR STATE ─────────────────────────────────────────────────────
+    elif scan.status == Scan.Status.FAILED:
+        response['error'] = scan.error_message or "An unknown error occurred during the scan."
 
     return JsonResponse(response)
 

@@ -212,7 +212,7 @@ def _create_example(example_input, example_output) -> str:
         print(f"[WARNING] Could not load examples: {e}")
         return "Example context missing or invalid."
 
-def _generate_report_content(questionnaire, context):
+def _generate_report_content(questionnaire, context, chunk_callback=None):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     input_path = os.path.join(current_dir, "..", "assets", "report_template", "input.json")
     output_path = os.path.join(current_dir, "..", "assets", "report_template", "output.json")
@@ -227,13 +227,26 @@ def _generate_report_content(questionnaire, context):
         generation_config=gen.types.GenerationConfig(
             response_mime_type="application/json",
             response_schema=REPORT_SCHEMA_JSON
-        )
+        ),
+        stream=True  # 1. Enable streaming
     )
 
-    if not response.text:
+    full_text = ""
+    
+    # 2. Iterate through the chunks as Google sends them
+    for chunk in response:
+        if chunk.text:
+            full_text += chunk.text
+            print("Chunk: " + chunk.text + "\n")
+            # 3. Fire the callback to push the chunk up to the Django worker
+            if chunk_callback:
+                chunk_callback(chunk.text)
+
+    if not full_text:
         raise RuntimeError("Empty response from Gemini for report generation.")
 
-    data = json.loads(response.text)
+    # 4. Once the stream finishes, parse the accumulated text into JSON
+    data = json.loads(full_text)
     jsonschema.validate(instance=data, schema=REPORT_SCHEMA_JSON)
             
     return data
@@ -278,13 +291,15 @@ def _add_risks(report: dict, current_risks: dict):
         
     return data
 
-def ai_generation_service(questionnaire: dict, current_risks: dict, context: str):
+def ai_generation_service(questionnaire: dict, current_risks: dict, context: str, chunk_callback=None):
     """
     Generates report and risks data using Gemini.
+    Accepts an optional chunk_callback(text) to stream report progress.
     Returns: (report_data, risks_data, error_message)
     """
     try:
-        report_data = _generate_report_content(questionnaire, context)
+        # Pass the callback down to the report generator
+        report_data = _generate_report_content(questionnaire, context, chunk_callback)
         risks_data = _add_risks(report_data, current_risks)
         print("--- Successfully generated report and risk data dictionaries. ---")
         return report_data, risks_data, None

@@ -20,6 +20,7 @@ from datetime import datetime, timezone as dt_timezone
 import requests
 from django.utils import timezone
 from django.conf import settings
+from django.core.cache import cache
 from django.urls import reverse
 
 logger = logging.getLogger(__name__)
@@ -1215,7 +1216,44 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
         scan.save()
 
         # ── Step 4: Generate AI report ────────────────────────────────────
-        result = generate_report_from_scan(scan_id)
+        
+        # 1. Create a mutable list to hold the incoming stream text
+        stream_buffer = [""]
+        
+        # 2. Define the callback that parses the text exactly like your old JS did
+        def ai_progress_callback(chunk_text):
+            stream_buffer[0] += chunk_text
+            current_text = stream_buffer[0]
+            
+            report_pct = 5
+            status_text = 'Initializing AI...'
+            
+            if '"Conclusion"' in current_text:
+                report_pct, status_text = 95, 'Concluding report'
+            elif '"Observations"' in current_text:
+                report_pct, status_text = 80, 'Determining observations'
+            elif '"Summary"' in current_text:
+                severity_hits = current_text.count('"Severity"')
+                if severity_hits > 0:
+                    report_pct = min(75, 35 + (severity_hits * 4))
+                    status_text = f'Analyzing risk {severity_hits}...'
+                else:
+                    report_pct, status_text = 35, 'Providing network summary'
+            elif '"report"' in current_text:
+                report_pct, status_text = 20, 'Generation started'
+            elif '"thought"' in current_text:
+                report_pct, status_text = 10, 'Reading over report'
+                
+            # 3. Write ONLY the clean progress data to cache, no raw AI text!
+            cache.set(f"scan_progress_{scan_id}", {
+                "progress": report_pct,
+                "text": status_text
+            }, timeout=600)
+
+        # 4. Pass the callback down. 
+        # (Make sure your generate_report_from_scan function is updated to accept chunk_callback 
+        # and passes it into ai_generation_service!)
+        result = generate_report_from_scan(scan_id, chunk_callback=ai_progress_callback)
 
         if not result or not result.get('success'):
             error_msg = result.get('error', 'Unknown error') if result else 'generate_report_from_scan returned None'
