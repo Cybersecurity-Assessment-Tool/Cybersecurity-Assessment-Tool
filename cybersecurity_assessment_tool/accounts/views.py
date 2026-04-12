@@ -118,6 +118,7 @@ def settings_view(request):
             has_aup = request.POST.get('has_aup') == 'on'
             training_new = request.POST.get('training_new_employees') == 'on'
             training_annual = request.POST.get('training_annual') == 'on'
+            admin_rotate = request.POST.get('admin_rotate') == 'on'
             
             # Basic Validation
             if not ip_address or not website_domain_name or not email_domain_name:
@@ -134,6 +135,7 @@ def settings_view(request):
                 org.employee_acceptable_use_policy = has_aup
                 org.training_new_employees = training_new
                 org.training_once_per_year = training_annual
+                org.admin_rotate = admin_rotate
                 
                 # Ensure it's marked as completed
                 org.questionnaire_completed = True
@@ -485,6 +487,7 @@ def questionnaire(request):
         has_aup = request.POST.get('has_aup') == 'on'
         training_new = request.POST.get('training_new_employees') == 'on'
         training_annual = request.POST.get('training_annual') == 'on'
+        admin_rotate = request.POST.get('admin_rotate') == 'on'
         
         # Basic Validation
         if not ip_address or not website_domain_name or not email_domain_name:
@@ -502,6 +505,7 @@ def questionnaire(request):
         org.employee_acceptable_use_policy = has_aup
         org.training_new_employees = training_new
         org.training_once_per_year = training_annual
+        org.admin_rotate = admin_rotate
         
         # Mark organization questionnaire as completed
         org.questionnaire_completed = True
