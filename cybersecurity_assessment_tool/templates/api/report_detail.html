@@ -191,12 +191,22 @@
     .rp-vuln-card.open .rp-toggle-icon {
         transform: rotate(180deg);
     }
+    .rp-port-card.open .rp-toggle-icon {
+        transform: rotate(180deg);
+    }
 
     .rp-vuln-body {
         display: none;
         padding: 1.25rem 2.5rem 1.5rem;
     }
     .rp-vuln-card.open .rp-vuln-body {
+        display: block;
+    }
+    
+    .rp-port-body {
+        display: none;
+    }
+    .rp-port-card.open .rp-port-body {
         display: block;
     }
 
@@ -661,7 +671,7 @@
         <div class="rp-vuln-list" id="vulnList">
             {% for v in vulnerabilities %}
             <div class="rp-vuln-card" id="vuln-{{ forloop.counter }}">
-                <div class="rp-vuln-header" onclick="toggleVuln('vuln-{{ forloop.counter }}')">
+                <div class="rp-vuln-header" onclick="toggleShow('vuln-{{ forloop.counter }}')">
                     <span class="rp-vuln-name">{{ v.risk }}</span>
                     <span class="rp-sev" data-sev="{{ v.severity }}">{{ v.severity }}</span>
                     <span class="rp-toggle-icon">▾</span>
@@ -719,17 +729,18 @@
         {# ── Per-port findings table ───────────────────────────────────────── #}
         <div class="rp-sub-label" style="margin-bottom:0.6rem;">Open Ports &amp; Services</div>
         <div style="overflow-x:auto;">
-            <table>
-                <thead>
+            <table class="rp-port-card" id="portFindingsCard">
+                <thead onclick="toggleShow('portFindingsCard')">
                     <tr>
                         <th style="width:6%">Port</th>
                         <th style="width:7%">Proto</th>
                         <th style="width:12%">Service</th>
                         <th style="width:10%">Severity</th>
                         <th>Detail</th>
+                        <span class="rp-toggle-icon">▾</span>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="rp-port-body">
                     {% for f in port_findings %}
                     <tr>
                         <td style="font-family:var(--font-mono);font-size:0.8125rem;">{{ f.portid }}</td>
@@ -777,7 +788,7 @@
         <div class="rp-section-heading">07 — Raw Scan Data</div>
         
         <div class="rp-vuln-card" id="scanFindingsCard">
-            <div class="rp-vuln-header" onclick="toggleVuln('scanFindingsCard')">
+            <div class="rp-vuln-header" onclick="toggleShow('scanFindingsCard')">
                 <span class="rp-vuln-name" style="font-family: var(--font-mono); font-size: 0.85rem;">{ } Raw JSON Data</span>
                 <span></span> 
                 <span class="rp-toggle-icon">▾</span>
@@ -840,7 +851,7 @@
     // ---------------------------------------------------------------------
     // Collapsible risk cards
     // ---------------------------------------------------------------------
-    function toggleVuln(id) {
+    function toggleShow(id) {
         const card = document.getElementById(id);
         if (!card) return;
         card.classList.toggle('open');
