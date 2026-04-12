@@ -377,6 +377,11 @@ let currentScanPage = 1;
 const POLL_MS = 3000;
 let reportRiskCount = 0;
 
+const USER_ID = "{{ request.user.id }}";
+const SCAN_KEY = `activeScanId_${USER_ID}`;
+const NC_TIME_KEY = `networkScanStartMs_${USER_ID}`;
+const RG_TIME_KEY = `reportGenStartMs_${USER_ID}`;
+
 // You can manually adjust the estimated times here
 const SCAN_DURATIONS = { tcp: 60, udp: 60, email: 30, infra: 30 };
 const BASE_OVERHEAD = 150;
@@ -427,11 +432,12 @@ document.addEventListener('DOMContentLoaded', function () {
   updateDurationEstimate();
   loadRecentScans();
 
-  const savedScanId = sessionStorage.getItem('activeScanId');
+  // Updated to use user-specific keys
+  const savedScanId = sessionStorage.getItem(SCAN_KEY);
   if (savedScanId) {
     activeScanId = savedScanId;
-    networkScanStartMs = parseInt(sessionStorage.getItem('networkScanStartMs') || '0') || null;
-    reportGenStartMs = parseInt(sessionStorage.getItem('reportGenStartMs') || '0') || null;
+    networkScanStartMs = parseInt(sessionStorage.getItem(NC_TIME_KEY) || '0') || null;
+    reportGenStartMs = parseInt(sessionStorage.getItem(RG_TIME_KEY) || '0') || null;
     setScanActive(true);
     startPolling(savedScanId);
   }
@@ -513,9 +519,28 @@ function stopPolling() {
 
 function pollScanStatus(scanId) {
   fetch(`/api/scan/status/${scanId}/`)
-    .then(r => r.json())
+    .then(r => {
+        // If the backend says this scan doesn't exist or isn't owned by this user
+        if (r.status === 404) {
+            throw new Error("404_NOT_FOUND");
+        }
+        return r.json();
+    })
     .then(data => handleStatusUpdate(data))
-    .catch(() => {});
+    .catch((err) => {
+        if (err.message === "404_NOT_FOUND") {
+            // Scan doesn't belong to this user. Clean up memory and unlock UI!
+            stopPolling();
+            sessionStorage.removeItem(SCAN_KEY);
+            sessionStorage.removeItem(NC_TIME_KEY);
+            sessionStorage.removeItem(RG_TIME_KEY);
+            setScanActive(false);
+            
+            // Hide the active scan cards if they are showing
+            document.getElementById('networkScanCard').classList.add('hidden');
+            document.getElementById('reportGenCard').classList.add('hidden');
+        }
+    });
 }
 
 function handleStatusUpdate(data) {
@@ -528,7 +553,7 @@ function handleStatusUpdate(data) {
     case 'RUNNING':
       if (!networkScanStartMs) {
         networkScanStartMs = Date.now();
-        sessionStorage.setItem('networkScanStartMs', networkScanStartMs);
+        sessionStorage.setItem(NC_TIME_KEY, networkScanStartMs);
       }
       showNetworkCard();
       setNetworkRunning('Scan in progress…');
@@ -548,7 +573,7 @@ function handleStatusUpdate(data) {
       setNetworkComplete(data.findings_summary);
       if (!reportGenStartMs) {
         reportGenStartMs = Date.now();
-        sessionStorage.setItem('reportGenStartMs', reportGenStartMs);
+        sessionStorage.setItem(RG_TIME_KEY, reportGenStartMs);
         showReportCard();
         setReportRunning('Generation started', 20);
         scheduleNetworkCardLinger();
@@ -560,9 +585,9 @@ function handleStatusUpdate(data) {
       break;
     case 'COMPLETE':
       stopPolling();
-      sessionStorage.removeItem('activeScanId');
-      sessionStorage.removeItem('networkScanStartMs');
-      sessionStorage.removeItem('reportGenStartMs');
+      sessionStorage.removeItem(SCAN_KEY);
+      sessionStorage.removeItem(NC_TIME_KEY);
+      sessionStorage.removeItem(RG_TIME_KEY);
       setNetworkComplete(data.findings_summary);
       setReportComplete(data.report_url);
 
@@ -574,9 +599,9 @@ function handleStatusUpdate(data) {
       break;
     case 'FAILED':
       stopPolling();
-      sessionStorage.removeItem('activeScanId');
-      sessionStorage.removeItem('networkScanStartMs');
-      sessionStorage.removeItem('reportGenStartMs');
+      sessionStorage.removeItem(SCAN_KEY);
+      sessionStorage.removeItem(NC_TIME_KEY);
+      sessionStorage.removeItem(RG_TIME_KEY);
       setNetworkError();
       showErrorCard(data.error || 'An unknown error occurred.');
       setScanActive(false);
@@ -1098,7 +1123,7 @@ function startScan() {
     btn.classList.remove('loading');
     if (ok) {
       activeScanId = data.scan_id;
-      sessionStorage.setItem('activeScanId', data.scan_id);
+      sessionStorage.setItem(SCAN_KEY, data.scan_id);
       setScanActive(true);
       showNetworkCard();
       setNetworkRunning('Queued — waiting for scanner…');
@@ -1150,7 +1175,7 @@ function retryAIGeneration() {
     if (data.success) {
       // 3. Success! Start polling the database for status updates again
       reportGenStartMs = Date.now();
-      sessionStorage.setItem('reportGenStartMs', reportGenStartMs);
+      sessionStorage.setItem(RG_TIME_KEY, reportGenStartMs)
       startPolling(activeScanId);
     } else {
       // If the backend refuses the retry, show the error card again
