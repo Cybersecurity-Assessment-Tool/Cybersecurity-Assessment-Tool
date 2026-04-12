@@ -1251,8 +1251,6 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
             }, timeout=600)
 
         # 4. Pass the callback down. 
-        # (Make sure your generate_report_from_scan function is updated to accept chunk_callback 
-        # and passes it into ai_generation_service!)
         result = generate_report_from_scan(scan_id, chunk_callback=ai_progress_callback)
 
         if not result or not result.get('success'):

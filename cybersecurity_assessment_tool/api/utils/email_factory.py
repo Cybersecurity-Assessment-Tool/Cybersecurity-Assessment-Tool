@@ -42,38 +42,30 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
     """
     recipient = recipient
     
-    # EXACT SAME templates as your test_email.py
-    # Serves as an outline for which fields to pass for each email type. You can expand ot update the context as needed.
+    # Call the helper function once at the top
+    base_url = _get_app_base_url()
+    
     email_templates = {
-        # Verificaiton OTP email
         "otp": {
             "subject": "Verification Code",
             "template": "emails/otp-verification.html",
             "context": {"otp": generate_otp()}
         },
-        
-        # Email after user submits registration form (before approval)
         "registration": {
             "subject": "Registration Request Sent Successfully",
             "template": "emails/confirmation.html",
             "context": {"username": "Test User"}
         },
-        
-        # Email to user after admin approves their account request
         "approval": {
             "subject": "Account Approved - Welcome Aboard!",
             "template": "emails/approval_accepted.html", 
-            "context": {"username": "Test User", "login_url": "http://localhost:8000/accounts/login/"}
+            "context": {"username": "Test User", "login_url": f"{base_url}/accounts/login/"}
         },
-        
-        # Email to user after admin rejects their account request
         "rejection": {
             "subject": "Account Request Rejected",
             "template": "emails/approval_rejected.html",
             "context": {"username": "Test User", "company": "RePortly", "role": "Manager"}
         },
-        
-        # Request email sent to admin when new user registers
         "request": {
             "subject": "New Account Request - Action Required",
             "template": "emails/admin_request.html",
@@ -84,8 +76,6 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
                 "role": "Org Admin"
             }
         },
-        
-        # Invite email sent to new user when org admin invites them to join
         "invite": {
             "subject": "Account invitation from Executive",
             "template": "emails/executive_invite.html",
@@ -95,11 +85,9 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
                 "inviter_company": "RePortly.",
                 "company": "RePortly",
                 "role": "Manager",
-                "invite_link": "http://localhost:8000/invite/abc123xyz/"
+                "invite_link": f"{base_url}/invite/abc123xyz/"
             }
         },
-
-        # Email to the org admin when an invited user finishes creating their account
         "invite_accepted": {
             "subject": "Team Member Joined Your Organization",
             "template": "emails/invite_accepted.html",
@@ -109,19 +97,15 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
                 "member_email": "member@example.com",
                 "company": "RePortly",
                 "role": "Observer",
-                "login_url": "http://localhost:8000/accounts/login/",
+                "login_url": f"{base_url}/accounts/login/",
             }
         },
-        
-        # Report ready email sent to user when their security report is generated
         "report": {
             "subject": "Your Security Report is Ready",
             "template": "emails/report_ready.html",
             "context": {
                 "generated_date": "March 5, 2026 10:44 AM EST",
-                #"report_id": "SEC-2026-0305-001",
-                #"report_type": "Comprehensive Vulnerability Assessment",
-                "report_url": "http://localhost:8000/reports/123e4567-e89b-12d3-a456-426614174000/"
+                "report_url": f"{base_url}/reports/123e4567-e89b-12d3-a456-426614174000/"
             }
         }
     }
