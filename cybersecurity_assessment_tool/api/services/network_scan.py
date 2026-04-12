@@ -1144,7 +1144,7 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
         5. Email user when report is ready
     """
     from api.models import Scan
-    from api.utils.email_factory import send_email_async
+    from api.utils.async_email import send_email_async
     from .generate_report_from_scan import generate_report_from_scan
 
     try:

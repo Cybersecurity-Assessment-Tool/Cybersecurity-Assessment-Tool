@@ -325,7 +325,7 @@ def reject_registration(request, user_id):
     return redirect('admin:api_user_changelist')
 
 def _get_microsoft_oauth_base_url():
-    """Optional absolute base URL for local Microsoft OAuth flows (for example, http://localhost:8000)."""
+    """Optional absolute base URL for local Microsoft OAuth flows"""
     return (getattr(settings, 'MICROSOFT_OAUTH_REDIRECT_BASE_URL', '') or '').strip().rstrip('/')
 
 
