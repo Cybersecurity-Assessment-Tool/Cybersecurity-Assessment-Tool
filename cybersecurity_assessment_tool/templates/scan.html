@@ -11,11 +11,14 @@
     background-color: #3b82f6;
     color: white;
     border: none;
-    padding: 0.5rem 1.25rem;
+    padding: 0.75rem 1rem;
     border-radius: 6px;
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
+
+    width: 80%;
+    justify-content: center;
   }
   .start-scan-btn:hover:not(:disabled) { background-color: #2563eb; }
   .start-scan-btn:disabled { opacity: 0.5; cursor: not-allowed; background-color: #6b7280; }
@@ -44,7 +47,7 @@
 
   .scan-type-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 0.625rem;
   }
   @media (max-width: 576px) {
@@ -223,7 +226,6 @@
           </div>
           <div class="toggle-text">
             <strong>TCP Port Scan</strong>
-            <span>Common TCP ports &amp; banners</span>
           </div>
         </label>
 
@@ -237,7 +239,6 @@
           </div>
           <div class="toggle-text">
             <strong>UDP Port Scan</strong>
-            <span>DNS, SNMP, NTP &amp; other UDP services</span>
           </div>
         </label>
 
@@ -251,9 +252,31 @@
           </div>
           <div class="toggle-text">
             <strong>Email Security</strong>
-            <span>SPF, DMARC, DKIM &amp; MTA-STS</span>
           </div>
         </label>
+
+        <label class="scan-type-toggle is-checked" data-type="infra">
+          <input type="checkbox" value="infra" checked>
+          <div class="toggle-pip">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="toggle-text">
+            <strong>Infrastructure Scan</strong>
+          </div>
+        </label>
+
+        {# Start button #}
+        <div class="row">
+          <div class="col-12 d-flex align-items-center justify-content-end">
+            <button class="start-scan-btn" id="startScanBtn" onclick="startScan()">
+              <span class="spinner"></span>
+              <span class="btn-label">Start New Scan</span>
+            </button>
+          </div>
+        </div>
 
       </div>
 
@@ -269,15 +292,7 @@
     </div>
   </div>
 
-  {# ROW 3: Start button + notice #}
-  <div class="row mb-4">
-    <div class="col-12 d-flex align-items-center justify-content-end">
-      <button class="start-scan-btn" id="startScanBtn" onclick="startScan()">
-        <span class="spinner"></span>
-        <span class="btn-label">Start New Scan</span>
-      </button>
-    </div>
-  </div>
+  {# ROW 3: Notice ... may not be needed anymore idk #}
   <div class="row mb-2">
     <div class="col-12">
       <div class="scan-notice" id="scanNotice"></div>
@@ -363,7 +378,7 @@ const POLL_MS = 3000;
 let reportRiskCount = 0;
 
 // You can manually adjust the estimated times here
-const SCAN_DURATIONS = { tcp: 60, udp: 60, email: 30 };
+const SCAN_DURATIONS = { tcp: 60, udp: 60, email: 30, infra: 30 };
 const BASE_OVERHEAD = 150;
 const REPORT_EST_SECS = 300;
 
