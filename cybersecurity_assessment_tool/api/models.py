@@ -86,7 +86,8 @@ class Organization(models.Model):
     require_mfa_sensitive_data = models.BooleanField(null=True, blank=True, default=False)
     employee_acceptable_use_policy = models.BooleanField(null=True, blank=True, default=False)
     training_new_employees = models.BooleanField(null=True, blank=True, default=False)
-    training_once_per_year = models.BooleanField(null=True, blank=True,default=False)
+    training_once_per_year = models.BooleanField(null=True, blank=True, default=False)
+    admin_rotate = models.BooleanField(null=True, blank=True, default=False)
     registration_status = models.CharField(
         max_length=20,
         choices=[
