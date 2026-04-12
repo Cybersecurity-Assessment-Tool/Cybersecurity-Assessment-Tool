@@ -318,6 +318,13 @@ def start_server_scan(request):
                       'Add it in Settings → Security Posture.'},
             status=400
         )
+    
+    # Parse the scan types from the request body
+    try:
+        data = json.loads(request.body)
+        scan_arr = data.get('scan_types', [1, 1, 1, 1]) # fallback
+    except (json.JSONDecodeError, TypeError):
+        return JsonResponse({'error': 'Invalid scan configuration.'}, status=400)
 
     # Create the scan record (no ScanToken needed for server-side scans)
     scan = Scan.objects.create(
@@ -330,6 +337,7 @@ def start_server_scan(request):
     task_id = async_task(
         'api.services.network_scan.run_network_scan',
         str(scan.id),
+        scan_arr,
         timeout=900,
     )
 
