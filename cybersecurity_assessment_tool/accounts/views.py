@@ -787,7 +787,7 @@ def accept_invitation(request, token):
                         'member_email': user.email,
                         'company': invitation.organization.org_name,
                         'role': invitation.recipient_role,
-                        'login_url': f"{protocol}://{domain}{reverse('login')}",
+                        'login_url': f"{protocol}://{domain}{reverse('accounts:settings')}?tab=organization",
                         'contact_email': getattr(settings, 'ADMIN_EMAIL_INBOX', getattr(settings, 'DEFAULT_FROM_EMAIL', ''))
                     })
                 except Exception as exc:
