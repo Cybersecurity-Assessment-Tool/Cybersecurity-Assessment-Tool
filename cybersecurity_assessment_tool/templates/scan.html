@@ -506,16 +506,22 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // collapse/expand hover listeners — state persists after cursor leaves
-  document.getElementById('networkScanCard').addEventListener('mouseenter', () => {
+  const stack = document.getElementById('liveCardsStack');
+  
+  stack.addEventListener('mousemove', (e) => {
     const rg = document.getElementById('reportGenCard');
-    if (expandedCard !== 'network' && !rg.classList.contains('hidden')) {
-      setExpandedCard('network');
-    }
-  });
-  document.getElementById('reportGenCard').addEventListener('mouseenter', () => {
-    const nc = document.getElementById('networkScanCard');
-    if (expandedCard !== 'report' && !nc.classList.contains('hidden')) {
-      setExpandedCard('report');
+    
+    // Only apply this logic if BOTH cards are currently visible on screen
+    if (rg.classList.contains('hidden')) return;
+
+    const rect = stack.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    
+    const isLeftHalf = mouseX < (rect.width / 2);
+    if (isLeftHalf) {
+      if (expandedCard !== 'report') setExpandedCard('report');
+    } else {
+      if (expandedCard !== 'network') setExpandedCard('network');
     }
   });
 });
@@ -707,7 +713,7 @@ function handleStatusUpdate(data) {
 // Network Scan --- helper functions
 function showNetworkCard() {
   const card = document.getElementById('networkScanCard');
-  card.classList.remove('hidden', 'error-state', 'collapsed');
+  card.classList.remove('hidden', 'error-state'); 
 }
 function setNetworkRunning(statusText) {
   document.getElementById('ncSpinner').style.display = 'inline-block';
@@ -768,7 +774,7 @@ function setNetworkError() {
 // Report Generation --- helper functions
 function showReportCard() {
   const card = document.getElementById('reportGenCard');
-  card.classList.remove('hidden', 'error-state', 'collapsed');
+  card.classList.remove('hidden', 'error-state');
 }
 function setReportRunning(statusText, pct) {
   document.getElementById('rgSpinner').style.display = 'inline-block';
