@@ -153,9 +153,9 @@
     padding: 1.25rem 1.375rem 1rem;
     color: #fff;
     flex: 1 1 0;
-    min-width: 0;
+    min-width: 120px;
     overflow: hidden;
-    transition: flex 0.35s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .live-card.hidden { display: none; }
   .live-card.error-state { border: 1px solid #ef4444; }
@@ -507,21 +507,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // collapse/expand hover listeners — state persists after cursor leaves
   const stack = document.getElementById('liveCardsStack');
-  
+
   stack.addEventListener('mousemove', (e) => {
     const rg = document.getElementById('reportGenCard');
-    
-    // Only apply this logic if BOTH cards are currently visible on screen
+
+    // Exit if the second card isn't active yet
     if (rg.classList.contains('hidden')) return;
 
     const rect = stack.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
-    
     const isLeftHalf = mouseX < (rect.width / 2);
+
     if (isLeftHalf) {
-      if (expandedCard !== 'report') setExpandedCard('report');
+      if (expandedCard !== 'network') {
+        setExpandedCard('network');
+      }
     } else {
-      if (expandedCard !== 'network') setExpandedCard('network');
+      if (expandedCard !== 'report') {
+        setExpandedCard('report');
+      }
     }
   });
 });
