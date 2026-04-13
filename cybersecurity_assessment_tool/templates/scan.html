@@ -142,52 +142,44 @@
 
   /* new changes */
   .lc-stack {
-    position: relative;
-    transition: min-height 0.35s ease;
+    display: flex;
+    gap: 0.75rem;
+    align-items: stretch;
     margin-bottom: 0.875rem;
   }
   .live-card {
     background: #111827;
     border-radius: 10px;
     padding: 1.25rem 1.375rem 1rem;
-    margin-bottom: 0.875rem;
     color: #fff;
-    transition: opacity 0.6s ease;
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    transition: flex 0.35s ease;
   }
   .live-card.hidden { display: none; }
-  .live-card.fading {
-    opacity: 0;
-    pointer-events: none;
-  }
   .live-card.error-state { border: 1px solid #ef4444; }
 
-  /* Card 1 */
-  #networkScanCard {
-    position: relative;
-    z-index: 10;
+  /* collapsed card — shrinks to header-only width, hides body content */
+  .live-card.collapsed {
+    flex: 0 0 auto;
+    width: fit-content;
+    cursor: pointer;
   }
-  #networkScanCard:hover {
-    z-index: 30;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+  .live-card.collapsed .lc-status {
+    margin-bottom: 0;
+    min-height: 0;
   }
-  /* Card 2 */
-  #reportGenCard {
-    position: absolute;
-    top: 20px;
-    left: 12px;
-    right: 12px;
-    z-index: 20;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.55);
-  }
-  #reportGenCard:hover {
-    box-shadow: 0 12px 36px rgba(0,0,0,0.6);
-  }
+  .live-card.collapsed #ncStatusText,
+  .live-card.collapsed #rgStatusText { display: none; }
+  .live-card.collapsed .lc-progress-track { display: none; }
 
   .lc-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 0.625rem;
+    white-space: nowrap;
   }
   .lc-title {
     font-size: 0.9375rem;
@@ -211,7 +203,6 @@
     margin-bottom: 0.875rem;
     min-height: 1.375rem;
   }
-
   .lc-check {
     display: inline-flex;
     align-items: center;
@@ -221,7 +212,6 @@
     color: #22c55e;
     flex-shrink: 0;
   }
-
   .lc-spinner {
     display: inline-block;
     width: 1rem;
@@ -424,13 +414,14 @@ let networkScanStartMs = null;
 let networkScanEndMs = null;
 let reportGenStartMs = null;
 
-let networkCardDismissed = false;
-let networkLingerTimer = null;
 let isScanActive = false;
 let persistReportCard = true;
 let currentScanPage = 1;
 const POLL_MS = 3000;
 let reportRiskCount = 0;
+
+let expandedCard = 'network';
+let latestLiveRiskCounts = null;
 
 const USER_ID = "{{ request.user.id }}";
 const SCAN_KEY = `activeScanId_${USER_ID}`;
@@ -510,10 +501,23 @@ document.addEventListener('DOMContentLoaded', function () {
     activeScanId = savedScanId;
     networkScanStartMs = parseInt(sessionStorage.getItem(NC_TIME_KEY) || '0') || null;
     reportGenStartMs = parseInt(sessionStorage.getItem(RG_TIME_KEY) || '0') || null;
-    networkCardDismissed = sessionStorage.getItem('networkCardDismissed') === 'true';
     setScanActive(true);
     startPolling(savedScanId);
   }
+
+  // collapse/expand hover listeners — state persists after cursor leaves
+  document.getElementById('networkScanCard').addEventListener('mouseenter', () => {
+    const rg = document.getElementById('reportGenCard');
+    if (expandedCard !== 'network' && !rg.classList.contains('hidden')) {
+      setExpandedCard('network');
+    }
+  });
+  document.getElementById('reportGenCard').addEventListener('mouseenter', () => {
+    const nc = document.getElementById('networkScanCard');
+    if (expandedCard !== 'report' && !nc.classList.contains('hidden')) {
+      setExpandedCard('report');
+    }
+  });
 });
 
 // button state
@@ -522,6 +526,19 @@ function setScanActive(active) {
   const btn = document.getElementById('startScanBtn');
   btn.disabled = active;
   if (!active) btn.classList.remove('loading');
+}
+
+function setExpandedCard(which) {
+  expandedCard = which;
+  const nc = document.getElementById('networkScanCard');
+  const rg = document.getElementById('reportGenCard');
+  if (which === 'network') {
+    nc.classList.remove('collapsed');
+    rg.classList.add('collapsed');
+  } else {
+    nc.classList.add('collapsed');
+    rg.classList.remove('collapsed');
+  }
 }
 
 /* Remove This ...? */
@@ -643,17 +660,20 @@ function handleStatusUpdate(data) {
       break;
     case 'GENERATING':
       if (!networkScanEndMs) networkScanEndMs = Date.now();
-      if (!networkCardDismissed) { setNetworkComplete(data.findings_summary); }
+      setNetworkComplete(data.findings_summary);
       if (!reportGenStartMs) {
         reportGenStartMs = Date.now();
         sessionStorage.setItem(RG_TIME_KEY, reportGenStartMs);
         showReportCard();
-        setReportRunning('Generation started', 20);
-        scheduleNetworkCardLinger();
+        setExpandedCard('report'); // auto-expand the report card; network card collapses
       }
-      // Update with the clean data sent straight from the backend
       setReportRunning(data.generation_text || 'Generation started', data.generation_progress || 10);
-      if (data.live_risks && data.live_risks.length > 0) { updateLiveRisksDisplay(data.live_risks); }
+      // store live risk counts so renderRecentScans can use them
+      if (data.live_risks) {
+        const c = { Critical: 0, High: 0, Medium: 0, Low: 0, Info: 0 };
+        data.live_risks.forEach(r => { if (c[r.severity] !== undefined) c[r.severity]++; });
+        latestLiveRiskCounts = c;
+      }
       setScanActive(true);
       break;
     case 'COMPLETE':
@@ -661,8 +681,7 @@ function handleStatusUpdate(data) {
       sessionStorage.removeItem(SCAN_KEY);
       sessionStorage.removeItem(NC_TIME_KEY);
       sessionStorage.removeItem(RG_TIME_KEY);
-      sessionStorage.removeItem('networkCardDismissed');
-      if (!networkCardDismissed) setNetworkComplete(data.findings_summary);
+      setNetworkComplete(data.findings_summary);
       setReportComplete(data.report_url);
 
       sessionStorage.setItem('reportCompleteAcknowledged', 'true');
@@ -675,7 +694,6 @@ function handleStatusUpdate(data) {
       sessionStorage.removeItem(SCAN_KEY);
       sessionStorage.removeItem(NC_TIME_KEY);
       sessionStorage.removeItem(RG_TIME_KEY);
-      sessionStorage.removeItem('networkCardDismissed');
 
       setNetworkError();
       showErrorCard(data.error || 'An unknown error occurred.');
@@ -687,37 +705,47 @@ function handleStatusUpdate(data) {
 }
 
 // Network Scan --- helper functions
-function showNetworkCard() {
-  if (networkCardDismissed) return;
-  const card = document.getElementById('networkScanCard');
-  card.classList.remove('hidden', 'fading', 'error-state');
-  updateStackHeight();
-}
 function setNetworkRunning(statusText) {
-  if (networkCardDismissed) return;
   document.getElementById('ncSpinner').style.display = 'inline-block';
   _removeCheckmark('ncStatus');
-  document.getElementById('ncStatusText').textContent = statusText;
   document.getElementById('ncTimeLabel').innerHTML = '&nbsp;';
- 
-  // Approximate progress from elapsed time, basically fake the progress bar moving lol
-  if (networkScanStartMs) {
-    const types = getSelectedScanTypes();
-    const estSecs = BASE_OVERHEAD + types.reduce((n, t) => n + (SCAN_DURATIONS[t] || 0), 0);
-    const pct = Math.min(94, Math.round(((Date.now() - networkScanStartMs) / 1000 / estSecs) * 100));
-    document.getElementById('ncProgressFill').style.width = pct + '%';
+
+  if (!networkScanStartMs) {
+    document.getElementById('ncStatusText').textContent = statusText;
+    document.getElementById('ncProgressFill').style.width = '0%';
+    return;
   }
+
+  // Per-scan-type progress bars
+  const ORDERED_TYPES = ['tcp', 'udp', 'email', 'infra'];
+  const types = ORDERED_TYPES.filter(t => getSelectedScanTypes().includes(t));
+  const elapsed = (Date.now() - networkScanStartMs) / 1000;
+
+  let prev = 0;
+  let phase = null;
+  for (let i = 0; i < types.length; i++) {
+    const dur = SCAN_DURATIONS[types[i]] || 30;
+    if (elapsed < prev + dur) {
+      phase = { type: types[i], index: i, total: types.length, pct: Math.min(95, ((elapsed - prev) / dur) * 100) };
+      break;
+    }
+    prev += dur;
+  }
+  if (!phase) phase = { type: types[types.length - 1], index: types.length - 1, total: types.length, pct: 95 };
+
+  const LABELS = { tcp: 'Scanning TCP ports…', udp: 'Scanning UDP ports…', email: 'Scanning email security…', infra: 'Scanning infrastructure…' };
+  document.getElementById('ncStatusText').textContent = LABELS[phase.type] || 'Scanning…';
+  document.getElementById('ncProgressFill').style.width = phase.pct + '%';
+  document.getElementById('ncProgressFill').classList.remove('done', 'fail');
 }
 function setNetworkComplete(findingsSummary) {
-  // skip if already dismissed
-  if (networkCardDismissed) return;
   showNetworkCard();
   document.getElementById('ncSpinner').style.display = 'none';
   _insertCheckmark('ncStatus', 'ncStatusText');
   document.getElementById('ncStatusText').textContent = 'Scan complete';
   document.getElementById('ncProgressFill').style.width = '100%';
   document.getElementById('ncProgressFill').classList.add('done');
- 
+
   if (networkScanStartMs) {
     if (!networkScanEndMs) networkScanEndMs = Date.now();
     const mins = Math.max(1, Math.round((networkScanEndMs - networkScanStartMs) / 60000));
@@ -732,26 +760,11 @@ function setNetworkError() {
   document.getElementById('ncProgressFill').style.width = '100%';
   document.getElementById('ncProgressFill').classList.add('fail');
 }
-function scheduleNetworkCardLinger() {
-  if (networkLingerTimer) return;
-  networkLingerTimer = setTimeout(() => {
-    networkCardDismissed = true;
-    sessionStorage.setItem('networkCardDismissed', 'true');
-
-    const card = document.getElementById('networkScanCard');
-    card.classList.add('fading');
-    setTimeout(() => {
-      card.classList.add('hidden');
-      updateStackHeight();
-    }, 650);
-  }, 10000);
-}
 
 // Report Generation --- helper functions
 function showReportCard() {
   const card = document.getElementById('reportGenCard');
-  card.classList.remove('hidden', 'fading', 'error-state');
-  updateStackHeight();
+  card.classList.remove('hidden', 'error-state', 'collapsed');
 }
 function setReportRunning(statusText, pct) {
   document.getElementById('rgSpinner').style.display = 'inline-block';
@@ -778,30 +791,6 @@ function setReportComplete(reportUrl) {
     const mins = Math.max(1, Math.round((Date.now() - reportGenStartMs) / 60000));
     document.getElementById('rgTimeLabel').innerHTML = `completed in <strong>${mins} min${mins !== 1 ? 's' : ''}</strong>`;
   }
-}
-
-// adjusting the height of Card 2
-function updateStackHeight() {
-  requestAnimationFrame(() => {
-    const stack = document.getElementById('liveCardsStack');
-    const card1 = document.getElementById('networkScanCard');
-    const card2 = document.getElementById('reportGenCard');
-    const c2Vis = !card2.classList.contains('hidden');
-    const c1Vis = !card1.classList.contains('hidden') && !card1.classList.contains('fading');
-
-    if (!c2Vis) {
-      // Only card 1 visible (or nothing) — let natural flow handle height
-      stack.style.minHeight = '';
-      return;
-    }
-
-    // card2 is absolute at top:20px. Its bottom edge is at 20 + card2.offsetHeight.
-    // card1 sets natural height. We need min-height >= max(card1, 20 + card2Height).
-    const c1H     = c1Vis ? card1.offsetHeight : 0;
-    const c2H     = card2.offsetHeight;
-    const needed  = Math.max(c1H, 20 + c2H);
-    stack.style.minHeight = (needed + 4) + 'px';
-  });
 }
 
 /* How I believe I would handle recieving the updates from Shane's end */
@@ -1073,15 +1062,33 @@ function renderRecentScans(data) {
     const report = s.report_id
       ? `<a href="/reports/${s.report_id}/" class="btn btn-sm btn-outline-primary">View Report</a>`
       : '—';
+
+    // Update scan table entry with live risk counts
+    let fc = {
+      critical: s.finding_count_critical,
+      high: s.finding_count_high,
+      medium: s.finding_count_medium,
+      low: s.finding_count_low,
+      info: s.finding_count_info
+    };
+    if (s.scan_id === activeScanId && s.status === 'GENERATING' && latestLiveRiskCounts) {
+      fc = {
+        critical: latestLiveRiskCounts.Critical,
+        high: latestLiveRiskCounts.High,
+        medium: latestLiveRiskCounts.Medium,
+        low: latestLiveRiskCounts.Low,
+        info: latestLiveRiskCounts.Info
+      };
+    }
     const findings = (s.status === 'COMPLETE' || s.status === 'GENERATING' || s.status === 'RECEIVED')
-      ? `<span class="badge bg-danger me-1">${s.finding_count_critical}</span>
-         <span class="badge bg-warning text-dark me-1">${s.finding_count_high}</span>
-         <span class="badge bg-info text-dark me-1">${s.finding_count_medium}</span>
-         <span class="badge bg-secondary me-1">${s.finding_count_low}</span>
-         <span class="badge bg-light text-dark border">${s.finding_count_info}</span>`
+      ? `<span class="badge bg-danger me-1">${fc.critical}</span>
+         <span class="badge bg-warning text-dark me-1">${fc.high}</span>
+         <span class="badge bg-info text-dark me-1">${fc.medium}</span>
+         <span class="badge bg-secondary me-1">${fc.low}</span>
+         <span class="badge bg-light text-dark border">${fc.info}</span>`
       : '—';
     return `
-      <tr>
+      <tr data-scan-id="${s.scan_id}">
         <td>${date}</td>
         <td>${status}</td>
         <td>${findings}</td>
@@ -1179,20 +1186,20 @@ function startScan() {
   networkScanStartMs = null;
   networkScanEndMs = null;
   reportGenStartMs = null;
-  networkCardDismissed = false;
+  latestLiveRiskCounts = null;
+  expandedCard = 'network';
   reportRiskCount = 0;
   if (networkLingerTimer) {
     clearTimeout(networkLingerTimer);
     networkLingerTimer = null;
   }
   sessionStorage.removeItem('reportCompleteAcknowledged');
-  sessionStorage.removeItem('networkCardDismissed');
   persistReportCard = true;
 
   // reset card 1
   const ncCard = document.getElementById('networkScanCard');
   ncCard.classList.add('hidden');
-  ncCard.classList.remove('fading', 'error-state');
+  ncCard.classList.remove('error-state', 'collapsed');
   document.getElementById('ncSpinner').style.display = 'inline-block';
   _removeCheckmark('ncStatus');
   document.getElementById('ncStatusText').textContent = 'Starting…';
@@ -1203,7 +1210,7 @@ function startScan() {
   // reset card 2
   const rgCard = document.getElementById('reportGenCard');
   rgCard.classList.add('hidden');
-  rgCard.classList.remove('fading', 'error-state');
+  rgCard.classList.remove('error-state', 'collapsed');
   document.getElementById('rgSpinner').style.display = 'inline-block';
   _removeCheckmark('rgStatus');
   document.getElementById('rgStatusText').textContent = 'Queued…';
@@ -1296,14 +1303,12 @@ function retryAIGeneration() {
       // If the backend refuses the retry, show the error card again
       showErrorCard(data.error || 'Failed to restart generation.');
       document.getElementById('reportGenCard').classList.add('hidden');
-      updateStackHeight();
       setScanActive(false);
     }
   })
   .catch(() => {
     showErrorCard('Network error while trying to restart.');
     document.getElementById('reportGenCard').classList.add('hidden');
-    updateStackHeight();
     setScanActive(false);
   });
 }
