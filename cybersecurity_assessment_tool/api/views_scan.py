@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django_q.tasks import async_task
 
-from .models import Scan, ScanToken
+from .models import Scan, ScanToken, Risk
 # Import the new orchestrator service
 from .services.generate_report_from_scan import generate_report_from_scan
 
@@ -223,6 +223,16 @@ def scan_status(request, scan_id):
         # 2. Inject the progress values into the JSON response for the frontend
         response['generation_progress'] = progress_data.get('progress', 5)
         response['generation_text'] = progress_data.get('text', 'Initializing AI...')
+
+        if scan.report:
+            live_risks = list(
+                Risk.objects.filter(report=scan.report)
+                .values('risk_name', 'severity')
+                .order_by('severity')
+            )
+        else:
+            live_risks = []
+        response['live_risks'] = live_risks
 
     # ─── COMPLETE STATE ──────────────────────────────────────────────────
     elif scan.status == Scan.Status.COMPLETE:
