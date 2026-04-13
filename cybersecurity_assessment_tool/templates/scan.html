@@ -153,7 +153,8 @@
     padding: 1.25rem 1.375rem 1rem;
     color: #fff;
     flex: 1 1 0;
-    min-width: 120px;
+    min-width: 15vw;
+    max-height: 108px;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -170,8 +171,17 @@
     margin-bottom: 0;
     min-height: 0;
   }
-  .live-card.collapsed #ncStatusText,
-  .live-card.collapsed #rgStatusText { display: none; }
+  #ncStatusText, #rgStatusText {
+    opacity: 1;
+    transition: opacity 0.1s ease;
+    transition-delay: 0.4s;
+  }
+  .live-card.collapsed #ncStatusText, .live-card.collapsed #rgStatusText {
+    display: none;
+    opacity: 0;
+    transition-delay: 0s;
+    pointer-events: none;
+  }
   .live-card.collapsed .lc-progress-track { display: none; }
 
   .lc-header {
@@ -236,7 +246,13 @@
     background: #22c55e;
     transition: width 0.4s ease;
   }
-  .lc-progress-fill.done { background: #4b5563; }
+  .lc-progress-bar:has(.lc-progress-fill.done) {
+    display: none;
+  }
+  /* workaround if needed */
+  .lc-progress-fill.done {
+    display: none;
+  }
   .lc-progress-fill.fail { background: #ef4444; }
 </style>
 {% endblock %}
@@ -799,12 +815,20 @@ function setReportComplete(reportUrl) {
   _insertCheckmark('rgStatus', 'rgStatusText');
   document.getElementById('rgStatusText').innerHTML = `Report ready — <a href="${reportUrl || '/reports/'}" style="color:#86efac;font-weight:600;">View Report</a>`;
   document.getElementById('rgProgressFill').style.width = '100%';
-  document.getElementById('rgProgressFill').classList.remove('done', 'fail');
+  document.getElementById('rgProgressFill').classList.add('done');
  
   if (reportGenStartMs) {
     const mins = Math.max(1, Math.round((Date.now() - reportGenStartMs) / 60000));
     document.getElementById('rgTimeLabel').innerHTML = `completed in <strong>${mins} min${mins !== 1 ? 's' : ''}</strong>`;
   }
+}
+function setReportError() {
+  showReportCard();
+  document.getElementById('reportGenCard').classList.add('error-state');
+  document.getElementById('rgSpinner').style.display = 'none';
+  document.getElementById('rgStatusText').textContent = 'Report generation failed';
+  document.getElementById('rgProgressFill').style.width = '100%';
+  document.getElementById('rgProgressFill').classList.add('fail');
 }
 
 /* How I believe I would handle recieving the updates from Shane's end */
