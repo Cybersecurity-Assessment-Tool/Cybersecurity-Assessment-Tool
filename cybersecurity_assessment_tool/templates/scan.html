@@ -521,20 +521,22 @@ document.addEventListener('DOMContentLoaded', function () {
     startPolling(savedScanId);
   }
 
-  // collapse/expand hover listeners — state persists after cursor leaves
+  // collapse/expand hover listeners - state persists after cursor leaves
   const stack = document.getElementById('liveCardsStack');
 
   stack.addEventListener('mousemove', (e) => {
     const rg = document.getElementById('reportGenCard');
 
-    // Exit if the second card isn't active yet
+    // Only run logic if both cards are active/visible
     if (rg.classList.contains('hidden')) return;
 
     const rect = stack.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
-    const isLeftHalf = mouseX < (rect.width / 2);
+    const width = rect.width;
+  
+    const threshold = (expandedCard === 'network') ? (width * 0.75) : (width * 0.25);
 
-    if (isLeftHalf) {
+    if (mouseX < threshold) {
       if (expandedCard !== 'network') {
         setExpandedCard('network');
       }
