@@ -35,6 +35,7 @@
   .start-scan-btn.loading .btn-label { display: none; }
   @keyframes spin { to { transform: rotate(360deg); } }
   
+  /* consider if the scan notice is needed anymore */
   .scan-notice {
     display: none;
     padding: 0.875rem 1rem;
@@ -45,13 +46,26 @@
   .scan-notice.success { background-color: #d1fae5; border: 1px solid #6ee7b7; color: #065f46; }
   .scan-notice.error { background-color: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
 
+  .scan-controls-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
   .scan-type-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 0.625rem;
+    flex: 1 1 0;
+    min-width: 0;
   }
-  @media (max-width: 576px) {
+  @media (max-width: 640px) {
+    .scan-controls-row { flex-direction: column; }
     .scan-type-grid { grid-template-columns: 1fr; }
+    .start-scan-btn { width: 100%; justify-content: center; }
+  }
+  @media (min-width: 641px) and (max-width: 900px) {
+    .scan-type-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
   .scan-type-toggle {
@@ -107,6 +121,7 @@
     color: #6b7280;
   }
 
+  /* consider getting rid of this as it may no longer be needed */
   .duration-strip {
     display: flex;
     align-items: center;
@@ -126,14 +141,47 @@
   .duration-strip svg { flex-shrink: 0; }
 
   /* new changes */
+  .lc-stack {
+    position: relative;
+    transition: min-height 0.35s ease;
+    margin-bottom: 0.875rem;
+  }
   .live-card {
-    background: #111827; border-radius: 10px;
-    padding: 1.25rem 1.375rem 1rem; margin-bottom: 0.875rem; color: #fff;
+    background: #111827;
+    border-radius: 10px;
+    padding: 1.25rem 1.375rem 1rem;
+    margin-bottom: 0.875rem;
+    color: #fff;
     transition: opacity 0.6s ease;
   }
   .live-card.hidden { display: none; }
-  .live-card.fading { opacity: 0; pointer-events: none; }
+  .live-card.fading {
+    opacity: 0;
+    pointer-events: none;
+  }
   .live-card.error-state { border: 1px solid #ef4444; }
+
+  /* Card 1 */
+  #networkScanCard {
+    position: relative;
+    z-index: 10;
+  }
+  #networkScanCard:hover {
+    z-index: 30;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+  }
+  /* Card 2 */
+  #reportGenCard {
+    position: absolute;
+    top: 20px;
+    left: 12px;
+    right: 12px;
+    z-index: 20;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+  }
+  #reportGenCard:hover {
+    box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+  }
 
   .lc-header {
     display: flex;
@@ -155,9 +203,13 @@
   .lc-time strong { color: #e5e7eb; }
 
   .lc-status {
-    display: flex; align-items: center; gap: 0.5rem;
-    font-size: 0.875rem; color: #d1d5db;
-    margin-bottom: 0.875rem; min-height: 1.375rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #d1d5db;
+    margin-bottom: 0.875rem;
+    min-height: 1.375rem;
   }
 
   .lc-check {
@@ -214,80 +266,78 @@
   {# ROW 2: Scan type toggles #}
   <div class="row mb-3">
     <div class="col-12">
-      <div class="scan-type-grid" id="scanTypeGrid">
+      <div class="scan-controls-row">
+        <div class="scan-type-grid" id="scanTypeGrid">
 
-        <label class="scan-type-toggle is-checked" data-type="tcp">
-          <input type="checkbox" value="tcp" checked>
-          <div class="toggle-pip">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="toggle-text">
-            <strong>TCP Port Scan</strong>
-          </div>
-        </label>
+          <label class="scan-type-toggle" data-type="tcp">
+            <input type="checkbox" value="tcp">
+            <div class="toggle-pip">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="toggle-text">
+              <strong>TCP Port Scan</strong>
+            </div>
+          </label>
 
-        <label class="scan-type-toggle is-checked" data-type="udp">
-          <input type="checkbox" value="udp" checked>
-          <div class="toggle-pip">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="toggle-text">
-            <strong>UDP Port Scan</strong>
-          </div>
-        </label>
+          <label class="scan-type-toggle" data-type="udp">
+            <input type="checkbox" value="udp">
+            <div class="toggle-pip">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="toggle-text">
+              <strong>UDP Port Scan</strong>
+            </div>
+          </label>
 
-        <label class="scan-type-toggle is-checked" data-type="email">
-          <input type="checkbox" value="email" checked>
-          <div class="toggle-pip">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="toggle-text">
-            <strong>Email Security</strong>
-          </div>
-        </label>
+          <label class="scan-type-toggle" data-type="email">
+            <input type="checkbox" value="email">
+            <div class="toggle-pip">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="toggle-text">
+              <strong>Email Security</strong>
+            </div>
+          </label>
 
-        <label class="scan-type-toggle is-checked" data-type="infra">
-          <input type="checkbox" value="infra" checked>
-          <div class="toggle-pip">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="toggle-text">
-            <strong>Infrastructure Scan</strong>
-          </div>
-        </label>
+          <label class="scan-type-toggle" data-type="infra">
+            <input type="checkbox" value="infra">
+            <div class="toggle-pip">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M1.5 5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="toggle-text">
+              <strong>Infrastructure Scan</strong>
+            </div>
+          </label>
 
-        {# Start button #}
-        <div class="row">
-          <div class="col-12 d-flex align-items-center justify-content-end">
-            <button class="start-scan-btn" id="startScanBtn" onclick="startScan()">
-              <span class="spinner"></span>
-              <span class="btn-label">Start New Scan</span>
-            </button>
+          {# Start button #}
+          <div class="row">
+            <div class="col-12 d-flex align-items-center justify-content-end">
+              <button class="start-scan-btn" id="startScanBtn" onclick="startScan()">
+                <span class="spinner"></span>
+                <span class="btn-label">Start New Scan</span>
+              </button>
+            </div>
           </div>
+
         </div>
 
-      </div>
-
-      <div class="duration-strip" id="durationStrip">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <span id="durationText">Estimated scan duration: about 5 minutes</span>
+        <!-- <div class="duration-strip" id="durationStrip">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span id="durationText">Estimated scan duration: about 5 minutes</span>
+        </div> -->
       </div>
     </div>
   </div>
@@ -300,39 +350,41 @@
   </div>
 
   {# ROW 4: Active scan status (shown while scan in progress) #}
-  <div class="row mb-3">
+  <div class="row">
     <div class="col-12">
+      <div class="lc-stack" id="liveCardsStack">
  
-      {# CARD 1 — Network Scan #}
-      <div class="live-card hidden" id="networkScanCard">
-        <div class="lc-header">
-          <span class="lc-title">Network Scan</span>
-          <span class="lc-time" id="ncTimeLabel">&nbsp;</span>
+        {# CARD 1 — Network Scan #}
+        <div class="live-card hidden" id="networkScanCard">
+          <div class="lc-header">
+            <span class="lc-title">Network Scan</span>
+            <span class="lc-time" id="ncTimeLabel">&nbsp;</span>
+          </div>
+          <div class="lc-status" id="ncStatus">
+            <span class="lc-spinner" id="ncSpinner"></span>
+            <span id="ncStatusText">Starting…</span>
+          </div>
+          <div class="lc-progress-track">
+            <div class="lc-progress-fill" id="ncProgressFill" style="width:0%"></div>
+          </div>
         </div>
-        <div class="lc-status" id="ncStatus">
-          <span class="lc-spinner" id="ncSpinner"></span>
-          <span id="ncStatusText">Starting…</span>
+      
+        {# CARD 2 — Report Generation #}
+        <div class="live-card hidden" id="reportGenCard">
+          <div class="lc-header">
+            <span class="lc-title">Report Generation</span>
+            <span class="lc-time" id="rgTimeLabel">&nbsp;</span>
+          </div>
+          <div class="lc-status" id="rgStatus">
+            <span class="lc-spinner" id="rgSpinner"></span>
+            <span id="rgStatusText">Queued…</span>
+          </div>
+          <div class="lc-progress-track">
+            <div class="lc-progress-fill" id="rgProgressFill" style="width:0%"></div>
+          </div>
         </div>
-        <div class="lc-progress-track">
-          <div class="lc-progress-fill" id="ncProgressFill" style="width:0%"></div>
-        </div>
+ 
       </div>
- 
-      {# CARD 2 — Report Generation #}
-      <div class="live-card hidden" id="reportGenCard">
-        <div class="lc-header">
-          <span class="lc-title">Report Generation</span>
-          <span class="lc-time" id="rgTimeLabel">&nbsp;</span>
-        </div>
-        <div class="lc-status" id="rgStatus">
-          <span class="lc-spinner" id="rgSpinner"></span>
-          <span id="rgStatusText">Queued…</span>
-        </div>
-        <div class="lc-progress-track">
-          <div class="lc-progress-fill" id="rgProgressFill" style="width:0%"></div>
-        </div>
-      </div>
- 
     </div>
   </div>
 
@@ -371,8 +423,11 @@ let pollInterval = null;
 let networkScanStartMs = null;
 let networkScanEndMs = null;
 let reportGenStartMs = null;
+
+let networkCardDismissed = false;
 let networkLingerTimer = null;
 let isScanActive = false;
+let persistReportCard = true;
 let currentScanPage = 1;
 const POLL_MS = 3000;
 let reportRiskCount = 0;
@@ -388,7 +443,6 @@ const BASE_OVERHEAD = 150;
 const REPORT_EST_SECS = 300;
 
 // having the report finished alert remain on screen once and only once
-let persistReportCard = true;
 if (sessionStorage.getItem('reportCompleteAcknowledged') === 'true') {
   persistReportCard = false;
 }
@@ -399,37 +453,55 @@ function getSelectedScanTypes() {
   ).map(el => el.value);
 }
 
-function updateDurationEstimate() {
-  const types = getSelectedScanTypes();
-  const strip = document.getElementById('durationStrip');
-  const text = document.getElementById('durationText');
-  const btn = document.getElementById('startScanBtn');
+// function updateDurationEstimate() {
+//   const types = getSelectedScanTypes();
+//   const strip = document.getElementById('durationStrip');
+//   const text = document.getElementById('durationText');
+//   const btn = document.getElementById('startScanBtn');
 
-  if (types.length === 0) {
-    strip.classList.add('warn');
-    text.textContent = 'Select at least one scan type to continue.';
-    btn.disabled = true;
-    return;
-  }
-  if (!isScanActive) btn.disabled = false;
-  strip.classList.remove('warn');
+//   if (types.length === 0) {
+//     strip.classList.add('warn');
+//     text.textContent = 'Select at least one scan type to continue.';
+//     btn.disabled = true;
+//     return;
+//   }
+//   if (!isScanActive) btn.disabled = false;
+//   strip.classList.remove('warn');
 
-  const secs = BASE_OVERHEAD + types.reduce((n, t) => n + (SCAN_DURATIONS[t] || 0), 0);
-  const mins = Math.ceil(secs / 60);
-  text.textContent = `Estimated scan duration: about ${mins} minute${mins !== 1 ? 's' : ''}`;
-}
+//   const secs = BASE_OVERHEAD + types.reduce((n, t) => n + (SCAN_DURATIONS[t] || 0), 0);
+//   const mins = Math.ceil(secs / 60);
+//   text.textContent = `Estimated scan duration: about ${mins} minute${mins !== 1 ? 's' : ''}`;
+// }
 
 document.querySelectorAll('.scan-type-toggle').forEach(label => {
   label.addEventListener('click', () => {
     const cb = label.querySelector('input[type="checkbox"]');
     cb.checked = !cb.checked;
     label.classList.toggle('is-checked', cb.checked);
-    updateDurationEstimate();
+    saveToggleState();
+    // updateDurationEstimate();
   });
 });
 
+function saveToggleState() {
+  sessionStorage.setItem('scanTypeSelection', JSON.stringify(getSelectedScanTypes()));
+}
+
+function restoreToggleState() {
+  const raw = sessionStorage.getItem('scanTypeSelection');
+  // No saved state → default all three checked
+  const saved = raw ? JSON.parse(raw) : ['tcp', 'udp', 'email', 'infra'];
+  document.querySelectorAll('.scan-type-toggle').forEach(label => {
+    const cb = label.querySelector('input[type="checkbox"]');
+    const shouldCheck = saved.includes(label.dataset.type);
+    cb.checked = shouldCheck;
+    label.classList.toggle('is-checked', shouldCheck);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-  updateDurationEstimate();
+  restoreToggleState();
+  // updateDurationEstimate();
   loadRecentScans();
 
   // Updated to use user-specific keys
@@ -438,6 +510,7 @@ document.addEventListener('DOMContentLoaded', function () {
     activeScanId = savedScanId;
     networkScanStartMs = parseInt(sessionStorage.getItem(NC_TIME_KEY) || '0') || null;
     reportGenStartMs = parseInt(sessionStorage.getItem(RG_TIME_KEY) || '0') || null;
+    networkCardDismissed = sessionStorage.getItem('networkCardDismissed') === 'true';
     setScanActive(true);
     startPolling(savedScanId);
   }
@@ -570,7 +643,7 @@ function handleStatusUpdate(data) {
       break;
     case 'GENERATING':
       if (!networkScanEndMs) networkScanEndMs = Date.now();
-      setNetworkComplete(data.findings_summary);
+      if (!networkCardDismissed) { setNetworkComplete(data.findings_summary); }
       if (!reportGenStartMs) {
         reportGenStartMs = Date.now();
         sessionStorage.setItem(RG_TIME_KEY, reportGenStartMs);
@@ -578,44 +651,50 @@ function handleStatusUpdate(data) {
         setReportRunning('Generation started', 20);
         scheduleNetworkCardLinger();
       }
-      setScanActive(true);
-      
       // Update with the clean data sent straight from the backend
       setReportRunning(data.generation_text || 'Generation started', data.generation_progress || 10);
+      if (data.live_risks && data.live_risks.length > 0) { updateLiveRisksDisplay(data.live_risks); }
+      setScanActive(true);
       break;
     case 'COMPLETE':
       stopPolling();
       sessionStorage.removeItem(SCAN_KEY);
       sessionStorage.removeItem(NC_TIME_KEY);
       sessionStorage.removeItem(RG_TIME_KEY);
-      setNetworkComplete(data.findings_summary);
+      sessionStorage.removeItem('networkCardDismissed');
+      if (!networkCardDismissed) setNetworkComplete(data.findings_summary);
       setReportComplete(data.report_url);
 
       sessionStorage.setItem('reportCompleteAcknowledged', 'true');
       persistReportCard = true;
 
       setScanActive(false);
-      loadRecentScans();
       break;
     case 'FAILED':
       stopPolling();
       sessionStorage.removeItem(SCAN_KEY);
       sessionStorage.removeItem(NC_TIME_KEY);
       sessionStorage.removeItem(RG_TIME_KEY);
+      sessionStorage.removeItem('networkCardDismissed');
+
       setNetworkError();
       showErrorCard(data.error || 'An unknown error occurred.');
       setScanActive(false);
-      loadRecentScans();
       break;
   }
+  // refresh table
+  loadRecentScans();
 }
 
 // Network Scan --- helper functions
 function showNetworkCard() {
+  if (networkCardDismissed) return;
   const card = document.getElementById('networkScanCard');
   card.classList.remove('hidden', 'fading', 'error-state');
+  updateStackHeight();
 }
 function setNetworkRunning(statusText) {
+  if (networkCardDismissed) return;
   document.getElementById('ncSpinner').style.display = 'inline-block';
   _removeCheckmark('ncStatus');
   document.getElementById('ncStatusText').textContent = statusText;
@@ -630,6 +709,8 @@ function setNetworkRunning(statusText) {
   }
 }
 function setNetworkComplete(findingsSummary) {
+  // skip if already dismissed
+  if (networkCardDismissed) return;
   showNetworkCard();
   document.getElementById('ncSpinner').style.display = 'none';
   _insertCheckmark('ncStatus', 'ncStatusText');
@@ -654,9 +735,15 @@ function setNetworkError() {
 function scheduleNetworkCardLinger() {
   if (networkLingerTimer) return;
   networkLingerTimer = setTimeout(() => {
+    networkCardDismissed = true;
+    sessionStorage.setItem('networkCardDismissed', 'true');
+
     const card = document.getElementById('networkScanCard');
     card.classList.add('fading');
-    setTimeout(() => card.classList.add('hidden'), 650);
+    setTimeout(() => {
+      card.classList.add('hidden');
+      updateStackHeight();
+    }, 650);
   }, 10000);
 }
 
@@ -664,6 +751,7 @@ function scheduleNetworkCardLinger() {
 function showReportCard() {
   const card = document.getElementById('reportGenCard');
   card.classList.remove('hidden', 'fading', 'error-state');
+  updateStackHeight();
 }
 function setReportRunning(statusText, pct) {
   document.getElementById('rgSpinner').style.display = 'inline-block';
@@ -690,6 +778,30 @@ function setReportComplete(reportUrl) {
     const mins = Math.max(1, Math.round((Date.now() - reportGenStartMs) / 60000));
     document.getElementById('rgTimeLabel').innerHTML = `completed in <strong>${mins} min${mins !== 1 ? 's' : ''}</strong>`;
   }
+}
+
+// adjusting the height of Card 2
+function updateStackHeight() {
+  requestAnimationFrame(() => {
+    const stack = document.getElementById('liveCardsStack');
+    const card1 = document.getElementById('networkScanCard');
+    const card2 = document.getElementById('reportGenCard');
+    const c2Vis = !card2.classList.contains('hidden');
+    const c1Vis = !card1.classList.contains('hidden') && !card1.classList.contains('fading');
+
+    if (!c2Vis) {
+      // Only card 1 visible (or nothing) — let natural flow handle height
+      stack.style.minHeight = '';
+      return;
+    }
+
+    // card2 is absolute at top:20px. Its bottom edge is at 20 + card2.offsetHeight.
+    // card1 sets natural height. We need min-height >= max(card1, 20 + card2Height).
+    const c1H     = c1Vis ? card1.offsetHeight : 0;
+    const c2H     = card2.offsetHeight;
+    const needed  = Math.max(c1H, 20 + c2H);
+    stack.style.minHeight = (needed + 4) + 'px';
+  });
 }
 
 /* How I believe I would handle recieving the updates from Shane's end */
@@ -950,7 +1062,7 @@ function renderRecentScans(data) {
   const scans = data.scans || [];
   const pagination = data.pagination || {};
  
-  if (scans.length === 0 && pagination.current_page === 1) {
+  if (scans.length === 0 && pagination.current_page === 1 || !pagination.current_page) {
     container.innerHTML = '<p class="text-muted">No scans yet.</p>';
     return;
   }
@@ -961,7 +1073,7 @@ function renderRecentScans(data) {
     const report = s.report_id
       ? `<a href="/reports/${s.report_id}/" class="btn btn-sm btn-outline-primary">View Report</a>`
       : '—';
-    const findings = s.status === 'COMPLETE'
+    const findings = (s.status === 'COMPLETE' || s.status === 'GENERATING' || s.status === 'RECEIVED')
       ? `<span class="badge bg-danger me-1">${s.finding_count_critical}</span>
          <span class="badge bg-warning text-dark me-1">${s.finding_count_high}</span>
          <span class="badge bg-info text-dark me-1">${s.finding_count_medium}</span>
@@ -1047,7 +1159,7 @@ function _insertCheckmark(statusRowId, textElId) {
 }
 
 function _removeCheckmark(statusRowId) {
-  const chk = document.getElementById(statusRowId).querySelector('.lc-check');
+  const chk = document.getElementById(statusRowId) && document.getElementById(statusRowId).querySelector('.lc-check');
   if (chk) chk.remove();
 }
 
@@ -1067,12 +1179,14 @@ function startScan() {
   networkScanStartMs = null;
   networkScanEndMs = null;
   reportGenStartMs = null;
+  networkCardDismissed = false;
   reportRiskCount = 0;
   if (networkLingerTimer) {
     clearTimeout(networkLingerTimer);
     networkLingerTimer = null;
   }
   sessionStorage.removeItem('reportCompleteAcknowledged');
+  sessionStorage.removeItem('networkCardDismissed');
   persistReportCard = true;
 
   // reset card 1
@@ -1098,6 +1212,7 @@ function startScan() {
   rgFill.style.width = '0%'; rgFill.classList.remove('done', 'fail');
 
   // reset error card
+  document.getElementById('liveCardsStack').style.minHeight = '';
   document.getElementById('errorCard').classList.add('d-none');
 
   btn.disabled = true;
@@ -1181,12 +1296,14 @@ function retryAIGeneration() {
       // If the backend refuses the retry, show the error card again
       showErrorCard(data.error || 'Failed to restart generation.');
       document.getElementById('reportGenCard').classList.add('hidden');
+      updateStackHeight();
       setScanActive(false);
     }
   })
   .catch(() => {
     showErrorCard('Network error while trying to restart.');
     document.getElementById('reportGenCard').classList.add('hidden');
+    updateStackHeight();
     setScanActive(false);
   });
 }
