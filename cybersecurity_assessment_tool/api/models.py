@@ -554,6 +554,8 @@ class Scan(models.Model):
     groups_completed = models.PositiveSmallIntegerField(default=0)
     skipped_tools = models.JSONField(default=list, blank=True)
 
+    scan_progress = models.JSONField(default=dict, blank=True)
+
     # ------------------------------------------------------------------
     # Results (encrypted - raw vulnerability data)
     # ------------------------------------------------------------------
