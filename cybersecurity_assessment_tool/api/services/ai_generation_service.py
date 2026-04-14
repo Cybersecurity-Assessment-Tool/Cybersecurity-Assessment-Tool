@@ -299,6 +299,8 @@ def _add_risks(report: dict, current_risks: dict):
 
     data = json.loads(response_text)
     jsonschema.validate(instance=data, schema=RISK_SCHEMA_JSON)
+    
+    return data
 
 def ai_generation_service(questionnaire: dict, current_risks: dict, context: str, chunk_callback=None):
     """
@@ -310,22 +312,24 @@ def ai_generation_service(questionnaire: dict, current_risks: dict, context: str
     
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            # Pass the callback down to the report generator
+            # Tell the frontend progress bar to reset if this is a retry
+            if attempt > 1 and chunk_callback:
+                chunk_callback("__RETRY_RESET__")
+                
             report_data = _generate_report_content(questionnaire, context, chunk_callback)
             risks_data = _add_risks(report_data, current_risks)
             
             print("--- Successfully generated report and risk data dictionaries. ---")
-            return report_data, risks_data, None
+            return report_data, risks_data, ""
 
         except (ResourceExhausted, ServiceUnavailable, DeadlineExceeded) as e:
             msg = "The AI service is experiencing issues or high traffic."
             print(f"[WARNING] Attempt {attempt}/{MAX_RETRIES} failed: {msg}")
             if attempt == MAX_RETRIES:
                 return None, None, f"{msg} Please try again later."
-            time.sleep(2 ** attempt) # Exponential backoff: 2s, 4s, etc.
+            time.sleep(2 ** attempt) 
             
         except RuntimeError as e:
-            # This catches our custom empty response errors
             print(f"[WARNING] Attempt {attempt}/{MAX_RETRIES} failed due to empty API output: {e}")
             if attempt == MAX_RETRIES:
                 return None, None, "The AI failed to generate content after multiple attempts."
@@ -334,7 +338,7 @@ def ai_generation_service(questionnaire: dict, current_risks: dict, context: str
         except jsonschema.ValidationError as e:
             msg = "The AI generated an improperly formatted report."
             print(f"[ERROR] Schema validation failed: {e.message}")
-            return None, None, msg # Schema failures usually repeat, so failing fast is better here
+            return None, None, msg 
             
         except Exception as e:
             error_str = str(e).lower()
@@ -347,3 +351,6 @@ def ai_generation_service(questionnaire: dict, current_risks: dict, context: str
             if attempt == MAX_RETRIES:
                 return None, None, "An unexpected error occurred while analyzing the scan data."
             time.sleep(2)
+            
+    # Fallback if the loop breaks unexpectedly
+    return None, None, "Maximum retries exceeded."
