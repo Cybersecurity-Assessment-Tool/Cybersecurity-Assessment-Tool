@@ -1318,10 +1318,24 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
             elif '"Observations"' in current_text:
                 report_pct, status_text = 80, 'Determining observations'
             elif '"Summary"' in current_text:
-                severity_hits = current_text.count('"Severity"')
+                severity_matches = re.findall(r'"Severity"\s*:\s*"([^"]+)"', current_text, re.IGNORECASE) # track entire portion including severity type
+                severity_hits = len(severity_matches)
+
                 if severity_hits > 0:
                     report_pct = min(75, 35 + (severity_hits * 4))
-                    status_text = f'Analyzing risk {severity_hits}...'
+                    latest_severity = severity_matches[-1].capitalize()
+                    status_text = f'Found a {latest_severity} risk (Analyzed {severity_hits})...'
+
+                    # ADD a running tally of severity counts to cache
+                    live_counts = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0}
+                    for sev in severity_matches:
+                        sev_cap = sev.capitalize()
+                        if sev_cap in live_counts:
+                            live_counts[sev_cap] += 1
+
+                    # cache live findings
+                    if scan_id:
+                        cache.set(f"scan_live_risks_{scan_id}", live_counts, timeout=600)
                 else:
                     report_pct, status_text = 35, 'Providing network summary'
             elif '"report"' in current_text:

@@ -246,8 +246,8 @@
     background: #22c55e;
     transition: width 0.4s ease;
   }
-  .lc-progress-bar:has(.lc-progress-fill.done) {
-    display: none;
+  .lc-progress-track:has(.lc-progress-fill.done) {
+    visibility: hidden;
   }
   /* workaround if needed */
   .lc-progress-fill.done {
@@ -433,7 +433,7 @@ let reportGenStartMs = null;
 let isScanActive = false;
 let persistReportCard = true;
 let currentScanPage = 1;
-const POLL_MS = 3000;
+const POLL_MS = 600;
 let reportRiskCount = 0;
 
 let expandedCard = 'network';
@@ -521,20 +521,22 @@ document.addEventListener('DOMContentLoaded', function () {
     startPolling(savedScanId);
   }
 
-  // collapse/expand hover listeners — state persists after cursor leaves
+  // collapse/expand hover listeners - state persists after cursor leaves
   const stack = document.getElementById('liveCardsStack');
 
   stack.addEventListener('mousemove', (e) => {
     const rg = document.getElementById('reportGenCard');
 
-    // Exit if the second card isn't active yet
+    // Only run logic if both cards are active/visible
     if (rg.classList.contains('hidden')) return;
 
     const rect = stack.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
-    const isLeftHalf = mouseX < (rect.width / 2);
+    const width = rect.width;
+  
+    const threshold = (expandedCard === 'network') ? (width * 0.75) : (width * 0.25);
 
-    if (isLeftHalf) {
+    if (mouseX < threshold) {
       if (expandedCard !== 'network') {
         setExpandedCard('network');
       }
@@ -691,10 +693,14 @@ function handleStatusUpdate(data) {
       }
       setReportRunning(data.generation_text || 'Generation started', data.generation_progress || 10);
       // store live risk counts so renderRecentScans can use them
-      if (data.live_risks) {
-        const c = { Critical: 0, High: 0, Medium: 0, Low: 0, Info: 0 };
-        data.live_risks.forEach(r => { if (c[r.severity] !== undefined) c[r.severity]++; });
-        latestLiveRiskCounts = c;
+      if (data.live_risk_counts) {
+        latestLiveRiskCounts = {
+          Critical: data.live_risk_counts.Critical || 0,
+          High: data.live_risk_counts.High || 0,
+          Medium: data.live_risk_counts.Medium || 0,
+          Low: data.live_risk_counts.Low || 0,
+          Info: data.live_risk_counts.Info || 0,
+        };
       }
       setScanActive(true);
       break;
