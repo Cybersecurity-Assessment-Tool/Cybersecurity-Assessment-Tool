@@ -1,13 +1,11 @@
 import json
 import os
-import sys
 import google.generativeai as gen
-from django.utils import timezone
 import jsonschema
-from google.genai import types
 from typing import Dict, Any
 from django.conf import settings
 from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable, DeadlineExceeded
+import time
 
 # -----------------------------------------------------------------------------
 # MODEL SETUP
@@ -233,16 +231,21 @@ def _generate_report_content(questionnaire, context, chunk_callback=None):
 
     full_text = ""
     
-    # 2. Iterate through the chunks as Google sends them
     for chunk in response:
-        if chunk.text:
-            full_text += chunk.text
-            print("Chunk: " + chunk.text + "\n")
-            # 3. Fire the callback to push the chunk up to the Django worker
-            if chunk_callback:
-                chunk_callback(chunk.text)
+        try:
+            # Safely attempt to access the text property
+            chunk_text = chunk.text
+            if chunk_text:
+                full_text += chunk_text
+                print("Chunk: " + chunk_text + "\n")
+                if chunk_callback:
+                    chunk_callback(chunk_text)
+        except ValueError:
+            # The chunk had no valid text parts (likely finish_reason 1). 
+            # We just ignore this specific chunk and continue.
+            continue
 
-    if not full_text:
+    if not full_text.strip():
         raise RuntimeError("Empty response from Gemini for report generation.")
 
     # 4. Once the stream finishes, parse the accumulated text into JSON
@@ -283,13 +286,17 @@ def _add_risks(report: dict, current_risks: dict):
         )
     )
     
-    if not response.text:
+    # Safely extract text
+    try:
+        response_text = response.text
+    except ValueError:
+        raise RuntimeError("Gemini returned an empty response payload (finish_reason 1).")
+    
+    if not response_text.strip():
         raise RuntimeError("Empty response from Gemini for risk generation.")
 
-    data = json.loads(response.text)
+    data = json.loads(response_text)
     jsonschema.validate(instance=data, schema=RISK_SCHEMA_JSON)
-        
-    return data
 
 def ai_generation_service(questionnaire: dict, current_risks: dict, context: str, chunk_callback=None):
     """
@@ -297,34 +304,44 @@ def ai_generation_service(questionnaire: dict, current_risks: dict, context: str
     Accepts an optional chunk_callback(text) to stream report progress.
     Returns: (report_data, risks_data, error_message)
     """
-    try:
-        # Pass the callback down to the report generator
-        report_data = _generate_report_content(questionnaire, context, chunk_callback)
-        risks_data = _add_risks(report_data, current_risks)
-        print("--- Successfully generated report and risk data dictionaries. ---")
-        return report_data, risks_data, None
-
-    except ResourceExhausted:
-        msg = "The AI is currently experiencing high traffic. Please wait a moment and try again."
-        print(f"[ERROR] {msg}")
-        return None, None, msg
-        
-    except (ServiceUnavailable, DeadlineExceeded):
-        msg = "The AI service timed out or is temporarily offline. Please try again later."
-        print(f"[ERROR] {msg}")
-        return None, None, msg
-        
-    except jsonschema.ValidationError as e:
-        msg = "The AI generated an improperly formatted report. Please run the scan again."
-        print(f"[ERROR] Schema validation failed: {e.message}")
-        return None, None, msg
-        
-    except Exception as e:
-        error_str = str(e).lower()
-        if "safety" in error_str or "blocked" in error_str:
-            msg = "The AI blocked the generation because the scan data triggered a safety filter."
-        else:
-            msg = "An unexpected error occurred while analyzing the scan data."
+    MAX_RETRIES = 3
+    
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            # Pass the callback down to the report generator
+            report_data = _generate_report_content(questionnaire, context, chunk_callback)
+            risks_data = _add_risks(report_data, current_risks)
             
-        print(f"[ERROR] AI Pipeline failed: {e}")
-        return None, None, msg
+            print("--- Successfully generated report and risk data dictionaries. ---")
+            return report_data, risks_data, None
+
+        except (ResourceExhausted, ServiceUnavailable, DeadlineExceeded) as e:
+            msg = "The AI service is experiencing issues or high traffic."
+            print(f"[WARNING] Attempt {attempt}/{MAX_RETRIES} failed: {msg}")
+            if attempt == MAX_RETRIES:
+                return None, None, f"{msg} Please try again later."
+            time.sleep(2 ** attempt) # Exponential backoff: 2s, 4s, etc.
+            
+        except RuntimeError as e:
+            # This catches our custom empty response errors
+            print(f"[WARNING] Attempt {attempt}/{MAX_RETRIES} failed due to empty API output: {e}")
+            if attempt == MAX_RETRIES:
+                return None, None, "The AI failed to generate content after multiple attempts."
+            time.sleep(2)
+            
+        except jsonschema.ValidationError as e:
+            msg = "The AI generated an improperly formatted report."
+            print(f"[ERROR] Schema validation failed: {e.message}")
+            return None, None, msg # Schema failures usually repeat, so failing fast is better here
+            
+        except Exception as e:
+            error_str = str(e).lower()
+            if "safety" in error_str or "blocked" in error_str:
+                msg = "The AI blocked the generation because the scan data triggered a safety filter."
+                print(f"[ERROR] {msg}")
+                return None, None, msg
+                
+            print(f"[ERROR] AI Pipeline failed on attempt {attempt}: {e}")
+            if attempt == MAX_RETRIES:
+                return None, None, "An unexpected error occurred while analyzing the scan data."
+            time.sleep(2)
