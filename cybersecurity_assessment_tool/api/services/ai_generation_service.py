@@ -161,6 +161,7 @@ def _create_report_prompt() -> str:
     Every response you generate MUST include a "thought" key at the root level where you think through your analysis, followed by the "report" key.
     
     Pass the formatted vulnerabilities and summaries into the "report" section EXACTLY as formatted in the schema.
+    If there are no vulnerabilities found, you MUST return an empty array [] for 'Vulnerabilities Found' or 'new vulnerabilities'. Do not leave these fields blank or omit them.
     Draw conclusions (e.g., p=reject is strong, no open ports are secure) rather than just listing data. 
     Do not include conversational text or markdown. Do not include the example in your response. 
     
@@ -183,6 +184,7 @@ def _create_risk_prompt() -> str:
     The current risk list tells you which risks are already known. 
     Each entry corresponds to a vulnerability already tracked by the organization. 
     Pass all new vulnerabilities that are NOT in the known risk list into the "new vulnerabilities" section.
+    If there are no vulnerabilities found, you MUST return an empty array [] for 'Vulnerabilities Found' or 'new vulnerabilities'. Do not leave these fields blank or omit them.
     Assign accurate severities and provide an 'easy_fix' and 'long_term_fix'.
     Do not include any conversational text or markdown. Do not include the example in your response.
     Do not include any issues with the network scan in your response.
