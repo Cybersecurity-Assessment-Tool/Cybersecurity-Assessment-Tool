@@ -369,7 +369,7 @@ def _check_dmarc(target, resolver, findings):
             'severity': 'HIGH', 
             'scan_type': 'email',
             'category': 'dmarc',
-            'description': f'No DMARC record at _dmarc.{target}'
+            'description': f'No DMARC record at '#_dmarc.{target}' FIX THIS/SANITIZE
         })
         return {'found': False, 'record': '', 'parsed': {}, 'policy': 'none'}
     dmarc_str = raw[0]
@@ -511,7 +511,7 @@ def _attempt_zone_transfer(target, ns_records, findings):
 
 # ── Infra helpers ────────────────────────────────────────────────────────────
 
-def _check_tls(hostname, findings):
+def _check_tls(hostname, findings, progress_fn=None):
     result = {}
     try:
         # Open the TLS connection and grab initial metadata
@@ -557,27 +557,6 @@ def _check_tls(hostname, findings):
                 'category': 'tls',
                 'information': f'TLS certificate expires in {days_left} days'
             })
-
-		# Probe for weak TLS protocol versions
-        for label, min_ver in [('TLS 1.0', ssl.TLSVersion.TLSv1), ('TLS 1.1', ssl.TLSVersion.TLSv1_1)]:
-            try:
-                wctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-                wctx.check_hostname = False
-                wctx.verify_mode = ssl.CERT_NONE
-                wctx.minimum_version = min_ver
-                wctx.maximum_version = min_ver
-                with wctx.wrap_socket(socket.socket()) as ws:
-                    ws.settimeout(5)
-                    ws.connect((hostname, 443))
-                result.setdefault('weak_protocols_accepted', []).append(label)
-                findings.append({
-                    'severity': 'HIGH', 
-                    'scan_type': 'infra',
-                    'category': 'tls',
-                    'information': f'Server accepts deprecated {label}'
-				})
-            except Exception:
-                pass
 	# Error handle
     except ssl.SSLCertVerificationError as e:
         result = {'valid': False, 'error': str(e)[:200]}
@@ -589,11 +568,41 @@ def _check_tls(hostname, findings):
         })
     except Exception as e:
         result = {'error': str(e)[:200]}
+    if progress_fn: progress_fn()  # step 1/3: TLS connection attempt
+
+	# Probe for weak TLS protocol versions (always attempted)
+    for label, min_ver in [('TLS 1.0', ssl.TLSVersion.TLSv1), ('TLS 1.1', ssl.TLSVersion.TLSv1_1)]:
+        try:
+            wctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+            wctx.check_hostname = False
+            wctx.verify_mode = ssl.CERT_NONE
+            wctx.minimum_version = min_ver
+            wctx.maximum_version = min_ver
+            with wctx.wrap_socket(socket.socket()) as ws:
+                ws.settimeout(5)
+                ws.connect((hostname, 443))
+            result.setdefault('weak_protocols_accepted', []).append(label)
+            findings.append({
+                'severity': 'HIGH', 
+                'scan_type': 'infra',
+                'category': 'tls',
+                'information': f'Server accepts deprecated {label}'
+			})
+        except Exception:
+            pass
+        if progress_fn: progress_fn()  # steps 2-3/3: weak protocol probes
 
     return result
 
 
-def _check_http(hostname, session, findings):
+def _check_http(hostname, session, findings, progress_fn=None):
+    _EXPECTED_STEPS = 1 + 1 + len(PROBE_PATHS)  # 25: scheme + methods + path probes
+    _steps_fired = [0]
+
+    def _step():
+        _steps_fired[0] += 1
+        if progress_fn: progress_fn()
+
     http_result = {}
     for scheme in ['https', 'http']:
         try:
@@ -670,6 +679,10 @@ def _check_http(hostname, session, findings):
 					})
 
             base_url = f'{scheme}://{hostname}'
+            waf = _detect_waf_cdn(all_headers)
+            methods = _check_http_methods(base_url, session, findings, _step)
+            paths = _probe_paths(base_url, session, findings, _step)
+            _step()  # scheme resolved
             http_result = {
                 'final_url': resp.url,
                 'status_code': resp.status_code,
@@ -680,9 +693,9 @@ def _check_http(hostname, session, findings):
                     'x_powered_by': x_powered or None,
                     'x_aspnet_version': x_aspnet or None,
                 },
-                'waf_cdn_detected': _detect_waf_cdn(all_headers),
-                'http_methods': _check_http_methods(base_url, session, findings),
-                'path_probe': _probe_paths(base_url, session, findings),
+                'waf_cdn_detected': waf,
+                'http_methods': methods,
+                'path_probe': paths,
             }
             break
         except requests.exceptions.SSLError as e:
@@ -690,19 +703,27 @@ def _check_http(hostname, session, findings):
                 'severity': 'HIGH', 
                 'scan_type': 'infra',
                 'category': 'http',
-                'finding': f'SSL error on {scheme}: {str(e)[:120]}'
+                'finding': f'SSL error on scheme: {str(e)[:120]}' # FIX THIS/SANITIZE
 			})
         except Exception as e:
-            http_result[f'{scheme}_error'] = str(e)[:120]
+            http_result[f'scheme_error'] = str(e)[:120] # FIX THIS/SANITIZE
+    # Catch up any missed steps (both schemes failed → no inner work done)
+    while _steps_fired[0] < _EXPECTED_STEPS:
+        _step()
     return http_result
 
 
-def _check_dns(target_domain, resolver, findings):
+def _check_dns(target_domain, resolver, findings, progress_fn=None):
     a_records    = [r.address for r in _resolve_safe(resolver, target_domain, 'A')]
+    if progress_fn: progress_fn()  # step 1/7
     aaaa_records = [r.address for r in _resolve_safe(resolver, target_domain, 'AAAA')]
+    if progress_fn: progress_fn()  # step 2/7
     ns_records   = [str(r.target) for r in _resolve_safe(resolver, target_domain, 'NS')]
+    if progress_fn: progress_fn()  # step 3/7
     caa_records  = [str(r) for r in _resolve_safe(resolver, target_domain, 'CAA')]
+    if progress_fn: progress_fn()  # step 4/7
     txt_records  = [r.to_text().strip('"') for r in _resolve_safe(resolver, target_domain, 'TXT')]
+    if progress_fn: progress_fn()  # step 5/7
 
     if len(ns_records) < 2:
         findings.append({
@@ -719,23 +740,32 @@ def _check_dns(target_domain, resolver, findings):
             'finding': 'No CAA records — any CA may issue TLS certificates for this domain'
 		})
 
+    dnssec_result = _check_dnssec(target_domain, resolver, findings)
+    if progress_fn: progress_fn()  # step 6/7
+    zt_result = _attempt_zone_transfer(target_domain, ns_records, findings)
+    if progress_fn: progress_fn()  # step 7/7
+
     return {
         'a_records':     a_records,
         'aaaa_records':  aaaa_records,
         'ns_records':    ns_records,
         'caa_records':   caa_records,
         'txt_records':   txt_records,
-        'dnssec':        _check_dnssec(target_domain, resolver, findings),
-        'zone_transfer': _attempt_zone_transfer(target_domain, ns_records, findings),
+        'dnssec':        dnssec_result,
+        'zone_transfer': zt_result,
     }
 
 
-def _check_email_secondary(target_domain, txt_records, resolver, findings):
+def _check_email_secondary(target_domain, txt_records, resolver, findings, progress_fn=None):
     email_findings = []
+    spf_result = _check_spf(txt_records, email_findings)
+    if progress_fn: progress_fn()  # step 1/2
+    dmarc_result = _check_dmarc(target_domain, resolver, email_findings)
+    if progress_fn: progress_fn()  # step 2/2
     result = {
         'note': 'Secondary check — run Email Scan for full email security assessment',
-        'spf':   _check_spf(txt_records, email_findings),
-        'dmarc': _check_dmarc(target_domain, resolver, email_findings),
+        'spf':   spf_result,
+        'dmarc': dmarc_result,
     }
     for f in email_findings:
         f['category'] = 'email_secondary'
@@ -743,17 +773,17 @@ def _check_email_secondary(target_domain, txt_records, resolver, findings):
     return result
 
 
-def _check_ip_intel(a_records, aaaa_records, findings):
+def _check_ip_intel(a_records, aaaa_records, findings, progress_fn=None):
     ip_intel = []
     for ip in (a_records + aaaa_records)[:5]:
-        info = {'ip': ip}
+        info = {} # {'ip': ip} # FIX THIS/SANITIZE
         try:
             r = requests.get(f'https://ipinfo.io/{ip}/json', timeout=5,
                              headers={'User-Agent': 'SimpleScan/1.0'})
             if r.status_code == 200:
                 data = r.json()
                 info.update({
-                    'hostname': data.get('hostname'),
+                    # 'hostname': data.get('hostname'),
                     'org':      data.get('org'),
                     'city':     data.get('city'),
                     'country':  data.get('country'),
@@ -769,18 +799,19 @@ def _check_ip_intel(a_records, aaaa_records, findings):
         except Exception as e:
             info['error'] = str(e)[:100]
         ip_intel.append(info)
+    if progress_fn: progress_fn()  # step 1/1
     return ip_intel
 
 
-def _check_reverse_dns(a_records, aaaa_records, findings):
+def _check_reverse_dns(a_records, aaaa_records, findings, progress_fn=None):
     ptr_results = {}
     for ip in (a_records + aaaa_records)[:5]:
         try:
             hostname, _, _ = socket.gethostbyaddr(ip)
-            ptr_results[ip] = hostname
+            # ptr_results[ip] = hostname
             try:
                 fwd = socket.gethostbyname(hostname)
-                ptr_results[f'{ip}_fcrdns'] = 'pass' if fwd == ip else f'fail (resolves to {fwd})'
+                ptr_results[f'ip_fcrdns'] = 'pass' if fwd == ip else f'fail (resolves to {fwd})' # FIX THIS/SANITIZE
                 if fwd != ip:
                     findings.append({
                         'severity': 'LOW', 
@@ -789,13 +820,14 @@ def _check_reverse_dns(a_records, aaaa_records, findings):
                         'finding': f'FCrDNS mismatch for {ip}: PTR={hostname} resolves to {fwd}'
 					})
             except Exception:
-                ptr_results[f'{ip}_fcrdns'] = 'fail (forward lookup failed)'
+                ptr_results[f'ip_fcrdns'] = 'fail (forward lookup failed)' # FIX THIS/SANITIZE
         except Exception:
-            ptr_results[ip] = None
+            ptr_results[f'ip'] = None # FIX THIS/SANITIZE
+    if progress_fn: progress_fn()  # step 1/1
     return ptr_results
 
 
-def _check_subdomains(target_domain, resolver, findings):
+def _check_subdomains(target_domain, resolver, findings, progress_fn=None):
     discovered = []
     for sub in SUBDOMAINS_TO_PROBE:
         fqdn = f'{sub}.{target_domain}'
@@ -805,6 +837,7 @@ def _check_subdomains(target_domain, resolver, findings):
             logger.debug(f'[InfraScan] Subdomain found: {fqdn}')
         except Exception:
             pass
+        if progress_fn: progress_fn()  # step N/44: one per subdomain
     if discovered:
         findings.append({
             'severity': 'INFO', 
@@ -825,7 +858,7 @@ def _detect_waf_cdn(headers):
     return [name for name, check in WAF_CDN_SIGNATURES.items() if check(headers)]
 
 
-def _probe_paths(base_url, session, findings):
+def _probe_paths(base_url, session, findings, progress_fn=None):
     discovered = []
     sensitive = {'.env', '.git', 'backup', 'config', 'htaccess', 'web.config', 'xmlrpc'}
     for path in PROBE_PATHS:
@@ -854,10 +887,11 @@ def _probe_paths(base_url, session, findings):
 					})
         except Exception:
             pass
+        if progress_fn: progress_fn()  # step N/23: one per path
     return discovered
 
 
-def _check_http_methods(base_url, session, findings):
+def _check_http_methods(base_url, session, findings, progress_fn=None):
     methods = {}
     try:
         r = session.options(base_url, timeout=5, headers={'User-Agent': 'SimpleScan/1.0'})
@@ -874,17 +908,20 @@ def _check_http_methods(base_url, session, findings):
         methods['dangerous_methods'] = dangerous
     except Exception as e:
         methods['error'] = str(e)[:100]
+    if progress_fn: progress_fn()  # step 1/1: HTTP methods check
     return methods
 
 
 # ── Scan functions ────────────────────────────────────────────────────────────
 
-def run_tcp_port_scan(target_ip: str) -> dict:
+def run_tcp_port_scan(target_ip: str, progress_callback=None) -> dict:
     """Port scan against the organization's WAN IP."""
     scan_start_ts = datetime.now(dt_timezone.utc)
     target_ip = target_ip.strip()
     logger.info(f"[PortScan] Starting on '{target_ip}' (len={len(target_ip)})")
     findings = []
+    total_ports = len(TCP_PORT_SERVICES)
+    completed = 0
 
     for port in TCP_PORT_SERVICES:
         logger.info(f"[PortScan] Scanning TCP port {port} ({TCP_PORT_SERVICES[port]})")
@@ -948,6 +985,9 @@ def run_tcp_port_scan(target_ip: str) -> dict:
             logger.warning(f"[PortScan] Port {port} unexpected error: {e}")
         finally:
             sock.close()
+        completed += 1
+        if progress_callback:
+            progress_callback('tcp', completed, total_ports)
         logger.info(f"[PortScan] Finished TCP port {port}")
 
     open_count = sum(1 for f in findings if "Open port" in f['description']) # Get number of open ports based on descriptions
@@ -961,11 +1001,13 @@ def run_tcp_port_scan(target_ip: str) -> dict:
     return results
 
 
-def run_udp_port_scan(target_ip: str) -> dict:
+def run_udp_port_scan(target_ip: str, progress_callback=None) -> dict:
     """UDP port scan against the organization's WAN IP."""
     scan_start_ts = datetime.now(dt_timezone.utc)
     logger.info(f"[UDPPortScan] Starting on {target_ip}")
     findings = []
+    total_ports = len(UDP_PORT_SERVICES)
+    completed = 0
 
     for port in UDP_PORT_SERVICES:
         logger.info(f"[UDPPortScan] Scanning UDP port {port} ({UDP_PORT_SERVICES[port]})")
@@ -1019,6 +1061,9 @@ def run_udp_port_scan(target_ip: str) -> dict:
             })
         finally:
             sock.close()
+        completed += 1
+        if progress_callback:
+            progress_callback('udp', completed, total_ports)
         logger.info(f"[UDPPortScan] Finished UDP port {port}")
 
     open_count = sum(1 for f in findings if "Open port" in f['description'])
@@ -1032,11 +1077,13 @@ def run_udp_port_scan(target_ip: str) -> dict:
     return results
 
 
-def run_email_scan(target_domain: str) -> dict:
+def run_email_scan(target_domain: str, progress_callback=None) -> dict:
     """Email security scan: MX, SPF, DMARC, DKIM, MTA-STS, DNSSEC, zone transfer."""
     scan_start_ts = datetime.now(dt_timezone.utc)
     logger.info(f"[EmailScan] Starting on {target_domain}")
     findings = []
+    total_checks = 7  # mx, spf, dmarc, dkim, mta_sts, dnssec, zone_transfer
+    completed = 0
     results = {
         'email': {
             'mx': {}, 
@@ -1062,16 +1109,26 @@ def run_email_scan(target_domain: str) -> dict:
             'category': 'mx',
             'description': 'No MX records — domain cannot receive email'
 		})
+    completed += 1
+    if progress_callback:
+        progress_callback('email', completed, total_checks)
 
     txt_records = [r.to_text().strip('"') for r in _resolve_safe(resolver, target_domain, 'TXT')]
     ns_records  = [str(r.target) for r in _resolve_safe(resolver, target_domain, 'NS')]
 
-    results['email']['spf']           = _check_spf(txt_records, findings)
-    results['email']['dmarc']         = _check_dmarc(target_domain, resolver, findings)
-    results['email']['dkim']          = _check_dkim(target_domain, resolver, findings)
-    results['email']['mta_sts']       = _check_mta_sts(target_domain, resolver, findings)
-    results['email']['dnssec']        = _check_dnssec(target_domain, resolver, findings)
-    results['email']['zone_transfer'] = _attempt_zone_transfer(target_domain, ns_records, findings)
+    email_checks = [
+        ('spf',           lambda: _check_spf(txt_records, findings)),
+        ('dmarc',         lambda: _check_dmarc(target_domain, resolver, findings)),
+        ('dkim',          lambda: _check_dkim(target_domain, resolver, findings)),
+        ('mta_sts',       lambda: _check_mta_sts(target_domain, resolver, findings)),
+        ('dnssec',        lambda: _check_dnssec(target_domain, resolver, findings)),
+        ('zone_transfer', lambda: _attempt_zone_transfer(target_domain, ns_records, findings)),
+    ]
+    for check_name, check_fn in email_checks:
+        results['email'][check_name] = check_fn()
+        completed += 1
+        if progress_callback:
+            progress_callback('email', completed, total_checks)
 
     results['scan_metadata'] = _add_metadata('email', scan_start_ts)
     results['findings'] = findings
@@ -1079,11 +1136,14 @@ def run_email_scan(target_domain: str) -> dict:
     return results
 
 
-def run_infra_scan(target_domain: str) -> dict:
+def run_infra_scan(target_domain: str, progress_callback=None) -> dict:
     """Web infrastructure scan: TLS, HTTP headers, DNS, subdomains, IP intel."""
     scan_start_ts = datetime.now(dt_timezone.utc)
     logger.info(f"[InfraScan] Starting on {target_domain}")
     findings = []
+    # 3(tls) + 25(http) + 7(dns) + 2(email_2nd) + 1(ip) + 1(rdns) + 44(subdomains) = 83
+    total_checks = 83
+    completed = [0]  # mutable so helpers can increment via closure
     results = {
         'infra': {
 			'tls': {}, 
@@ -1097,35 +1157,40 @@ def run_infra_scan(target_domain: str) -> dict:
 		'findings': []
     }
 
+    def _progress():
+        completed[0] += 1
+        if progress_callback:
+            progress_callback('infra', completed[0], total_checks)
+
     resolver = _make_resolver()
     session = requests.Session()
 
-	# TLS
-    results['infra']['tls'] = _check_tls(target_domain, findings)
+	# TLS — 3 steps (connection + 2 weak protocol probes)
+    results['infra']['tls'] = _check_tls(target_domain, findings, _progress)
 
-    # HTTP
-    results['infra']['http'] = _check_http(target_domain, session, findings)
+    # HTTP — 25 steps (1 scheme + 1 methods + 23 paths)
+    results['infra']['http'] = _check_http(target_domain, session, findings, _progress)
 
-    # DNS — also surfaces raw records needed by downstream helpers
-    dns_data     = _check_dns(target_domain, resolver, findings)
+    # DNS — 7 steps (5 record types + dnssec + zone transfer)
+    dns_data     = _check_dns(target_domain, resolver, findings, _progress)
     a_records    = dns_data.pop('a_records')
     aaaa_records = dns_data.pop('aaaa_records')
     txt_records  = dns_data.pop('txt_records')
     results['infra']['dns'] = dns_data
 
-    # Secondary email checks (SPF/DMARC on the web domain)
-    results['infra']['email_secondary'] = _check_email_secondary(target_domain, txt_records, resolver, findings)
+    # Secondary email checks (SPF/DMARC on the web domain) — 2 steps
+    results['infra']['email_secondary'] = _check_email_secondary(target_domain, txt_records, resolver, findings, _progress)
 
-    # IP intel
-    results['infra']['ip_intel'] = _check_ip_intel(a_records, aaaa_records, findings)
+    # IP intel — 1 step
+    results['infra']['ip_intel'] = _check_ip_intel(a_records, aaaa_records, findings, _progress)
 
-    # Reverse DNS
-    results['infra']['reverse_dns'] = _check_reverse_dns(a_records, aaaa_records, findings)
+    # Reverse DNS — 1 step
+    results['infra']['reverse_dns'] = _check_reverse_dns(a_records, aaaa_records, findings, _progress)
 
-    # Subdomain enumeration
-    results['infra']['subdomains'] = _check_subdomains(target_domain, resolver, findings)
+    # Subdomain enumeration — 44 steps (one per subdomain)
+    results['infra']['subdomains'] = _check_subdomains(target_domain, resolver, findings, _progress)
 
-    results['scan_metadata'] = _add_metadata('infra', scan_start_ts, target=target_domain)
+    results['scan_metadata'] = _add_metadata('infra', scan_start_ts) # , target=target_domain) # FIX THIS/SANITIZE
     logger.info(f"[InfraScan] Complete — {len(findings)} findings in {results['scan_metadata']['scan_duration']}s")
     return results
 
@@ -1173,7 +1238,21 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
         network_scan_start_ts = datetime.now(dt_timezone.utc)
         scan.status = Scan.Status.RUNNING
         scan.scan_started_at = timezone.now()
-        scan.save(update_fields=['status', 'scan_started_at'])
+
+        # Compute per-scan-type task totals for progress tracking
+        scan_total_map = {
+            'tcp':   len(TCP_PORT_SERVICES),
+            'udp':   len(UDP_PORT_SERVICES),
+            'email': 7,   # mx, spf, dmarc, dkim, mta_sts, dnssec, zone_transfer
+            'infra': 83,  # 3(tls) + 25(http) + 7(dns) + 2(email_2nd) + 1(ip) + 1(rdns) + 44(subdomains)
+        }
+        scan.scan_progress = {}
+        scan.save(update_fields=['status', 'scan_started_at', 'scan_progress'])
+
+        # Progress callback — persists incremental updates to the DB
+        def _update_progress(scan_type, completed, total):
+            scan.scan_progress['completed'] = completed
+            scan.save(update_fields=['scan_progress'])
 
         # ── Step 2: Run the selected scan types ─────────────────────────
         scan_configs = [
@@ -1186,7 +1265,13 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
         scan_results = {}
         for i, (key, runner, target) in enumerate(scan_configs):
             if scan_arr[i] and target:
-                scan_results[key] = runner(target)
+                scan.scan_progress = {
+                    'label': key,
+                    'completed': 0,
+                    'total': scan_total_map[key],
+                }
+                scan.save(update_fields=['scan_progress'])
+                scan_results[key] = runner(target, progress_callback=_update_progress)
             else:
                 scan_results[key] = {}
 
@@ -1233,10 +1318,24 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
             elif '"Observations"' in current_text:
                 report_pct, status_text = 80, 'Determining observations'
             elif '"Summary"' in current_text:
-                severity_hits = current_text.count('"Severity"')
+                severity_matches = re.findall(r'"Severity"\s*:\s*"([^"]+)"', current_text, re.IGNORECASE) # track entire portion including severity type
+                severity_hits = len(severity_matches)
+
                 if severity_hits > 0:
                     report_pct = min(75, 35 + (severity_hits * 4))
-                    status_text = f'Analyzing risk {severity_hits}...'
+                    latest_severity = severity_matches[-1].capitalize()
+                    status_text = f'Found a {latest_severity} risk (Analyzed {severity_hits})...'
+
+                    # ADD a running tally of severity counts to cache
+                    live_counts = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0}
+                    for sev in severity_matches:
+                        sev_cap = sev.capitalize()
+                        if sev_cap in live_counts:
+                            live_counts[sev_cap] += 1
+
+                    # cache live findings
+                    if scan_id:
+                        cache.set(f"scan_live_risks_{scan_id}", live_counts, timeout=600)
                 else:
                     report_pct, status_text = 35, 'Providing network summary'
             elif '"report"' in current_text:

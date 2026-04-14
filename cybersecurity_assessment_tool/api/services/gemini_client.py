@@ -2,6 +2,7 @@ import json
 from typing import Any, Tuple, List, Optional
 from django.db import transaction
 from django.utils import timezone
+from django.core.cache import cache
 
 from ..models import Report, Risk, Organization, User
 from .ai_generation_service import ai_generation_service
@@ -251,6 +252,7 @@ def generate_and_process_report(
                 scan_obj.save(update_fields=['report', 'status'])
 
             # Create the Risks
+            final_ai_counts = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0}
             created_risks = []
             for risk_item in risks_data.get('new vulnerabilities', []):
                 new_risk = Risk.objects.create(
@@ -264,6 +266,48 @@ def generate_and_process_report(
                 )
                 created_risks.append(new_risk)
 
+                # Add a running tally of risks found to the cache
+                if scan_obj:
+                    cache_key = f"scan_live_risks_{scan_obj.id}"
+                    counts = cache.get(cache_key, {
+                        'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0
+                    })
+                    sev = new_risk.severity
+                    if sev in counts:
+                        counts[sev] += 1
+                    cache.set(cache_key, counts, timeout=600)
+
+                # Update final tally
+                sev = new_risk.severity.capitalize()
+                if sev in final_ai_counts:
+                    final_ai_counts[sev] += 1
+            
+            # Overwriting the scan Severity findings with the more accurate report Severity findings
+            if scan_obj:
+                scan_obj.finding_count_critical = final_ai_counts['Critical']
+                scan_obj.finding_count_high = final_ai_counts['High']
+                scan_obj.finding_count_medium = final_ai_counts['Medium']
+                scan_obj.finding_count_low = final_ai_counts['Low']
+                scan_obj.finding_count_info = final_ai_counts['Info']
+                
+                # Update total_findings if it is a standard database field
+                if hasattr(scan_obj, 'total_findings') and not callable(getattr(scan_obj, 'total_findings', None)):
+                    scan_obj.total_findings = sum(final_ai_counts.values())
+
+                scan_obj.report = new_report
+                scan_obj.status = 'COMPLETE' 
+                
+                # Save the new counts back to the database!
+                update_fields = [
+                    'report', 'status',
+                    'finding_count_critical', 'finding_count_high', 
+                    'finding_count_medium', 'finding_count_low', 'finding_count_info'
+                ]
+                if hasattr(scan_obj, 'total_findings') and not callable(getattr(scan_obj, 'total_findings', None)):
+                    update_fields.append('total_findings')
+                    
+                scan_obj.save(update_fields=update_fields)
+                
             ## DEBUG pt 2
             # print("Created risks count:", len(created_risks))
 
@@ -271,6 +315,10 @@ def generate_and_process_report(
 
         # 5. Sort the Python list of Risk objects for returning to the frontend
         created_risks.sort(key=lambda r: get_severity_weight(r.severity))
+
+        # clear cache
+        if scan_obj:
+            cache.delete(f"scan_live_risks_{scan_obj.id}")
 
         return new_report, created_risks
 
