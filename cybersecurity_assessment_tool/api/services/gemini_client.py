@@ -252,6 +252,7 @@ def generate_and_process_report(
                 scan_obj.save(update_fields=['report', 'status'])
 
             # Create the Risks
+            final_ai_counts = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0}
             created_risks = []
             for risk_item in risks_data.get('new vulnerabilities', []):
                 new_risk = Risk.objects.create(
@@ -274,8 +275,39 @@ def generate_and_process_report(
                     sev = new_risk.severity
                     if sev in counts:
                         counts[sev] += 1
-                    cache.set(cache_key, counts, timeout=3600)
+                    cache.set(cache_key, counts, timeout=600)
 
+                # Update final tally
+                sev = new_risk.severity.capitalize()
+                if sev in final_ai_counts:
+                    final_ai_counts[sev] += 1
+            
+            # Overwriting the scan Severity findings with the more accurate report Severity findings
+            if scan_obj:
+                scan_obj.finding_count_critical = final_ai_counts['Critical']
+                scan_obj.finding_count_high = final_ai_counts['High']
+                scan_obj.finding_count_medium = final_ai_counts['Medium']
+                scan_obj.finding_count_low = final_ai_counts['Low']
+                scan_obj.finding_count_info = final_ai_counts['Info']
+                
+                # Update total_findings if it is a standard database field
+                if hasattr(scan_obj, 'total_findings') and not callable(getattr(scan_obj, 'total_findings', None)):
+                    scan_obj.total_findings = sum(final_ai_counts.values())
+
+                scan_obj.report = new_report
+                scan_obj.status = 'COMPLETE' 
+                
+                # Save the new counts back to the database!
+                update_fields = [
+                    'report', 'status',
+                    'finding_count_critical', 'finding_count_high', 
+                    'finding_count_medium', 'finding_count_low', 'finding_count_info'
+                ]
+                if hasattr(scan_obj, 'total_findings') and not callable(getattr(scan_obj, 'total_findings', None)):
+                    update_fields.append('total_findings')
+                    
+                scan_obj.save(update_fields=update_fields)
+                
             ## DEBUG pt 2
             # print("Created risks count:", len(created_risks))
 
