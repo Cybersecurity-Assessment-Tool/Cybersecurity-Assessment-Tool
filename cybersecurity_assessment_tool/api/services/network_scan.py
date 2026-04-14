@@ -1305,11 +1305,19 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
         # 1. Create a mutable list to hold the incoming stream text
         stream_buffer = [""]
         
-        # 2. Define the callback that parses the text exactly like your old JS did
+        # 2. Define the callback
         def ai_progress_callback(chunk_text):
+            # Catch the retry signal and clear the buffer
+            if chunk_text == "__RETRY_RESET__":
+                stream_buffer[0] = ""
+                # Reset the live cache counts to 0
+                if scan_id:
+                    cache.set(f"scan_live_risks_{scan_id}", {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0}, timeout=600)
+                return
+
             stream_buffer[0] += chunk_text
             current_text = stream_buffer[0]
-            
+                        
             report_pct = 5
             status_text = 'Initializing AI...'
             

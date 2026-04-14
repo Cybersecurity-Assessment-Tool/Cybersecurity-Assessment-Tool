@@ -172,15 +172,18 @@ def generate_and_process_report(
     user_id: str, 
     context_data: str,
     scan_obj: Optional[Any] = None,
-    chunk_callback=None  # <-- callback parameter 
-) -> Tuple[Optional[Report], Optional[List[Risk]]]:
+    chunk_callback=None
+) -> Tuple[Optional[Report], Optional[List[Risk]], str]: 
     """
     Gathers DB fields, calls the AI service, injects database context, and saves.
     context_data must be a JSON string (the AI only accepts strings).
     """
     # Fetch the database records
-    org = Organization.objects.get(organization_id=organization_id)
-    user = User.objects.get(user_id=user_id) if user_id else None
+    try:
+        org = Organization.objects.get(organization_id=organization_id)
+        user = User.objects.get(user_id=user_id) if user_id else None
+    except Organization.DoesNotExist:
+        return None, None, f"Organization ID {organization_id} not found."
         
     # 1. Fetch current risks
     current_risks = build_current_risks_dict(organization_id)
@@ -188,42 +191,27 @@ def generate_and_process_report(
     # 2. Fetch the questionnaire information
     questionnaire = get_questionnaire_dict(org)
 
-    # 3. Call the AI generation service (pass the callback down!)
+    # 3. Call the AI generation service
     report_data, risks_data, ai_error_msg = ai_generation_service(
         questionnaire, 
         current_risks, 
         context_data, 
-        chunk_callback=chunk_callback # <-- Pass it here
+        chunk_callback=chunk_callback 
     )
 
-    if report_data is None or risks_data is None:
-        # Fallback just in case the error message is blank
-        final_error = ai_error_msg or "An unknown AI error prevented report generation."
-        
+    # 4. Check for AI failure
+    if not report_data or not risks_data:
+        final_error = ai_error_msg or "The AI API failed to return data."
         if scan_obj:
             scan_obj.status = 'FAILED'
-            
-            # Save the text to the database if your model supports it
-            if hasattr(scan_obj, 'error_message'):
+            try:
                 scan_obj.error_message = final_error
                 scan_obj.save(update_fields=['status', 'error_message'])
-            else:
-                # Fallback if you haven't added an error_message column to your Scan model yet
+            except Exception:
                 scan_obj.save(update_fields=['status'])
-                
-        return None, None
-    
-    ## DEBUG pt 1
-    # print("="*60)
-    # print("GEMINI_CLIENT: risks_data keys:", risks_data.keys())
-    # print("New vulnerabilities count:", len(risks_data.get('new vulnerabilities', [])))
-    
-    # Print first few new vulnerabilities
-    for i, r in enumerate(risks_data.get('new vulnerabilities', [])[:5]):
-        print(f"  New risk {i}: {r.get('risk_name')} - {r.get('severity')}")
-    print("="*60)
+        return None, None, final_error
 
-    # 4. Process and Save to Database
+    # 5. Process and Save to Database
     try:
         # Inject context from the database into the AI's output
         report_data = _inject_overview_scan_and_questionnaire(report_data, org, scan_obj)
@@ -232,8 +220,7 @@ def generate_and_process_report(
             # Sort the JSON vulnerabilities BEFORE saving to the database
             if "report" in report_data and isinstance(report_data["report"], list) and report_data["report"]:
                 readiness_section = report_data["report"][0].get("Risks & Recommendations", {})
-                vulnerabilities = readiness_section.get("Vulnerabilities Found", [])
-                
+                vulnerabilities = readiness_section.get("Vulnerabilities Found") or []
                 vulnerabilities.sort(key=lambda v: get_severity_weight(v.get("Severity", "")))
                 report_data["report"][0]["Risks & Recommendations"]["Vulnerabilities Found"] = vulnerabilities
 
@@ -246,23 +233,23 @@ def generate_and_process_report(
                 completed=timezone.now()
             )
 
-            if scan_obj:
-                scan_obj.report = new_report
-                scan_obj.status = 'COMPLETE' 
-                scan_obj.save(update_fields=['report', 'status'])
-
             # Create the Risks
             final_ai_counts = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0}
             created_risks = []
-            for risk_item in risks_data.get('new vulnerabilities', []):
+            
+            ai_vulnerabilities = risks_data.get('new vulnerabilities') or []
+            
+            for risk_item in ai_vulnerabilities:
+                affected = risk_item.get('affected_elements') or []
+                
                 new_risk = Risk.objects.create(
-                    risk_name=risk_item.get('risk_name'),
+                    risk_name=risk_item.get('risk_name') or 'Unknown Risk',
                     report=new_report, 
                     organization=org,
-                    overview=risk_item.get('overview'),
-                    recommendations=risk_item.get('recommendations'),
-                    severity=risk_item.get('severity'),
-                    affected_elements=", ".join(risk_item.get('affected_elements', [])),
+                    overview=risk_item.get('overview') or '',
+                    recommendations=risk_item.get('recommendations') or {},
+                    severity=risk_item.get('severity') or 'Info',
+                    affected_elements=", ".join(affected),
                 )
                 created_risks.append(new_risk)
 
@@ -272,17 +259,15 @@ def generate_and_process_report(
                     counts = cache.get(cache_key, {
                         'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0
                     })
-                    sev = new_risk.severity
+                    sev = (new_risk.severity or "Info").capitalize()
                     if sev in counts:
                         counts[sev] += 1
                     cache.set(cache_key, counts, timeout=600)
 
-                # Update final tally
-                sev = new_risk.severity.capitalize()
+                sev = (new_risk.severity or "Info").capitalize()
                 if sev in final_ai_counts:
                     final_ai_counts[sev] += 1
             
-            # Overwriting the scan Severity findings with the more accurate report Severity findings
             if scan_obj:
                 scan_obj.finding_count_critical = final_ai_counts['Critical']
                 scan_obj.finding_count_high = final_ai_counts['High']
@@ -290,44 +275,33 @@ def generate_and_process_report(
                 scan_obj.finding_count_low = final_ai_counts['Low']
                 scan_obj.finding_count_info = final_ai_counts['Info']
                 
-                # Update total_findings if it is a standard database field
-                if hasattr(scan_obj, 'total_findings') and not callable(getattr(scan_obj, 'total_findings', None)):
-                    scan_obj.total_findings = sum(final_ai_counts.values())
-
                 scan_obj.report = new_report
                 scan_obj.status = 'COMPLETE' 
                 
-                # Save the new counts back to the database!
-                update_fields = [
+                scan_obj.save(update_fields=[
                     'report', 'status',
                     'finding_count_critical', 'finding_count_high', 
                     'finding_count_medium', 'finding_count_low', 'finding_count_info'
-                ]
-                if hasattr(scan_obj, 'total_findings') and not callable(getattr(scan_obj, 'total_findings', None)):
-                    update_fields.append('total_findings')
-                    
-                scan_obj.save(update_fields=update_fields)
-                
-            ## DEBUG pt 2
-            # print("Created risks count:", len(created_risks))
+                ])
 
         print(f"--- Successfully saved Report {new_report.pk} and associated risks. ---")
-
-        # 5. Sort the Python list of Risk objects for returning to the frontend
+        
+        # 6. Sort the Python list of Risk objects for returning to the frontend
         created_risks.sort(key=lambda r: get_severity_weight(r.severity))
 
         # clear cache
         if scan_obj:
             cache.delete(f"scan_live_risks_{scan_obj.id}")
 
-        return new_report, created_risks
+        return new_report, created_risks, ""
 
-    except Organization.DoesNotExist:
-        print(f"[ERROR] Organization with ID {organization_id} not found.")
-        return None, None
     except Exception as e:
-        print(f"[ERROR] Database save failed: {e}")
+        db_error = f"Database Processing Error: {str(e)[:400]}"
         if scan_obj:
             scan_obj.status = 'FAILED'
-            scan_obj.save(update_fields=['status'])
-        return None, None
+            try:
+                scan_obj.error_message = db_error
+                scan_obj.save(update_fields=['status', 'error_message'])
+            except Exception:
+                scan_obj.save(update_fields=['status'])
+        return None, None, db_error
