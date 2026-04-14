@@ -259,6 +259,7 @@ def generate_and_process_report(
                     counts = cache.get(cache_key, {
                         'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0
                     })
+                    print(f"Counts before update: " + str(counts))
                     sev = (new_risk.severity or "Info").capitalize()
                     if sev in counts:
                         counts[sev] += 1
@@ -269,6 +270,7 @@ def generate_and_process_report(
                     final_ai_counts[sev] += 1
             
             if scan_obj:
+                print(f"Updating to final AI counts: " + str(final_ai_counts))
                 scan_obj.finding_count_critical = final_ai_counts['Critical']
                 scan_obj.finding_count_high = final_ai_counts['High']
                 scan_obj.finding_count_medium = final_ai_counts['Medium']
@@ -283,6 +285,8 @@ def generate_and_process_report(
                     'finding_count_critical', 'finding_count_high', 
                     'finding_count_medium', 'finding_count_low', 'finding_count_info'
                 ])
+
+                print(f"Final AI counts: Critical={scan_obj.finding_count_critical}, High={scan_obj.finding_count_high}, Medium={scan_obj.finding_count_medium}, Low={scan_obj.finding_count_low}, Info={scan_obj.finding_count_info}")
 
         print(f"--- Successfully saved Report {new_report.pk} and associated risks. ---")
         
