@@ -97,13 +97,14 @@
     </div>
 </div>
 
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
 <style>
     /* Custom styles for severity colors */
-    .severity-critical { color: #dc3545; }
-    .severity-high { color: #fd7e14; }
-    .severity-medium { color: #ffc107; }
-    .severity-low { color: #28a745; }
-    .severity-info { color: #17a2b8; }
+    .severity-critical { color: var(--color-critical); }
+    .severity-high { color: var(--color-high); }
+    .severity-medium { color: var(--color-medium); }
+    .severity-low { color: var(--color-low); }
+    .severity-info { color: var(--color-info); }
     
     /* Ensure cards have equal height */
     .row.align-items-stretch .card {
@@ -210,10 +211,10 @@ function createPieChart(severityCounts) {
     const ctx = canvas.getContext('2d');
     
     const severityColors = {
-        'Critical': '#dc3545',
-        'High': '#fd7e14',
-        'Medium': '#ffc107',
-        'Low': '#28a745'
+        'Critical': 'var(--color-critical)',
+        'High': 'var(--color-high)',
+        'Medium': 'var(--color-medium)',
+        'Low': 'var(--color-low)'
     };
     
     const labels = [];
@@ -279,10 +280,10 @@ function createSummary(vulnerabilities, severityCounts) {
             const colorClass = `severity-${severity.toLowerCase()}`;
             
             let badgeClass = 'bg-secondary';
-            if (severity === 'Critical') badgeClass = 'bg-danger';
-            else if (severity === 'High') badgeClass = 'bg-warning text-dark';
-            else if (severity === 'Medium') badgeClass = 'bg-warning';
-            else if (severity === 'Low') badgeClass = 'bg-success';
+            if (severity === 'Critical') badgeClass = 'bg-critical';
+            else if (severity === 'High') badgeClass = 'bg-high';
+            else if (severity === 'Medium') badgeClass = 'bg-medium';
+            else if (severity === 'Low') badgeClass = 'bg-low';
             else if (severity === 'Info') badgeClass = 'bg-info text-dark';
             
             summaryHtml += `
@@ -318,10 +319,10 @@ function createTable(vulnerabilities) {
     vulnerabilities.forEach(vuln => {
         let badgeClass = 'bg-secondary';
         switch(vuln.severity) {
-            case 'Critical': badgeClass = 'bg-danger'; break;
-            case 'High': badgeClass = 'bg-warning text-dark'; break;
-            case 'Medium': badgeClass = 'bg-warning'; break;
-            case 'Low': badgeClass = 'bg-success'; break;
+            case 'Critical': badgeClass = 'bg-critical'; break;
+            case 'High': badgeClass = 'bg-high'; break;
+            case 'Medium': badgeClass = 'bg-medium'; break;
+            case 'Low': badgeClass = 'bg-low'; break;
             case 'Info':
             case 'Informational': badgeClass = 'bg-info text-dark'; break;
         }
