@@ -4,6 +4,21 @@
 
 {% block extra_css %}
 <style>
+  :root {
+    --color-critical: #d3448e;
+    --color-high: #f12b47;
+    --color-medium: #f98b16;
+    --color-low: #f8dda4;
+    --color-info: #f8f9fa;
+  }
+
+  /* styling for severities */
+  .bg-critical { background-color: var(--color-critical); }
+  .bg-high { background-color: var(--color-high); }
+  .bg-medium { background-color: var(--color-medium); }
+  .bg-low { background-color: var(--color-low); color: #1a0f03; }
+  .bg-info { background-color: var(--color-info); color: #111827; }
+
   .start-scan-btn {
     display: inline-flex;
     align-items: center;
@@ -254,6 +269,11 @@
     display: none;
   }
   .lc-progress-fill.fail { background: #ef4444; }
+
+  .container.whitebg {
+    box-shadow: 0px 0px 100px 150px rgba(255,255,255,.75);
+    background: rgba(255,255,255,.75);
+  }
 </style>
 {% endblock %}
 
@@ -433,7 +453,7 @@ let reportGenStartMs = null;
 let isScanActive = false;
 let persistReportCard = true;
 let currentScanPage = 1;
-const POLL_MS = 600;
+const POLL_MS = 1000;
 let reportRiskCount = 0;
 
 let expandedCard = 'network';
@@ -674,8 +694,12 @@ function handleStatusUpdate(data) {
         sessionStorage.setItem(NC_TIME_KEY, networkScanStartMs);
       }
       showNetworkCard();
-      setNetworkRunning('Scan in progress…', data.scan_progress);
+      setNetworkRunning('Scan in progress…');
       setScanActive(true);
+      // ******* WAITING ON SHANE: Network scan live progress *******
+      // When the backend pushes incremental scan progress, call:
+      //   onNetworkScanProgress(progressData)
+      // See the framework section below.
       break;
     case 'RECEIVED':
       if (!networkScanEndMs) networkScanEndMs = Date.now();
@@ -737,23 +761,37 @@ function showNetworkCard() {
   const card = document.getElementById('networkScanCard');
   card.classList.remove('hidden', 'error-state'); 
 }
-function setNetworkRunning(statusText, scanProgress) {
+function setNetworkRunning(statusText) {
   document.getElementById('ncSpinner').style.display = 'inline-block';
   _removeCheckmark('ncStatus');
   document.getElementById('ncTimeLabel').innerHTML = '&nbsp;';
 
-  if(!scanProgress) {
+  if (!networkScanStartMs) {
     document.getElementById('ncStatusText').textContent = statusText;
     document.getElementById('ncProgressFill').style.width = '0%';
     return;
   }
-  
+
+  // Per-scan-type progress bars
+  const ORDERED_TYPES = ['tcp', 'udp', 'email', 'infra'];
+  const types = ORDERED_TYPES.filter(t => getSelectedScanTypes().includes(t));
+  const elapsed = (Date.now() - networkScanStartMs) / 1000;
+
+  let prev = 0;
+  let phase = null;
+  for (let i = 0; i < types.length; i++) {
+    const dur = SCAN_DURATIONS[types[i]] || 30;
+    if (elapsed < prev + dur) {
+      phase = { type: types[i], index: i, total: types.length, pct: Math.min(95, ((elapsed - prev) / dur) * 100) };
+      break;
+    }
+    prev += dur;
+  }
+  if (!phase) phase = { type: types[types.length - 1], index: types.length - 1, total: types.length, pct: 95 };
+
   const LABELS = { tcp: 'Scanning TCP ports…', udp: 'Scanning UDP ports…', email: 'Scanning email security…', infra: 'Scanning infrastructure…' };
-  const pct = scanProgress.total > 0
-	? Math.min(99, Math.round((scanProgress.completed / scanProgress.total) * 100))
-	: 0;
-  document.getElementById('ncStatusText').textContent = LABELS[scanProgress.label] || statusText;
-  document.getElementById('ncProgressFill').style.width = pct + '%';
+  document.getElementById('ncStatusText').textContent = LABELS[phase.type] || 'Scanning…';
+  document.getElementById('ncProgressFill').style.width = phase.pct + '%';
   document.getElementById('ncProgressFill').classList.remove('done', 'fail');
 }
 function setNetworkComplete(findingsSummary) {
@@ -1107,10 +1145,10 @@ function renderRecentScans(data) {
       };
     }
     const findings = (s.status === 'COMPLETE' || s.status === 'GENERATING' || s.status === 'RECEIVED')
-      ? `<span class="badge bg-danger me-1">${fc.critical}</span>
-         <span class="badge bg-warning text-dark me-1">${fc.high}</span>
-         <span class="badge bg-info text-dark me-1">${fc.medium}</span>
-         <span class="badge bg-secondary me-1">${fc.low}</span>
+      ? `<span class="badge bg-critical me-1">${fc.critical}</span>
+         <span class="badge bg-high text-dark me-1">${fc.high}</span>
+         <span class="badge bg-medium text-dark me-1">${fc.medium}</span>
+         <span class="badge bg-low me-1">${fc.low}</span>
          <span class="badge bg-light text-dark border">${fc.info}</span>`
       : '—';
     return `
