@@ -1246,16 +1246,12 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
             'email': 7,   # mx, spf, dmarc, dkim, mta_sts, dnssec, zone_transfer
             'infra': 83,  # 3(tls) + 25(http) + 7(dns) + 2(email_2nd) + 1(ip) + 1(rdns) + 44(subdomains)
         }
-        scan.scan_progress = {
-            key: {'completed': 0, 'total': scan_total_map[key], 'label': key.upper()}
-            for i, key in enumerate(['tcp', 'udp', 'email', 'infra'])
-            if scan_arr[i]
-        }
+        scan.scan_progress = {}
         scan.save(update_fields=['status', 'scan_started_at', 'scan_progress'])
 
         # Progress callback — persists incremental updates to the DB
         def _update_progress(scan_type, completed, total):
-            scan.scan_progress[scan_type]['completed'] = completed
+            scan.scan_progress['completed'] = completed
             scan.save(update_fields=['scan_progress'])
 
         # ── Step 2: Run the selected scan types ─────────────────────────
@@ -1269,6 +1265,12 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
         scan_results = {}
         for i, (key, runner, target) in enumerate(scan_configs):
             if scan_arr[i] and target:
+                scan.scan_progress = {
+                    'label': key,
+                    'completed': 0,
+                    'total': scan_total_map[key],
+                }
+                scan.save(update_fields=['scan_progress'])
                 scan_results[key] = runner(target, progress_callback=_update_progress)
             else:
                 scan_results[key] = {}
