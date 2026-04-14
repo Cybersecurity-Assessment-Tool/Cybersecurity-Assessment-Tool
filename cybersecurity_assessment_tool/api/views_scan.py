@@ -202,6 +202,10 @@ def scan_status(request, scan_id):
         'created_at': scan.created_at.isoformat(),
     }
 
+    # Add progress data while scan is running
+    if scan.status == Scan.Status.RUNNING and scan.scan_progress:
+        response['scan_progress'] = scan.scan_progress
+
     # Add findings summary once results are received
     if scan.status in [Scan.Status.RECEIVED, Scan.Status.GENERATING, Scan.Status.COMPLETE]:
         response['findings_summary'] = {

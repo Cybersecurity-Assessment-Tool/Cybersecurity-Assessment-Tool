@@ -368,6 +368,7 @@ def _build_login_otp_response(request, user, message='OTP sent to your email'):
     otp = generate_otp()
 
     queue_email('otp', user.email, {'otp': otp})
+    print(f"Queued OTP email for {user.email}: {otp}")
 
     request.session['login_otp'] = otp
     request.session['login_otp_created'] = time.time()
