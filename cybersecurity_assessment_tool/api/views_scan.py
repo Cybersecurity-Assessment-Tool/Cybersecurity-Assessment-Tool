@@ -224,15 +224,10 @@ def scan_status(request, scan_id):
         response['generation_progress'] = progress_data.get('progress', 5)
         response['generation_text'] = progress_data.get('text', 'Initializing AI...')
 
-        if scan.report:
-            live_risks = list(
-                Risk.objects.filter(report=scan.report)
-                .values('risk_name', 'severity')
-                .order_by('severity')
-            )
-        else:
-            live_risks = []
-        response['live_risks'] = live_risks
+        live_risk_counts = cache.get(f"scan_live_risks_{scan_id}", {
+            'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0
+        })
+        response['live_risk_counts'] = live_risk_counts
 
     # ─── COMPLETE STATE ──────────────────────────────────────────────────
     elif scan.status == Scan.Status.COMPLETE:

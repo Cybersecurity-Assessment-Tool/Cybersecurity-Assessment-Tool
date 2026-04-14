@@ -2,6 +2,7 @@ import json
 from typing import Any, Tuple, List, Optional
 from django.db import transaction
 from django.utils import timezone
+from django.core.cache import cache
 
 from ..models import Report, Risk, Organization, User
 from .ai_generation_service import ai_generation_service
@@ -264,6 +265,17 @@ def generate_and_process_report(
                 )
                 created_risks.append(new_risk)
 
+                # Add a running tally of risks found to the cache
+                if scan_obj:
+                    cache_key = f"scan_live_risks_{scan_obj.id}"
+                    counts = cache.get(cache_key, {
+                        'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0
+                    })
+                    sev = new_risk.severity
+                    if sev in counts:
+                        counts[sev] += 1
+                    cache.set(cache_key, counts, timeout=3600)
+
             ## DEBUG pt 2
             # print("Created risks count:", len(created_risks))
 
@@ -271,6 +283,10 @@ def generate_and_process_report(
 
         # 5. Sort the Python list of Risk objects for returning to the frontend
         created_risks.sort(key=lambda r: get_severity_weight(r.severity))
+
+        # clear cache
+        if scan_obj:
+            cache.delete(f"scan_live_risks_{scan_obj.id}")
 
         return new_report, created_risks
 

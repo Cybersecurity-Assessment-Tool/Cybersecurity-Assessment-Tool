@@ -433,7 +433,7 @@ let reportGenStartMs = null;
 let isScanActive = false;
 let persistReportCard = true;
 let currentScanPage = 1;
-const POLL_MS = 3000;
+const POLL_MS = 600;
 let reportRiskCount = 0;
 
 let expandedCard = 'network';
@@ -697,10 +697,14 @@ function handleStatusUpdate(data) {
       }
       setReportRunning(data.generation_text || 'Generation started', data.generation_progress || 10);
       // store live risk counts so renderRecentScans can use them
-      if (data.live_risks) {
-        const c = { Critical: 0, High: 0, Medium: 0, Low: 0, Info: 0 };
-        data.live_risks.forEach(r => { if (c[r.severity] !== undefined) c[r.severity]++; });
-        latestLiveRiskCounts = c;
+      if (data.live_risk_counts) {
+        latestLiveRiskCounts = {
+          Critical: data.live_risk_counts.Critical || 0,
+          High: data.live_risk_counts.High || 0,
+          Medium: data.live_risk_counts.Medium || 0,
+          Low: data.live_risk_counts.Low || 0,
+          Info: data.live_risk_counts.Info || 0,
+        };
       }
       setScanActive(true);
       break;
