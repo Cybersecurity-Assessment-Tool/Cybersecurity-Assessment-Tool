@@ -133,6 +133,16 @@ class PublicRegistrationForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'company', 'password1', 'password2']
 
+    def __init__(self, *args, require_password=True, **kwargs):
+        self.require_password = require_password
+        super().__init__(*args, **kwargs)
+
+        if not self.require_password:
+            self.fields['password1'].required = False
+            self.fields['password2'].required = False
+            self.fields['password1'].help_text = 'Optional when you continue with Google or Microsoft.'
+            self.fields['password2'].help_text = 'Optional when you continue with Google or Microsoft.'
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if email:
@@ -143,6 +153,9 @@ class PublicRegistrationForm(UserCreationForm):
 
     def clean_password1(self):
         password = self.cleaned_data.get('password1')
+        if not password:
+            return None if not self.require_password else password
+
         try:
             validate_password(password)
         except ValidationError as e:
@@ -151,10 +164,25 @@ class PublicRegistrationForm(UserCreationForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        
+        # Move password strength errors from password1 to password2
+        if 'password1' in self.errors:
+            # Capture the errors from password1
+            p1_errors = self.errors.pop('password1')
+            for error in p1_errors:
+                self.add_error('password2', error)
+        
+        # Then check password match
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
+
+        if self.require_password and not password1:
+            self.add_error('password1', 'Password is required unless you continue with Google or Microsoft.')
+        if self.require_password and not password2:
+            self.add_error('password2', 'Please confirm your password unless you continue with Google or Microsoft.')
         if password1 and password2 and password1 != password2:
             self.add_error('password2', "The two password fields didn't match.")
+        
         return cleaned_data
 
     def save(self, commit=True):
@@ -163,6 +191,9 @@ class PublicRegistrationForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
+
+        if not self.cleaned_data.get('password1'):
+            user.set_unusable_password()
 
         org_name = self.cleaned_data.get('company', '')
         if org_name:
@@ -183,18 +214,30 @@ class InvitationSignupForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         self.email = kwargs.pop('email', None)
+        self.require_password = kwargs.pop('require_password', True)
         super().__init__(*args, **kwargs)
+
+        if not self.require_password:
+            self.fields['password1'].required = False
+            self.fields['password2'].required = False
+            self.fields['password1'].help_text = 'Optional when you continue with Google or Microsoft.'
+            self.fields['password2'].help_text = 'Optional when you continue with Google or Microsoft.'
 
     def clean(self):
         cleaned_data = super().clean()
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
 
+        if self.require_password and not password1:
+            self.add_error('password1', 'Password is required unless you continue with Google or Microsoft.')
+        if self.require_password and not password2:
+            self.add_error('password2', 'Please confirm your password unless you continue with Google or Microsoft.')
+
         # If passwords don't match, force the error onto the 'password2' line
         # instead of letting it default to the top of the box.
         if password1 and password2 and password1 != password2:
             self.add_error('password2', "The two password fields didn't match.")
-            
+
         return cleaned_data
 
     def save(self, commit=True):
@@ -202,6 +245,57 @@ class InvitationSignupForm(UserCreationForm):
         user.email = self.email
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
+        if not self.cleaned_data.get('password1'):
+            user.set_unusable_password()
         if commit:
             user.save()
         return user
+    
+from django.contrib.auth.forms import PasswordResetForm
+from django.template.loader import render_to_string
+from django_q.tasks import async_task
+from django.contrib.auth import get_user_model
+from api.models import generate_email_hash  # Adjust this import if needed
+
+User = get_user_model()
+
+class AsyncPasswordResetForm(PasswordResetForm):
+    
+    def get_users(self, email):
+        """
+        Override how Django finds the user to account for encrypted emails!
+        """
+        # 1. Hash the typed email so it matches the DB
+        email_hash = generate_email_hash(email)
+        
+        # 2. Find active users with that exact hash
+        active_users = User.objects.filter(email_hash=email_hash, is_active=True)
+        
+        # 3. Yield them back to Django (only if they have a real password)
+        for user in active_users:
+            if user.has_usable_password():
+                yield user
+
+    def send_mail(self, subject_template_name, email_template_name,
+                  context, from_email, to_email, html_email_template_name=None):
+        """
+        Send the email via Django Q2 Background Worker
+        """
+        subject = render_to_string(subject_template_name, context)
+        subject = ''.join(subject.splitlines())
+        
+        body = render_to_string(email_template_name, context)
+        
+        html_body = None
+        if html_email_template_name:
+            html_body = render_to_string(html_email_template_name, context)
+
+        async_task(
+            'django.core.mail.send_mail',
+            subject,
+            body,
+            from_email,
+            [to_email],
+            fail_silently=False,
+            html_message=html_body,
+        )

@@ -10,43 +10,47 @@ from .gemini_client import generate_and_process_report
 
 logger = logging.getLogger(__name__)
 
-def generate_report_from_scan(scan_id: str):
-    """
-    Django-Q2 background task that bridges the Network Scanner with the AI Pipeline.
-    """
-    # Local import to prevent circular dependencies with models
+def generate_report_from_scan(scan_id: str, chunk_callback=None):
     from api.models import Scan
+    from django.core.cache import cache
 
     try:
-        # 1. Fetch Scan and related data
         scan = Scan.objects.select_related('user', 'organization').get(id=scan_id)
         
-        # 2. Prepare the technical context for the AI
-        # We combine the raw findings with the network metadata found in the Scan model
         raw_data = json.loads(scan.raw_findings_json or '{}')
         findings = raw_data.get('findings', [])
         
         ai_context = _build_integrated_context(scan, findings)
 
-        # 3. Use your established gemini_client logic
-        # This handles the AI call, schema validation, and Report/Risk DB creation
-        new_report, created_risks = generate_and_process_report(
+        # 1. Catch the new 3rd variable (actual_error)
+        new_report, created_risks, actual_error = generate_and_process_report(
             organization_id=scan.organization.organization_id,
             user_id=scan.user.user_id if scan.user else None,
             context_data=ai_context,
-            scan_obj=scan ## NEW
+            scan_obj=scan,
+            chunk_callback=chunk_callback
         )
 
+        # 2. Handle AI Failure Gracefully
         if not new_report:
-            raise RuntimeError("AI Service failed to produce a report.")
+            error_msg = actual_error or "An internal error occurred during report generation."
+            logger.error(f"Scan {scan_id} failed: {error_msg}")
+            
+            # 3. FIX THE FRONTEND: Force the UI to stop spinning!
+            cache.set(f"scan_progress_{scan_id}", {
+                "progress": 100,
+                "text": f"Failed: {error_msg[:50]}..." # Keep it short for UI
+            }, timeout=600)
+            
+            # Save the failure to the DB so the logs look right
+            Scan.objects.filter(id=scan_id).update(status="FAILED", error_message=error_msg)
+            
+            return {'success': False, 'error': error_msg}
 
-        # 4. Finalize the Scan record
         with transaction.atomic():
-            scan.status = "COMPLETE" # Matches Scan.Status.COMPLETE
+            scan.status = "COMPLETE" 
             scan.report_completed_at = timezone.now()
             scan.save(update_fields=['report', 'status', 'report_completed_at'])
-
-            # 5. Security: Purge raw findings now that the AI report is saved
             scan.purge_raw_findings()
 
         logger.info(f"Scan {scan_id} successfully processed. Report ID: {new_report.pk}")
@@ -60,8 +64,11 @@ def generate_report_from_scan(scan_id: str):
     except Exception as e:
         logger.exception(f"Processing failed for scan {scan_id}: {e}")
         try:
-            # Mark scan as failed in the DB
             from api.models import Scan
+            from django.core.cache import cache
+            
+            # Tell the frontend the system crashed
+            cache.set(f"scan_progress_{scan_id}", {"progress": 100, "text": "Failed: System Error"}, timeout=600)
             Scan.objects.filter(id=scan_id).update(status="FAILED", error_message=str(e))
         except:
             pass
@@ -84,17 +91,6 @@ def _build_integrated_context(scan, findings: list) -> str:
             "Info": scan.finding_count_info,
         }
     }
-
-    # DEBUG
-    # print("="*60)
-    # print("GENERATE_REPORT_FROM_SCAN: Findings count =", len(findings))
-
-    # Print first few findings
-    for i, f in enumerate(findings[:5]):
-        print(f"  Finding {i}: {f.get('severity')} - {f.get('description', '')[:50]}")
-    # Also print the metadata
-    print("Metadata:", metadata)
-    print("="*60)
 
     context_blocks = [
         "--- NETWORK SCAN METADATA ---",

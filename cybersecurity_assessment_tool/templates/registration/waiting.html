@@ -1,43 +1,21 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Registration Pending{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
 <style>
-    .waiting-container {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #f9fafb;
-        padding: 1.5rem;
-    }
-    
-    .waiting-card {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        padding: 3rem;
-        width: 100%;
-        max-width: 500px;
-        text-align: center;
-    }
-    
-    .waiting-title {
-        font-size: 1.875rem;
-        font-weight: 600;
-        color: #111827;
-        margin-bottom: 1.5rem;
-    }
-    
     .waiting-message {
         color: #4b5563;
         margin-bottom: 2rem;
         line-height: 1.6;
+        text-align: center;
     }
     
     .waiting-details {
         background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
         border-radius: 6px;
         padding: 1.5rem;
         margin-bottom: 2rem;
@@ -71,69 +49,58 @@
         border-radius: 20px;
     }
     
-    .waiting-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-    }
-    
-    .btn {
-        padding: 0.625rem 1.25rem;
-        font-size: 0.875rem;
-        border-radius: 6px;
-        cursor: pointer;
-        text-decoration: none;
-        border: none;
-    }
-    
-    .btn-primary {
-        background-color: #111827;
-        color: white;
-    }
-    
-    .btn-primary:hover {
-        background-color: #1f2937;
-    }
-    
-    .btn-secondary {
-        background-color: white;
-        border: 1px solid #d1d5db;
-        color: #374151;
-    }
-    
-    .btn-secondary:hover {
-        background-color: #f9fafb;
-    }
-
     .status-approved {
         color: #28a745;
         background-color: #d4edda;
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
     }
+    
     .status-rejected {
         color: #dc3545;
         background-color: #f8d7da;
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
     }
+
+    .waiting-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    /* Force buttons to share space equally inside the flex container */
+    .waiting-actions .btn-secondary,
+    .waiting-actions .auth-button {
+        flex: 1;
+        width: auto;
+        text-align: center;
+    }
+    
     #loginAfterApproval {
         display: none;
+    }
+
+    .container.whitebg {
+        box-shadow: none;
+        background: none;
     }
 </style>
 {% endblock %}
 
-<!-- removed nav bar -->
 {% block auth %} {% endblock %}
 
 {% block content %}
-<div class="waiting-container">
-    <div class="waiting-card">
-        <h1 class="waiting-title">Registration Pending Approval</h1>
+<div class="auth-container">
+    <div class="auth-card" style="max-width: 500px;"> <div class="auth-header">
+            <h1 class="auth-title">Registration Pending Approval</h1>
+        </div>
+        
         <div class="waiting-message">
             <p>Thank you for registering <strong>{{ company_name }}</strong>!</p>
             <p>You will receive an email confirmation once your organization has been approved.</p>
         </div>
+        
         <div class="waiting-details">
             <div class="detail-item">
                 <span class="detail-label">Organization:</span>
@@ -163,20 +130,20 @@
                 <span class="detail-value">{{ submitted_at|date:"F j, Y H:i" }}</span>
             </div>
         </div>
+        
         <div class="waiting-actions">
-            <a href="{% url 'home' %}" class="btn btn-secondary">Return to Home</a>
+            <a href="{% url 'home' %}" class="btn btn-secondary" style="text-decoration: none; padding: 0.75rem;">Return to Home</a>
             
             {% if registration_status != 'rejected' and registration_status != 'approved' %}
-                <button class="btn btn-primary" id="checkStatusBtn">Check Status</button>
+                <button class="auth-button" id="checkStatusBtn">Check Status</button>
             {% endif %}
             
-            <a href="{% url 'login' %}" class="btn btn-success" id="loginAfterApproval" {% if registration_status == 'approved' %}style="display: inline-block;"{% endif %}>Proceed to Login</a>
+            <a href="{% url 'login' %}" class="auth-button" id="loginAfterApproval" {% if registration_status == 'approved' %}style="display: inline-block;"{% endif %}>Proceed to Login</a>
         </div>
     </div>
 </div>
 {% endblock %}
 
-<!-- removed footer -->
 {% block footer %} {% endblock %}
 
 {% block extra_js %}

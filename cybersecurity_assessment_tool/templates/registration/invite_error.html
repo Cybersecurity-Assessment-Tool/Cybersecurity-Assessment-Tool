@@ -1,11 +1,66 @@
-{% extends "base.html" %} {% block content %}
-<div class="invite-error-container" style="text-align: center; margin-top: 50px;">
-    <h1>{{ error_title }}</h1>
-    <p>{{ error_message }}</p>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ error_title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+<style>
+    .auth-error-box {
+        text-align: center;
+        padding: 1.5rem;
+        background-color: #fee2e2;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        color: #b91c1c;
+        margin: 1.5rem 0;
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    .error-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
     
-    <div style="margin-top: 20px;">
-        <a href="{% url 'accounts:public_register' %}" class="btn btn-primary">Go to Registration</a>
-        <a href="{% url 'login' %}" class="btn btn-secondary">Go to Login</a>
+    /* Make the secondary button match the primary button's full-width block style */
+    .error-actions .btn-secondary {
+        display: block;
+        width: 100%;
+        text-align: center;
+        text-decoration: none;
+        box-sizing: border-box;
+        padding: 0.75rem;
+    }
+
+    .container.whitebg {
+        box-shadow: none;
+        background: none;
+    }
+</style>
+{% endblock %}
+
+{% block auth %} {% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header" style="margin-bottom: 1rem;">
+            <h1 class="auth-title">{{ error_title }}</h1>
+        </div>
+
+        <div class="auth-error-box">
+            <p style="margin: 0;">{{ error_message }}</p>
+        </div>
+        
+        <div class="error-actions">
+            <a href="{% url 'accounts:public_register' %}" class="auth-button">Go to Registration</a>
+            <a href="{% url 'login' %}" class="btn btn-secondary">Go to Login</a>
+        </div>
     </div>
 </div>
 {% endblock %}
+
+{% block footer %} {% endblock %}

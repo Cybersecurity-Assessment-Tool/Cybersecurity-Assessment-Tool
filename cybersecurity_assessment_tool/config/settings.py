@@ -79,6 +79,11 @@ if ENVIRONMENT != 'local' and '.herokuapp.com' not in ALLOWED_HOSTS:
 # Django Q2 (Background Worker) Settings
 # ------------------------------------------
 
+ASYNC_EMAIL_ENABLED = os.environ.get(
+    'ASYNC_EMAIL_ENABLED',
+    'true' if ENVIRONMENT != 'local' else 'false',
+).lower() in ('true', '1', 'yes')
+
 Q_CLUSTER = {
     'name': 'logodiscover_cluster',
     'orm': 'default',  
@@ -86,8 +91,8 @@ Q_CLUSTER = {
     # WORKER CONFIGURATION
     'workers': 4,       # Number of concurrent worker processes. 4 is a safe default for a Standard Heroku Dyno.
     'recycle': 500,     # Restarts a worker after it processes 500 tasks to prevent memory leaks.
-    'timeout': 300,     # Max time (in seconds) a task is allowed to run before being killed. 
-    'retry': 600,       # Set to 10 minutes (600s) here, but adjust if Gemini AI generation takes longer
+    'timeout': 600,     # Max time (in seconds) a task is allowed to run before being killed. 
+    'retry': 650,       # Set to 10 minutes (600s) here, but adjust if Gemini AI generation takes longer
     
     # DATABASE MANAGEMENT
     'compress': True,   # Compresses task data in the DB to save storage space.
@@ -184,6 +189,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Force users to log in again after closing the browser
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Log the user out after 1 hour (3600 seconds) of inactivity
+SESSION_COOKIE_AGE = 3600
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -236,6 +246,13 @@ else:
     }
 '''
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache_table',
+    }
+}
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -248,6 +265,26 @@ INTERNAL_IPS = [
 LOGIN_REDIRECT_URL = 'login_redirect'
 LOGOUT_REDIRECT_URL = "home"
 
+MICROSOFT_OAUTH_REDIRECT_BASE_URL = os.environ.get(
+    'MICROSOFT_OAUTH_REDIRECT_BASE_URL',
+    '',
+).strip().rstrip('/')
+
+GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', '').strip()
+GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
+GOOGLE_OAUTH_ENABLED = bool(GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET)
+# Set to False (or comment out this line and hardcode False) to skip the OTP modal after Google login.
+GOOGLE_OAUTH_REQUIRE_OTP = os.environ.get('GOOGLE_OAUTH_REQUIRE_OTP', 'False').lower() in ('true', '1', 'yes')
+
+MICROSOFT_OAUTH_CLIENT_ID = os.environ.get('MICROSOFT_OAUTH_CLIENT_ID', '').strip()
+MICROSOFT_OAUTH_CLIENT_SECRET = os.environ.get('MICROSOFT_OAUTH_CLIENT_SECRET', '').strip()
+MICROSOFT_OAUTH_TENANT_ID = os.environ.get('MICROSOFT_OAUTH_TENANT_ID', 'organizations').strip() or 'organizations'
+MICROSOFT_OAUTH_ENABLED = bool(MICROSOFT_OAUTH_CLIENT_ID and MICROSOFT_OAUTH_CLIENT_SECRET)
+MICROSOFT_OAUTH_REQUIRE_OTP = os.environ.get(
+    'MICROSOFT_OAUTH_REQUIRE_OTP',
+    'true' if GOOGLE_OAUTH_REQUIRE_OTP else 'false',
+).lower() in ('true', '1', 'yes')
+
 # ---------------------------------------------------------------------------
 # Email Configuration
 # ---------------------------------------------------------------------------
@@ -256,6 +293,9 @@ EMAIL_BACKEND_TYPE = os.environ.get('EMAIL_BACKEND_TYPE', 'console')
 # Determine if we're on Heroku
 IS_HEROKU = 'DYNO' in os.environ or 'HEROKU' in os.environ
 ADMIN_EMAIL_INBOX = os.environ.get('ADMIN_EMAIL_INBOX', 'cyberassessmenttool@gmail.com')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@localhost')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
 if EMAIL_BACKEND_TYPE == 'sendgrid' or IS_HEROKU:
     # Use SendGrid on Heroku
@@ -263,18 +303,18 @@ if EMAIL_BACKEND_TYPE == 'sendgrid' or IS_HEROKU:
     EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.sendgrid.net')
     EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
     EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', EMAIL_HOST_USER)
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', EMAIL_HOST_PASSWORD)
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', DEFAULT_FROM_EMAIL)
 elif EMAIL_BACKEND_TYPE == 'smtp':
     # Use Gmail or other SMTP
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com') # Defaults to Gmail SMTP, but should be updated to sendgrid in the future
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.sendgrid.net') # Defaults to SendGrid SMTP
     EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
     EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', EMAIL_HOST_USER)
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', EMAIL_HOST_PASSWORD)
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or DEFAULT_FROM_EMAIL)
 else:
     # Development - console backend
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

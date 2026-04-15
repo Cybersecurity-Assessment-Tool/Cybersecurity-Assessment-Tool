@@ -86,7 +86,8 @@ class Organization(models.Model):
     require_mfa_sensitive_data = models.BooleanField(null=True, blank=True, default=False)
     employee_acceptable_use_policy = models.BooleanField(null=True, blank=True, default=False)
     training_new_employees = models.BooleanField(null=True, blank=True, default=False)
-    training_once_per_year = models.BooleanField(null=True, blank=True,default=False)
+    training_once_per_year = models.BooleanField(null=True, blank=True, default=False)
+    admin_rotate = models.BooleanField(null=True, blank=True, default=False)
     registration_status = models.CharField(
         max_length=20,
         choices=[
@@ -106,9 +107,10 @@ class Organization(models.Model):
 # AbstractUser already provides username, password, and email
 class User(AbstractUser):
     def profile_image_path(instance, filename):
-        """Generate file path for new profile image"""
+        """Generate file path for a user's profile image."""
         ext = filename.split('.')[-1]
-        filename = f"profile_{instance.username}_{instance.user.id}.{ext}"
+        identifier = instance.user_id or instance.pk or 'new'
+        filename = f"profile_{instance.username}_{identifier}.{ext}"
         return os.path.join('uploads/profile_images/', filename)
 
     user_id = models.UUIDField(
@@ -137,7 +139,7 @@ class User(AbstractUser):
         blank=True     # allows the field to be optional in forms/admin
     )
     auto_frequency = models.CharField(max_length=1, choices=Frequency.choices)
-    profile_image = models.ImageField(upload_to=profile_image_path, blank=True, null=True)
+    profile_image = models.ImageField(upload_to=profile_image_path, blank=True, null=True, db_column='profile_image')
     color = models.CharField(max_length=1, choices=Color.choices, default=Color.DARK)
     font_size = models.CharField(max_length=1, choices=FontSize.choices, default=FontSize.MEDIUM)
     email_inbox = EncryptedEmailField(null=True, blank=True)
@@ -214,6 +216,14 @@ class Risk(models.Model):
     severity = models.CharField(choices=SEVERITY_CHOICES)
     affected_elements = EncryptedTextField()
     is_archived = models.BooleanField(default=False)
+    resolved_by = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='resolved_risks',
+    )
+    resolved_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         permissions = [
@@ -538,11 +548,13 @@ class Scan(models.Model):
     target_subnet = EncryptedTextField(
         blank=True,
         null=True,
-        help_text="Encrypted. The subnet that was scanned (e.g. 192.168.1.0/24)."
+        help_text="Encrypted. The subnet that was scanned (e.g. 132.170.206.12)."
     )
     scanner_version = models.CharField(max_length=20, blank=True, null=True)
     groups_completed = models.PositiveSmallIntegerField(default=0)
     skipped_tools = models.JSONField(default=list, blank=True)
+
+    scan_progress = models.JSONField(default=dict, blank=True)
 
     # ------------------------------------------------------------------
     # Results (encrypted - raw vulnerability data)

@@ -1,5 +1,7 @@
 import json
 import logging
+from django.core.cache import cache
+from django.core.paginator import Paginator
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
@@ -7,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django_q.tasks import async_task
 
-from .models import Scan, ScanToken
+from .models import Scan, ScanToken, Risk
 # Import the new orchestrator service
 from .services.generate_report_from_scan import generate_report_from_scan
 
@@ -93,9 +95,7 @@ def submit_scan_results(request):
     token_value = auth_header.split(' ', 1)[1].strip()
 
     try:
-        token_obj = ScanToken.objects.select_related('user', 'organization').get(
-            token=token_value
-        )
+        token_obj = ScanToken.objects.select_related('user', 'organization').get(token=token_value)
     except (ScanToken.DoesNotExist, ValueError):
         return JsonResponse({'error': 'Invalid token.'}, status=401)
 
@@ -108,7 +108,7 @@ def submit_scan_results(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
 
-    findings   = body.get('findings', [])
+    findings = body.get('findings', [])
     raw_results = body.get('raw_results', {})
 
     # -- DEBUG LOGGING --
@@ -127,13 +127,13 @@ def submit_scan_results(request):
         return JsonResponse({'error': 'No scan record associated with this token.'}, status=404)
 
     # -- Populate scan record --
-    scan.status                = Scan.Status.RECEIVED
-    scan.target_subnet         = body.get('target_subnet', '')
-    scan.scanner_version       = body.get('scan_version', '')
+    scan.status = Scan.Status.RECEIVED
+    scan.target_subnet = body.get('target_subnet', '')
+    scan.scanner_version = body.get('scan_version', '')
     scan.scan_duration_seconds = body.get('scan_duration_seconds')
-    scan.groups_completed      = body.get('groups_completed', 0)
-    scan.skipped_tools         = body.get('skipped_tools', [])
-    scan.scan_completed_at     = timezone.now()
+    scan.groups_completed = body.get('groups_completed', 0)
+    scan.skipped_tools = body.get('skipped_tools', [])
+    scan.scan_completed_at = timezone.now()
 
     # Store findings (encrypted via EncryptedTextField in models_scan.py)
     all_results = {
@@ -197,38 +197,57 @@ def scan_status(request, scan_id):
         return JsonResponse({'error': 'Scan not found.'}, status=404)
 
     response = {
-        'scan_id':  str(scan.id),
-        'status':   scan.status,
+        'scan_id': str(scan.id),
+        'status': scan.status,
         'created_at': scan.created_at.isoformat(),
     }
+
+    # Add progress data while scan is running
+    if scan.status == Scan.Status.RUNNING and scan.scan_progress:
+        response['scan_progress'] = scan.scan_progress
 
     # Add findings summary once results are received
     if scan.status in [Scan.Status.RECEIVED, Scan.Status.GENERATING, Scan.Status.COMPLETE]:
         response['findings_summary'] = {
             'critical': scan.finding_count_critical,
-            'high':     scan.finding_count_high,
-            'medium':   scan.finding_count_medium,
-            'low':      scan.finding_count_low,
-            'info':     scan.finding_count_info,
-            'total':    scan.total_findings,
+            'high': scan.finding_count_high,
+            'medium': scan.finding_count_medium,
+            'low': scan.finding_count_low,
+            'info': scan.finding_count_info,
+            'total': scan.total_findings,
         }
         response['groups_completed'] = scan.groups_completed
         response['scan_duration_seconds'] = scan.scan_duration_seconds
 
-    # Add report link once complete
-    if scan.status == Scan.Status.COMPLETE and scan.report:
-        response['report_id'] = str(scan.report.report_id)
-        response['report_url'] = f'/reports/{scan.report.report_id}/'
+    # ─── THE STREAMING >:D ──────────────────────────────────────────────
+    if scan.status == Scan.Status.GENERATING:
+        # 1. Read the dictionary we saved to the cache in run_network_scan
+        progress_data = cache.get(f"scan_progress_{scan_id}", {})
+        
+        # 2. Inject the progress values into the JSON response for the frontend
+        response['generation_progress'] = progress_data.get('progress', 5)
+        response['generation_text'] = progress_data.get('text', 'Initializing AI...')
 
-    # Surface error message on failure
-    if scan.status == Scan.Status.FAILED:
-        response['error'] = scan.error_message
+        live_risk_counts = cache.get(f"scan_live_risks_{scan_id}", {
+            'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0
+        })
+        response['live_risk_counts'] = live_risk_counts
+
+    # ─── COMPLETE STATE ──────────────────────────────────────────────────
+    elif scan.status == Scan.Status.COMPLETE:
+        if scan.report_id:
+            response['report_id'] = str(scan.report.report_id)
+            response['report_url'] = f'/reports/{scan.report.report_id}/'
+
+    # ─── ERROR STATE ─────────────────────────────────────────────────────
+    elif scan.status == Scan.Status.FAILED:
+        response['error'] = scan.error_message or "An unknown error occurred during the scan."
 
     return JsonResponse(response)
 
 
 # ---------------------------------------------------------------------------
-# 4. List scans for the scan page
+# 4. List scans for the scan page using Pagination
 #    Returns recent scans for the logged-in user.
 # ---------------------------------------------------------------------------
 
@@ -236,28 +255,43 @@ def scan_status(request, scan_id):
 @require_GET
 def list_scans(request):
     """
-    Returns the user's recent scans for display on the scan page.
+    Returns a paginated list of scans for the logged-in user (10 per page).
+    Accepts:  ?page=N   (defaults to 1)
+    Returns:
+        scans       — list of scan dicts for the requested page
+        pagination  — current_page, total_pages, has_previous, has_next,
+                      previous_page, next_page
     """
-    scans = Scan.objects.filter(
-        user=request.user
-    ).order_by('-created_at')[:10]   # last 10 scans
+    all_scans = Scan.objects.filter(user=request.user).order_by('-created_at')
+    paginator = Paginator(all_scans, 10)
+    page_obj  = paginator.get_page(request.GET.get('page', 1))
+
+    scans = [
+        {
+            'scan_id':                str(s.id),
+            'status':                 s.status,
+            'created_at':             s.created_at.isoformat(),
+            'total_findings':         s.total_findings,
+            'finding_count_critical': s.finding_count_critical,
+            'finding_count_high':     s.finding_count_high,
+            'finding_count_medium':   s.finding_count_medium,
+            'finding_count_low':      s.finding_count_low,
+            'finding_count_info':     s.finding_count_info,
+            'report_id':              str(s.report.report_id) if s.report else None,
+        }
+        for s in page_obj
+    ]
 
     return JsonResponse({
-        'scans': [
-            {
-                'scan_id':    str(s.id),
-                'status':     s.status,
-                'created_at': s.created_at.isoformat(),
-                'total_findings': s.total_findings,
-                'finding_count_critical': s.finding_count_critical,
-                'finding_count_high':     s.finding_count_high,
-                'finding_count_medium':   s.finding_count_medium,
-                'finding_count_low':      s.finding_count_low,
-                'finding_count_info':     s.finding_count_info,
-                'report_id': str(s.report.report_id) if s.report else None,
-            }
-            for s in scans
-        ]
+        'scans': scans,
+        'pagination': {
+            'current_page':  page_obj.number,
+            'total_pages':   paginator.num_pages,
+            'has_previous':  page_obj.has_previous(),
+            'has_next':      page_obj.has_next(),
+            'previous_page': page_obj.previous_page_number() if page_obj.has_previous() else None,
+            'next_page':     page_obj.next_page_number()     if page_obj.has_next()     else None,
+        },
     })
 
 
@@ -304,6 +338,13 @@ def start_server_scan(request):
                       'Add it in Settings → Security Posture.'},
             status=400
         )
+    
+    # Parse the scan types from the request body
+    try:
+        data = json.loads(request.body)
+        scan_arr = data.get('scan_types', [1, 1, 1, 1]) # fallback
+    except (json.JSONDecodeError, TypeError):
+        return JsonResponse({'error': 'Invalid scan configuration.'}, status=400)
 
     # Create the scan record (no ScanToken needed for server-side scans)
     scan = Scan.objects.create(
@@ -316,6 +357,7 @@ def start_server_scan(request):
     task_id = async_task(
         'api.services.network_scan.run_network_scan',
         str(scan.id),
+        scan_arr,
         timeout=900,
     )
 
@@ -327,5 +369,58 @@ def start_server_scan(request):
     return JsonResponse({
         'status': 'started',
         'scan_id': str(scan.id),
-        'message': "Scan started. We'll email you when your report is ready — this usually takes 3–5 minutes.",
+        'message': "Scan started. We'll email you when your report is ready — this usually takes 3-5 minutes.",
     }, status=202)
+
+# ---------------------------------------------------------------------------
+#  Retry Scan Button
+# ---------------------------------------------------------------------------
+
+@login_required
+@require_POST
+def retry_scan_generation(request, scan_id):
+    """
+    Restarts the scan or AI generation depending on where it failed.
+    """
+    try:
+        # Fetch the scan and ensure the requesting user owns it
+        scan = Scan.objects.get(id=scan_id, user=request.user)
+    except Scan.DoesNotExist:
+        return JsonResponse({'error': 'Scan not found or unauthorized.'}, status=404)
+
+    if scan.status != "FAILED":
+        return JsonResponse({'error': 'Only failed scans can be retried.'}, status=400)
+
+    # Clear the previous error message
+    scan.error_message = None
+
+    # Condition: Did the network scan finish successfully?
+    if scan.raw_findings_json:
+        # YES: We have scan data, so only the AI generation failed.
+        # scan.status = "RECEIVED" 
+        # scan.save(update_fields=['status', 'error_message'])
+
+        # Re-queue just the AI task
+        task_id = async_task('api.services.generate_report_from_scan.generate_report_from_scan', scan_id=str(scan.id))
+        
+        # Update status to GENERATING instead of RECEIVED to show that the AI is processing the report
+        scan.status = "GENERATING" 
+        scan.report_task_id = task_id # give a new task ID since this is a new generation
+        scan.save(update_fields=['status', 'error_message', 'report_task_id'])
+        
+        msg = 'AI generation restarted.'
+        
+    else:
+        # NO: We have no scan data, the network scanner itself failed.
+        scan.status = "PENDING"
+        scan.save(update_fields=['status', 'error_message'])
+
+        # Re-queue the full network scan task (with the 15-minute timeout)
+        async_task(
+            'api.services.network_scan.run_network_scan', 
+            str(scan.id),
+            timeout=900
+        )
+        msg = 'Network scan restarted.'
+
+    return JsonResponse({'success': True, 'message': msg})

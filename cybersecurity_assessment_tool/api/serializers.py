@@ -27,7 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
             'user_id', 'username', 'email', 'first_name', 'last_name',
             'is_staff', 'is_active', 'date_joined', 'last_login',
             'organization', 'organization_name',
-            'auto_frequency', 'profile_img',
+            'auto_frequency', 'profile_image',
             'font_size', 'color',
             'groups', 'user_permissions'
         ]

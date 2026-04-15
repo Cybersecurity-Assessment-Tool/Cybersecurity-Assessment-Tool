@@ -2,8 +2,68 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView
 from .forms import CustomUserCreationForm, InvitationSignupForm, PublicRegistrationForm
 from django.contrib.auth import get_user_model
+from .forms import AsyncPasswordResetForm 
+from django.core.paginator import Paginator
+from api.models import Risk
 
 User = get_user_model()
+
+
+def _get_google_oauth_context():
+    """Shared social OAuth configuration for signup templates."""
+    google_client_id = getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', '').strip()
+    microsoft_client_id = getattr(settings, 'MICROSOFT_OAUTH_CLIENT_ID', '').strip()
+    microsoft_oauth_base_url = (
+        getattr(settings, 'MICROSOFT_OAUTH_REDIRECT_BASE_URL', '') or ''
+    ).strip().rstrip('/')
+    return {
+        'google_oauth_enabled': bool(google_client_id),
+        'google_oauth_client_id': google_client_id,
+        'microsoft_oauth_enabled': bool(microsoft_client_id),
+        'microsoft_oauth_client_id': microsoft_client_id,
+        'microsoft_oauth_base_url': microsoft_oauth_base_url,
+    }
+
+
+def _get_system_notification_user():
+    """Return a stable internal user for approval/invitation emails without colliding with real admin emails."""
+    username = "Frontend Integration Testing"
+    admin_inbox = getattr(settings, 'ADMIN_EMAIL_INBOX', '').strip() or None
+    base_email = 'frontend-integration-testing@local.invalid'
+
+    system_user = User.objects.filter(username=username).first()
+    if system_user:
+        updates = []
+        if admin_inbox and system_user.email_inbox != admin_inbox:
+            system_user.email_inbox = admin_inbox
+            updates.append('email_inbox')
+        if not system_user.email:
+            system_user.email = base_email
+            updates.append('email')
+        if updates:
+            system_user.save(update_fields=updates)
+        return system_user
+
+    candidate_email = base_email
+    suffix = 1
+    while User.objects.filter(email_hash=generate_email_hash(candidate_email)).exists():
+        candidate_email = f"frontend-integration-testing+{suffix}@local.invalid"
+        suffix += 1
+
+    system_user = User(
+        username=username,
+        email_inbox=admin_inbox,
+        email=candidate_email,
+        first_name="System",
+        last_name="Integration",
+        is_active=True,
+        is_staff=True,
+        is_superuser=False,
+    )
+    system_user.set_unusable_password()
+    system_user.save()
+    return system_user
+
 
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
@@ -29,9 +89,10 @@ from django.conf import settings as django_settings # Have to import it like thi
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.conf import settings
 
 @login_required
-def settings(request):
+def settings_view(request):
     """Display settings page with tabs"""
     user = request.user
     is_admin = False
@@ -58,6 +119,7 @@ def settings(request):
             has_aup = request.POST.get('has_aup') == 'on'
             training_new = request.POST.get('training_new_employees') == 'on'
             training_annual = request.POST.get('training_annual') == 'on'
+            admin_rotate = request.POST.get('admin_rotate') == 'on'
             
             # Basic Validation
             if not ip_address or not website_domain_name or not email_domain_name:
@@ -74,6 +136,7 @@ def settings(request):
                 org.employee_acceptable_use_policy = has_aup
                 org.training_new_employees = training_new
                 org.training_once_per_year = training_annual
+                org.admin_rotate = admin_rotate
                 
                 # Ensure it's marked as completed
                 org.questionnaire_completed = True
@@ -101,9 +164,23 @@ def settings(request):
             messages.success(request, "Profile updated successfully!")
             return redirect(f"{request.path}?tab=profile")
 
+    active_tab = request.GET.get('tab', 'profile')
+ 
+    resolved_page_obj = None
+    if active_tab == 'logs' and user.organization:
+        resolved_qs = (
+            Risk.objects
+            .filter(organization=user.organization, is_archived=True)
+            .select_related('resolved_by')
+            .order_by('-resolved_at')
+        )
+        paginator = Paginator(resolved_qs, 10)
+        resolved_page_obj = paginator.get_page(request.GET.get('page', 1))
+
     context = {
         'is_admin': is_admin,
-        'active_tab': request.GET.get('tab', 'profile'),
+        'active_tab': active_tab,
+        'resolved_page_obj': resolved_page_obj,
     }
     return render(request, 'accounts/settings.html', context)
 
@@ -133,17 +210,31 @@ from api.models import User, Invitation, generate_email_hash
 # Takes care of public registration for Org Admins and company databases
 def public_register(request):
     """Handle public registration for Org Admins"""
+    google_verified_email = (request.session.get('google_signup_verified_email') or '').strip().lower()
+    social_signup_provider_name = (request.session.get('social_signup_provider') or '').strip()
+    if not social_signup_provider_name and google_verified_email:
+        social_signup_provider_name = 'Google'
+
     if request.method == 'POST':
-        form = PublicRegistrationForm(request.POST)
+        post_data = request.POST.copy()
+        submitted_email = post_data.get('email')
+
+        if google_verified_email and not (submitted_email or '').strip():
+            post_data['email'] = google_verified_email
+            submitted_email = google_verified_email
+
+        normalized_submitted_email = (submitted_email or '').strip().lower()
+        google_passwordless_signup = bool(google_verified_email and normalized_submitted_email == google_verified_email)
+
+        form = PublicRegistrationForm(post_data, require_password=not google_passwordless_signup)
         
         # 1. Run standard form validation
         is_valid = form.is_valid()
         
         # --- STRICT BACKEND CHECKS ---
-        password = request.POST.get('password1')
-        password_confirm = request.POST.get('password2')
-        submitted_email = request.POST.get('email')
-        username = request.POST.get('username')
+        password = post_data.get('password1')
+        password_confirm = post_data.get('password2')
+        username = post_data.get('username')
         
         # 2. Enforce Uniqueness (Username & Email)
         if username and User.objects.filter(username__iexact=username).exists():
@@ -157,13 +248,13 @@ def public_register(request):
                 form.add_error('email', 'An account with this email address already exists.')
                 is_valid = False
 
-        # 3. Enforce Password Matching
-        if password != password_confirm:
+        # 3. Enforce Password Matching (unless Google already authenticated the signup)
+        if not google_passwordless_signup and password != password_confirm:
             form.add_error('password2', 'Passwords do not match.')
             is_valid = False
             
-        # 4. Enforce Django's built-in Password Strength/Length rules
-        if password:
+        # 4. Enforce Django's built-in Password Strength/Length rules unless Google substitutes the password step
+        if not google_passwordless_signup and password:
             try:
                 validate_password(password)
             except ValidationError as e:
@@ -172,12 +263,12 @@ def public_register(request):
                     form.add_error('password1', error)
                 is_valid = False
 
-        # 5. Enforce Strict OTP Verification
-        verified_email = request.session.get('verified_email')
-        email_verified = request.session.get(f'registration_verified_{submitted_email}')
+        # 5. Enforce Strict OTP / Google verification
+        verified_email = (request.session.get('verified_email') or '').strip().lower()
+        email_verified = request.session.get(f'registration_verified_{normalized_submitted_email}')
 
-        if not email_verified or submitted_email != verified_email:
-            form.add_error('email', 'You must verify your email address via the "Verify" button before registering.')
+        if not email_verified or normalized_submitted_email != verified_email:
+            form.add_error('email', 'You must verify your email address via the "Verify" button, Google, or Microsoft before registering.')
             is_valid = False
         
         # --- EXECUTION BLOCK ---
@@ -185,11 +276,16 @@ def public_register(request):
         if is_valid:
             # Clear session verification so it can't be reused later
             request.session.pop('verified_email', None)
-            request.session.pop(f'registration_verified_{submitted_email}', None)
+            request.session.pop(f'registration_verified_{normalized_submitted_email}', None)
+            request.session.pop('google_signup_verified_email', None)
+            request.session.pop('social_signup_provider', None)
             
-            # Securely save the user and hash their validated password
+            # Securely save the user. If Google already authenticated them, keep the account passwordless.
             user = form.save(commit=False)
-            user.set_password(password)
+            if google_passwordless_signup and not password:
+                user.set_unusable_password()
+            else:
+                user.set_password(password)
             user.save()
             
             # Store data in session for the waiting page
@@ -198,21 +294,7 @@ def public_register(request):
             request.session['pending_submitted'] = timezone.now().isoformat()
 
             # Get system user for admin notifications
-            try:
-                system_user = User.objects.get(username="Frontend Integration Testing")
-            except User.DoesNotExist:
-                system_user = User.objects.create_user(
-                    username="Frontend Integration Testing",
-                    email_inbox=django_settings.ADMIN_EMAIL_INBOX,
-                    email=django_settings.DEFAULT_FROM_EMAIL,
-                    password=django_settings.EMAIL_HOST_PASSWORD,
-                    first_name="System",
-                    last_name="Integration",
-                    is_active=True,
-                    is_staff=True,
-                    is_superuser=False
-                )
-                print("Created system user")
+            system_user = _get_system_notification_user()
                 
             invitation = Invitation.objects.filter(
                 recipient_user=user,
@@ -236,7 +318,8 @@ def public_register(request):
             
             # Send confirmation email to user
             queue_email('registration', user.email, {
-                "username": user.username
+                "username": user.username,
+                "contact_email": getattr(settings, 'ADMIN_EMAIL_INBOX', getattr(settings, 'DEFAULT_FROM_EMAIL', ''))
             })
             
             # Generate approval URLs
@@ -250,16 +333,17 @@ def public_register(request):
             print(f"Generated reject URL: {reject_url}")
             
             # Send request email to admin
-            queue_email('request', system_user.email_inbox, {
+            admin_recipient = system_user.email_inbox or settings.ADMIN_EMAIL_INBOX
+            queue_email('request', admin_recipient, {
                 'requester_name': f"{user.first_name} {user.last_name}",
-                "requester_email": user.email_inbox,
+                "requester_email": user.email,
                 "company": user.organization.org_name if user.organization else "Unknown",
                 "role": "Org Admin",
                 "approve_url": approve_url,
                 "reject_url": reject_url,
             })
             
-            messages.success(request, 'Registration successful. Please wait for admin approval.')
+            #messages.success(request, 'Registration successful. Please wait for admin approval.')
             
             # Redirect to waiting page
             return redirect('accounts:waiting')
@@ -269,10 +353,24 @@ def public_register(request):
         # to render the form with the errors displayed!
 
     else:
-        # GET request - display empty form
-        form = PublicRegistrationForm()
+        # GET request - display empty form (optionally prefilled from Google fallback)
+        google_prefill = (request.session.get('google_signup_prefill') or {}).copy()
+        if google_verified_email:
+            google_prefill.setdefault('email', google_verified_email)
+        form = PublicRegistrationForm(initial=google_prefill, require_password=not bool(google_verified_email))
+        google_passwordless_signup = bool(google_verified_email)
     
-    return render(request, 'registration/public_register.html', {'form': form})
+    return render(
+        request,
+        'registration/public_register.html',
+        {
+            'form': form,
+            'google_signup_verified_email': google_verified_email,
+            'google_passwordless_signup': google_passwordless_signup,
+            'social_signup_provider_name': social_signup_provider_name,
+            **_get_google_oauth_context(),
+        },
+    )
 
 # Waiting Page
 def waiting_page(request):
@@ -390,6 +488,7 @@ def questionnaire(request):
         has_aup = request.POST.get('has_aup') == 'on'
         training_new = request.POST.get('training_new_employees') == 'on'
         training_annual = request.POST.get('training_annual') == 'on'
+        admin_rotate = request.POST.get('admin_rotate') == 'on'
         
         # Basic Validation
         if not ip_address or not website_domain_name or not email_domain_name:
@@ -407,6 +506,7 @@ def questionnaire(request):
         org.employee_acceptable_use_policy = has_aup
         org.training_new_employees = training_new
         org.training_once_per_year = training_annual
+        org.admin_rotate = admin_rotate
         
         # Mark organization questionnaire as completed
         org.questionnaire_completed = True
@@ -571,6 +671,7 @@ def send_invitation(request):
             "company": user.organization.org_name,
             "role": role,
             "invite_link": invite_link,
+            "contact_email": getattr(settings, 'ADMIN_EMAIL_INBOX', getattr(settings, 'DEFAULT_FROM_EMAIL', ''))
         })
 
         return JsonResponse({'success': True, 'message': f'Invitation sent to {email}'})
@@ -596,6 +697,7 @@ def resend_invitation(request):
             "company": inv.organization.org_name,
             "role": inv.recipient_role,
             "invite_link": invite_link,
+            "contact_email": getattr(settings, 'ADMIN_EMAIL_INBOX', getattr(settings, 'DEFAULT_FROM_EMAIL', ''))
         })
         return JsonResponse({'success': True})
     except Invitation.DoesNotExist:
@@ -639,33 +741,107 @@ def accept_invitation(request, token):
             'error_message': 'This invitation has expired. Please request a new one from your organization administrator.'
         }, status=400)
 
+    invited_email = invitation.recipient_email.strip().lower()
+    google_verified_email = (request.session.get('google_signup_verified_email') or '').strip().lower()
+    social_signup_provider_name = (request.session.get('social_signup_provider') or '').strip()
+    if not social_signup_provider_name and google_verified_email:
+        social_signup_provider_name = 'Google'
+
+    oauth_email_mismatch_message = ''
+    if google_verified_email and google_verified_email != invited_email:
+        provider_label = social_signup_provider_name or 'Google'
+        oauth_email_mismatch_message = (
+            f"{provider_label} signed in as {google_verified_email}, but this invitation is for "
+            f"{invitation.recipient_email}. Please sign in with the invited email address."
+        )
+        request.session.pop('google_signup_verified_email', None)
+        request.session.pop('social_signup_provider', None)
+        request.session.pop('google_invite_prefill', None)
+        google_verified_email = ''
+        social_signup_provider_name = ''
+
+    google_passwordless_signup = bool(google_verified_email and google_verified_email == invited_email)
+
     # 3. Handle the form submission if everything is valid
     if request.method == 'POST':
-        form = InvitationSignupForm(request.POST, email=invitation.recipient_email)
+        form = InvitationSignupForm(
+            request.POST,
+            email=invitation.recipient_email,
+            require_password=not google_passwordless_signup,
+        )
         if form.is_valid():
             user = form.save(commit=False)
             user.organization = invitation.organization
             user.is_active = True  # Automatically activate the user
+            if google_passwordless_signup and not form.cleaned_data.get('password1'):
+                user.set_unusable_password()
             user.save()
+
+            request.session.pop('google_signup_verified_email', None)
+            request.session.pop('social_signup_provider', None)
 
             # Update invitation
             invitation.recipient_user = user
             invitation.status = 'accepted'  # Mark as complete
             invitation.save()
 
+            admin_recipient = (
+                getattr(invitation.sender, 'email', '')
+                or getattr(invitation.sender, 'email_inbox', '')
+                or settings.ADMIN_EMAIL_INBOX
+            )
+            if admin_recipient:
+                try:
+                    domain = request.get_host()
+                    protocol = 'https' if (request.is_secure() or 'herokuapp.com' in domain) else 'http'
+                    admin_name = (
+                        ' '.join(part for part in [invitation.sender.first_name, invitation.sender.last_name] if part).strip()
+                        or invitation.sender.username
+                    )
+                    member_name = (
+                        ' '.join(part for part in [user.first_name, user.last_name] if part).strip()
+                        or user.username
+                    )
+                    queue_email('invite_accepted', admin_recipient, {
+                        'admin_name': admin_name,
+                        'member_name': member_name,
+                        'member_email': user.email,
+                        'company': invitation.organization.org_name,
+                        'role': invitation.recipient_role,
+                        'login_url': f"{protocol}://{domain}{reverse('accounts:settings')}?tab=organization",
+                        'contact_email': getattr(settings, 'ADMIN_EMAIL_INBOX', getattr(settings, 'DEFAULT_FROM_EMAIL', ''))
+                    })
+                except Exception as exc:
+                    print(f"Error notifying org admin about accepted invitation: {exc}")
+
             context = {
                 'success': True,
                 'email': invitation.recipient_email,
                 'organization': invitation.organization.org_name,
+                'google_passwordless_signup': google_passwordless_signup,
+                'social_signup_provider_name': social_signup_provider_name,
+                **_get_google_oauth_context(),
             }
             return render(request, 'registration/invite_signup.html', context)
     else:
-        form = InvitationSignupForm(email=invitation.recipient_email)
+        google_prefill = request.session.pop('google_invite_prefill', None) or {}
+        form = InvitationSignupForm(
+            email=invitation.recipient_email,
+            require_password=not google_passwordless_signup,
+            initial={
+                'first_name': google_prefill.get('first_name', ''),
+                'last_name': google_prefill.get('last_name', ''),
+            },
+        )
 
     context = {
         'form': form,
         'email': invitation.recipient_email,
         'organization': invitation.organization.org_name,
+        'google_passwordless_signup': google_passwordless_signup,
+        'social_signup_provider_name': social_signup_provider_name,
+        'oauth_email_mismatch_message': oauth_email_mismatch_message,
+        **_get_google_oauth_context(),
     }
     return render(request, 'registration/invite_signup.html', context)
 
@@ -708,7 +884,14 @@ class CustomPasswordChangeDoneView(TemplateView):
 class CustomPasswordResetView(PasswordResetView):
     """Handles the form asking for an email to send the reset link"""
     template_name = 'registration/password_reset_form.html'
+    form_class = AsyncPasswordResetForm 
     success_url = reverse_lazy('accounts:password_reset_done')
+    
+    # 1. The plain text fallback (for older email clients)
+    email_template_name = 'registration/password_reset_email.txt'
+    
+    # 2. The HTML styled version you just created!
+    html_email_template_name = 'registration/password_reset_email.html'
     
 class CustomPasswordResetDoneView(PasswordResetDoneView):
     """Displays the message telling the user to check their email"""

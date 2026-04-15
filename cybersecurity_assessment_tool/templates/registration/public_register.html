@@ -3,179 +3,14 @@
 
 {% block title %}Register Your Organization{% endblock %}
 
-<!-- removed nav bar -->
 {% block auth %} {% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
 <style>
-    .email-verify-group {
-        display: flex;
-        gap: 0.5rem;
-    }
-    
-    .email-verify-group .form-input {
-        flex: 1;
-    }
-    
-    .verified-badge {
-        color: #28a745;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-    
-    .auth-container {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #f9fafb;
-        padding: 1.5rem;
-    }
-    
-    .auth-card {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        padding: 2rem;
-        width: 100%;
-        max-width: 400px;
-    }
-    
-    .auth-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    
-    .auth-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #111827;
-        margin-bottom: 0.5rem;
-    }
-    
-    .auth-subtitle {
-        color: #6b7280;
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
-    
-    .form-group {
-        margin-bottom: 1.25rem;
-    }
-    
-    .form-group label {
-        display: block;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: #374151;
-        margin-bottom: 0.5rem;
-    }
-    
-    .form-input {
-        width: 100%;
-        padding: 0.625rem 0.875rem;
-        font-size: 0.875rem;
-        border: 1px solid #d1d5db;
-        border-radius: 6px;
-    }
-    
-    .form-input:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-    }
-    
-    .btn {
-        padding: 0.625rem 1rem;
-        font-size: 0.875rem;
-        border-radius: 6px;
-        cursor: pointer;
-        border: 1px solid transparent;
-    }
-    
-    .btn-secondary {
-        background-color: #f3f4f6;
-        border-color: #d1d5db;
-        color: #374151;
-    }
-    
-    .btn-secondary:hover {
-        background-color: #e5e7eb;
-    }
-    
-    .auth-button {
-        width: 100%;
-        padding: 0.75rem;
-        background-color: #111827;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-weight: 500;
-        cursor: pointer;
-    }
-    
-    .auth-button:hover {
-        background-color: #1f2937;
-    }
-    
-    .auth-button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-    
-    .auth-footer {
-        text-align: center;
-        margin-top: 1.5rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid #e5e7eb;
-        font-size: 0.875rem;
-    }
-    
-    .auth-footer a {
-        color: #3b82f6;
-        text-decoration: none;
-    }
-    
-    .auth-footer a:hover {
-        text-decoration: underline;
-    }
-    
-    .row {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.25rem;
-    }
-    
-    .row .field {
-        flex: 1;
-    }
-
-    /* Add a red border to the input if there's an error */
-    .form-group.has-error .form-input {
-        border-color: #ef4444;
-    }
-
-    /* Keeps top errors only for non-field errors */
-    .auth-error {
-        background-color: #fee2e2;
-        border: 1px solid #fecaca;
-        border-radius: 6px;
-        padding: 0.75rem 1rem;
-        margin-bottom: 1.5rem;
-        font-size: 0.875rem;
-        color: #b91c1c;
-    }
-
-    /* NEW: Django renders field errors as a ul with class 'errorlist' */
-    .errorlist {
-        color: #ef4444; /* Small red text */
-        font-size: 0.75rem;
-        margin: 0.35rem 0 0 0;
-        padding-left: 0;
-        list-style-type: none;
+    .container.whitebg {
+        box-shadow: none;
+        background: none;
     }
 </style>
 {% endblock %}
@@ -187,6 +22,59 @@
             <h1 class="auth-title">Create your account</h1>
             <p class="auth-subtitle">Tell us a bit about you and your company.</p>
         </div>
+
+        <div class="auth-divider">
+            <span class="divider-text">Speed up with Google or Microsoft</span>
+        </div>
+
+        <div class="social-login">
+            {% if google_oauth_enabled %}
+                <a id="googleSignupButton" class="social-button" href="{% url 'google_oauth_start' %}?flow=registration&next={% url 'accounts:public_register' %}">
+                    <span class="google-badge" aria-hidden="true">
+                        <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                            <path fill="#4285F4" d="M17.64 9.2045c0-.638-.0573-1.2518-.1636-1.8409H9v3.4818h4.8436c-.2086 1.125-.8427 2.0782-1.7968 2.7164v2.2582h2.9086C16.6591 14.2518 17.64 11.4391 17.64 9.2045z"/>
+                            <path fill="#34A853" d="M9 18c2.43 0 4.4673-.8064 5.9564-2.1791l-2.9086-2.2582c-.8064.54-1.8377.8591-3.0477.8591-2.3441 0-4.3282-1.5845-5.0364-3.7118H.9573v2.3327A9 9 0 0 0 9 18z"/>
+                            <path fill="#FBBC05" d="M3.9636 10.71A5.4093 5.4093 0 0 1 3.6818 9c0-.5932.1023-1.1682.2818-1.71V4.9573H.9573A9 9 0 0 0 0 9c0 1.4523.3477 2.8273.9573 4.0427l3.0063-2.3327z"/>
+                            <path fill="#EA4335" d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.3455l2.5814-2.5814C13.4632.8918 11.426 0 9 0A9 9 0 0 0 .9573 4.9573L3.9636 7.29C4.6718 5.1641 6.6559 3.5795 9 3.5795z"/>
+                        </svg>
+                    </span>
+                    <span>Continue with Google</span>
+                </a>
+            {% else %}
+                <button class="social-button" disabled title="Set GOOGLE_OAUTH_CLIENT_ID to enable Google sign-up">
+                    <span class="google-badge" aria-hidden="true">G</span>
+                    <span>Continue with Google</span>
+                </button>
+            {% endif %}
+
+            {% if microsoft_oauth_enabled %}
+                <a id="microsoftSignupButton" class="social-button" href="{{ microsoft_oauth_base_url }}{% url 'microsoft_oauth_start' %}?flow=registration&next={% url 'accounts:public_register' %}">
+                    <span class="microsoft-badge" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                            <rect x="1" y="1" width="10" height="10" fill="#F25022"/>
+                            <rect x="13" y="1" width="10" height="10" fill="#7FBA00"/>
+                            <rect x="1" y="13" width="10" height="10" fill="#00A4EF"/>
+                            <rect x="13" y="13" width="10" height="10" fill="#FFB900"/>
+                        </svg>
+                    </span>
+                    <span>Continue with Microsoft</span>
+                </a>
+            {% else %}
+                <button class="social-button" disabled title="Set MICROSOFT_OAUTH_CLIENT_ID to enable Microsoft sign-up">
+                    <span class="microsoft-badge" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                            <rect x="1" y="1" width="10" height="10" fill="#F25022"/>
+                            <rect x="13" y="1" width="10" height="10" fill="#7FBA00"/>
+                            <rect x="1" y="13" width="10" height="10" fill="#00A4EF"/>
+                            <rect x="13" y="13" width="10" height="10" fill="#FFB900"/>
+                        </svg>
+                    </span>
+                    <span>Continue with Microsoft</span>
+                </button>
+            {% endif %}
+        </div>
+        <p class="oauth-help">Google or Microsoft can verify your work email and replace the email OTP and password step. You still need to finish the form and submit it for approval.</p>
+        <div id="googleSignupStatus" class="alert" style="display: none;"></div>
 
         {% if form.non_field_errors %}
         <div class="auth-error">
@@ -208,14 +96,14 @@
             <div class="row">
                 <div class="field {% if form.first_name.errors %}has-error{% endif %}">
                     <label for="first_name">First name</label>
-                    <input id="first_name" name="first_name" type="text" class="form-input" required placeholder="Jane" value="{{ form.data.first_name|default:'' }}">
+                    <input id="first_name" name="first_name" type="text" class="form-input" required placeholder="Jane" value="{{ form.first_name.value|default_if_none:'' }}">
                     {% if form.first_name.errors %}
                         <div class="error-feedback">{{ form.first_name.errors }}</div>
                     {% endif %}
                 </div>
                 <div class="field {% if form.last_name.errors %}has-error{% endif %}">
                     <label for="last_name">Last name</label>
-                    <input id="last_name" name="last_name" type="text" class="form-input" required placeholder="Doe" value="{{ form.data.last_name|default:'' }}">
+                    <input id="last_name" name="last_name" type="text" class="form-input" required placeholder="Doe" value="{{ form.last_name.value|default_if_none:'' }}">
                     {% if form.last_name.errors %}
                         <div class="error-feedback">{{ form.last_name.errors }}</div>
                     {% endif %}
@@ -224,7 +112,7 @@
         
             <div class="form-group {% if form.username.errors %}has-error{% endif %}">
                 <label for="username">Username</label>
-                <input id="username" name="username" type="text" class="form-input" required placeholder="jane.doe" value="{{ form.data.username|default:'' }}">
+                <input id="username" name="username" type="text" class="form-input" required placeholder="jane.doe" value="{{ form.username.value|default_if_none:'' }}">
                 {% if form.username.errors %}
                     <div class="error-feedback">{{ form.username.errors }}</div>
                 {% endif %}
@@ -232,7 +120,7 @@
         
             <div class="form-group {% if form.company.errors %}has-error{% endif %}">
                 <label for="company_name">Company Name</label>
-                <input type="text" name="company" id="company_name" class="form-input" placeholder="Acme Inc." value="{{ form.data.company|default:'' }}" required>
+                <input type="text" name="company" id="company_name" class="form-input" placeholder="Acme Inc." value="{{ form.company.value|default_if_none:'' }}" required>
                 {% if form.company.errors %}
                     <div class="error-feedback">{{ form.company.errors }}</div>
                 {% endif %}
@@ -241,32 +129,35 @@
             <div class="form-group {% if form.email.errors %}has-error{% endif %}">
                 <label for="email">Work Email</label>
                 <div class="email-verify-group">
-                    <input type="email" name="email" id="email" class="form-input" placeholder="jane@company.com" value="{{ form.data.email|default:'' }}" required>
-                    <button type="button" class="btn btn-secondary" id="verifyEmailBtn">Verify</button>
+                    <input type="email" name="email" id="email" class="form-input" placeholder="jane@company.com" value="{{ form.email.value|default_if_none:'' }}" {% if google_passwordless_signup %}readonly{% endif %} required>
+                    <button type="button" class="btn btn-secondary" id="verifyEmailBtn" {% if google_passwordless_signup %}disabled{% endif %}>Verify</button>
                 </div>
-                {% if form.email.errors %}
-                    <div class="error-feedback">{{ form.email.errors }}</div>
-                {% endif %}
+                {{ form.email.errors }}
                 <div id="emailVerified" class="verified-badge" style="display: none;">✓ Email verified</div>
+                <div id="googlePasswordlessNotice" class="verified-badge" style="display: {% if google_passwordless_signup %}flex{% else %}none{% endif %};">✓ {{ social_signup_provider_name|default:'Google' }} already verified this email, so the password and OTP step can be skipped.</div>
             </div>
-        
-            <div class="form-group {% if form.password1.errors %}has-error{% endif %}">
-                <label for="password1">Password</label>
-                <input type="password" name="password1" id="password1" class="form-input" placeholder="Choose a strong password" required>
-                {% if form.password1.errors %}
-                    <div class="error-feedback">{{ form.password1.errors }}</div>
-                {% endif %}
+
+            <div id="passwordFieldsWrapper" style="{% if google_passwordless_signup %}display: none;{% endif %}">
+                <div class="form-group {% if form.password1.errors %}has-error{% endif %}">
+                    <label for="password1">Password</label>
+                    <input type="password" name="password1" id="password1" class="form-input" placeholder="Choose a strong password" {% if not google_passwordless_signup %}required{% endif %}>
+                    {% if form.password1.errors %}
+                        <div class="error-feedback">{{ form.password1.errors }}</div>
+                    {% endif %}
+                </div>
+            
+                <div class="form-group {% if form.password2.errors %}has-error{% endif %}">
+                    <label for="password2">Confirm Password</label>
+                    <input type="password" name="password2" id="password2" class="form-input" placeholder="Re-enter your password" {% if not google_passwordless_signup %}required{% endif %}>
+                    {% if form.password2.errors %}
+                        <div class="error-feedback">{{ form.password2.errors }}</div>
+                    {% endif %}
+                </div>
             </div>
+
+            <p id="passwordBypassMessage" class="oauth-help" style="margin-top: -0.5rem; {% if not google_passwordless_signup %}display: none;{% endif %}">You can still add a password later, but it is not required after {{ social_signup_provider_name|default:'Google' }} verification.</p>
         
-            <div class="form-group {% if form.password2.errors %}has-error{% endif %}">
-                <label for="password2">Confirm Password</label>
-                <input type="password" name="password2" id="password2" class="form-input" placeholder="Re-enter your password" required>
-                {% if form.password2.errors %}
-                    <div class="error-feedback">{{ form.password2.errors }}</div>
-                {% endif %}
-            </div>
-        
-            <button type="submit" class="auth-button" id="submitBtn" disabled>Sign up</button>
+            <button type="submit" class="auth-button" id="submitBtn" {% if not google_passwordless_signup %}disabled{% endif %}>Sign up</button>
         </form>
 
         <div class="auth-footer">
@@ -274,12 +165,13 @@
         </div>
     </div>
 </div>
+{% endblock %} 
 
-{% include 'components/otp_popup.html' %}
-
-<!-- removed footer -->
-{% block footer %} {% endblock %}
+{% block modals %}
+    {% include 'components/otp_popup.html' %}
 {% endblock %}
+
+{% block footer %} {% endblock %}
 
 {% block extra_js %}
 <script>
@@ -307,37 +199,75 @@ $.ajaxSetup({
     }
 });
 
+function showGoogleSignupStatus(message, isError = false) {
+    const status = $('#googleSignupStatus');
+    status
+        .removeClass('alert-success alert-error')
+        .addClass(isError ? 'alert-error' : 'alert-success')
+        .text(message)
+        .show();
+}
+
 $(document).ready(function() {
-    let emailVerified = false;
-    
+    let emailVerified = {{ google_passwordless_signup|yesno:'true,false' }};
+    let googlePasswordlessSignup = {{ google_passwordless_signup|yesno:'true,false' }};
+    let verifiedEmail = "{{ google_signup_verified_email|default:''|escapejs }}".trim().toLowerCase();
+    const socialSignupProviderName = "{{ social_signup_provider_name|default:'Google'|escapejs }}".trim() || 'Google';
+
+    function setPasswordRequirement(isPasswordless) {
+        googlePasswordlessSignup = !!isPasswordless;
+        $('#passwordFieldsWrapper').toggle(!googlePasswordlessSignup);
+        $('#passwordBypassMessage').toggle(googlePasswordlessSignup);
+        $('#googlePasswordlessNotice').toggle(googlePasswordlessSignup);
+        $('#password1, #password2').prop('required', !googlePasswordlessSignup);
+        if (googlePasswordlessSignup) {
+            $('#password1, #password2').val('');
+            $('#password2')[0].setCustomValidity('');
+        }
+    }
+
+    function setVerificationState(isVerified, email, label, passwordless) {
+        emailVerified = isVerified;
+        verifiedEmail = (email || '').toLowerCase();
+        $('#emailVerified').text(label || '✓ Email verified').toggle(isVerified);
+        $('#submitBtn').prop('disabled', !isVerified);
+        $('#verifyEmailBtn').prop('disabled', isVerified).text(isVerified ? 'Verified' : 'Verify');
+        $('#email').prop('readonly', Boolean(isVerified && passwordless));
+        setPasswordRequirement(Boolean(isVerified && passwordless));
+    }
+
+    window.setPublicRegistrationVerificationState = setVerificationState;
+    window.enableGooglePasswordlessSignup = setPasswordRequirement;
+
+    // The Google option now uses a plain redirect link, so no JS SDK initialization is needed here.
+
     // Grab the previously verified email from the Django session (if it exists)
-    const serverVerifiedEmail = "{{ request.session.verified_email|default:'' }}".trim();
-    const initialEmail = $('#email').val().trim();
+    if (!$('#email').val().trim() && googlePasswordlessSignup && verifiedEmail) {
+        $('#email').val(verifiedEmail);
+    }
+
+    const initialEmail = $('#email').val().trim().toLowerCase();
 
     // RESTORE STATE: If the form reloaded and the email in the box matches the verified email
-    if (initialEmail && initialEmail === serverVerifiedEmail) {
-        emailVerified = true;
-        $('#emailVerified').show();
-        $('#submitBtn').prop('disabled', false);
-        $('#verifyEmailBtn').prop('disabled', true).text('Verified');
+    if (initialEmail && initialEmail === verifiedEmail) {
+        setVerificationState(
+            true,
+            verifiedEmail,
+            googlePasswordlessSignup ? `✓ Email verified with ${socialSignupProviderName}` : '✓ Email verified',
+            googlePasswordlessSignup
+        );
+    } else {
+        setPasswordRequirement(false);
     }
 
     // LISTENER: If the user changes the email AFTER it was verified, reset the verification state
     $('#email').on('input', function() {
-        const currentEmail = $(this).val().trim();
-        
-        if (emailVerified && currentEmail !== serverVerifiedEmail) {
-            // They changed the email, revoke verification
-            emailVerified = false;
-            $('#emailVerified').hide();
-            $('#submitBtn').prop('disabled', true);
-            $('#verifyEmailBtn').prop('disabled', false).text('Verify');
-        } else if (!emailVerified && currentEmail === serverVerifiedEmail && serverVerifiedEmail !== '') {
-            // They changed it back to the verified email
-            emailVerified = true;
-            $('#emailVerified').show();
-            $('#submitBtn').prop('disabled', false);
-            $('#verifyEmailBtn').prop('disabled', true).text('Verified');
+        const currentEmail = $(this).val().trim().toLowerCase();
+
+        if (emailVerified && currentEmail !== verifiedEmail) {
+            setVerificationState(false, '', '✓ Email verified', false);
+        } else if (!emailVerified && currentEmail === verifiedEmail && verifiedEmail !== '') {
+            setVerificationState(true, verifiedEmail, googlePasswordlessSignup ? `✓ Email verified with ${socialSignupProviderName}` : '✓ Email verified', googlePasswordlessSignup);
         }
     });
 
@@ -391,10 +321,7 @@ $(document).ready(function() {
                     },
 
                     onSuccess: function() {
-                        emailVerified = true;
-                        $('#emailVerified').show();
-                        $('#submitBtn').prop('disabled', false);
-                        $('#verifyEmailBtn').prop('disabled', true).text('Verified');
+                        setVerificationState(true, email.toLowerCase(), '✓ Email verified', false);
                     },
 
                     onCancel: function() {
@@ -410,15 +337,15 @@ $(document).ready(function() {
     });
 
     // Password match validation
-    $('#password1, #password2').on('input', function() {
-        const password = $('#password1').val();
-        const confirm  = $('#password2').val();
-        if (password && confirm && password !== confirm) {
-            $('#password2')[0].setCustomValidity('Passwords do not match');
-        } else {
-            $('#password2')[0].setCustomValidity('');
-        }
-    });
+    // $('#password1, #password2').on('input', function() {
+    //     const password = $('#password1').val();
+    //     const confirm  = $('#password2').val();
+    //     if (password && confirm && password !== confirm) {
+    //         $('#password2')[0].setCustomValidity('Passwords do not match');
+    //     } else {
+    //         $('#password2')[0].setCustomValidity('');
+    //     }
+    // });
 
     // Form submission validation
     $('#registrationForm').submit(function(e) {
@@ -427,7 +354,7 @@ $(document).ready(function() {
             alert('Please verify your email before submitting.');
             return false;
         }
-        if ($('#password1').val() !== $('#password2').val()) {
+        if (!googlePasswordlessSignup && $('#password1').val() !== $('#password2').val()) {
             e.preventDefault();
             alert('Passwords do not match.');
             return false;
