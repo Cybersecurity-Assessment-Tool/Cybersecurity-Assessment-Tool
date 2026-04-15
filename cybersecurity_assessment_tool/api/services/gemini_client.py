@@ -226,11 +226,11 @@ def generate_and_process_report(
 
                 # put overwrite HERE
                 if scan_obj:
-                    scan_obj.finding_count_critical = vulnerabilities.get("Severity", "").count("Critical")
-                    scan_obj.finding_count_high = vulnerabilities.get("Severity", "").count("High")
-                    scan_obj.finding_count_medium = vulnerabilities.get("Severity", "").count("Medium")
-                    scan_obj.finding_count_low = vulnerabilities.get("Severity", "").count("Low")
-                    scan_obj.finding_count_info = vulnerabilities.get("Severity", "").count("Info")
+                    scan_obj.finding_count_critical = vulnerabilities["Severity"].count("Critical")
+                    scan_obj.finding_count_high = vulnerabilities["Severity"].count("High")
+                    scan_obj.finding_count_medium = vulnerabilities["Severity"].count("Medium")
+                    scan_obj.finding_count_low = vulnerabilities["Severity"].count("Low")
+                    scan_obj.finding_count_info = vulnerabilities["Severity"].count("Info")
 
                     scan_obj.report = report_data["report"]
                     scan_obj.status = 'COMPLETE' 
