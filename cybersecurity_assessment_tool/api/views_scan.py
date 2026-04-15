@@ -397,11 +397,17 @@ def retry_scan_generation(request, scan_id):
     # Condition: Did the network scan finish successfully?
     if scan.raw_findings_json:
         # YES: We have scan data, so only the AI generation failed.
-        scan.status = "RECEIVED" 
-        scan.save(update_fields=['status', 'error_message'])
+        # scan.status = "RECEIVED" 
+        # scan.save(update_fields=['status', 'error_message'])
 
         # Re-queue just the AI task
-        async_task('api.services.generate_report_from_scan.generate_report_from_scan', scan_id=str(scan.id))
+        task_id = async_task('api.services.generate_report_from_scan.generate_report_from_scan', scan_id=str(scan.id))
+        
+        # Update status to GENERATING instead of RECEIVED to show that the AI is processing the report
+        scan.status = "GENERATING" 
+        scan.report_task_id = task_id # give a new task ID since this is a new generation
+        scan.save(update_fields=['status', 'error_message', 'report_task_id'])
+        
         msg = 'AI generation restarted.'
         
     else:
