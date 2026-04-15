@@ -84,6 +84,7 @@ class UserDetailView(LoginRequiredMixin, TemplateView):
     
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.conf import settings as django_settings # Have to import it like this to avoid conflicts
     
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
