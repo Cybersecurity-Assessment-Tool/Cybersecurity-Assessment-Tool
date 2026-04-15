@@ -269,6 +269,7 @@ def generate_and_process_report(
                     final_ai_counts[sev] += 1
 
             if scan_obj:
+                cache_key = f"scan_live_risks_{scan_obj.id}"
                 scan_obj.finding_count_critical = cache.get(cache_key, { 'Critical': 0 })
                 scan_obj.finding_count_high = cache.get(cache_key, { 'High': 0 })
                 scan_obj.finding_count_medium = cache.get(cache_key, { 'Medium': 0 })
