@@ -224,6 +224,23 @@ def generate_and_process_report(
                 vulnerabilities.sort(key=lambda v: get_severity_weight(v.get("Severity", "")))
                 report_data["report"][0]["Risks & Recommendations"]["Vulnerabilities Found"] = vulnerabilities
 
+                # put overwrite HERE
+                if scan_obj:
+                    scan_obj.finding_count_critical = vulnerabilities.get("Severity", "").count("Critical")
+                    scan_obj.finding_count_high = vulnerabilities.get("Severity", "").count("High")
+                    scan_obj.finding_count_medium = vulnerabilities.get("Severity", "").count("Medium")
+                    scan_obj.finding_count_low = vulnerabilities.get("Severity", "").count("Low")
+                    scan_obj.finding_count_info = vulnerabilities.get("Severity", "").count("Info")
+
+                    scan_obj.report = report_data["report"]
+                    scan_obj.status = 'COMPLETE' 
+
+                    scan_obj.save(update_fields=[
+                        'report', 'status',
+                        'finding_count_critical', 'finding_count_high', 
+                        'finding_count_medium', 'finding_count_low', 'finding_count_info'
+                    ])
+
             # Create the Report
             new_report = Report.objects.create(
                 user_created=user,
@@ -267,22 +284,6 @@ def generate_and_process_report(
                 sev = (new_risk.severity or "Info").capitalize()
                 if sev in final_ai_counts:
                     final_ai_counts[sev] += 1
-            
-            if scan_obj:
-                scan_obj.finding_count_critical = final_ai_counts['Critical']
-                scan_obj.finding_count_high = final_ai_counts['High']
-                scan_obj.finding_count_medium = final_ai_counts['Medium']
-                scan_obj.finding_count_low = final_ai_counts['Low']
-                scan_obj.finding_count_info = final_ai_counts['Info']
-                
-                scan_obj.report = new_report
-                scan_obj.status = 'COMPLETE' 
-                
-                scan_obj.save(update_fields=[
-                    'report', 'status',
-                    'finding_count_critical', 'finding_count_high', 
-                    'finding_count_medium', 'finding_count_low', 'finding_count_info'
-                ])
 
         print(f"--- Successfully saved Report {new_report.pk} and associated risks. ---")
         
