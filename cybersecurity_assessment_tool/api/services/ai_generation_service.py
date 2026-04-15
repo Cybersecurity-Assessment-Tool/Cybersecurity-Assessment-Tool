@@ -48,12 +48,12 @@ REPORT_SCHEMA_JSON: Dict[str, Any] = {
                                 "items": { 
                                     "type": "object",
                                     "properties": {
-                                        "Risk": {"type": "string", "description": "A short name of what the risk is."},
+                                        "Risk": {"type": "string", "description": "A specific, isolated name for the risk. If it is a port, specify the exact port number here (e.g., 'Open Port: 22 (SSH)'). Do not group."},
                                         "Overview": {"type": "string", "description": "A concise text description (maximum 3 sentences) of the observation, explaining what it is, its impact, and how it was identified."},
                                         "Severity": {"type": "string", "description": "The calculated severity score (Critical, High, Medium, Low, or Info) for the risk."},
                                         "Affected Elements": {
                                             "type": "array",
-                                            "description": "A list of system components, files, URLs, or specific functions/code areas affected by this risk.",
+                                            "description": "The specific component affected. Because risks must be isolated, this array should typically only contain one item (e.g., just the specific IP/Port combination).",
                                             "items": {"type": "string"}
                                         },
                                         "Recommendation": {
@@ -153,44 +153,40 @@ def _create_report_prompt() -> str:
     """
     Creates the report prompt to use for each report generation.
     """
-    return f"""You need to always respond in a JSON format. Only output valid JSON. 
+    return """You need to always respond in a JSON format. Only output valid JSON. 
     You are an expert cybersecurity analyst who generates comprehensive security reports. 
     You are evaluating raw technical data and a questionnaire for an organization. 
     If you do not have enough data to draw a conclusion, simply state you do not know.
     
-    Every response you generate MUST include a "thought" key at the root level where you think through your analysis, followed by the "report" key.
+    CRITICAL INSTRUCTION FOR VULNERABILITIES:
+    1. In the "thought" key, you MUST first list out every single open port and risk individually.
+    2. You MUST create a strictly separate JSON object in the 'Vulnerabilities Found' array for EVERY single open port or risk. 
+    3. For example, if ports 80, 443, and 22 are open, you MUST generate THREE separate vulnerability objects, one for each port. They must have distinct Risk names like "Open Port: 80".
     
     Pass the formatted vulnerabilities and summaries into the "report" section EXACTLY as formatted in the schema.
-    If there are no vulnerabilities found, you MUST return an empty array [] for 'Vulnerabilities Found' or 'new vulnerabilities'. Do not leave these fields blank or omit them.
+    If there are no vulnerabilities found, you MUST return an empty array [] for 'Vulnerabilities Found'. Do not leave these fields blank or omit them.
     Draw conclusions (e.g., p=reject is strong, no open ports are secure) rather than just listing data. 
-    Do not include conversational text or markdown. Do not include the example in your response. 
-    
-    EXPECTED SCHEMA STRUCTURE:
-    {json.dumps(REPORT_SCHEMA_JSON, indent=2)}
+    Do not include conversational text or markdown. Do not include the examples in your response. 
     """
 
 def _create_risk_prompt() -> str:
     """
     Creates the risk prompt to use for each risk list generation.
     """
-    return f"""You need to always respond in a JSON format. Only output valid JSON. 
+    return """You need to always respond in a JSON format. Only output valid JSON. 
     You are an expert cybersecurity analyst who extracts vulnerabilities. 
     You are evaluating a security report for an organization. 
     If you do not have enough data to assess a risk, simply state you do not know. 
     You need to make sure you cross-reference every vulnerability against the list of existing risks during your analysis.
     
-    Every response you generate MUST include a "thought" key at the root level where you think through your analysis, followed by the vulnerability lists.
+    CRITICAL INSTRUCTION FOR NEW VULNERABILITIES:
+    You MUST isolate every single risk and open port. If a server has 5 vulnerable open ports, you MUST generate 5 distinct objects in the "new vulnerabilities" array. The risk name should specify the exact port or issue (e.g., "Insecure Open Port: 22").
     
-    The current risk list tells you which risks are already known. 
-    Each entry corresponds to a vulnerability already tracked by the organization. 
+    The current risk list tells you which risks are already known. Each entry corresponds to a vulnerability already tracked by the organization. 
     Pass all new vulnerabilities that are NOT in the known risk list into the "new vulnerabilities" section.
-    If there are no vulnerabilities found, you MUST return an empty array [] for 'Vulnerabilities Found' or 'new vulnerabilities'. Do not leave these fields blank or omit them.
+    If there are no vulnerabilities found, you MUST return an empty array []. Do not leave these fields blank or omit them.
     Assign accurate severities and provide an 'easy_fix' and 'long_term_fix'.
-    Do not include any conversational text or markdown. Do not include the example in your response.
-    Do not include any issues with the network scan in your response.
-    
-    EXPECTED SCHEMA STRUCTURE:
-    {json.dumps(RISK_SCHEMA_JSON, indent=2)}
+    Do not include any conversational text, markdown, or network scan issues. Do not include the example in your response.
     """
 
 def _create_example(example_input, example_output) -> str:
@@ -214,13 +210,30 @@ def _create_example(example_input, example_output) -> str:
 
 def _generate_report_content(questionnaire, context, chunk_callback=None):
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    input_path = os.path.join(current_dir, "..", "assets", "report_template", "input.json")
-    output_path = os.path.join(current_dir, "..", "assets", "report_template", "output.json")
+    
+    # Path setup for Example 1 (Clean / Minor Findings)
+    input_path_1 = os.path.join(current_dir, "..", "assets", "report_template", "input.json")
+    output_path_1 = os.path.join(current_dir, "..", "assets", "report_template", "output.json")
 
-    example = _create_example(os.path.normpath(input_path), os.path.normpath(output_path))
+    # Path setup for Example 2 (Critical / Vulnerable Findings)
+    input_path_2 = os.path.join(current_dir, "..", "assets", "report_template", "input2.json")
+    output_path_2 = os.path.join(current_dir, "..", "assets", "report_template", "output2.json")
+
+    # Create the example strings
+    example_1 = _create_example(os.path.normpath(input_path_1), os.path.normpath(output_path_1))
+    example_2 = _create_example(os.path.normpath(input_path_2), os.path.normpath(output_path_2))
 
     print(f"--- Calling Gemini API with model: {MODEL_NAME} ---")
-    full_prompt = f"{_create_report_prompt()}\n\nContext Input:\n{context}\n{questionnaire}\n\nExample:\n{example}"
+    
+    # Construct the full prompt with clearly marked Example blocks
+    full_prompt = (
+        f"{_create_report_prompt()}\n\n"
+        f"Context Input:\n{context}\n{questionnaire}\n\n"
+        f"--- EXAMPLES START ---\n"
+        f"Example 1 (Clean network, minor policy issues):\n{example_1}\n\n"
+        f"Example 2 (Highly vulnerable network, severe policy issues):\n{example_2}\n"
+        f"--- EXAMPLES END ---\n"
+    )
 
     response = model.generate_content(
         contents=full_prompt,
@@ -228,7 +241,7 @@ def _generate_report_content(questionnaire, context, chunk_callback=None):
             response_mime_type="application/json",
             response_schema=REPORT_SCHEMA_JSON
         ),
-        stream=True  # 1. Enable streaming
+        stream=True  # Enable streaming
     )
 
     full_text = ""
@@ -250,13 +263,13 @@ def _generate_report_content(questionnaire, context, chunk_callback=None):
     if not full_text.strip():
         raise RuntimeError("Empty response from Gemini for report generation.")
 
-    # 4. Once the stream finishes, parse the accumulated text into JSON
+    # Once the stream finishes, parse the accumulated text into JSON
     data = json.loads(full_text)
     jsonschema.validate(instance=data, schema=REPORT_SCHEMA_JSON)
             
     return data
 
-def _add_risks(report: dict, current_risks: dict):
+def _add_risks(report: dict, current_risks: dict, chunk_callback=None): # <-- Add chunk_callback
     current_dir = os.path.dirname(os.path.abspath(__file__))
     current_risk_path = os.path.join(current_dir, "..", "assets", "risk_template", "current_risk.json")
     output_path = os.path.join(current_dir, "..", "assets", "risk_template", "output.json")
@@ -285,19 +298,29 @@ def _add_risks(report: dict, current_risks: dict):
         generation_config=gen.types.GenerationConfig(
             response_mime_type="application/json",
             response_schema=RISK_SCHEMA_JSON
-        )
+        ),
+        stream=True  # Enable streaming
     )
     
-    # Safely extract text
-    try:
-        response_text = response.text
-    except ValueError:
-        raise RuntimeError("Gemini returned an empty response payload (finish_reason 1).")
+    full_text = ""
     
-    if not response_text.strip():
+    # Stream the chunks
+    for chunk in response:
+        try:
+            chunk_text = chunk.text
+            if chunk_text:
+                full_text += chunk_text
+                print("Risk Chunk: " + chunk_text + "\n")
+                if chunk_callback:
+                    chunk_callback(chunk_text)
+        except ValueError:
+            continue
+
+    if not full_text.strip():
         raise RuntimeError("Empty response from Gemini for risk generation.")
 
-    data = json.loads(response_text)
+    # Parse and validate
+    data = json.loads(full_text)
     jsonschema.validate(instance=data, schema=RISK_SCHEMA_JSON)
     
     return data
@@ -312,12 +335,17 @@ def ai_generation_service(questionnaire: dict, current_risks: dict, context: str
     
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            # Tell the frontend progress bar to reset if this is a retry
             if attempt > 1 and chunk_callback:
                 chunk_callback("__RETRY_RESET__")
                 
             report_data = _generate_report_content(questionnaire, context, chunk_callback)
-            risks_data = _add_risks(report_data, current_risks)
+            
+            # Send a signal to the frontend callback to clear the buffer
+            if chunk_callback:
+                chunk_callback("__RISK_PHASE_START__")
+                
+            # Pass the callback into the risk generator
+            risks_data = _add_risks(report_data, current_risks, chunk_callback) 
             
             print("--- Successfully generated report and risk data dictionaries. ---")
             return report_data, risks_data, ""

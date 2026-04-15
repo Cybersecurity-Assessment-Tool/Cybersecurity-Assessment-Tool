@@ -1315,18 +1315,30 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
                     cache.set(f"scan_live_risks_{scan_id}", {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Info': 0}, timeout=600)
                 return
 
+            # Catch the phase transition and clear the buffer
+            if chunk_text == "__RISK_PHASE_START__":
+                stream_buffer[0] = "" 
+                return
+
             stream_buffer[0] += chunk_text
             current_text = stream_buffer[0]
                         
             report_pct = 5
             status_text = 'Initializing AI...'
             
-            if '"Conclusion"' in current_text:
+            # PHASE 2 (Risk extraction keywords)
+            if '"all vulnerabilities"' in current_text:
+                report_pct, status_text = 99, 'Finalizing risk database'
+            elif '"new vulnerabilities"' in current_text:
+                report_pct, status_text = 97, 'Cross-referencing known risks'
+                
+            # PHASE 1 (Report generation keywords)
+            elif '"Conclusion"' in current_text:
                 report_pct, status_text = 95, 'Concluding report'
             elif '"Observations"' in current_text:
                 report_pct, status_text = 80, 'Determining observations'
             elif '"Summary"' in current_text:
-                severity_matches = re.findall(r'"Severity"\s*:\s*"([^"]+)"', current_text, re.IGNORECASE) # track entire portion including severity type
+                severity_matches = re.findall(r'"Severity"\s*:\s*"([^"]+)"', current_text, re.IGNORECASE) 
                 severity_hits = len(severity_matches)
 
                 if severity_hits > 0:
@@ -1349,7 +1361,7 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
             elif '"report"' in current_text:
                 report_pct, status_text = 20, 'Generation started'
             elif '"thought"' in current_text:
-                report_pct, status_text = 10, 'Reading over report'
+                report_pct, status_text = 10, 'Thinking...'
                 
             # 3. Write ONLY the clean progress data to cache, no raw AI text!
             cache.set(f"scan_progress_{scan_id}", {
