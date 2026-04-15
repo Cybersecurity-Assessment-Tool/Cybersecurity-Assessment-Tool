@@ -1127,6 +1127,12 @@ function renderRecentScans(data) {
       ? `<a href="/reports/${s.report_id}/" class="btn btn-sm btn-outline-primary">View Report</a>`
       : '—';
 
+    // for incomplete scans
+    let actionBtn = '';
+    if (s.status !== 'COMPLETE') {
+      actionBtn = `<button class="btn btn-sm btn-outline-secondary ms-1" onclick="retryScan('${s.scan_id}')"> Retry </button>`;
+    }
+
     // Update scan table entry with live risk counts
     let fc = {
       critical: s.finding_count_critical,
@@ -1156,7 +1162,7 @@ function renderRecentScans(data) {
         <td>${date}</td>
         <td>${status}</td>
         <td>${findings}</td>
-        <td>${report}</td>
+        <td>${report}${actionBtn}</td>
       </tr>`;
   }).join('');
  
@@ -1326,6 +1332,36 @@ function startScan() {
     notice.style.display = 'block';
     setScanActive(false);
   });
+}
+
+function retryScan(scanId) {
+  fetch(`/api/scan/retry/${scanId}/`, {
+    method:  'POST',
+    headers: { 'X-CSRFToken': getCsrf(), 'Content-Type': 'application/json' },
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      // If this is the scan the user is currently watching, resume polling
+      if (scanId === activeScanId) {
+        setScanActive(true);
+        showNetworkCard();
+        startPolling(scanId);
+      } else {
+        // Different scan — just update the table and let the user know
+        activeScanId = scanId;
+        sessionStorage.setItem(SCAN_KEY, scanId);
+        setScanActive(true);
+        showNetworkCard();
+        setNetworkRunning('Restarting…');
+        startPolling(scanId);
+      }
+      loadRecentScans();
+    } else {
+      alert('Error: ' + (data.error || 'Could not retry scan.'));
+    }
+  })
+  .catch(() => alert('Network error — could not retry scan.'));
 }
 
 function getCsrf() {
