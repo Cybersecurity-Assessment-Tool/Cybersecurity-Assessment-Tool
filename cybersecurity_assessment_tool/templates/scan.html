@@ -465,9 +465,9 @@ const NC_TIME_KEY = `networkScanStartMs_${USER_ID}`;
 const RG_TIME_KEY = `reportGenStartMs_${USER_ID}`;
 
 // You can manually adjust the estimated times here
-const SCAN_DURATIONS = { tcp: 60, udp: 60, email: 30, infra: 30 };
-const BASE_OVERHEAD = 150;
-const REPORT_EST_SECS = 300;
+const SCAN_DURATIONS = { tcp: 150, udp: 30, email: 10, infra: 45 };
+const BASE_OVERHEAD = 30;
+const REPORT_EST_SECS = 150;
 
 // having the report finished alert remain on screen once and only once
 if (sessionStorage.getItem('reportCompleteAcknowledged') === 'true') {
@@ -782,12 +782,12 @@ function setNetworkRunning(statusText) {
   for (let i = 0; i < types.length; i++) {
     const dur = SCAN_DURATIONS[types[i]] || 30;
     if (elapsed < prev + dur) {
-      phase = { type: types[i], index: i, total: types.length, pct: Math.min(95, ((elapsed - prev) / dur) * 100) };
+      phase = { type: types[i], index: i, total: types.length, pct: Math.min(98, ((elapsed - prev) / dur) * 100) };
       break;
     }
     prev += dur;
   }
-  if (!phase) phase = { type: types[types.length - 1], index: types.length - 1, total: types.length, pct: 95 };
+  if (!phase) phase = { type: types[types.length - 1], index: types.length - 1, total: types.length, pct: 98 };
 
   const LABELS = { tcp: 'Scanning TCP ports…', udp: 'Scanning UDP ports…', email: 'Scanning email security…', infra: 'Scanning infrastructure…' };
   document.getElementById('ncStatusText').textContent = LABELS[phase.type] || 'Scanning…';
@@ -1130,7 +1130,7 @@ function renderRecentScans(data) {
     // for incomplete scans
     let actionBtn = '';
     if (s.status !== 'COMPLETE') {
-      actionBtn = `<button class="btn btn-sm btn-outline-secondary ms-1" onclick="retryScan('${s.scan_id}')"> Retry </button>`;
+      actionBtn = `<button class="btn btn-sm btn-outline-secondary" onclick="retryScan('${s.scan_id}')"> Retry </button>`;
     }
 
     // Update scan table entry with live risk counts
