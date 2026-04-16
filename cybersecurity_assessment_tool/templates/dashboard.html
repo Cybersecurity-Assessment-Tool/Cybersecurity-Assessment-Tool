@@ -9,15 +9,19 @@
             <div class="alert alert-info d-flex justify-content-between align-items-center">
                 <div>
                     <strong>Showing data from:</strong>
-                    {% if latest_report %}
-                        {{ latest_report.report_name }} - {{ report_date|date:"F j, Y H:i" }}
+                    {% if source_reports %}
+                        {% if source_reports|length == 1 %}
+                            {{ source_reports.0.report_name }}
+                        {% else %}
+                            {{ source_reports|length }} recent scans
+                        {% endif %}
                     {% else %}
                         No scan data available
                     {% endif %}
                 </div>
                 {% if latest_report %}
                 <a href="{% url 'report_detail' latest_report.report_id %}" class="btn btn-sm btn-outline-primary">
-                    View Full Report
+                    View Latest Report
                 </a>
                 {% endif %}
             </div>
