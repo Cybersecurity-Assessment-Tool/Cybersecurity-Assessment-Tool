@@ -27,7 +27,6 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required, permission_required
 import secrets
-import os
 
 User = get_user_model()
 
