@@ -548,7 +548,7 @@ class Scan(models.Model):
     target_subnet = EncryptedTextField(
         blank=True,
         null=True,
-        help_text="Encrypted. The subnet that was scanned (e.g. 192.168.1.0/24)."
+        help_text="Encrypted. The subnet that was scanned (e.g. 132.170.206.12)."
     )
     scanner_version = models.CharField(max_length=20, blank=True, null=True)
     groups_completed = models.PositiveSmallIntegerField(default=0)
