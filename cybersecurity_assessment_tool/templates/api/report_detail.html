@@ -151,6 +151,18 @@
         border-top: 1px solid var(--rule);
     }
 
+    #portFindingsCard thead {
+        background: var(--rule-light);
+        cursor: pointer;
+        user-select: none;
+    }
+    #portFindingsCard thead:hover {
+        background: #f0f0f0;
+    }
+    #portFindingsCard thead th {
+        background: transparent; 
+    }
+
     .rp-vuln-header {
         display: grid;
         grid-template-columns: 1fr auto auto;
@@ -191,6 +203,9 @@
     .rp-vuln-card.open .rp-toggle-icon {
         transform: rotate(180deg);
     }
+    .rp-port-card.open .rp-toggle-icon {
+        transform: rotate(180deg);
+    }
 
     .rp-vuln-body {
         display: none;
@@ -198,6 +213,13 @@
     }
     .rp-vuln-card.open .rp-vuln-body {
         display: block;
+    }
+    
+    .rp-port-body {
+        display: none;
+    }
+    .rp-port-card.open .rp-port-body {
+        display: table-row-group;
     }
 
     .rp-vuln-overview {
@@ -359,6 +381,13 @@
             display: none;
         }
     }
+
+    /* ── JSON Syntax Highlighting ────────────────────────────────────────────── */
+    .json-key { color: #854d0e; font-weight: 600; }     /* Muted Brown/Gold for keys */
+    .json-string { color: #166534; }                    /* Muted Green for strings */
+    .json-number { color: #1e3a8a; font-weight: 600; }  /* Muted Blue for numbers */
+    .json-boolean { color: #991b1b; font-weight: 600; } /* Muted Red for true/false */
+    .json-null { color: var(--ink-light); font-style: italic; }
 
     /* ── Sticky button (bottom left corner) ──────────────────────────────────── */
     .sticky-bottom-btn {
@@ -555,6 +584,11 @@
             width: auto;
         }
     }
+
+    .container.whitebg {
+        box-shadow: 0px 0px 100px 150px rgba(255,255,255,.75);
+        background: rgba(255,255,255,.75);
+    }
 </style>
 {% endblock %}
 
@@ -654,7 +688,7 @@
         <div class="rp-vuln-list" id="vulnList">
             {% for v in vulnerabilities %}
             <div class="rp-vuln-card" id="vuln-{{ forloop.counter }}">
-                <div class="rp-vuln-header" onclick="toggleVuln('vuln-{{ forloop.counter }}')">
+                <div class="rp-vuln-header" onclick="toggleShow('vuln-{{ forloop.counter }}')">
                     <span class="rp-vuln-name">{{ v.risk }}</span>
                     <span class="rp-sev" data-sev="{{ v.severity }}">{{ v.severity }}</span>
                     <span class="rp-toggle-icon">▾</span>
@@ -705,10 +739,83 @@
         {% endif %}
     </div>
 
+    {% if port_findings %}
+    <div class="rp-section">
+        <div class="rp-section-heading">05 — Technical Scan Results</div>
+ 
+        {# ── Per-port findings table ───────────────────────────────────────── #}
+        <div class="rp-sub-label" style="margin-bottom:0.6rem;">Open Ports &amp; Services</div>
+        <div style="overflow-x:auto;">
+            <table class="rp-port-card" id="portFindingsCard">
+                <thead onclick="toggleShow('portFindingsCard')">
+                    <tr>
+                        <th style="width:9%">Port</th>
+                        <th style="width:7%">Proto</th>
+                        <th style="width:14%">Service</th>
+                        <th style="width:7%">Severity</th>
+                        <th style="display: table-cell;">
+                            <span style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 0.5rem;">
+                                <span>Detail</span>
+                                <span class="rp-toggle-icon">▾</span>
+                            </span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="rp-port-body">
+                    {% for f in port_findings %}
+                    <tr>
+                        <td style="font-family:var(--font-mono);font-size:0.8125rem;">{{ f.portid }}</td>
+                        <td style="font-family:var(--font-mono);font-size:0.8125rem;text-transform:uppercase;">{{ f.protocol }}</td>
+                        <td style="font-family:var(--font-mono);font-size:0.8125rem;">{{ f.service }}</td>
+                        <td>
+                            {% if f.severity == 'CRITICAL' or f.severity == 'Critical' %}
+                                <span class= "rp-sev">CRIT</span>
+                            {% elif f.severity == 'HIGH' or f.severity == 'High' %}
+                                <span class= "rp-sev">HIGH</span>
+                            {% elif f.severity == 'MEDIUM' or f.severity == 'Medium' %}
+                                <span class= "rp-sev">MED</span>
+                            {% elif f.severity == 'LOW' or f.severity == 'Low' %}
+                                <span class= "rp-sev">LOW</span>
+                            {% else %}
+                                <span class= "rp-sev">INFO</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:0.8125rem;color:var(--ink-mid);">
+                            {% if f.information %}{{ f.information }}{% else %}{{ f.description }}{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
     {% if conclusion %}
     <div class="rp-section">
-        <div class="rp-section-heading">05 — Conclusion</div>
+        <div class="rp-section-heading">06 — Conclusion</div>
         <div class="rp-conclusion">{{ conclusion }}</div>
+    </div>
+    {% endif %}
+
+    {% if scan_findings %}
+    <div class="rp-section">
+        <div class="rp-section-heading">07 — Raw Scan Data</div>
+        
+        <div class="rp-vuln-card" id="scanFindingsCard">
+            <div class="rp-vuln-header" onclick="toggleShow('scanFindingsCard')">
+                <span class="rp-vuln-name" style="font-family: var(--font-mono); font-size: 0.85rem;">{ } Raw JSON Data</span>
+                <span></span> 
+                <span class="rp-toggle-icon">▾</span>
+            </div>
+            
+            <div class="rp-vuln-body" style="padding: 0; background: var(--surface);">
+                <div style="padding: 1.25rem; overflow-x: auto;">
+                    <pre id="scanFindingsPre" style="font-family: var(--font-mono); font-size: 0.8125rem; margin: 0;">{{ scan_findings }}</pre>
+                </div>
+            </div>
+        </div>
+        
     </div>
     {% endif %}
 
@@ -759,7 +866,7 @@
     // ---------------------------------------------------------------------
     // Collapsible risk cards
     // ---------------------------------------------------------------------
-    function toggleVuln(id) {
+    function toggleShow(id) {
         const card = document.getElementById(id);
         if (!card) return;
         card.classList.toggle('open');
@@ -871,6 +978,41 @@
             console.error(error);
             chatTyping.style.display = 'none';
             appendMessage("I'm sorry, there was a network error reaching the assistant.", 'bot');
+        }
+    });
+
+    // ---------------------------------------------------------------------
+    // JSON Syntax Highlighting
+    // ---------------------------------------------------------------------
+    function syntaxHighlightJSON(json) {
+        // Escape HTML characters so tags inside the JSON don't break the page
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        
+        // Regex magic to find strings, numbers, booleans, and nulls
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            let cls = 'json-number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'json-key';
+                } else {
+                    cls = 'json-string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'json-boolean';
+            } else if (/null/.test(match)) {
+                cls = 'json-null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const preEl = document.getElementById('scanFindingsPre');
+        if (preEl) {
+            // Grab the raw JSON text from the template
+            const rawJson = preEl.textContent;
+            // Run it through the highlighter and replace the HTML
+            preEl.innerHTML = syntaxHighlightJSON(rawJson);
         }
     });
 </script>

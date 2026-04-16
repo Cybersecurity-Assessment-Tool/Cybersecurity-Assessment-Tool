@@ -410,6 +410,11 @@
         height: 1rem;
         margin-right: 0.5rem;
     }
+
+    .container.whitebg {
+        box-shadow: 0px 0px 100px 150px rgba(255,255,255,.75);
+        background: rgba(255,255,255,.75);
+    }
 </style>
 {% endblock %}
 
@@ -453,6 +458,10 @@
             Organization
         </button>
         {% endif %}
+        <button class="tab-button {% if active_tab == 'logs' %}active{% endif %}"
+                onclick="location.href='?tab=logs'">
+            Logs
+        </button>
     </div>
 
     <!-- Tab Content -->
@@ -470,7 +479,7 @@
                 </div>
 
                 <div class="card-body">
-                    <div class="avatar-section">
+                    <!-- <div class="avatar-section">
                         {% if user.profile_image %}
                             <img src="{{ user.profile_image.url }}" alt="Profile" class="current-avatar" id="profileImage">
                         {% else %}
@@ -485,7 +494,7 @@
                             <p class="form-text">JPG, PNG or GIF. Max 2MB.</p>
                             <input type="file" id="profile_image_input" name="profile_image" style="display: none;">
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="form-row">
                         <div class="form-group">
@@ -633,9 +642,9 @@
                                    id="ip_address" 
                                    class="form-input" 
                                    value="{{ request.user.organization.external_ip|default:'' }}" 
-                                   placeholder="e.g., 198.51.100.1 or 203.0.113.0/24"
+                                   placeholder="e.g., 198.51.100.1"
                                    pattern="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:[0-9]|[1-2][0-9]|3[0-2]))?$"
-                                   title="Please enter a valid IPv4 address or CIDR notation (e.g., 192.168.1.1 or 10.0.0.0/24)"
+                                   title="Please enter a valid external IPv4 address (e.g., 132.170.206.12)"
                                    required>
                         </div>
                     </div>
@@ -678,6 +687,14 @@
                         <input type="checkbox" name="training_annual" id="training_annual" class="form-checkbox"
                                {% if request.user.organization.training_once_per_year %}checked{% endif %}>
                         <label for="training_annual">Security awareness training is required for all employees at least once per year</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="admin_rotate" id="admin_rotate" class="form-checkbox"
+                            {% if request.user.organization.admin_rotate %}checked{% endif %}>
+                        <label for="admin_rotate">
+                            Organization regularly changes/rotates admin passwords
+                        </label>
                     </div>
                 </div>
                 
@@ -782,6 +799,85 @@
             #} -->
         </div>
         {% endif %}
+
+        {% if active_tab == 'logs' and is_admin %}
+        <div class="settings-card">
+            <div class="card-header">
+                <h2>Resolved Risks Log</h2>
+                <p>Vulnerabilities that have been marked as resolved by your team</p>
+            </div>
+ 
+            <div class="card-body" style="padding: 0;">
+                {% if resolved_page_obj and resolved_page_obj.object_list %}
+                <table style="width:100%; border-collapse:collapse; font-size:0.875rem;">
+                    <thead>
+                        <tr style="background:#f9fafb; border-bottom:1px solid #e5e7eb;">
+                            <th style="text-align:left; padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280;">Risk Name</th>
+                            <th style="text-align:left; padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280;">Severity</th>
+                            <th style="text-align:left; padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280;">Resolved By</th>
+                            <th style="text-align:left; padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280;">Resolved At</th>
+                            <th style="text-align:left; padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for risk in resolved_page_obj %}
+                        <tr style="border-bottom:1px solid #f3f4f6;">
+                            <td style="padding:0.875rem 1rem; color:#111827; font-weight:500;">
+                                {{ risk.risk_name }}
+                            </td>
+                            <td style="padding:0.875rem 1rem;">
+                                {% if risk.severity == 'Critical' %}
+                                    <span style="background:#fee2e2;color:#b91c1c;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;">Critical</span>
+                                {% elif risk.severity == 'High' %}
+                                    <span style="background:#ffedd5;color:#c2410c;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;">High</span>
+                                {% elif risk.severity == 'Medium' %}
+                                    <span style="background:#fef9c3;color:#854d0e;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;">Medium</span>
+                                {% elif risk.severity == 'Low' %}
+                                    <span style="background:#dcfce7;color:#166534;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;">Low</span>
+                                {% else %}
+                                    <span style="background:#e5e7eb;color:#374151;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;">{{ risk.severity }}</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding:0.875rem 1rem; color:#6b7280;">
+                                {{ risk.resolved_by.username|default:"—" }}
+                            </td>
+                            <td style="padding:0.875rem 1rem; color:#6b7280; font-size:0.8125rem;">
+                                {% if risk.resolved_at %}{{ risk.resolved_at|date:"M j, Y H:i" }}{% else %}—{% endif %}
+                            </td>
+                            <td style="padding:0.875rem 1rem;">
+                                <a href="{% url 'risk_detail' risk.risk_id %}"
+                                   style="font-size:0.8125rem;color:#3b82f6;text-decoration:none;font-weight:500;">
+                                    View Risk →
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+ 
+                {% if resolved_page_obj.has_other_pages %}
+                <div style="display:flex;justify-content:center;align-items:center;gap:0.75rem;padding:1rem;border-top:1px solid #e5e7eb;">
+                    {% if resolved_page_obj.has_previous %}
+                    <a href="?tab=logs&page=1" style="padding:0.4rem 0.875rem;background:#fff;border:1px solid #e5e7eb;border-radius:6px;color:#374151;text-decoration:none;font-size:0.8125rem;">&laquo; First</a>
+                    <a href="?tab=logs&page={{ resolved_page_obj.previous_page_number }}" style="padding:0.4rem 0.875rem;background:#fff;border:1px solid #e5e7eb;border-radius:6px;color:#374151;text-decoration:none;font-size:0.8125rem;">Previous</a>
+                    {% endif %}
+                    <span style="font-size:0.8125rem;color:#6b7280;">Page {{ resolved_page_obj.number }} of {{ resolved_page_obj.paginator.num_pages }}</span>
+                    {% if resolved_page_obj.has_next %}
+                    <a href="?tab=logs&page={{ resolved_page_obj.next_page_number }}" style="padding:0.4rem 0.875rem;background:#fff;border:1px solid #e5e7eb;border-radius:6px;color:#374151;text-decoration:none;font-size:0.8125rem;">Next</a>
+                    <a href="?tab=logs&page={{ resolved_page_obj.paginator.num_pages }}" style="padding:0.4rem 0.875rem;background:#fff;border:1px solid #e5e7eb;border-radius:6px;color:#374151;text-decoration:none;font-size:0.8125rem;">Last &raquo;</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+ 
+                {% else %}
+                <div style="text-align:center;padding:3rem 2rem;color:#9ca3af;">
+                    <p style="font-size:1rem;margin:0;">No risks have been resolved yet.</p>
+                    <p style="font-size:0.875rem;margin:0.4rem 0 0;">Resolved risks will appear here once your team marks them as complete.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
@@ -876,7 +972,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (!ipRegex.test(ipAddress)) {
                 isValid = false;
-                errorMessage += "Please enter a valid IPv4 address or CIDR (e.g., 192.168.1.1 or 10.0.0.0/24).\n";
+                errorMessage += "Please enter a valid external IPv4 address (e.g., 132.170.206.12).\n";
             }
 
             if (!isValid) {

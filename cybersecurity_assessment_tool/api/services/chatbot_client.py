@@ -8,7 +8,7 @@ from api.models import Report, Risk
 # -----------------------------------------------------------------------------
 
 gen.configure(api_key=settings.API_KEY)
-MODEL_NAME = 'gemini-2.5-flash'
+MODEL_NAME = 'gemini-2.5-pro'
 model = gen.GenerativeModel(model_name=MODEL_NAME)
 
 # -----------------------------------------------------------------------------

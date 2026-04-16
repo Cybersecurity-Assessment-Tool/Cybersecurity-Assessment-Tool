@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import OrganizationViewSet, UserViewSet, ReportViewSet, RiskViewSet
+from django.views.generic import TemplateView
 import api.views as views
 from .views_scan import (
     generate_scan_token,
@@ -8,6 +9,7 @@ from .views_scan import (
     scan_status,
     list_scans,
     start_server_scan,
+    retry_scan_generation
 )
 
 router = DefaultRouter()
@@ -23,9 +25,16 @@ urlpatterns = [
     path('otp/send/', views.send_otp_view, name='resend_otp'),
     # path('public-signup/', views.public_registration, name='public_registration'),
 
-    # Login URLs
-    path('login/', views.login_view, name='login'),
+    # Login / signup OAuth URLs
+    # path('login/', views.login_view, name='login'),
+    path('google-oauth/start/', views.google_oauth_start, name='google_oauth_start'),
+    path('google-oauth/callback/', views.google_oauth_callback, name='google_oauth_callback'),
+    path('microsoft-oauth/start/', views.microsoft_oauth_start, name='microsoft_oauth_start'),
+    path('microsoft-oauth/callback/', views.microsoft_oauth_callback, name='microsoft_oauth_callback'),
+    path('google-oauth-login/', views.google_oauth_login, name='google_oauth_login'),
+    path('google-oauth-signup/', views.google_oauth_signup, name='google_oauth_signup'),
     path('verify-login-otp/', views.verify_login_otp, name='verify_login_otp'),
+    path('resend-login-otp/', views.resend_login_otp, name='resend_login_otp'),
     path('login-redirect/', views.questionnaire_redirect, name='login_redirect'),
 
     # Admin approval URLs
@@ -42,4 +51,5 @@ urlpatterns = [
     path('scan/list/', list_scans, name='scan_list'),
     path('scan/download/', views.download_scanner_exe, name='scan_download_exe'),
     path('scan/start/', start_server_scan, name='scan_server_start'),
+    path('scan/retry/<uuid:scan_id>/', retry_scan_generation, name='retry_scan_generation'),
 ]
