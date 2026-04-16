@@ -25,7 +25,7 @@ import json
 from django.urls import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 import secrets
 import os
 
@@ -1788,6 +1788,8 @@ def download_report_pdf(request, report_id):
     return JsonResponse(pdf_data)
 
 @login_required
+@permission_required('user.can_generate_report', raise_exception=True)
+@permission_required('user.can_resolve_risk', raise_exception=True)
 def scan(request):
     """Display scan page"""
     return render(request, 'scan.html')

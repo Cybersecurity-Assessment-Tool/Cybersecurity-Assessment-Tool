@@ -100,13 +100,14 @@ def settings_view(request):
     if user.organization:
         first_user = User.objects.filter(organization=user.organization).order_by('date_joined').first()
         is_admin = (first_user == user)
+        can_resolve_risk = user.can_resolve_risk
         
     # Handle Form Submissions
     if request.method == 'POST':
         active_tab = request.POST.get('active_tab', 'profile')
         
-        # Handle Security Posture Update (Admin Only)
-        if 'update_posture' in request.POST and is_admin and user.organization:
+        # Handle Security Posture Update
+        if 'update_posture' in request.POST and is_admin and can_resolve_risk and user.organization:
             email_domain_name = request.POST.get('email_domain_name')
             website_domain_name = request.POST.get('website_domain_name')
             ip_address = request.POST.get('ip_address')
