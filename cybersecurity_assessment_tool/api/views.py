@@ -1788,8 +1788,8 @@ def download_report_pdf(request, report_id):
     return JsonResponse(pdf_data)
 
 @login_required
-@permission_required('user.can_generate_report', raise_exception=True)
-@permission_required('user.can_resolve_risk', raise_exception=True)
+@permission_required('api.can_generate_report', raise_exception=True)
+@permission_required('api.can_resolve_risk', raise_exception=True)
 def scan(request):
     """Display scan page"""
     return render(request, 'scan.html')

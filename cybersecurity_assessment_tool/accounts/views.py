@@ -101,7 +101,7 @@ def settings_view(request):
     if user.organization:
         first_user = User.objects.filter(organization=user.organization).order_by('date_joined').first()
         is_admin = (first_user == user)
-        can_resolve_risk = user.can_resolve_risk
+        can_resolve_risk = user.has_perm('api.can_resolve_risk') 
         
     # Handle Form Submissions
     if request.method == 'POST':
