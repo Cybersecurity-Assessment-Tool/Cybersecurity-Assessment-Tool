@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from .forms import AsyncPasswordResetForm 
 from django.core.paginator import Paginator
 from api.models import Risk
+from django.contrib.auth.models import Permission
 
 User = get_user_model()
 
@@ -287,7 +288,20 @@ def public_register(request):
                 user.set_unusable_password()
             else:
                 user.set_password(password)
+            
+            # Save the user to the DB
             user.save()
+
+            # --- NEW: ASSIGN ORG ADMIN PERMISSIONS ---
+            try:
+                resolve_perm = Permission.objects.get(
+                    content_type__app_label='api', 
+                    codename='can_resolve_risk'
+                )
+                user.user_permissions.add(resolve_perm)
+            except Permission.DoesNotExist:
+                print("Permission 'can_resolve_risk' not found. Did you migrate?")
+            # -----------------------------------------
             
             # Store data in session for the waiting page
             request.session['pending_company'] = user.organization.org_name if user.organization else "Your Organization"
@@ -776,7 +790,27 @@ def accept_invitation(request, token):
             user.is_active = True  # Automatically activate the user
             if google_passwordless_signup and not form.cleaned_data.get('password1'):
                 user.set_unusable_password()
+            
+            # Save the user to the database first
             user.save()
+
+            # --- NEW: ASSIGN PERMISSIONS BASED ON ROLE ---
+            try:
+                # Fetch the permission from the database
+                resolve_perm = Permission.objects.get(
+                    content_type__app_label='api', 
+                    codename='can_resolve_risk'
+                )
+                
+                # Check the role on the invitation
+                # Assuming 'tester' and 'org_admin' should both be able to resolve risks
+                if invitation.recipient_role in ['tester', 'org_admin']:
+                    user.user_permissions.add(resolve_perm)
+                    
+            except Permission.DoesNotExist:
+                # Fallback if the database hasn't been migrated yet
+                print("Permission 'can_resolve_risk' not found. Did you migrate?")
+            # ---------------------------------------------
 
             request.session.pop('google_signup_verified_email', None)
             request.session.pop('social_signup_provider', None)
