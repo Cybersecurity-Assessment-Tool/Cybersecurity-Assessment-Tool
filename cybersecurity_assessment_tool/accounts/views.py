@@ -97,6 +97,7 @@ def settings_view(request):
     """Display settings page with tabs"""
     user = request.user
     is_admin = False
+    can_resolve_risk = False # 1. ADD THIS DEFAULT
     
     # Check if user is the organization admin
     if user.organization:
@@ -108,8 +109,8 @@ def settings_view(request):
     if request.method == 'POST':
         active_tab = request.POST.get('active_tab', 'profile')
         
-        # Handle Security Posture Update
-        if 'update_posture' in request.POST and is_admin and can_resolve_risk and user.organization:
+        # 2. CHANGE 'and' to 'or' so either role can submit the form
+        if 'update_posture' in request.POST and (is_admin or can_resolve_risk) and user.organization:
             email_domain_name = request.POST.get('email_domain_name')
             website_domain_name = request.POST.get('website_domain_name')
             ip_address = request.POST.get('ip_address')
@@ -183,6 +184,7 @@ def settings_view(request):
         'is_admin': is_admin,
         'active_tab': active_tab,
         'resolved_page_obj': resolved_page_obj,
+        'can_resolve_risk': can_resolve_risk,
     }
     return render(request, 'accounts/settings.html', context)
 
