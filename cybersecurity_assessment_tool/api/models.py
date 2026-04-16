@@ -554,6 +554,14 @@ class Scan(models.Model):
     groups_completed = models.PositiveSmallIntegerField(default=0)
     skipped_tools = models.JSONField(default=list, blank=True)
 
+    # Which scan types were selected: [tcp, udp, email, infra] as 1/0
+    # Default [1,1,1,1] means all types (backwards-compatible with older scans)
+    scan_types_run = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Which scan types were run: [tcp, udp, email, infra] as 1/0 flags.",
+    )
+
     scan_progress = models.JSONField(default=dict, blank=True)
 
     # ------------------------------------------------------------------
