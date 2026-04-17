@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
                 ('password', encrypted_fields.fields.EncryptedCharField(max_length=128)),
                 ('first_name', encrypted_fields.fields.EncryptedCharField(blank=True, max_length=50, null=True)),
                 ('last_name', encrypted_fields.fields.EncryptedCharField(blank=True, max_length=50, null=True)),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to (e.g., Executive, Manager, Technician, etc.)', related_name='api_user_groups', to='auth.group', verbose_name='groups')),
+                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to (e.g., Org Admin, Tester, Observer)', related_name='api_user_groups', to='auth.group', verbose_name='groups')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user (for exceptions).', related_name='api_user_permissions', to='auth.permission', verbose_name='user permissions')),
                 ('organization', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.organization')),
             ],

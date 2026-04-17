@@ -122,7 +122,7 @@ class User(AbstractUser):
         'auth.Group',
         related_name='api_user_groups',
         blank=True,
-        help_text='The groups this user belongs to (e.g., Executive, Manager, Technician, etc.)',
+        help_text='The groups this user belongs to (e.g., Org Admin, Tester, Observer)',
         verbose_name='groups',
     )
     user_permissions = models.ManyToManyField(
