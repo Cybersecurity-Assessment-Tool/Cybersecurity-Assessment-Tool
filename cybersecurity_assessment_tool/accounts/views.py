@@ -110,7 +110,7 @@ def settings_view(request):
         active_tab = request.POST.get('active_tab', 'profile')
         
         # 2. CHANGE 'and' to 'or' so either role can submit the form
-        if 'update_posture' in request.POST and is_admin and user.organization:
+        if 'update_posture' in request.POST and (is_admin or can_resolve_risk) and user.organization:
             email_domain_name = request.POST.get('email_domain_name')
             website_domain_name = request.POST.get('website_domain_name')
             ip_address = request.POST.get('ip_address')
