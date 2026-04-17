@@ -351,6 +351,7 @@ def start_server_scan(request):
         user=user,
         organization=user.organization,
         status=Scan.Status.PENDING,
+        scan_types_run=scan_arr,
     )
 
     # Queue the background task (timeout 900s = 15 min to allow for scan + Gemini report generation)
