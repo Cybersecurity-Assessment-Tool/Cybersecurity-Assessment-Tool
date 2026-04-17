@@ -1381,11 +1381,20 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
         try:
             # We use send_email_async so it queues the email delivery to a background worker
             # instead of blocking the main thread.
-            from api.utils.email_factory import _get_app_base_url
-            base_url = _get_app_base_url()
+            # Build the absolute URL the same way request-based views do:
+            #   domain = request.get_host()
+            #   protocol = 'https' if (request.is_secure() or 'herokuapp.com' in domain) else 'http'
+            # Since background tasks have no request, derive from ALLOWED_HOSTS.
+            allowed = getattr(settings, 'ALLOWED_HOSTS', [])
+            domain = next(
+                (h for h in allowed if h not in ('localhost', '127.0.0.1', '') and not h.startswith('.')),
+                'localhost:8000',
+            )
+            protocol = 'https' if 'herokuapp.com' in domain else 'http'
+            report_path = reverse('report_detail', kwargs={'report_id': report_id})
             send_email_async('report', user.email, {
                 'generated_date': timezone.now().strftime('%B %d, %Y %I:%M %p UTC'),
-                'report_url': f"{base_url}{reverse('report_detail', kwargs={'report_id': report_id})}"
+                'report_url': f"{protocol}://{domain}{report_path}"
             })
             
         except Exception as email_err:
