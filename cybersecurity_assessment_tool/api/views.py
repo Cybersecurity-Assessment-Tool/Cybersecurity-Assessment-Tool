@@ -12,7 +12,7 @@ from django.utils import timezone
 from accounts.forms import InvitationSignupForm, PublicRegistrationForm
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Invitation, Organization, User, Report, Risk, generate_email_hash
+from .models import Invitation, Organization, User, Report, Risk, Scan, generate_email_hash
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 from .serializers import OrganizationSerializer, UserSerializer, ReportSerializer, RiskSerializer
@@ -25,9 +25,8 @@ import json
 from django.urls import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 import secrets
-import os
 
 User = get_user_model()
 
@@ -1328,50 +1327,103 @@ from django.contrib import messages
 
 @login_required
 def dashboard(request):
-    """Display dashboard page with data from most recent scan 
-    that has unarchived risks and has at least risks to report"""
+    """Display dashboard page with aggregated data from the most recent
+    completed scan for each scan type (tcp, udp, email, infra).
+    
+    For each of the 4 scan types, we find the latest completed Scan that
+    included that type, collect its report, and pull all unarchived risks
+    from those reports. This prevents a partial re-scan from hiding
+    findings that were discovered by a different scan type earlier."""
     user = request.user
     organization = user.organization
-    
-    # Initialize empty data in case no reports exist
+
     vulnerabilities = []
-    latest_report = None
-    report_date = None
-    
+    source_reports = []  # reports contributing to the dashboard
+
     if organization:
-        # 1. Find the IDs of all reports that have at least one UNARCHIVED risk
-        reports_with_risks = Risk.objects.filter(
-            organization=organization,
-            is_archived=False
-        ).values_list('report_id', flat=True).distinct()
-        
-        # 2. Get the most recent report from that specific list
-        latest_report = Report.objects.filter(
-            organization=organization,
-            report_id__in=reports_with_risks
-        ).order_by('-completed').first()
-        
-        if latest_report:
-            # 3. Fetch ONLY the unarchived risks for this report
-            risks = Risk.objects.filter(
-                report=latest_report, 
-                is_archived=False
+        # scan_types_run is stored as [tcp, udp, email, infra] with 1/0 flags.
+        # Index position maps: 0=tcp, 1=udp, 2=email, 3=infra
+        SCAN_TYPE_INDICES = {
+            'tcp': 0,
+            'udp': 1,
+            'email': 2,
+            'infra': 3,
+        }
+
+        # For each scan type, find the latest completed scan that included it
+        report_ids = set()
+        for type_name, idx in SCAN_TYPE_INDICES.items():
+            latest_scan = (
+                Scan.objects.filter(
+                    organization=organization,
+                    status=Scan.Status.COMPLETE,
+                    report__isnull=False,
+                )
+                .exclude(scan_types_run=[])
+                .order_by('-scan_completed_at')
             )
-            
+            # Filter to scans that included this type
+            # scan_types_run[idx] == 1
+            for scan in latest_scan:
+                types = scan.scan_types_run
+                if isinstance(types, list) and len(types) > idx and types[idx]:
+                    report_ids.add(scan.report_id)
+                    break
+
+        # Also include any completed scans with empty scan_types_run
+        # (legacy scans before this field existed — treat as all-types)
+        legacy_scan = (
+            Scan.objects.filter(
+                organization=organization,
+                status=Scan.Status.COMPLETE,
+                report__isnull=False,
+                scan_types_run=[],
+            )
+            .order_by('-scan_completed_at')
+            .first()
+        )
+        if legacy_scan:
+            report_ids.add(legacy_scan.report_id)
+
+        if report_ids:
+            # Fetch unarchived risks from all the contributing reports
+            risks = Risk.objects.filter(
+                organization=organization,
+                report_id__in=report_ids,
+                is_archived=False,
+            )
+
+            seen_risk_names = set()
             for risk in risks:
+                # Deduplicate by risk name — if the same finding appears
+                # in multiple reports, keep only one instance
+                key = risk.risk_name.strip().lower()
+                if key in seen_risk_names:
+                    continue
+                seen_risk_names.add(key)
+
                 vulnerabilities.append({
                     'severity': risk.severity,
                     'risk_name': risk.risk_name,
                     'overview': risk.overview,
-                    'url': reverse('risk_detail', args=[risk.risk_id])
+                    'url': reverse('risk_detail', args=[risk.risk_id]),
                 })
-            
-            report_date = latest_report.completed if latest_report.completed else latest_report.started
-    
+
+            source_reports = list(
+                Report.objects.filter(report_id__in=report_ids)
+                .order_by('-completed')
+            )
+
+    latest_report = source_reports[0] if source_reports else None
+    report_date = None
+    if latest_report:
+        report_date = latest_report.completed or latest_report.started
+
     context = {
         'vulnerabilities_json': vulnerabilities,
         'has_data': len(vulnerabilities) > 0,
         'latest_report': latest_report,
+        'source_reports': source_reports,
         'report_date': report_date,
         'total_vulns': len(vulnerabilities),
     }

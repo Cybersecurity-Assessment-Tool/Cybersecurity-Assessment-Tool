@@ -448,11 +448,13 @@
             Notifications
         </button>
         
-        {% if is_admin %}
+        {% if is_admin or can_resolve_risk %}
         <button class="tab-button {% if active_tab == 'posture' %}active{% endif %}" 
                 onclick="location.href='?tab=posture'">
             Security Posture
         </button>
+        {% endif %}
+         {% if is_admin %}
         <button class="tab-button {% if active_tab == 'organization' %}active{% endif %}" 
                 onclick="location.href='?tab=organization'">
             Organization
@@ -594,7 +596,8 @@
         {% endif %}
 
         <!-- Security Posture Tab (Admin Only) -->
-        {% if active_tab == 'posture' and is_admin %}
+        {% if active_tab == 'posture' %}
+        {% if is_admin or can_resolve_risk %}
         <div class="settings-card">
             <form method="post" id="postureForm">
                 {% csrf_token %}
@@ -704,7 +707,10 @@
                 </div>
             </form>
         </div>
+        </form>
+        </div>
         {% endif %}
+    {% endif %}
 
         <!-- Organization Tab (Admin Only) -->
         {% if active_tab == 'organization' and is_admin %}
@@ -800,7 +806,7 @@
         </div>
         {% endif %}
 
-        {% if active_tab == 'logs' and is_admin %}
+        {% if active_tab == 'logs' %}
         <div class="settings-card">
             <div class="card-header">
                 <h2>Resolved Risks Log</h2>

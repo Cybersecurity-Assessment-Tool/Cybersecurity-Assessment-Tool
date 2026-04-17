@@ -64,7 +64,7 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
         "rejection": {
             "subject": "Account Request Rejected",
             "template": "emails/approval_rejected.html",
-            "context": {"username": "Test User", "company": "RePortly", "role": "Manager"}
+            "context": {"username": "Test User", "company": "RePortly", "role": "Observer"}
         },
         "request": {
             "subject": "New Account Request - Action Required",
@@ -77,14 +77,14 @@ def send_email_by_type(email_type, recipient=None, context_overrides=None):
             }
         },
         "invite": {
-            "subject": "Account invitation from Executive",
-            "template": "emails/executive_invite.html",
+            "subject": "Account invitation from Organization Administrator",
+            "template": "emails/org_admin_invite.html",
             "context": {
-                "inviter_name": "Jane Executive",
-                "inviter_role": "Executive",
+                "inviter_name": "Jane Org Admin",
+                "inviter_role": "Org Admin",
                 "inviter_company": "RePortly.",
                 "company": "RePortly",
-                "role": "Manager",
+                "role": "Observer",
                 "invite_link": f"{base_url}/invite/abc123xyz/"
             }
         },
