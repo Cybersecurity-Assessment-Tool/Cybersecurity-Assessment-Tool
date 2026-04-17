@@ -1381,9 +1381,11 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
         try:
             # We use send_email_async so it queues the email delivery to a background worker
             # instead of blocking the main thread.
+            from api.utils.email_factory import _get_app_base_url
+            base_url = _get_app_base_url()
             send_email_async('report', user.email, {
                 'generated_date': timezone.now().strftime('%B %d, %Y %I:%M %p UTC'),
-                'report_url': reverse('report_detail', kwargs={'report_id': report_id})
+                'report_url': f"{base_url}{reverse('report_detail', kwargs={'report_id': report_id})}"
             })
             
         except Exception as email_err:
