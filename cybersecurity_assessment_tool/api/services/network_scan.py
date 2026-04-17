@@ -1394,7 +1394,7 @@ def run_network_scan(scan_id: str, scan_arr: list = [1, 1, 1, 1]):
             report_path = reverse('report_detail', kwargs={'report_id': report_id})
             send_email_async('report', user.email, {
                 'generated_date': timezone.now().strftime('%B %d, %Y %I:%M %p UTC'),
-                'report_url': f"https://reportly.dev{report_path}"
+                'report_url': f"https://www.reportly.dev{report_path}"
             })
             
         except Exception as email_err:
